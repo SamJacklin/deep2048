@@ -11,3 +11,28 @@ dependencies = [
     "torch>=2.10.0",
     "tqdm>=4.67.3",
 ]
+
+[dependency-groups]
+dev = [
+  "isort",
+  "mypy[reports]==1.*",
+  "ruff",
+]
+
+[tool.isort]
+known_first_party = ["Deep_2048"]
+known_tests = ["tests"]
+line_length = 200
+multi_line_output = 3
+profile = "black"
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "TESTS", "LOCALFOLDER"]
+
+[tool.mypy]
+plugins = ['pydantic.mypy']
+
+[tool.ruff]
+line-length = 200
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F"]
