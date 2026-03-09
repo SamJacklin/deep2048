@@ -15,10 +15,11 @@ from deep_2048.game_logic.moves import apply_move, get_valid_actions, is_game_ov
 
 settings = get_settings()
 
+
 class Game2048:
-    def __init__(self):
-        self.board_size = settings.BOARD_SIZE
-        self.rng = np.random.default_rng(settings.SEED)
+    def __init__(self) -> None:
+        self.board_size: int = settings.BOARD_SIZE
+        self.rng: np.random.Generator = np.random.default_rng(settings.SEED)
 
         self.board: np.ndarray = np.zeros((self.board_size, self.board_size), dtype=np.int32)
         self.score: int = 0

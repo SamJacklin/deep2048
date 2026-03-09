@@ -91,9 +91,7 @@ class DQNAgent:
         with torch.no_grad():
             next_q_values = self.target_network(batch.next_states)
             max_next_q_values = next_q_values.max(dim=1).values
-            target_q_values = batch.rewards + (
-                (1.0 - batch.dones) * settings.GAMMA * max_next_q_values
-            )
+            target_q_values = batch.rewards + ((1.0 - batch.dones) * settings.GAMMA * max_next_q_values)
 
         loss = F.mse_loss(chosen_q_values, target_q_values)
 

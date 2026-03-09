@@ -21,6 +21,7 @@ from deep_2048.model.replay_buffer import ReplayBuffer
 
 settings = get_settings()
 
+
 def train() -> TrainingSummary:
     _set_global_seeds()
     _ensure_output_directories()
@@ -78,11 +79,7 @@ def train() -> TrainingSummary:
             )
             checkpoint_paths.append(str(checkpoint_result.path))
 
-            print(
-                f"[eval] step={training_step} "
-                f"avg_score={latest_eval_result.average_score:.2f} "
-                f"avg_max_tile={latest_eval_result.average_max_tile:.2f}"
-            )
+            print(f"[eval] step={training_step} avg_score={latest_eval_result.average_score:.2f} avg_max_tile={latest_eval_result.average_max_tile:.2f}")
 
         history_point = TrainingHistoryPoint(
             training_step=training_step,
@@ -98,14 +95,7 @@ def train() -> TrainingSummary:
         )
         history.append(history_point)
 
-        print(
-            f"[train] episode={episode_index} "
-            f"step={training_step} "
-            f"score={episode_summary.score} "
-            f"max_tile={episode_summary.max_tile} "
-            f"reward={episode_summary.total_reward:.2f} "
-            f"epsilon={epsilon:.4f}"
-        )
+        print(f"[train] episode={episode_index} step={training_step} score={episode_summary.score} max_tile={episode_summary.max_tile} reward={episode_summary.total_reward:.2f} epsilon={epsilon:.4f}")
 
     final_checkpoint = _save_checkpoint(
         agent=agent,
@@ -124,12 +114,8 @@ def train() -> TrainingSummary:
         total_training_steps=training_step,
         total_episodes=episode_index,
         final_epsilon=epsilon,
-        latest_eval_average_score=(
-            latest_eval_result.average_score if latest_eval_result else None
-        ),
-        latest_eval_average_max_tile=(
-            latest_eval_result.average_max_tile if latest_eval_result else None
-        ),
+        latest_eval_average_score=(latest_eval_result.average_score if latest_eval_result else None),
+        latest_eval_average_max_tile=(latest_eval_result.average_max_tile if latest_eval_result else None),
         checkpoint_paths=checkpoint_paths,
     )
 
@@ -270,9 +256,7 @@ def _save_checkpoint(
     checkpoint_dir = Path(settings.CHECKPOINT_DIR)
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-    path = checkpoint_dir / (
-        checkpoint_name if checkpoint_name else f"step_{training_step}.pt"
-    )
+    path = checkpoint_dir / (checkpoint_name if checkpoint_name else f"step_{training_step}.pt")
 
     agent.save(path)
 

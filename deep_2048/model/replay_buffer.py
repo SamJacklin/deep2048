@@ -4,7 +4,6 @@ from collections import deque
 import numpy as np
 import torch
 
-from deep_2048.game_logic.constants import Action
 from deep_2048.model.models import ReplayBatch, Transition
 
 

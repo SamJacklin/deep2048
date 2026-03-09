@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 
+
 class Settings(BaseSettings):
     BOARD_SIZE: int = 4
     SEED: int = 42
@@ -23,6 +24,7 @@ class Settings(BaseSettings):
 
     CHECKPOINT_DIR: str = "checkpoints"
     OUTPUT_DIR: str = "output"
+
 
 def get_settings() -> Settings:
     return Settings()
