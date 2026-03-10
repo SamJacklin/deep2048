@@ -20,7 +20,7 @@ dev = [
 ]
 
 [tool.isort]
-known_first_party = ["Deep_2048"]
+known_first_party = ["deep_2048"]
 known_tests = ["tests"]
 line_length = 200
 multi_line_output = 3
