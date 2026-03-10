@@ -26,5 +26,14 @@ check: lint-check type-check
 .PHONY: format
 format: lint-fix type-check
 
-run:
-	uv run python run.py
+.PHONY: train
+train:
+	uv run python scripts/train.py
+
+.PHONY: play
+play:
+	uv run python scripts/play.py $(ARGS)
+
+.PHONY: view
+view:
+	uv run python scripts/view.py $(ARGS)
