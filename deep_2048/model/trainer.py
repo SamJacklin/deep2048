@@ -1,4 +1,5 @@
 import csv
+import math
 import random
 from pathlib import Path
 
@@ -44,15 +45,17 @@ def train() -> TrainingSummary:
 
     latest_eval_result: EvaluationResult | None = None
     latest_loss: float | None = None
+    latest_lr: float | None = None
     last_eval_step: int = 0
 
     while training_step < settings.TRAINING_STEPS:
         episode_index += 1
-        episode_summary, training_step, epsilon, latest_loss = _run_training_episode(
+        episode_summary, training_step, epsilon, latest_loss, latest_lr = _run_training_episode(
             game=game,
             agent=agent,
             replay_buffer=replay_buffer,
             training_step=training_step,
+            episode_index=episode_index,
             epsilon=epsilon,
         )
 
@@ -92,6 +95,7 @@ def train() -> TrainingSummary:
             eval_average_score=eval_average_score,
             eval_average_max_tile=eval_average_max_tile,
             loss=latest_loss,
+            lr=latest_lr,
         )
         history.append(history_point)
 
@@ -168,14 +172,16 @@ def _run_training_episode(
     agent: DQNAgent,
     replay_buffer: ReplayBuffer,
     training_step: int,
+    episode_index: int,
     epsilon: float,
-) -> tuple[EpisodeSummary, int, float, float | None]:
+) -> tuple[EpisodeSummary, int, float, float | None, float | None]:
     state = game.reset()
     done = False
 
     total_reward = 0.0
     episode_steps = 0
     latest_loss: float | None = None
+    latest_lr: float | None = None
 
     while not done and training_step < settings.TRAINING_STEPS:
         valid_actions = game.get_valid_actions()
@@ -188,11 +194,13 @@ def _run_training_episode(
 
         step_result = game.step(selection_result.action)
 
+        shaped_reward = math.log1p(step_result.reward) if step_result.reward > 0 else 0.0
+
         replay_buffer.push(
             Transition(
                 state=state.copy(),
                 action=selection_result.action,
-                reward=step_result.reward,
+                reward=shaped_reward,
                 next_state=step_result.state.copy(),
                 done=step_result.done,
             )
@@ -215,12 +223,11 @@ def _run_training_episode(
             batch = replay_buffer.sample(settings.BATCH_SIZE)
             optimisation_result = agent.optimise(batch)
             latest_loss = optimisation_result.loss
-
-        if training_step % settings.TARGET_UPDATE_FREQUENCY == 0:
+            latest_lr = optimisation_result.lr
             agent.update_target_network()
 
     episode_summary = EpisodeSummary(
-        episode_index=0,
+        episode_index=episode_index,
         score=game.score,
         max_tile=game.max_tile,
         total_reward=total_reward,
@@ -228,7 +235,7 @@ def _run_training_episode(
         epsilon=epsilon,
     )
 
-    return episode_summary, training_step, epsilon, latest_loss
+    return episode_summary, training_step, epsilon, latest_loss, latest_lr
 
 
 def _calculate_epsilon(
@@ -293,6 +300,7 @@ def _write_training_history_csv(
         "eval_average_score",
         "eval_average_max_tile",
         "loss",
+        "lr",
     ]
 
     with csv_path.open("w", newline="") as csv_file:
