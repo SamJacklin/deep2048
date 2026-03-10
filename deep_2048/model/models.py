@@ -39,6 +39,7 @@ class OptimisationResult(BaseModel):
     loss: float
     mean_q_value: float
     mean_target_q_value: float
+    lr: float
 
 
 class EvaluationResult(BaseModel):
@@ -81,6 +82,7 @@ class TrainingHistoryPoint(BaseModel):
     eval_average_score: float | None = None
     eval_average_max_tile: float | None = None
     loss: float | None = None
+    lr: float | None = None
 
 
 class TrainingSummary(BaseModel):
