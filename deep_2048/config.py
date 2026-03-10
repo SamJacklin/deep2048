@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     HIDDEN_DIM: int = 256
     GRAD_CLIP_NORM: float = 10.0
 
+    PER_ALPHA: float = 0.6        # priority exponent — 0 = uniform, 1 = fully prioritised
+    PER_BETA_START: float = 0.4   # IS weight exponent at start of training
+    PER_BETA_END: float = 1.0     # IS weight exponent at end of training (fully corrects bias)
+    PER_PRIORITY_EPSILON: float = 1e-6  # small constant added to TD errors to prevent zero priority
+
     CHECKPOINT_DIR: str = "checkpoints"
     OUTPUT_DIR: str = "output"
 

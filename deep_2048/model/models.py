@@ -25,6 +25,8 @@ class ReplayBatch(BaseModel):
     rewards: torch.Tensor
     next_states: torch.Tensor
     dones: torch.Tensor
+    weights: torch.Tensor        # importance-sampling weights for PER
+    indices: list[int]           # leaf indices for priority updates
 
 
 class ActionSelectionResult(BaseModel):
@@ -36,10 +38,13 @@ class ActionSelectionResult(BaseModel):
 
 
 class OptimisationResult(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     loss: float
     mean_q_value: float
     mean_target_q_value: float
     lr: float
+    td_errors: np.ndarray  # per-sample TD errors for priority updates
 
 
 class EvaluationResult(BaseModel):

@@ -101,7 +101,11 @@ class DQNAgent:
             gamma_n = settings.GAMMA ** settings.N_STEPS
             target_q_values = batch.rewards + ((1.0 - batch.dones) * gamma_n * next_q_values)
 
-        loss = F.huber_loss(chosen_q_values, target_q_values)
+        td_errors = (target_q_values - chosen_q_values).detach()
+
+        # Weighted Huber loss: IS weights correct the PER sampling bias.
+        elementwise_loss = F.huber_loss(chosen_q_values, target_q_values, reduction="none")
+        loss = (batch.weights * elementwise_loss).mean()
 
         self.optimizer.zero_grad()
         loss.backward()
@@ -114,6 +118,7 @@ class DQNAgent:
             mean_q_value=float(chosen_q_values.mean().item()),
             mean_target_q_value=float(target_q_values.mean().item()),
             lr=float(self.scheduler.get_last_lr()[0]),
+            td_errors=td_errors.cpu().numpy(),
         )
 
     def update_target_network(self) -> None:

@@ -18,7 +18,7 @@ from deep_2048.model.models import (
     TrainingSummary,
     Transition,
 )
-from deep_2048.model.replay_buffer import NStepBuffer, ReplayBuffer
+from deep_2048.model.replay_buffer import NStepBuffer, PrioritizedReplayBuffer
 
 settings = get_settings()
 
@@ -29,7 +29,7 @@ def train() -> TrainingSummary:
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     agent = DQNAgent(device=device)
-    replay_buffer = ReplayBuffer(
+    replay_buffer = PrioritizedReplayBuffer(
         capacity=settings.REPLAY_CAPACITY,
         device=device,
     )
@@ -170,7 +170,7 @@ def evaluate_agent(
 def _run_training_episode(
     game: Game2048,
     agent: DQNAgent,
-    replay_buffer: ReplayBuffer,
+    replay_buffer: PrioritizedReplayBuffer,
     training_step: int,
     episode_index: int,
     epsilon: float,
@@ -222,8 +222,13 @@ def _run_training_episode(
         )
 
         if len(replay_buffer) >= settings.MIN_REPLAY_SIZE:
-            batch = replay_buffer.sample(settings.BATCH_SIZE)
+            beta = min(
+                settings.PER_BETA_END,
+                settings.PER_BETA_START + (settings.PER_BETA_END - settings.PER_BETA_START) * training_step / settings.TRAINING_STEPS,
+            )
+            batch = replay_buffer.sample(settings.BATCH_SIZE, beta=beta)
             optimisation_result = agent.optimise(batch)
+            replay_buffer.update_priorities(batch.indices, optimisation_result.td_errors)
             latest_loss = optimisation_result.loss
             latest_lr = optimisation_result.lr
             agent.update_target_network()
