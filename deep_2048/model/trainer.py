@@ -18,7 +18,7 @@ from deep_2048.model.models import (
     TrainingSummary,
     Transition,
 )
-from deep_2048.model.replay_buffer import ReplayBuffer
+from deep_2048.model.replay_buffer import NStepBuffer, ReplayBuffer
 
 settings = get_settings()
 
@@ -183,6 +183,8 @@ def _run_training_episode(
     latest_loss: float | None = None
     latest_lr: float | None = None
 
+    n_step_buffer = NStepBuffer(n_steps=settings.N_STEPS, gamma=settings.GAMMA)
+
     while not done and training_step < settings.TRAINING_STEPS:
         valid_actions = game.get_valid_actions()
 
@@ -196,15 +198,15 @@ def _run_training_episode(
 
         shaped_reward = math.log1p(step_result.reward) if step_result.reward > 0 else 0.0
 
-        replay_buffer.push(
-            Transition(
-                state=state.copy(),
-                action=selection_result.action,
-                reward=shaped_reward,
-                next_state=step_result.state.copy(),
-                done=step_result.done,
-            )
+        raw_transition = Transition(
+            state=state.copy(),
+            action=selection_result.action,
+            reward=shaped_reward,
+            next_state=step_result.state.copy(),
+            done=step_result.done,
         )
+        for n_step_transition in n_step_buffer.push(raw_transition):
+            replay_buffer.push(n_step_transition)
 
         state = step_result.state
         total_reward += step_result.reward
@@ -225,6 +227,9 @@ def _run_training_episode(
             latest_loss = optimisation_result.loss
             latest_lr = optimisation_result.lr
             agent.update_target_network()
+
+    for n_step_transition in n_step_buffer.flush():
+        replay_buffer.push(n_step_transition)
 
     episode_summary = EpisodeSummary(
         episode_index=episode_index,

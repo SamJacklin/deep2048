@@ -39,3 +39,56 @@ class ReplayBuffer:
     @property
     def is_ready(self) -> bool:
         return len(self._buffer) > 0
+
+
+class NStepBuffer:
+    """Converts 1-step transitions into n-step transitions.
+
+    For each transition at time t, accumulates the discounted sum of rewards
+    over the next n steps and uses s_{t+n} as the bootstrap state. When the
+    episode ends before n steps are available, the partial return is used and
+    done=True is set (zeroing out the bootstrap term in the agent).
+    """
+
+    def __init__(self, n_steps: int, gamma: float) -> None:
+        self.n_steps = n_steps
+        self.gamma = gamma
+        self._pending: deque[Transition] = deque()
+
+    def push(self, transition: Transition) -> list[Transition]:
+        """Add a raw transition; returns any n-step transitions that are ready."""
+        self._pending.append(transition)
+
+        ready: list[Transition] = []
+        while len(self._pending) >= self.n_steps:
+            ready.append(self._make_n_step())
+        return ready
+
+    def flush(self) -> list[Transition]:
+        """Drain remaining transitions at episode end."""
+        ready: list[Transition] = []
+        while self._pending:
+            ready.append(self._make_n_step())
+        return ready
+
+    def _make_n_step(self) -> Transition:
+        pending = list(self._pending)
+        n = min(self.n_steps, len(pending))
+
+        # Truncate at first terminal within the window
+        for i in range(n - 1):
+            if pending[i].done:
+                n = i + 1
+                break
+
+        accumulated_reward = sum(self.gamma**i * pending[i].reward for i in range(n))
+
+        self._pending.popleft()
+
+        return Transition(
+            state=pending[0].state,
+            action=pending[0].action,
+            reward=accumulated_reward,
+            next_state=pending[n - 1].next_state,
+            done=pending[n - 1].done,
+        )

@@ -97,7 +97,8 @@ class DQNAgent:
         with torch.no_grad():
             best_next_actions = self.online_network(batch.next_states).argmax(dim=1, keepdim=True)
             next_q_values = self.target_network(batch.next_states).gather(1, best_next_actions).squeeze(1)
-            target_q_values = batch.rewards + ((1.0 - batch.dones) * settings.GAMMA * next_q_values)
+            gamma_n = settings.GAMMA ** settings.N_STEPS
+            target_q_values = batch.rewards + ((1.0 - batch.dones) * gamma_n * next_q_values)
 
         loss = F.huber_loss(chosen_q_values, target_q_values)
 

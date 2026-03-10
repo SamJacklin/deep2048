@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     EPSILON_END: float = 0.01
     EPSILON_DECAY: int = 50_000
 
+    N_STEPS: int = 5
     TAU: float = 0.005
     TRAINING_STEPS: int = 200_000
     EVAL_EVERY: int = 10_000
