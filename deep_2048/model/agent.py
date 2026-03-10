@@ -19,17 +19,18 @@ class DQNAgent:
     def __init__(self, device: torch.device | None = None) -> None:
         self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        input_dim = settings.BOARD_SIZE * settings.BOARD_SIZE
         output_dim = len(Action)
 
         self.online_network = DQN(
-            input_dim=input_dim,
+            input_channels=settings.NUM_TILE_LEVELS,
+            board_size=settings.BOARD_SIZE,
             hidden_dim=settings.HIDDEN_DIM,
             output_dim=output_dim,
         ).to(self.device)
 
         self.target_network = DQN(
-            input_dim=input_dim,
+            input_channels=settings.NUM_TILE_LEVELS,
+            board_size=settings.BOARD_SIZE,
             hidden_dim=settings.HIDDEN_DIM,
             output_dim=output_dim,
         ).to(self.device)
@@ -134,8 +135,9 @@ class DQNAgent:
                 "target_network_state_dict": self.target_network.state_dict(),
                 "optimizer_state_dict": self.optimizer.state_dict(),
                 "architecture": {
-                    "input_dim": online_sd["feature.0.weight"].shape[1],
-                    "hidden_dim": online_sd["feature.0.weight"].shape[0],
+                    "input_channels": self.online_network.input_channels,
+                    "board_size": self.online_network.board_size,
+                    "hidden_dim": online_sd["value_stream.0.weight"].shape[0],
                     "output_dim": online_sd["advantage_stream.2.weight"].shape[0],
                 },
             },
@@ -145,12 +147,13 @@ class DQNAgent:
     def load(self, path: str | Path) -> None:
         checkpoint = torch.load(Path(path), map_location=self.device)
 
-        arch = checkpoint.get("architecture")
-        if arch is None:
-            online_sd = checkpoint["online_network_state_dict"]
+        arch = checkpoint.get("architecture", {})
+        online_sd = checkpoint["online_network_state_dict"]
+        if "input_channels" not in arch:
             arch = {
-                "input_dim": online_sd["feature.0.weight"].shape[1],
-                "hidden_dim": online_sd["feature.0.weight"].shape[0],
+                "input_channels": online_sd["feature.0.weight"].shape[1],
+                "board_size": settings.BOARD_SIZE,
+                "hidden_dim": online_sd["value_stream.0.weight"].shape[0],
                 "output_dim": online_sd["advantage_stream.2.weight"].shape[0],
             }
 
