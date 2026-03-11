@@ -30,6 +30,10 @@ format: lint-fix type-check
 train:
 	uv run python scripts/train.py
 
+.PHONY: resume
+resume:
+	uv run python scripts/train.py --resume $(CHECKPOINT)
+
 .PHONY: play
 play:
 	uv run python scripts/play.py $(ARGS)
