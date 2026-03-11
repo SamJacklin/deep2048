@@ -139,6 +139,7 @@ class DQNAgent:
                 "online_network_state_dict": online_sd,
                 "target_network_state_dict": self.target_network.state_dict(),
                 "optimizer_state_dict": self.optimizer.state_dict(),
+                "scheduler_state_dict": self.scheduler.state_dict(),
                 "architecture": {
                     "input_channels": self.online_network.input_channels,
                     "board_size": self.online_network.board_size,
@@ -168,6 +169,8 @@ class DQNAgent:
         self.online_network.load_state_dict(checkpoint["online_network_state_dict"])
         self.target_network.load_state_dict(checkpoint["target_network_state_dict"])
         self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        if "scheduler_state_dict" in checkpoint:
+            self.scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
 
     def set_eval_mode(self) -> None:
         self.online_network.eval()

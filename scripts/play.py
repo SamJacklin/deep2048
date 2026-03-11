@@ -42,8 +42,8 @@ def main() -> None:
     parser.add_argument(
         "checkpoint",
         nargs="?",
-        default="checkpoints/final.pt",
-        help="Path to checkpoint file (default: checkpoints/final.pt)",
+        default="checkpoints/best.pt",
+        help="Path to checkpoint file (default: checkpoints/best.pt)",
     )
     parser.add_argument(
         "--render",

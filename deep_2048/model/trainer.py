@@ -23,7 +23,7 @@ from deep_2048.model.replay_buffer import NStepBuffer, PrioritizedReplayBuffer
 settings = get_settings()
 
 
-def train() -> TrainingSummary:
+def train(resume_from: str | None = None) -> TrainingSummary:
     _set_global_seeds()
     _ensure_output_directories()
 
@@ -40,13 +40,28 @@ def train() -> TrainingSummary:
     episode_index = 0
     epsilon = settings.EPSILON_START
 
+    if resume_from:
+        checkpoint = torch.load(resume_from, map_location=device, weights_only=False)
+        training_state = checkpoint.get("training_state", {})
+        training_step = training_state.get("training_step", 0)
+        episode_index = training_state.get("episode_index", 0)
+        epsilon = _calculate_epsilon(
+            current_step=training_step,
+            epsilon_start=settings.EPSILON_START,
+            epsilon_end=settings.EPSILON_END,
+            epsilon_decay=settings.EPSILON_DECAY,
+        )
+        agent.load(resume_from)
+        print(f"Resumed from {resume_from} at step={training_step} episode={episode_index} epsilon={epsilon:.4f}")
+
     history: list[TrainingHistoryPoint] = []
     checkpoint_paths: list[str] = []
 
     latest_eval_result: EvaluationResult | None = None
     latest_loss: float | None = None
     latest_lr: float | None = None
-    last_eval_step: int = 0
+    last_eval_step: int = (training_step // settings.EVAL_EVERY) * settings.EVAL_EVERY
+    best_eval_score: float = -1.0
 
     while training_step < settings.TRAINING_STEPS:
         episode_index += 1
@@ -81,6 +96,19 @@ def train() -> TrainingSummary:
                 average_max_tile=latest_eval_result.average_max_tile,
             )
             checkpoint_paths.append(str(checkpoint_result.path))
+
+            if latest_eval_result.average_score > best_eval_score:
+                best_eval_score = latest_eval_result.average_score
+                _save_checkpoint(
+                    agent=agent,
+                    training_step=training_step,
+                    episode_index=episode_index,
+                    epsilon=epsilon,
+                    average_score=latest_eval_result.average_score,
+                    average_max_tile=latest_eval_result.average_max_tile,
+                    checkpoint_name="best.pt",
+                )
+                print(f"[best]  step={training_step} new best avg_score={latest_eval_result.average_score:.2f}")
 
             print(f"[eval] step={training_step} avg_score={latest_eval_result.average_score:.2f} avg_max_tile={latest_eval_result.average_max_tile:.2f}")
 
@@ -277,6 +305,11 @@ def _save_checkpoint(
 
     agent.save(path)
 
+    # Patch training state into the saved file so resume works from any checkpoint.
+    saved = torch.load(path, map_location="cpu", weights_only=False)
+    saved["training_state"] = {"training_step": training_step, "episode_index": episode_index}
+    torch.save(saved, path)
+
     metadata = CheckpointMetadata(
         training_step=training_step,
         episode_index=episode_index,
@@ -313,9 +346,12 @@ def _write_training_history_csv(
         "lr",
     ]
 
-    with csv_path.open("w", newline="") as csv_file:
+    # Append if the file already exists (resume), otherwise write fresh with header.
+    file_exists = csv_path.exists()
+    with csv_path.open("a", newline="") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-        writer.writeheader()
+        if not file_exists:
+            writer.writeheader()
 
         for point in history:
             writer.writerow(point.model_dump())
