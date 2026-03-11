@@ -15,9 +15,17 @@ from deep_2048.model.network import DQN
 settings = get_settings()
 
 
+def get_device() -> torch.device:
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
 class DQNAgent:
     def __init__(self, device: torch.device | None = None) -> None:
-        self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = device or get_device()
 
         output_dim = len(Action)
 
@@ -45,7 +53,7 @@ class DQNAgent:
         self.scheduler = CosineAnnealingLR(
             self.optimizer,
             T_max=settings.TRAINING_STEPS,
-            eta_min=1e-6,
+            eta_min=settings.LR_ETA_MIN,
         )
 
     def select_action(

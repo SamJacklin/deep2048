@@ -1,14 +1,12 @@
 import argparse
 import time
 
-import torch
-
 from deep_2048.game_logic.game import Game2048
-from deep_2048.model.agent import DQNAgent
+from deep_2048.model.agent import DQNAgent, get_device
 
 
 def play(checkpoint_path: str, render: bool, delay: float) -> None:
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_device()
     agent = DQNAgent(device=device)
     agent.load(checkpoint_path)
     agent.set_eval_mode()

@@ -1,6 +1,8 @@
 import csv
 import math
 import random
+import time
+from collections import deque
 from pathlib import Path
 
 import numpy as np
@@ -8,7 +10,7 @@ import torch
 
 from deep_2048.config import get_settings
 from deep_2048.game_logic import Game2048
-from deep_2048.model.agent import DQNAgent
+from deep_2048.model.agent import DQNAgent, get_device
 from deep_2048.model.models import (
     CheckpointMetadata,
     CheckpointResult,
@@ -27,7 +29,7 @@ def train(resume_from: str | None = None) -> TrainingSummary:
     _set_global_seeds()
     _ensure_output_directories()
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_device()
     agent = DQNAgent(device=device)
     replay_buffer = PrioritizedReplayBuffer(
         capacity=settings.REPLAY_CAPACITY,
@@ -54,6 +56,8 @@ def train(resume_from: str | None = None) -> TrainingSummary:
         agent.load(resume_from)
         print(f"Resumed from {resume_from} at step={training_step} episode={episode_index} epsilon={epsilon:.4f}")
 
+    _print_training_banner(agent=agent, device=device, start_step=training_step)
+
     history: list[TrainingHistoryPoint] = []
     checkpoint_paths: list[str] = []
 
@@ -62,6 +66,9 @@ def train(resume_from: str | None = None) -> TrainingSummary:
     latest_lr: float | None = None
     last_eval_step: int = (training_step // settings.EVAL_EVERY) * settings.EVAL_EVERY
     best_eval_score: float = -1.0
+
+    train_start_time = time.monotonic()
+    score_window: deque[int] = deque(maxlen=50)
 
     while training_step < settings.TRAINING_STEPS:
         episode_index += 1
@@ -73,6 +80,8 @@ def train(resume_from: str | None = None) -> TrainingSummary:
             episode_index=episode_index,
             epsilon=epsilon,
         )
+
+        score_window.append(episode_summary.score)
 
         eval_average_score: float | None = None
         eval_average_max_tile: float | None = None
@@ -110,7 +119,14 @@ def train(resume_from: str | None = None) -> TrainingSummary:
                 )
                 print(f"[best]  step={training_step} new best avg_score={latest_eval_result.average_score:.2f}")
 
-            print(f"[eval] step={training_step} avg_score={latest_eval_result.average_score:.2f} avg_max_tile={latest_eval_result.average_max_tile:.2f}")
+            dist = latest_eval_result.tile_distribution
+            dist_str = "  ".join(f"≥{t}: {dist.get(t, 0.0)*100:.0f}%" for t in (256, 512, 1024, 2048))
+            print(
+                f"[eval]  step={training_step}"
+                f"  avg_score={latest_eval_result.average_score:.1f}"
+                f"  avg_tile={latest_eval_result.average_max_tile:.0f}"
+                f"  |  {dist_str}"
+            )
 
         history_point = TrainingHistoryPoint(
             training_step=training_step,
@@ -127,7 +143,22 @@ def train(resume_from: str | None = None) -> TrainingSummary:
         )
         history.append(history_point)
 
-        print(f"[train] episode={episode_index} step={training_step} score={episode_summary.score} max_tile={episode_summary.max_tile} reward={episode_summary.total_reward:.2f} epsilon={epsilon:.4f}")
+        elapsed = time.monotonic() - train_start_time
+        steps_per_sec = training_step / elapsed if elapsed > 0 else 0.0
+        remaining = settings.TRAINING_STEPS - training_step
+        eta_str = _format_duration(int(remaining / steps_per_sec)) if steps_per_sec > 0 else "?"
+        progress_pct = 100.0 * training_step / settings.TRAINING_STEPS
+        rolling_avg = sum(score_window) / len(score_window)
+
+        loss_str = f"  loss={latest_loss:.4f}" if latest_loss is not None else ""
+        lr_str = f"  lr={latest_lr:.2e}" if latest_lr is not None else ""
+        print(
+            f"[train] ep={episode_index}  step={training_step} ({progress_pct:.1f}%)"
+            f"  score={episode_summary.score}  tile={episode_summary.max_tile}"
+            f"  avg50={rolling_avg:.0f}  ε={epsilon:.3f}"
+            f"{loss_str}{lr_str}"
+            f"  {steps_per_sec:.0f} steps/s  eta={eta_str}"
+        )
 
     final_checkpoint = _save_checkpoint(
         agent=agent,
@@ -187,11 +218,19 @@ def evaluate_agent(
 
     agent.set_train_mode()
 
+    _TILE_THRESHOLDS = (256, 512, 1024, 2048)
+    n = len(max_tiles)
+    tile_distribution = {
+        t: sum(1 for tile in max_tiles if tile >= t) / n
+        for t in _TILE_THRESHOLDS
+    } if n > 0 else {}
+
     return EvaluationResult(
         average_score=float(np.mean(scores)) if scores else 0.0,
         average_max_tile=float(np.mean(max_tiles)) if max_tiles else 0.0,
         average_reward=float(np.mean(rewards)) if rewards else 0.0,
         episodes=episodes,
+        tile_distribution=tile_distribution,
     )
 
 
@@ -224,7 +263,7 @@ def _run_training_episode(
 
         step_result = game.step(selection_result.action)
 
-        shaped_reward = math.log1p(step_result.reward) if step_result.reward > 0 else 0.0
+        shaped_reward = step_result.reward / 1000.0
 
         raw_transition = Transition(
             state=state.copy(),
@@ -259,7 +298,8 @@ def _run_training_episode(
             replay_buffer.update_priorities(batch.indices, optimisation_result.td_errors)
             latest_loss = optimisation_result.loss
             latest_lr = optimisation_result.lr
-            agent.update_target_network()
+            if training_step % settings.TARGET_UPDATE_FREQUENCY == 0:
+                agent.update_target_network()
 
     for n_step_transition in n_step_buffer.flush():
         replay_buffer.push(n_step_transition)
@@ -366,3 +406,38 @@ def _set_global_seeds() -> None:
     random.seed(settings.SEED)
     np.random.seed(settings.SEED)
     torch.manual_seed(settings.SEED)
+
+
+def _format_duration(seconds: int) -> str:
+    if seconds < 60:
+        return f"{seconds}s"
+    if seconds < 3600:
+        return f"{seconds // 60}m{seconds % 60:02d}s"
+    h = seconds // 3600
+    m = (seconds % 3600) // 60
+    return f"{h}h{m:02d}m"
+
+
+def _print_training_banner(agent: DQNAgent, device: torch.device, start_step: int) -> None:
+    param_count = sum(p.numel() for p in agent.online_network.parameters())
+
+    def _fmt(n: int) -> str:
+        return f"{n:,}"
+
+    decay_pct = 100.0 * settings.EPSILON_DECAY / settings.TRAINING_STEPS
+    remaining = settings.TRAINING_STEPS - start_step
+
+    print("=" * 44)
+    print("  Deep 2048 — DQN Training")
+    print("=" * 44)
+    print(f"  Device:          {device}")
+    print(f"  Steps:           {_fmt(remaining)} (total {_fmt(settings.TRAINING_STEPS)})")
+    print(f"  Epsilon decay:   {_fmt(settings.EPSILON_DECAY)} ({decay_pct:.0f}% of training)")
+    print(f"  Batch size:      {settings.BATCH_SIZE}")
+    print(f"  Replay buffer:   {_fmt(settings.REPLAY_CAPACITY)}")
+    print(f"  N-step:          {settings.N_STEPS}")
+    print(f"  Target update:   every {_fmt(settings.TARGET_UPDATE_FREQUENCY)} steps (τ={settings.TAU})")
+    print(f"  LR eta_min:      {settings.LR_ETA_MIN}")
+    print(f"  Hidden dim:      {settings.HIDDEN_DIM}")
+    print(f"  Network params:  {param_count:,}")
+    print("=" * 44)

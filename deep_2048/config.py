@@ -18,6 +18,8 @@ class Settings(BaseSettings):
 
     N_STEPS: int = 5
     TAU: float = 0.005
+    TARGET_UPDATE_FREQUENCY: int = 1_000  # soft-update target network every N steps
+    LR_ETA_MIN: float = 1e-5             # cosine scheduler floor (was hardcoded 1e-6)
     TRAINING_STEPS: int = 200_000
     EVAL_EVERY: int = 10_000
     EVAL_EPISODES: int = 100
@@ -28,7 +30,7 @@ class Settings(BaseSettings):
     PER_ALPHA: float = 0.6        # priority exponent — 0 = uniform, 1 = fully prioritised
     PER_BETA_START: float = 0.4   # IS weight exponent at start of training
     PER_BETA_END: float = 1.0     # IS weight exponent at end of training (fully corrects bias)
-    PER_PRIORITY_EPSILON: float = 1e-6  # small constant added to TD errors to prevent zero priority
+    PER_PRIORITY_EPSILON: float = 1e-5  # small constant added to TD errors to prevent zero priority
 
     CHECKPOINT_DIR: str = "checkpoints"
     OUTPUT_DIR: str = "output"

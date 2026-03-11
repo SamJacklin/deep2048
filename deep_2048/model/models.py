@@ -52,6 +52,8 @@ class EvaluationResult(BaseModel):
     average_max_tile: float
     average_reward: float
     episodes: int
+    # Fraction of episodes (0–1) that reached at least each tile value.
+    tile_distribution: dict[int, float] = Field(default_factory=dict)
 
 
 class EpisodeSummary(BaseModel):
