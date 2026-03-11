@@ -106,7 +106,7 @@ def main(csv_path: str = "output/training_history.csv", window: int = 50) -> Non
 
     best_idx = int(np.argmax(eval_scores))
     print(f"\nBest checkpoint: step {int(eval_steps[best_idx])}  "
-          f"score={eval_scores[best_idx]:.1f}  max_tile={eval_tiles[best_idx]:.1f}")
+          f"score={eval_scores[best_idx]:.1f}  avg_max_tile={eval_tiles[best_idx]:.1f}")
 
     plt.show()
 
