@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     EPSILON_DECAY: int = 50_000
 
     N_STEPS: int = 5
+    MILESTONE_BONUS_SCALE: float = 3.0
     TAU: float = 0.005
     TARGET_UPDATE_FREQUENCY: int = 1_000  # soft-update target network every N steps
     LR_ETA_MIN: float = 1e-5             # cosine scheduler floor (was hardcoded 1e-6)

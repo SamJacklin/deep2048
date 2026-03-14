@@ -249,6 +249,7 @@ def _run_training_episode(
     episode_steps = 0
     latest_loss: float | None = None
     latest_lr: float | None = None
+    episode_max_tile = game.max_tile
 
     n_step_buffer = NStepBuffer(n_steps=settings.N_STEPS, gamma=settings.GAMMA)
 
@@ -263,7 +264,12 @@ def _run_training_episode(
 
         step_result = game.step(selection_result.action)
 
-        shaped_reward = step_result.reward / 1000.0
+        shaped_reward = math.log1p(step_result.reward) if step_result.reward > 0 else 0.0
+
+        new_max_tile = step_result.info.max_tile
+        if new_max_tile > episode_max_tile:
+            shaped_reward += math.log1p(new_max_tile) * settings.MILESTONE_BONUS_SCALE
+            episode_max_tile = new_max_tile
 
         raw_transition = Transition(
             state=state.copy(),
