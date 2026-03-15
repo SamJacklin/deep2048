@@ -20,6 +20,15 @@ function Divider() {
   return <div className="border-t border-zinc-800 my-1" />;
 }
 
+function MetaRow({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs text-zinc-600">{label}</span>
+      <span className="text-sm text-zinc-300 tabular-nums">{value}</span>
+    </div>
+  );
+}
+
 const ARROWS: Record<string, string> = {
   UP: '↑ Up',
   DOWN: '↓ Down',
@@ -30,6 +39,8 @@ const ARROWS: Record<string, string> = {
 export default function StatsPanel({ replay, frame }: StatsPanelProps) {
   const maxTileOnBoard = Math.max(...frame.board.flat());
   const isDone = frame.valid_actions.length === 0;
+  const isDrl = replay.agent_type === 'drl';
+  const isHeuristic = replay.agent_type === 'heuristic';
 
   return (
     <div className="flex flex-col gap-4 text-zinc-200">
@@ -45,34 +56,32 @@ export default function StatsPanel({ replay, frame }: StatsPanelProps) {
         />
       </div>
 
-      {frame.reward > 0 && (
-        <div className="text-xs text-zinc-400">
-          Merged for <span className="text-blue-400 font-bold">+{frame.reward}</span>
-        </div>
-      )}
-
       <Divider />
 
-      {/* Checkpoint info */}
+      {/* Agent / checkpoint info */}
       <div className="flex flex-col gap-3">
-        <p className="text-xs text-zinc-500 uppercase tracking-widest">Checkpoint</p>
+        <p className="text-xs text-zinc-500 uppercase tracking-widest">
+          {isHeuristic ? 'Agent' : 'Checkpoint'}
+        </p>
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-zinc-600">Training steps</span>
-            <span className="text-sm text-zinc-300 tabular-nums">{replay.training_step.toLocaleString()}</span>
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-zinc-600">Epsilon (ε)</span>
-            <span className="text-sm text-zinc-300 tabular-nums">{replay.epsilon.toFixed(3)}</span>
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-zinc-600">Avg score</span>
-            <span className="text-sm text-zinc-300 tabular-nums">{replay.average_score.toLocaleString()}</span>
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-zinc-600">Avg max tile</span>
-            <span className="text-sm text-zinc-300 tabular-nums">{replay.average_max_tile}</span>
-          </div>
+          {!isHeuristic && (
+            <MetaRow label="Training steps" value={replay.training_step.toLocaleString()} />
+          )}
+          {isDrl && (
+            <MetaRow label="Epsilon (ε)" value={replay.epsilon.toFixed(3)} />
+          )}
+          {!isHeuristic && (
+            <>
+              <MetaRow label="Avg score" value={replay.average_score.toLocaleString()} />
+              <MetaRow label="Avg max tile" value={Math.round(replay.average_max_tile)} />
+            </>
+          )}
+          {replay.search_depth !== null && (
+            <MetaRow label="Search depth" value={replay.search_depth} />
+          )}
+          {isHeuristic && (
+            <MetaRow label="Evaluator" value="Monotonicity + corner" />
+          )}
         </div>
       </div>
 
@@ -82,14 +91,8 @@ export default function StatsPanel({ replay, frame }: StatsPanelProps) {
       <div className="flex flex-col gap-3">
         <p className="text-xs text-zinc-500 uppercase tracking-widest">This game</p>
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-zinc-600">Final score</span>
-            <span className="text-sm text-zinc-300 tabular-nums">{replay.final_score.toLocaleString()}</span>
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-zinc-600">Best tile</span>
-            <span className="text-sm text-zinc-300 tabular-nums">{replay.max_tile_achieved}</span>
-          </div>
+          <MetaRow label="Final score" value={replay.final_score.toLocaleString()} />
+          <MetaRow label="Best tile" value={replay.max_tile_achieved} />
         </div>
       </div>
     </div>

@@ -1,0 +1,38 @@
+[
+  {
+    "label": "DQN (best)",
+    "n_games": 100,
+    "avg_score": 6157,
+    "avg_max_tile": 449,
+    "tile_pcts": {
+      "256": 92.0,
+      "512": 62.0,
+      "1024": 9.0,
+      "2048": 0.0
+    }
+  },
+  {
+    "label": "DQN+Search depth=1 (best)",
+    "n_games": 100,
+    "avg_score": 1705,
+    "avg_max_tile": 170,
+    "tile_pcts": {
+      "256": 29.0,
+      "512": 12.0,
+      "1024": 2.0,
+      "2048": 0.0
+    }
+  },
+  {
+    "label": "Heuristic depth=2",
+    "n_games": 100,
+    "avg_score": 1731,
+    "avg_max_tile": 112,
+    "tile_pcts": {
+      "256": 10.0,
+      "512": 0.0,
+      "1024": 0.0,
+      "2048": 0.0
+    }
+  }
+]

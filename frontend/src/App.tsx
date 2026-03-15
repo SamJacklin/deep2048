@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Replay } from './types';
+import type { Replay, BenchmarkRow } from './types';
 import { CHECKPOINTS } from './types';
 import { useReplayPlayer } from './hooks/useReplayPlayer';
 import Board from './components/Board';
@@ -7,6 +7,18 @@ import Controls from './components/Controls';
 import QValueChart from './components/QValueChart';
 import StatsPanel from './components/StatsPanel';
 import CheckpointSelector from './components/CheckpointSelector';
+import BenchmarkTable from './components/BenchmarkTable';
+
+function useBenchmark() {
+  const [benchmark, setBenchmark] = useState<BenchmarkRow[] | null>(null);
+  useEffect(() => {
+    fetch('/benchmark.json')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d && setBenchmark(d))
+      .catch(() => {});
+  }, []);
+  return benchmark;
+}
 
 function useReplays() {
   const [replays, setReplays] = useState<Record<string, Replay | null>>({});
@@ -31,8 +43,9 @@ function useReplays() {
 }
 
 export default function App() {
-  const [selected, setSelected] = useState(CHECKPOINTS[3].name); // default: best
+  const [selected, setSelected] = useState('best');
   const { replays, loading, load } = useReplays();
+  const benchmark = useBenchmark();
 
   // Pre-load all checkpoints in background
   useEffect(() => {
@@ -70,12 +83,13 @@ export default function App() {
         {/* Intro */}
         <section className="flex flex-col gap-3 max-w-2xl">
           <h1 className="text-2xl font-bold text-zinc-100">
-            DQN Agent — 2048
+            Deep RL — 2048
           </h1>
           <p className="text-sm text-zinc-400 leading-relaxed">
-            A Deep Q-Network trained with prioritised experience replay, n-step returns, and a
-            dueling architecture to play 2048. Select a checkpoint below to watch the agent
-            play&nbsp;—&nbsp;from early random exploration to a refined strategy.
+            A Deep Q-Network trained for 925K steps with prioritised experience replay, n-step
+            returns, and a dueling multi-path CNN — reaching 512 in 61% of games and 1024 in 9%.
+            Watch the strategy evolve across training, then compare the trained agent against
+            expectimax search with and without the learned evaluator.
           </p>
         </section>
 
@@ -89,6 +103,16 @@ export default function App() {
             onSelect={name => { setSelected(name); load(name); }}
           />
         </section>
+
+        {/* Benchmark comparison */}
+        {benchmark && (
+          <section className="flex flex-col gap-3">
+            <h2 className="text-xs text-zinc-500 uppercase tracking-widest">Performance Comparison</h2>
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
+              <BenchmarkTable rows={benchmark} />
+            </div>
+          </section>
+        )}
 
         {/* Game viewer */}
         {isLoading ? (
@@ -132,17 +156,18 @@ export default function App() {
                   qValues={currentFrame.q_values}
                   chosenAction={currentFrame.action}
                   validActions={currentFrame.valid_actions}
+                  label={replay.score_label}
                 />
 
                 {/* Architecture note */}
                 <div className="mt-6 pt-4 border-t border-zinc-800 flex flex-col gap-2">
                   <p className="text-xs text-zinc-500 uppercase tracking-widest">Architecture</p>
                   <ul className="text-xs text-zinc-500 space-y-1 leading-relaxed">
-                    <li className="text-zinc-400">Dueling DQN</li>
+                    <li className="text-zinc-400">Dueling Double DQN</li>
                     <li>3× Conv2d (3×3) + row/col paths</li>
-                    <li>256-dim hidden, 4 action outputs</li>
+                    <li>1024-dim hidden, 4 action outputs</li>
                     <li>PER + n-step returns (n=5)</li>
-                    <li>Cosine LR schedule</li>
+                    <li>Cosine LR · 925K steps</li>
                   </ul>
                 </div>
               </div>
@@ -184,7 +209,7 @@ export default function App() {
             sam<span className="text-blue-500">.</span>jacklin
           </span>
           <span className="font-mono text-xs text-zinc-700">
-            DQN · PyTorch · Vite · React
+            DQN · Expectimax · PyTorch · Vite · React
           </span>
         </div>
       </footer>
