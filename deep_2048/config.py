@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
     N_STEPS: int = 5
     MILESTONE_BONUS_SCALE: float = 3.0
-    TAU: float = 0.005
+    TAU: float = 1.0
     TARGET_UPDATE_FREQUENCY: int = 1_000  # soft-update target network every N steps
     LR_ETA_MIN: float = 1e-5             # cosine scheduler floor (was hardcoded 1e-6)
     TRAINING_STEPS: int = 200_000

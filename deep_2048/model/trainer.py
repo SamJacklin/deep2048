@@ -189,7 +189,7 @@ def evaluate_agent(
 ) -> EvaluationResult:
     agent.set_eval_mode()
 
-    evaluation_game = Game2048()
+    evaluation_game = Game2048(seed=settings.SEED + 1)
 
     scores: list[int] = []
     max_tiles: list[int] = []
