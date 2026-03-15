@@ -4,6 +4,7 @@ interface QValueChartProps {
   qValues: QValues;
   chosenAction: string | null;
   validActions: string[];
+  label?: string;
 }
 
 const ACTIONS = ['UP', 'DOWN', 'LEFT', 'RIGHT'] as const;
@@ -15,14 +16,14 @@ const ARROWS: Record<string, string> = {
   RIGHT: '→',
 };
 
-export default function QValueChart({ qValues, chosenAction, validActions }: QValueChartProps) {
+export default function QValueChart({ qValues, chosenAction, validActions, label = 'Q-Values' }: QValueChartProps) {
   const validSet = new Set(validActions);
   const values = ACTIONS.map(a => qValues[a]);
   const max = Math.max(...values.map(Math.abs), 1);
 
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">Q-Values</p>
+      <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">{label}</p>
       {ACTIONS.map(action => {
         const val = qValues[action];
         const isChosen = action === chosenAction;
