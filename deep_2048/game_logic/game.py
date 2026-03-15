@@ -17,9 +17,9 @@ settings = get_settings()
 
 
 class Game2048:
-    def __init__(self) -> None:
+    def __init__(self, seed: int | None = None) -> None:
         self.board_size: int = settings.BOARD_SIZE
-        self.rng: np.random.Generator = np.random.default_rng(settings.SEED)
+        self.rng: np.random.Generator = np.random.default_rng(seed if seed is not None else settings.SEED)
 
         self.board: np.ndarray = np.zeros((self.board_size, self.board_size), dtype=np.int32)
         self.score: int = 0

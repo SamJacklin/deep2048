@@ -34,10 +34,28 @@ train:
 resume:
 	uv run python scripts/train.py --resume $(CHECKPOINT)
 
+# Run a single game (ARGS="--mode drl_search", "--mode heuristic", "--render", etc.)
 .PHONY: play
 play:
 	uv run python scripts/play.py $(ARGS)
 
-.PHONY: view
-view:
-	uv run python scripts/view.py $(ARGS)
+# Evaluate agents over N games — defaults to all three side-by-side
+# Override: ARGS="--mode drl -n 200", ARGS="--mode heuristic -n 50", etc.
+.PHONY: evaluate
+evaluate:
+	uv run python scripts/evaluate.py --mode all $(ARGS)
+
+# Evaluate all agents and write results to frontend/public/benchmark.json
+.PHONY: benchmark
+benchmark:
+	uv run python scripts/evaluate.py --mode all --json frontend/public/benchmark.json $(ARGS)
+
+# Generate frontend replay JSON files
+.PHONY: replays
+replays:
+	uv run python scripts/generate_replays.py
+
+# Plot training metrics from output/training_history.csv
+.PHONY: plot
+plot:
+	uv run python scripts/plot.py $(ARGS)
