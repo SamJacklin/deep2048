@@ -100,19 +100,10 @@ export default function App() {
             selected={selected}
             replays={replays}
             loading={loading}
+            benchmark={benchmark}
             onSelect={name => { setSelected(name); load(name); }}
           />
         </section>
-
-        {/* Benchmark comparison */}
-        {benchmark && (
-          <section className="flex flex-col gap-3">
-            <h2 className="text-xs text-zinc-500 uppercase tracking-widest">Performance Comparison</h2>
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
-              <BenchmarkTable rows={benchmark} />
-            </div>
-          </section>
-        )}
 
         {/* Game viewer */}
         {isLoading ? (
@@ -199,6 +190,19 @@ export default function App() {
             <code className="mx-1 text-zinc-500">uv run python scripts/generate_replays.py</code>
             {' '}to generate data.
           </div>
+        )}
+
+        {/* Benchmark comparison */}
+        {benchmark && (
+          <section className="flex flex-col gap-3">
+            <h2 className="text-xs text-zinc-500 uppercase tracking-widest">Performance Comparison</h2>
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
+              <BenchmarkTable
+                rows={benchmark}
+                highlighted={CHECKPOINTS.find(cp => cp.name === selected)?.benchmarkLabel}
+              />
+            </div>
+          </section>
         )}
       </main>
 
