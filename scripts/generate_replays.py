@@ -27,8 +27,8 @@ from deep_2048.model.heuristic import heuristic_select
 from deep_2048.model.search import dqn_search_select
 
 OUTPUT_DIR = Path("frontend/public/replays")
-MAX_FRAMES = 800
-GAME_SEED = 0
+MAX_FRAMES = 1400
+GAME_SEED = 1
 
 
 # ── Checkpoint / agent definitions ───────────────────────────────────────────
@@ -96,6 +96,7 @@ COMPARISON_AGENTS = [
         "score_label": "Heuristic Scores",
         "pt": None,
         "json": None,
+        "seed": 1,
     },
 ]
 
@@ -121,12 +122,12 @@ def _dqn_move(
 
 # ── Generic game runner ───────────────────────────────────────────────────────
 
-def run_game(move_fn) -> tuple[list[dict], int, int]:
+def run_game(move_fn, seed: int = GAME_SEED) -> tuple[list[dict], int, int]:
     """Play a full game with move_fn(board, valid_actions) -> (Action, scores_dict).
 
     Returns (frames, final_score, max_tile).
     """
-    rng = np.random.default_rng(GAME_SEED)
+    rng = np.random.default_rng(seed)
     board = initialise_board(board_size=4, rng=rng, tile_weights=SPAWN_TILE_WEIGHTS)
     score = 0
     frames: list[dict] = []
@@ -219,8 +220,9 @@ def main() -> None:
             def move_fn(board, valid, d=_depth):
                 return heuristic_select(board, valid, d)
 
+        game_seed = cp.get("seed", GAME_SEED)
         print("  Running game…")
-        frames, final_score, max_tile = run_game(move_fn)
+        frames, final_score, max_tile = run_game(move_fn, seed=game_seed)
         print(f"  → {len(frames)} frames  score={final_score}  max_tile={max_tile}")
 
         replay = {
