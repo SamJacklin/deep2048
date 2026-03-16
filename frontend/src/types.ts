@@ -45,6 +45,7 @@ export interface CheckpointMeta {
   label: string;
   description: string;
   group: 'progression' | 'comparison';
+  benchmarkLabel?: string;
 }
 
 export const CHECKPOINTS: CheckpointMeta[] = [
@@ -52,8 +53,8 @@ export const CHECKPOINTS: CheckpointMeta[] = [
   { name: 'step_100083', label: 'Early Training',  description: '100K steps — basic merges, heavy exploration', group: 'progression' },
   { name: 'step_350068', label: 'Mid Training',    description: '350K steps — 256 tile emerging',              group: 'progression' },
   { name: 'step_625066', label: 'Late Training',   description: '625K steps — 512 reached regularly',          group: 'progression' },
-  { name: 'best',        label: 'Best DQN',        description: '925K steps — ≥512: 61%  ≥1024: 9%',          group: 'progression' },
+  { name: 'best',        label: 'Best DQN',        description: '925K steps — ≥512: 61%  ≥1024: 9%',          group: 'progression', benchmarkLabel: 'DQN (best)' },
   // Approach comparison — same seed, different strategies
-  { name: 'drl_search',  label: 'DQN + Search',    description: 'DQN + expectimax — shows limits of learned Q-values as a planner', group: 'comparison' },
-  { name: 'heuristic',   label: 'Heuristic Search', description: 'Hand-crafted evaluator, expectimax (depth 2)', group: 'comparison' },
+  { name: 'drl_search',  label: 'DQN + Search',    description: 'DQN + expectimax — shows limits of learned Q-values as a planner', group: 'comparison', benchmarkLabel: 'DQN+Search depth=1 (best)' },
+  { name: 'heuristic',   label: 'Heuristic Search', description: 'Hand-crafted evaluator, expectimax (depth 2)', group: 'comparison', benchmarkLabel: 'Heuristic depth=2' },
 ];
