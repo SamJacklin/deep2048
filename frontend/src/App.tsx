@@ -12,7 +12,7 @@ import BenchmarkTable from './components/BenchmarkTable';
 function useBenchmark() {
   const [benchmark, setBenchmark] = useState<BenchmarkRow[] | null>(null);
   useEffect(() => {
-    fetch('/benchmark.json')
+    fetch(`${import.meta.env.BASE_URL}benchmark.json`)
       .then(r => r.ok ? r.json() : null)
       .then(d => d && setBenchmark(d))
       .catch(() => {});
@@ -28,7 +28,7 @@ function useReplays() {
     if (replays[name] !== undefined) return;
     setLoading(l => ({ ...l, [name]: true }));
     try {
-      const res = await fetch(`/replays/${name}.json`);
+      const res = await fetch(`${import.meta.env.BASE_URL}replays/${name}.json`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: Replay = await res.json();
       setReplays(r => ({ ...r, [name]: data }));
