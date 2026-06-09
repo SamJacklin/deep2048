@@ -20,7 +20,7 @@ function IconButton({
       onClick={onClick}
       title={title}
       disabled={disabled}
-      className="p-2 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+      className="p-2 rounded text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
     >
       {children}
     </button>
@@ -36,7 +36,7 @@ export default function Controls({ player }: ControlsProps) {
     <div className="flex flex-col gap-3">
       {/* Scrubber */}
       <div className="flex items-center gap-3">
-        <span className="text-xs text-zinc-600 tabular-nums w-8">{frameIndex}</span>
+        <span className="text-xs text-zinc-400 dark:text-zinc-600 tabular-nums w-8">{frameIndex}</span>
         <input
           type="range"
           min={0}
@@ -45,13 +45,12 @@ export default function Controls({ player }: ControlsProps) {
           onChange={e => seek(Number(e.target.value))}
           className="flex-1 accent-blue-500 cursor-pointer"
         />
-        <span className="text-xs text-zinc-600 tabular-nums w-8 text-right">{totalFrames - 1}</span>
+        <span className="text-xs text-zinc-400 dark:text-zinc-600 tabular-nums w-8 text-right">{totalFrames - 1}</span>
       </div>
 
       {/* Buttons */}
       <div className="flex items-center justify-center gap-4">
         <div className="flex items-center gap-1">
-          {/* Reset */}
           <IconButton onClick={reset} title="Reset">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M2.5 8a5.5 5.5 0 1 1 1.1 3.3" strokeLinecap="round"/>
@@ -59,7 +58,6 @@ export default function Controls({ player }: ControlsProps) {
             </svg>
           </IconButton>
 
-          {/* Step back */}
           <IconButton onClick={stepBack} title="Step back" disabled={frameIndex === 0}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M10 3L4 8l6 5V3z" fill="currentColor" stroke="none"/>
@@ -67,7 +65,6 @@ export default function Controls({ player }: ControlsProps) {
             </svg>
           </IconButton>
 
-          {/* Play / Pause */}
           <button
             onClick={togglePlay}
             className="p-2 rounded bg-blue-600 hover:bg-blue-500 text-white transition-colors"
@@ -85,7 +82,6 @@ export default function Controls({ player }: ControlsProps) {
             )}
           </button>
 
-          {/* Step forward */}
           <IconButton onClick={stepForward} title="Step forward" disabled={frameIndex === totalFrames - 1}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M6 3l6 5-6 5V3z" fill="currentColor" stroke="none"/>
@@ -94,10 +90,9 @@ export default function Controls({ player }: ControlsProps) {
           </IconButton>
         </div>
 
-        {/* Speed */}
         <button
           onClick={cycleSpeed}
-          className="text-xs text-zinc-400 hover:text-zinc-100 px-2 py-1 rounded hover:bg-zinc-800 transition-colors tabular-nums"
+          className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 px-2 py-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors tabular-nums"
           title="Cycle playback speed"
         >
           {currentSpeed}×
@@ -105,7 +100,7 @@ export default function Controls({ player }: ControlsProps) {
       </div>
 
       {/* Progress bar */}
-      <div className="h-0.5 bg-zinc-800 rounded-full overflow-hidden">
+      <div className="h-0.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
         <div
           className="h-full bg-blue-600 transition-all duration-100"
           style={{ width: `${progress * 100}%` }}

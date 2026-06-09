@@ -24,16 +24,16 @@ const STACK_CARDS = [
 export default function ArchitectureSection() {
   return (
     <section className="flex flex-col gap-8">
-      <h2 className="text-xs text-zinc-500 uppercase tracking-widest">How it works</h2>
+      <h2 className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">How it works</h2>
 
       {/* Model cards */}
       <div className="flex flex-col gap-3">
-        <p className="text-xs text-zinc-600 uppercase tracking-widest">The Model</p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">The Model</p>
         <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
           {MODEL_CARDS.map(card => (
-            <div key={card.title} className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5 flex flex-col gap-2">
-              <div className="text-sm font-bold text-zinc-200">{card.title}</div>
-              <div className="text-xs text-blue-400">{card.subtitle}</div>
+            <div key={card.title} className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-5 flex flex-col gap-2">
+              <div className="text-sm font-bold text-zinc-800 dark:text-zinc-200">{card.title}</div>
+              <div className="text-xs text-blue-500 dark:text-blue-400">{card.subtitle}</div>
               <p className="text-xs text-zinc-500 leading-relaxed mt-1">{card.body}</p>
             </div>
           ))}
@@ -42,11 +42,11 @@ export default function ArchitectureSection() {
 
       {/* Stack cards */}
       <div className="flex flex-col gap-3">
-        <p className="text-xs text-zinc-600 uppercase tracking-widest">The Stack</p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">The Stack</p>
         <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
           {STACK_CARDS.map(card => (
-            <div key={card.title} className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 flex flex-col gap-1.5">
-              <div className="text-sm font-bold text-zinc-300">{card.title}</div>
+            <div key={card.title} className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4 flex flex-col gap-1.5">
+              <div className="text-sm font-bold text-zinc-700 dark:text-zinc-300">{card.title}</div>
               <p className="text-xs text-zinc-500 leading-relaxed">{card.detail}</p>
             </div>
           ))}

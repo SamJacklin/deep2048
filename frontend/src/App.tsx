@@ -16,8 +16,8 @@ import Navbar from './toolkit/frontend/portfolio/components/Navbar/Navbar';
 const navLogo = (
   <>
     sam<span className="text-blue-500">.</span>jacklin
-    <span className="text-zinc-700 mx-2">/</span>
-    <span className="text-zinc-300">deep-2048</span>
+    <span className="text-zinc-400 dark:text-zinc-700 mx-2">/</span>
+    <span className="text-zinc-600 dark:text-zinc-300">deep-2048</span>
   </>
 );
 
@@ -76,142 +76,138 @@ function AppContent() {
 
   return (
     <ThemeTransition>
-      <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
         <Navbar logo={navLogo} links={navLinks} />
 
-      <main className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-10">
-        {/* Intro */}
-        <section className="flex flex-col gap-3 max-w-2xl">
-          <h1 className="text-2xl font-bold text-zinc-100">
-            An AI that taught itself to play 2048
-          </h1>
-          <p className="text-sm text-zinc-400 leading-relaxed">
-            No rules, no hints. Just a neural network playing millions of games until it figured
-            out what works. Pick a checkpoint below to watch the strategy evolve, or see how it
-            compares to a classical search algorithm.
-          </p>
-          <p className="text-sm text-zinc-500 leading-relaxed">
-            Under the hood: a Dueling Double DQN with prioritised experience replay, n-step
-            returns, and a CNN that reads rows, columns, and local patterns in parallel.
-            925K training steps. 512 tile in 61% of games.
-          </p>
-        </section>
+        <main className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-10 pt-24">
+          {/* Intro */}
+          <section className="flex flex-col gap-3 max-w-2xl">
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+              An AI that taught itself to play 2048
+            </h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
+              No rules, no hints. Just a neural network playing millions of games until it figured
+              out what works. Pick a checkpoint below to watch the strategy evolve, or see how it
+              compares to a classical search algorithm.
+            </p>
+            <p className="text-sm text-zinc-400 dark:text-zinc-500 leading-relaxed">
+              Under the hood: a Dueling Double DQN with prioritised experience replay, n-step
+              returns, and a CNN that reads rows, columns, and local patterns in parallel.
+              925K training steps. 512 tile in 61% of games.
+            </p>
+          </section>
 
-        {/* Checkpoint selector */}
-        <section>
-          <CheckpointSelector
-            checkpoints={CHECKPOINTS}
-            selected={selected}
-            replays={replays}
-            loading={loading}
-            benchmark={benchmark}
-            onSelect={name => { setSelected(name); load(name); }}
-          />
-        </section>
+          {/* Checkpoint selector */}
+          <section>
+            <CheckpointSelector
+              checkpoints={CHECKPOINTS}
+              selected={selected}
+              replays={replays}
+              loading={loading}
+              benchmark={benchmark}
+              onSelect={name => { setSelected(name); load(name); }}
+            />
+          </section>
 
-        {/* Game viewer */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-32 text-zinc-600 text-sm">
-            Loading replay…
-          </div>
-        ) : replay && currentFrame ? (
-          <section className="flex flex-col gap-6">
-            {/* Checkpoint description */}
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-bold text-zinc-200">
-                {replay.checkpoint_label}
-              </span>
-              <span className="text-sm text-zinc-500">{replay.checkpoint_description}</span>
+          {/* Game viewer */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-32 text-zinc-400 dark:text-zinc-600 text-sm">
+              Loading replay…
             </div>
-
-            {/* Board + Controls — centred, full attention */}
-            <div className="flex flex-col items-center gap-4">
-              <Board
-                board={currentFrame.board}
-                prevBoard={prevFrame?.board ?? null}
-              />
-              <div className="w-full max-w-[360px] rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
-                <Controls player={player} />
+          ) : replay && currentFrame ? (
+            <section className="flex flex-col gap-6">
+              {/* Checkpoint description */}
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200">
+                  {replay.checkpoint_label}
+                </span>
+                <span className="text-sm text-zinc-500">{replay.checkpoint_description}</span>
               </div>
-            </div>
 
-            {/* Stats + Q-Values below */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Left: Stats */}
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
-                <StatsPanel
-                  replay={replay}
-                  frame={currentFrame}
+              {/* Board + Controls */}
+              <div className="flex flex-col items-center gap-4">
+                <Board
+                  board={currentFrame.board}
+                  prevBoard={prevFrame?.board ?? null}
                 />
-              </div>
-
-              {/* Right: Q-Values + Architecture */}
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
-                <QValueChart
-                  qValues={currentFrame.q_values}
-                  chosenAction={currentFrame.action}
-                  validActions={currentFrame.valid_actions}
-                  label={replay.score_label}
-                />
-
-              </div>
-            </div>
-
-            {/* Game-over banner */}
-            {currentFrame.valid_actions.length === 0 && (
-              <div className="rounded-lg border border-zinc-700 bg-zinc-900/80 px-5 py-4 flex items-center justify-between">
-                <div>
-                  <span className="text-sm font-bold text-zinc-200">Game over</span>
-                  <span className="text-sm text-zinc-500 ml-3">
-                    Final score: <span className="text-zinc-300 tabular-nums">{replay.final_score.toLocaleString()}</span>
-                    {' · '}
-                    Best tile: <span className="text-zinc-300 tabular-nums">{replay.max_tile_achieved}</span>
-                  </span>
+                <div className="w-full max-w-[360px] rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
+                  <Controls player={player} />
                 </div>
-                <button
-                  onClick={player.reset}
-                  className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  Replay ↺
-                </button>
               </div>
-            )}
-          </section>
-        ) : (
-          <div className="flex items-center justify-center py-32 text-zinc-600 text-sm">
-            Replay not available — run{' '}
-            <code className="mx-1 text-zinc-500">uv run python scripts/generate_replays.py</code>
-            {' '}to generate data.
-          </div>
-        )}
 
-        {/* Benchmark comparison */}
-        {benchmark && (
-          <section className="flex flex-col gap-3">
-            <h2 className="text-xs text-zinc-500 uppercase tracking-widest">How it stacks up</h2>
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
-              <BenchmarkTable
-                rows={benchmark}
-                highlighted={CHECKPOINTS.find(cp => cp.name === selected)?.benchmarkLabel}
-              />
+              {/* Stats + Q-Values */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-5">
+                  <StatsPanel
+                    replay={replay}
+                    frame={currentFrame}
+                  />
+                </div>
+                <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-5">
+                  <QValueChart
+                    qValues={currentFrame.q_values}
+                    chosenAction={currentFrame.action}
+                    validActions={currentFrame.valid_actions}
+                    label={replay.score_label}
+                  />
+                </div>
+              </div>
+
+              {/* Game-over banner */}
+              {currentFrame.valid_actions.length === 0 && (
+                <div className="rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white/80 dark:bg-zinc-900/80 px-5 py-4 flex items-center justify-between">
+                  <div>
+                    <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200">Game over</span>
+                    <span className="text-sm text-zinc-500 ml-3">
+                      Final score: <span className="text-zinc-700 dark:text-zinc-300 tabular-nums">{replay.final_score.toLocaleString()}</span>
+                      {' · '}
+                      Best tile: <span className="text-zinc-700 dark:text-zinc-300 tabular-nums">{replay.max_tile_achieved}</span>
+                    </span>
+                  </div>
+                  <button
+                    onClick={player.reset}
+                    className="text-xs text-blue-500 hover:text-blue-400 transition-colors"
+                  >
+                    Replay ↺
+                  </button>
+                </div>
+              )}
+            </section>
+          ) : (
+            <div className="flex items-center justify-center py-32 text-zinc-400 dark:text-zinc-600 text-sm">
+              Replay not available — run{' '}
+              <code className="mx-1 text-zinc-500">uv run python scripts/generate_replays.py</code>
+              {' '}to generate data.
             </div>
-          </section>
-        )}
+          )}
 
-        <ArchitectureSection />
-      </main>
+          {/* Benchmark comparison */}
+          {benchmark && (
+            <section className="flex flex-col gap-3">
+              <h2 className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">How it stacks up</h2>
+              <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-5">
+                <BenchmarkTable
+                  rows={benchmark}
+                  highlighted={CHECKPOINTS.find(cp => cp.name === selected)?.benchmarkLabel}
+                />
+              </div>
+            </section>
+          )}
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-800 mt-10 py-8 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <span className="font-mono text-xs text-zinc-600">
-            sam<span className="text-blue-500">.</span>jacklin
-          </span>
-          <span className="font-mono text-xs text-zinc-700">
-            DQN · Expectimax · PyTorch · Vite · React
-          </span>
-        </div>
-      </footer>
+          <ArchitectureSection />
+        </main>
+
+        {/* Footer */}
+        <footer className="border-t border-zinc-200 dark:border-zinc-800 mt-10 py-8 px-6">
+          <div className="max-w-5xl mx-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <span className="font-mono text-xs text-zinc-400 dark:text-zinc-600">
+              sam<span className="text-blue-500">.</span>jacklin
+            </span>
+            <span className="font-mono text-xs text-zinc-300 dark:text-zinc-700">
+              DQN · Expectimax · PyTorch · Vite · React
+            </span>
+          </div>
+        </footer>
       </div>
     </ThemeTransition>
   );
