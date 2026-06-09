@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { useTheme } from '../toolkit/frontend/portfolio/components/ThemeContext';
 
 interface BoardProps {
   board: number[][];
@@ -6,8 +7,8 @@ interface BoardProps {
 }
 
 // Tile value → [bg, text, font-size class]
-function tileStyle(value: number): { bg: string; text: string; fs: string } {
-  if (value === 0) return { bg: '#27272a', text: '#3f3f46', fs: '' };
+function tileStyle(value: number, isDark: boolean): { bg: string; text: string; fs: string } {
+  if (value === 0) return { bg: isDark ? '#27272a' : '#d4d4d8', text: isDark ? '#3f3f46' : '#a1a1aa', fs: '' };
   if (value === 2)    return { bg: '#e4e4e7', text: '#18181b', fs: 'text-2xl' };
   if (value === 4)    return { bg: '#d4d4d8', text: '#18181b', fs: 'text-2xl' };
   if (value === 8)    return { bg: '#fde68a', text: '#1c1917', fs: 'text-2xl' };
@@ -25,11 +26,13 @@ function tileStyle(value: number): { bg: string; text: string; fs: string } {
 function Tile({
   value,
   popped,
+  isDark,
 }: {
   value: number;
   popped: boolean;
+  isDark: boolean;
 }) {
-  const style = tileStyle(value);
+  const style = tileStyle(value, isDark);
   return (
     <div
       className={`flex items-center justify-center rounded font-bold select-none w-full h-full transition-colors duration-150 ${popped ? 'tile-pop' : ''}`}
@@ -43,7 +46,8 @@ function Tile({
 }
 
 export default function Board({ board, prevBoard }: BoardProps) {
-  // Track which cells changed to trigger pop animation
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const popKey = useRef<Record<string, number>>({});
 
   const cells = board.flatMap((row, r) =>
@@ -68,7 +72,7 @@ export default function Board({ board, prevBoard }: BoardProps) {
         gridTemplateColumns: 'repeat(4, 1fr)',
         gridTemplateRows: 'repeat(4, 1fr)',
         gap: '8px',
-        backgroundColor: '#18181b',
+        backgroundColor: isDark ? '#18181b' : '#e4e4e7',
         aspectRatio: '1 / 1',
         width: '100%',
         maxWidth: '360px',
@@ -79,6 +83,7 @@ export default function Board({ board, prevBoard }: BoardProps) {
           key={`${r}-${c}-${popKey.current[`${r}-${c}`] ?? 0}`}
           value={val}
           popped={popped}
+          isDark={isDark}
         />
       ))}
     </div>
