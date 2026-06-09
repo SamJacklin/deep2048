@@ -5,16 +5,15 @@ interface StatsPanelProps {
   frame: ReplayFrame;
 }
 
-
 function Divider() {
-  return <div className="border-t border-zinc-800 my-1" />;
+  return <div className="border-t border-zinc-200 dark:border-zinc-800 my-1" />;
 }
 
 function MetaRow({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-zinc-600">{label}</span>
-      <span className="text-sm text-zinc-300 tabular-nums">{value}</span>
+      <span className="text-xs text-zinc-400 dark:text-zinc-600">{label}</span>
+      <span className="text-sm text-zinc-600 dark:text-zinc-300 tabular-nums">{value}</span>
     </div>
   );
 }
@@ -33,16 +32,16 @@ export default function StatsPanel({ replay, frame }: StatsPanelProps) {
   const isHeuristic = replay.agent_type === 'heuristic';
 
   return (
-    <div className="flex flex-col gap-4 text-zinc-200">
+    <div className="flex flex-col gap-4 text-zinc-700 dark:text-zinc-200">
       {/* Hero stats */}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-0.5">
-          <span className="text-xs text-zinc-500 uppercase tracking-widest">Score</span>
-          <span className="text-3xl font-bold tabular-nums text-zinc-100">{frame.score.toLocaleString()}</span>
+          <span className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Score</span>
+          <span className="text-3xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">{frame.score.toLocaleString()}</span>
         </div>
         <div className="flex flex-col gap-0.5">
-          <span className="text-xs text-zinc-500 uppercase tracking-widest">Best tile</span>
-          <span className={`text-3xl font-bold tabular-nums ${maxTileOnBoard >= 512 ? 'text-blue-400' : 'text-zinc-100'}`}>
+          <span className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Best tile</span>
+          <span className={`text-3xl font-bold tabular-nums ${maxTileOnBoard >= 512 ? 'text-blue-500 dark:text-blue-400' : 'text-zinc-900 dark:text-zinc-100'}`}>
             {maxTileOnBoard}
           </span>
         </div>
@@ -63,7 +62,7 @@ export default function StatsPanel({ replay, frame }: StatsPanelProps) {
 
       {/* Agent details */}
       <div className="flex flex-col gap-3">
-        <p className="text-xs text-zinc-500 uppercase tracking-widest">Agent</p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Agent</p>
         <div className="grid grid-cols-2 gap-3">
           {!isHeuristic && (
             <MetaRow label="Training steps" value={replay.training_step.toLocaleString()} />
