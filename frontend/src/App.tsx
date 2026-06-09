@@ -83,13 +83,17 @@ export default function App() {
         {/* Intro */}
         <section className="flex flex-col gap-3 max-w-2xl">
           <h1 className="text-2xl font-bold text-zinc-100">
-            Deep RL — 2048
+            An AI that taught itself to play 2048
           </h1>
           <p className="text-sm text-zinc-400 leading-relaxed">
-            A Deep Q-Network trained for 925K steps with prioritised experience replay, n-step
-            returns, and a dueling multi-path CNN — reaching 512 in 61% of games and 1024 in 9%.
-            Watch the strategy evolve across training, then compare the trained agent against
-            expectimax search with and without the learned evaluator.
+            No rules, no hints. Just a neural network playing millions of games until it figured
+            out what works. Pick a checkpoint below to watch the strategy evolve, or see how it
+            compares to a classical search algorithm.
+          </p>
+          <p className="text-sm text-zinc-500 leading-relaxed">
+            Under the hood: a Dueling Double DQN with prioritised experience replay, n-step
+            returns, and a CNN that reads rows, columns, and local patterns in parallel.
+            925K training steps. 512 tile in 61% of games.
           </p>
         </section>
 
@@ -153,12 +157,11 @@ export default function App() {
                 {/* Architecture note */}
                 <div className="mt-6 pt-4 border-t border-zinc-800 flex flex-col gap-2">
                   <p className="text-xs text-zinc-500 uppercase tracking-widest">Architecture</p>
-                  <ul className="text-xs text-zinc-500 space-y-1 leading-relaxed">
-                    <li className="text-zinc-400">Dueling Double DQN</li>
-                    <li>3× Conv2d (3×3) + row/col paths</li>
-                    <li>1024-dim hidden, 4 action outputs</li>
-                    <li>PER + n-step returns (n=5)</li>
-                    <li>Cosine LR · 925K steps</li>
+                  <ul className="text-xs text-zinc-500 space-y-2.5 leading-relaxed">
+                    <li><span className="text-zinc-400 font-medium">Dueling Double DQN</span> separates state value from move advantage, keeping Q-estimates grounded</li>
+                    <li><span className="text-zinc-400 font-medium">Multi-path CNN</span> runs separate row and column streams alongside 3x3 convolutions, matching the axis-aligned structure of 2048</li>
+                    <li><span className="text-zinc-400 font-medium">PER + n-step returns (n=5)</span> replays surprising transitions more often and propagates reward further back, so the network learns consequences not just immediate payoff</li>
+                    <li className="text-zinc-600">1024-dim hidden, 4 outputs, cosine LR decay, 925K steps</li>
                   </ul>
                 </div>
               </div>
@@ -195,7 +198,7 @@ export default function App() {
         {/* Benchmark comparison */}
         {benchmark && (
           <section className="flex flex-col gap-3">
-            <h2 className="text-xs text-zinc-500 uppercase tracking-widest">Performance Comparison</h2>
+            <h2 className="text-xs text-zinc-500 uppercase tracking-widest">How it stacks up</h2>
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
               <BenchmarkTable
                 rows={benchmark}

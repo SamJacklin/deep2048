@@ -50,11 +50,10 @@ export interface CheckpointMeta {
 
 export const CHECKPOINTS: CheckpointMeta[] = [
   // Training progression — four DQN milestones
-  { name: 'step_100083', label: 'Early Training',  description: '100K steps — basic merges, heavy exploration', group: 'progression' },
-  { name: 'step_350068', label: 'Mid Training',    description: '350K steps — 256 tile emerging',              group: 'progression' },
-  { name: 'step_625066', label: 'Late Training',   description: '625K steps — 512 reached regularly',          group: 'progression' },
-  { name: 'best',        label: 'Best DQN',        description: '925K steps — ≥512: 61%  ≥1024: 9%',          group: 'progression', benchmarkLabel: 'DQN (best)' },
+  { name: 'step_100083', label: 'Early Training',  description: 'Mostly random. Merging whatever it can reach with no real plan yet', group: 'progression' },
+  { name: 'step_350068', label: 'Mid Training',    description: 'The 256 tile starts appearing consistently. Something is clicking',  group: 'progression' },
+  { name: 'step_625066', label: 'Late Training',   description: 'Corners are being held and tiles are being chained',                 group: 'progression' },
+  { name: 'best',        label: 'Best DQN',        description: 'The finished model. 512 in 6 out of 10 games, 1024 in nearly 1 in 10', group: 'progression', benchmarkLabel: 'DQN (best)' },
   // Approach comparison — same seed, different strategies
-  { name: 'drl_search',  label: 'DQN + Search',    description: 'DQN + expectimax — shows limits of learned Q-values as a planner', group: 'comparison', benchmarkLabel: 'DQN+Search depth=1 (best)' },
-  { name: 'heuristic',   label: 'Heuristic Search', description: 'Hand-crafted evaluator, expectimax (depth 2)', group: 'comparison', benchmarkLabel: 'Heuristic depth=2' },
+{ name: 'heuristic',   label: 'Heuristic Search', description: 'Hand-written placement rules plus exhaustive search. A useful baseline for what the learned model is actually worth', group: 'comparison', benchmarkLabel: 'Heuristic depth=2' },
 ];
