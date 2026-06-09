@@ -19,17 +19,19 @@ const ARROWS: Record<string, string> = {
 export default function QValueChart({ qValues, chosenAction, validActions, label = 'Q-Values' }: QValueChartProps) {
   const validSet = new Set(validActions);
   const values = ACTIONS.map(a => qValues[a]);
-  const max = Math.max(...values.map(Math.abs), 1);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = Math.max(max - min, 1e-6);
 
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">{label}</p>
+      <p className="text-xs text-zinc-500 uppercase tracking-widest">{label}</p>
+      <p className="text-xs text-zinc-600 mb-3">How strongly the agent prefers each move</p>
       {ACTIONS.map(action => {
         const val = qValues[action];
         const isChosen = action === chosenAction;
         const isValid = validSet.has(action);
-        const pct = Math.abs(val) / max;
-        const isNeg = val < 0;
+        const pct = (val - min) / range;
 
         return (
           <div key={action} className="flex items-center gap-2">
@@ -48,7 +50,7 @@ export default function QValueChart({ qValues, chosenAction, validActions, label
                   isChosen
                     ? 'bg-blue-500'
                     : isValid
-                    ? isNeg ? 'bg-zinc-600' : 'bg-zinc-500'
+                    ? 'bg-zinc-500'
                     : 'bg-zinc-800'
                 }`}
                 style={{ width: `${pct * 100}%` }}
