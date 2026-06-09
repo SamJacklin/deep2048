@@ -103,7 +103,6 @@ export default function CheckpointSelector({
   onSelect,
 }: CheckpointSelectorProps) {
   const progression = checkpoints.filter(cp => cp.group === 'progression');
-  const comparison = checkpoints.filter(cp => cp.group === 'comparison');
 
   const renderCard = (cp: CheckpointMeta) => {
     const benchmarkRow = cp.benchmarkLabel
