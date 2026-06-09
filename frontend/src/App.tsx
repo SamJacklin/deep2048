@@ -8,6 +8,7 @@ import QValueChart from './components/QValueChart';
 import StatsPanel from './components/StatsPanel';
 import CheckpointSelector from './components/CheckpointSelector';
 import BenchmarkTable from './components/BenchmarkTable';
+import ArchitectureSection from './components/ArchitectureSection';
 
 function useBenchmark() {
   const [benchmark, setBenchmark] = useState<BenchmarkRow[] | null>(null);
@@ -124,8 +125,19 @@ export default function App() {
               <span className="text-sm text-zinc-500">{replay.checkpoint_description}</span>
             </div>
 
-            {/* Main 3-column layout */}
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 items-start">
+            {/* Board + Controls — centred, full attention */}
+            <div className="flex flex-col items-center gap-4">
+              <Board
+                board={currentFrame.board}
+                prevBoard={prevFrame?.board ?? null}
+              />
+              <div className="w-full max-w-[360px] rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+                <Controls player={player} />
+              </div>
+            </div>
+
+            {/* Stats + Q-Values below */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left: Stats */}
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
                 <StatsPanel
@@ -134,18 +146,7 @@ export default function App() {
                 />
               </div>
 
-              {/* Centre: Board + Controls */}
-              <div className="flex flex-col items-center gap-4">
-                <Board
-                  board={currentFrame.board}
-                  prevBoard={prevFrame?.board ?? null}
-                />
-                <div className="w-full max-w-[360px] rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
-                  <Controls player={player} />
-                </div>
-              </div>
-
-              {/* Right: Q-Values */}
+              {/* Right: Q-Values + Architecture */}
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
                 <QValueChart
                   qValues={currentFrame.q_values}
@@ -154,16 +155,6 @@ export default function App() {
                   label={replay.score_label}
                 />
 
-                {/* Architecture note */}
-                <div className="mt-6 pt-4 border-t border-zinc-800 flex flex-col gap-2">
-                  <p className="text-xs text-zinc-500 uppercase tracking-widest">Architecture</p>
-                  <ul className="text-xs text-zinc-500 space-y-2.5 leading-relaxed">
-                    <li><span className="text-zinc-400 font-medium">Dueling Double DQN</span> separates state value from move advantage, keeping Q-estimates grounded</li>
-                    <li><span className="text-zinc-400 font-medium">Multi-path CNN</span> runs separate row and column streams alongside 3x3 convolutions, matching the axis-aligned structure of 2048</li>
-                    <li><span className="text-zinc-400 font-medium">PER + n-step returns (n=5)</span> replays surprising transitions more often and propagates reward further back, so the network learns consequences not just immediate payoff</li>
-                    <li className="text-zinc-600">1024-dim hidden, 4 outputs, cosine LR decay, 925K steps</li>
-                  </ul>
-                </div>
               </div>
             </div>
 
@@ -194,6 +185,8 @@ export default function App() {
             {' '}to generate data.
           </div>
         )}
+
+        <ArchitectureSection />
 
         {/* Benchmark comparison */}
         {benchmark && (
