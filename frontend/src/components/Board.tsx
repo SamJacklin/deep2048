@@ -8,9 +8,9 @@ interface BoardProps {
 
 // Tile value → [bg, text, font-size class]
 function tileStyle(value: number, isDark: boolean): { bg: string; text: string; fs: string } {
-  if (value === 0) return { bg: isDark ? '#27272a' : '#d4d4d8', text: isDark ? '#3f3f46' : '#a1a1aa', fs: '' };
-  if (value === 2)    return { bg: '#e4e4e7', text: '#18181b', fs: 'text-2xl' };
-  if (value === 4)    return { bg: '#d4d4d8', text: '#18181b', fs: 'text-2xl' };
+  if (value === 0) return { bg: isDark ? '#27272a' : '#c4c4c8', text: isDark ? '#3f3f46' : '#a1a1aa', fs: '' };
+  if (value === 2)    return { bg: isDark ? '#e4e4e7' : '#fafafa', text: '#18181b', fs: 'text-2xl' };
+  if (value === 4)    return { bg: isDark ? '#d4d4d8' : '#f4f4f5', text: '#18181b', fs: 'text-2xl' };
   if (value === 8)    return { bg: '#fde68a', text: '#1c1917', fs: 'text-2xl' };
   if (value === 16)   return { bg: '#fcd34d', text: '#1c1917', fs: 'text-2xl' };
   if (value === 32)   return { bg: '#fdba74', text: '#1c1917', fs: 'text-2xl' };
