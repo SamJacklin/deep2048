@@ -1,3 +1,4 @@
 [submodule "frontend/src/toolkit"]
 	path = frontend/src/toolkit
 	url = git@github.com:SamJacklin/toolkit.git
+	branch = main
