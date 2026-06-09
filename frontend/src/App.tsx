@@ -186,8 +186,6 @@ export default function App() {
           </div>
         )}
 
-        <ArchitectureSection />
-
         {/* Benchmark comparison */}
         {benchmark && (
           <section className="flex flex-col gap-3">
@@ -200,6 +198,8 @@ export default function App() {
             </div>
           </section>
         )}
+
+        <ArchitectureSection />
       </main>
 
       {/* Footer */}
