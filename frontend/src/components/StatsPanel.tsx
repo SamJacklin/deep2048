@@ -5,16 +5,6 @@ interface StatsPanelProps {
   frame: ReplayFrame;
 }
 
-function Stat({ label, value, highlight }: { label: string; value: string | number; highlight?: boolean }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-zinc-500 uppercase tracking-widest">{label}</span>
-      <span className={`text-lg font-bold tabular-nums ${highlight ? 'text-blue-400' : 'text-zinc-100'}`}>
-        {value}
-      </span>
-    </div>
-  );
-}
 
 function Divider() {
   return <div className="border-t border-zinc-800 my-1" />;
