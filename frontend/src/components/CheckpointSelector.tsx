@@ -11,7 +11,6 @@ interface CheckpointSelectorProps {
 
 const GROUP_LABELS: Record<string, string> = {
   progression: 'Training Progression',
-  comparison: 'Approach Comparison',
 };
 
 function CheckpointCard({
@@ -103,44 +102,93 @@ export default function CheckpointSelector({
   benchmark,
   onSelect,
 }: CheckpointSelectorProps) {
-  const groups = ['progression', 'comparison'] as const;
+  const progression = checkpoints.filter(cp => cp.group === 'progression');
+  const comparison = checkpoints.filter(cp => cp.group === 'comparison');
+
+  const renderCard = (cp: CheckpointMeta) => {
+    const benchmarkRow = cp.benchmarkLabel
+      ? (benchmark?.find(r => r.label === cp.benchmarkLabel) ?? null)
+      : null;
+    return (
+      <CheckpointCard
+        key={cp.name}
+        cp={cp}
+        isSelected={selected === cp.name}
+        replay={replays[cp.name]}
+        isLoading={loading[cp.name] ?? false}
+        benchmarkRow={benchmarkRow}
+        onSelect={() => onSelect(cp.name)}
+      />
+    );
+  };
+
+  const bestDqn = checkpoints.find(cp => cp.name === 'best');
+  const heuristic = checkpoints.find(cp => cp.name === 'heuristic');
 
   return (
-    <div className="flex flex-col gap-6">
-      {groups.map(group => {
-        const groupCheckpoints = checkpoints.filter(cp => cp.group === group);
-        if (groupCheckpoints.length === 0) return null;
+    <div className="flex flex-col gap-8">
+      {/* Training progression */}
+      <div className="flex flex-col gap-3">
+        <p className="text-xs text-zinc-500 uppercase tracking-widest">
+          {GROUP_LABELS['progression']}
+        </p>
+        <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+          {progression.map(renderCard)}
+        </div>
+      </div>
 
-        return (
-          <div key={group} className="flex flex-col gap-3">
-            <p className="text-xs text-zinc-500 uppercase tracking-widest">
-              {GROUP_LABELS[group]}
-            </p>
-            <div className={`grid gap-3 ${
-              group === 'progression'
-                ? 'grid-cols-2 md:grid-cols-4'
-                : 'grid-cols-1 md:grid-cols-2'
-            }`}>
-              {groupCheckpoints.map(cp => {
-                const benchmarkRow = cp.benchmarkLabel
-                  ? (benchmark?.find(r => r.label === cp.benchmarkLabel) ?? null)
-                  : null;
-                return (
-                  <CheckpointCard
-                    key={cp.name}
-                    cp={cp}
-                    isSelected={selected === cp.name}
-                    replay={replays[cp.name]}
-                    isLoading={loading[cp.name] ?? false}
-                    benchmarkRow={benchmarkRow}
-                    onSelect={() => onSelect(cp.name)}
-                  />
-                );
-              })}
-            </div>
+      {/* Head-to-head comparison */}
+      {bestDqn && heuristic && (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-baseline gap-3">
+            <p className="text-xs text-zinc-500 uppercase tracking-widest">Learned vs Classical</p>
+            <p className="text-xs text-zinc-600">Does training beat hand-crafted rules?</p>
           </div>
-        );
-      })}
+          <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+            {[bestDqn, heuristic].map(cp => {
+              const benchmarkRow = cp.benchmarkLabel
+                ? (benchmark?.find(r => r.label === cp.benchmarkLabel) ?? null)
+                : null;
+              const isSelected = selected === cp.name;
+              return (
+                <button
+                  key={cp.name}
+                  onClick={() => onSelect(cp.name)}
+                  className={`text-left p-5 rounded-lg border transition-all ${
+                    isSelected
+                      ? 'border-blue-500 bg-blue-950/40'
+                      : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-600'
+                  }`}
+                >
+                  <div className={`text-sm font-bold mb-1 ${isSelected ? 'text-blue-400' : 'text-zinc-300'}`}>
+                    {cp.label}
+                  </div>
+                  <div className="text-xs text-zinc-500 mb-4 leading-snug">{cp.description}</div>
+
+                  {benchmarkRow && (
+                    <div className="flex gap-6">
+                      <div>
+                        <div className="text-xs text-zinc-600 mb-0.5">Avg score</div>
+                        <div className={`text-2xl font-bold tabular-nums ${isSelected ? 'text-zinc-100' : 'text-zinc-300'}`}>
+                          {benchmarkRow.avg_score.toLocaleString()}
+                        </div>
+                      </div>
+                      {(['512', '1024'] as const).map(t => (
+                        <div key={t}>
+                          <div className="text-xs text-zinc-600 mb-0.5">≥{t}</div>
+                          <div className={`text-2xl font-bold tabular-nums ${isSelected ? 'text-zinc-100' : 'text-zinc-300'}`}>
+                            {benchmarkRow.tile_pcts[t].toFixed(0)}%
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
