@@ -9,6 +9,21 @@ import StatsPanel from './components/StatsPanel';
 import CheckpointSelector from './components/CheckpointSelector';
 import BenchmarkTable from './components/BenchmarkTable';
 import ArchitectureSection from './components/ArchitectureSection';
+import { ThemeProvider } from './toolkit/frontend/portfolio/components/ThemeContext';
+import { ThemeTransition } from './toolkit/frontend/portfolio/components/ThemeTransition';
+import Navbar from './toolkit/frontend/portfolio/components/Navbar/Navbar';
+
+const navLogo = (
+  <>
+    sam<span className="text-blue-500">.</span>jacklin
+    <span className="text-zinc-700 mx-2">/</span>
+    <span className="text-zinc-300">deep-2048</span>
+  </>
+);
+
+const navLinks = [
+  { label: 'github ↗', href: 'https://github.com/samjacklin/deep2048', scroll: false },
+];
 
 function useBenchmark() {
   const [benchmark, setBenchmark] = useState<BenchmarkRow[] | null>(null);
@@ -43,7 +58,7 @@ function useReplays() {
   return { replays, loading, load };
 }
 
-export default function App() {
+function AppContent() {
   const [selected, setSelected] = useState('best');
   const { replays, loading, load } = useReplays();
   const benchmark = useBenchmark();
@@ -60,25 +75,9 @@ export default function App() {
   const prevFrame = replay && frameIndex > 0 ? replay.frames[frameIndex - 1] : null;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      {/* Header */}
-      <header className="border-b border-zinc-800 sticky top-0 z-10 bg-zinc-950/90 backdrop-blur">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-          <span className="font-mono text-sm text-zinc-400">
-            sam<span className="text-blue-500">.</span>jacklin
-            <span className="text-zinc-700 mx-2">/</span>
-            <span className="text-zinc-300">deep-2048</span>
-          </span>
-          <a
-            href="https://github.com/samjacklin/deep2048"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-mono"
-          >
-            github ↗
-          </a>
-        </div>
-      </header>
+    <ThemeTransition>
+      <div className="min-h-screen bg-zinc-950 text-zinc-100">
+        <Navbar logo={navLogo} links={navLinks} />
 
       <main className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-10">
         {/* Intro */}
@@ -213,6 +212,15 @@ export default function App() {
           </span>
         </div>
       </footer>
-    </div>
+      </div>
+    </ThemeTransition>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }
