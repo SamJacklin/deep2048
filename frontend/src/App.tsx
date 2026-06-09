@@ -204,7 +204,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="border-t border-zinc-800 mt-10 py-8 px-6">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <div className="max-w-5xl mx-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <span className="font-mono text-xs text-zinc-600">
             sam<span className="text-blue-500">.</span>jacklin
           </span>
