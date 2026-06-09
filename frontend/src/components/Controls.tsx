@@ -49,7 +49,7 @@ export default function Controls({ player }: ControlsProps) {
       </div>
 
       {/* Buttons */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-center gap-4">
         <div className="flex items-center gap-1">
           {/* Reset */}
           <IconButton onClick={reset} title="Reset">
