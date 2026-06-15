@@ -22,7 +22,7 @@ const navLogo = (
 );
 
 const navLinks = [
-  { label: 'github ↗', href: 'https://github.com/samjacklin/deep2048', scroll: false },
+  { label: 'github ↗', href: 'https://github.com/SamJacklin', scroll: false },
 ];
 
 function useBenchmark() {
