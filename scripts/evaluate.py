@@ -4,7 +4,7 @@ Usage examples:
     uv run python scripts/evaluate.py                          # DQN best, 100 games
     uv run python scripts/evaluate.py --mode drl_search -n 50
     uv run python scripts/evaluate.py --mode heuristic -n 50
-    uv run python scripts/evaluate.py --mode all -n 100        # side-by-side comparison
+    uv run python scripts/evaluate.py --mode all -n 100        # DQN vs heuristic side-by-side
     uv run python scripts/evaluate.py checkpoints/step_350068.pt --mode drl -n 200
 """
 
@@ -151,7 +151,7 @@ def main() -> None:
         "--mode",
         choices=["drl", "drl_search", "heuristic", "all"],
         default="drl",
-        help="Agent mode. 'all' runs all three for side-by-side comparison (default: drl)",
+        help="Agent mode. 'all' runs DQN and heuristic side-by-side (default: drl)",
     )
     parser.add_argument(
         "--depth",
@@ -177,7 +177,6 @@ def main() -> None:
     if args.mode == "all":
         modes = [
             ("drl", 1),
-            ("drl_search", 1 if args.depth is None else args.depth),
             ("heuristic", 2 if args.depth is None else args.depth),
         ]
         results = []

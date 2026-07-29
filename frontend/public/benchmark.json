@@ -12,18 +12,6 @@
     }
   },
   {
-    "label": "DQN+Search depth=1 (best)",
-    "n_games": 100,
-    "avg_score": 2224,
-    "avg_max_tile": 211,
-    "tile_pcts": {
-      "256": 43.0,
-      "512": 16.0,
-      "1024": 2.0,
-      "2048": 0.0
-    }
-  },
-  {
     "label": "Heuristic depth=2",
     "n_games": 100,
     "avg_score": 19453,
