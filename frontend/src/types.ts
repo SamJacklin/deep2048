@@ -19,7 +19,7 @@ export interface Replay {
   checkpoint_name: string;
   checkpoint_label: string;
   checkpoint_description: string;
-  agent_type: 'drl' | 'drl_search' | 'heuristic';
+  agent_type: 'drl' | 'heuristic';
   search_depth: number | null;
   score_label: string;
   training_step: number;

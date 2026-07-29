@@ -2,7 +2,6 @@
 
 Produces one replay per agent:
   - Four DQN training checkpoints (progression)
-  - DQN best checkpoint guided by depth-1 expectimax search
   - Pure heuristic depth-2 expectimax (no neural network)
 
 Usage:
@@ -24,7 +23,6 @@ from deep_2048.game_logic.encoding import encode_board
 from deep_2048.game_logic.moves import apply_move, get_valid_actions, is_game_over
 from deep_2048.model.agent import DQNAgent
 from deep_2048.model.heuristic import heuristic_select
-from deep_2048.model.search import dqn_search_select
 
 OUTPUT_DIR = Path("frontend/public/replays")
 MAX_FRAMES = 1400
@@ -77,16 +75,6 @@ DQN_CHECKPOINTS = [
 ]
 
 COMPARISON_AGENTS = [
-    {
-        "name": "drl_search",
-        "label": "DQN + Search",
-        "description": "Best DQN + depth-1 expectimax — shows limits of using learned Q-values as a planner",
-        "agent_type": "drl_search",
-        "search_depth": 1,
-        "score_label": "Search Scores",
-        "pt": "checkpoints/best.pt",
-        "json": "checkpoints/best.json",
-    },
     {
         "name": "heuristic",
         "label": "Heuristic Search",
@@ -211,10 +199,6 @@ def main() -> None:
             _agent = agent
             def move_fn(board, valid, a=_agent):
                 return _dqn_move(a, board, valid)
-        elif agent_type == "drl_search":
-            _agent = agent
-            def move_fn(board, valid, a=_agent):
-                return dqn_search_select(a, board, valid)
         else:  # heuristic
             _depth = cp["search_depth"]
             def move_fn(board, valid, d=_depth):
