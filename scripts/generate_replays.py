@@ -17,12 +17,12 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from deep_2048.game_logic.board import initialise_board, spawn_random_tile
-from deep_2048.game_logic.constants import Action, SPAWN_TILE_WEIGHTS
-from deep_2048.game_logic.encoding import encode_board
-from deep_2048.game_logic.moves import apply_move, get_valid_actions, is_game_over
-from deep_2048.model.agent import DQNAgent
-from deep_2048.model.heuristic import heuristic_select
+from deep_2048.game.board import initialise_board, spawn_random_tile
+from deep_2048.game.constants import Action, SPAWN_TILE_WEIGHTS
+from deep_2048.game.encoding import encode_board
+from deep_2048.game.moves import apply_move, get_valid_actions, is_game_over
+from deep_2048.agents.dqn.agent import DQNAgent
+from deep_2048.agents.heuristic.expectimax import heuristic_select
 
 OUTPUT_DIR = Path("frontend/public/replays")
 MAX_FRAMES = 1400
@@ -39,8 +39,8 @@ DQN_CHECKPOINTS = [
         "agent_type": "drl",
         "search_depth": None,
         "score_label": "Q-Values",
-        "pt": "checkpoints/step_100083.pt",
-        "json": "checkpoints/step_100083.json",
+        "pt": "checkpoints/dqn/step_100083.pt",
+        "json": "checkpoints/dqn/step_100083.json",
     },
     {
         "name": "step_350068",
@@ -49,8 +49,8 @@ DQN_CHECKPOINTS = [
         "agent_type": "drl",
         "search_depth": None,
         "score_label": "Q-Values",
-        "pt": "checkpoints/step_350068.pt",
-        "json": "checkpoints/step_350068.json",
+        "pt": "checkpoints/dqn/step_350068.pt",
+        "json": "checkpoints/dqn/step_350068.json",
     },
     {
         "name": "step_625066",
@@ -59,8 +59,8 @@ DQN_CHECKPOINTS = [
         "agent_type": "drl",
         "search_depth": None,
         "score_label": "Q-Values",
-        "pt": "checkpoints/step_625066.pt",
-        "json": "checkpoints/step_625066.json",
+        "pt": "checkpoints/dqn/step_625066.pt",
+        "json": "checkpoints/dqn/step_625066.json",
     },
     {
         "name": "best",
@@ -69,8 +69,8 @@ DQN_CHECKPOINTS = [
         "agent_type": "drl",
         "search_depth": None,
         "score_label": "Q-Values",
-        "pt": "checkpoints/best.pt",
-        "json": "checkpoints/best.json",
+        "pt": "checkpoints/dqn/best.pt",
+        "json": "checkpoints/dqn/best.json",
     },
 ]
 

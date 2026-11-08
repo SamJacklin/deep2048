@@ -7,12 +7,12 @@ import torch.nn.functional as F
 from torch import optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
-from deep_2048.config import get_settings
-from deep_2048.game_logic.constants import Action
-from deep_2048.model.models import ActionSelectionResult, OptimisationResult, ReplayBatch
-from deep_2048.model.network import DQN
+from deep_2048.agents.dqn.config import get_dqn_settings
+from deep_2048.agents.dqn.models import ActionSelectionResult, OptimisationResult, ReplayBatch
+from deep_2048.agents.dqn.network import DQN
+from deep_2048.game.constants import Action
 
-settings = get_settings()
+settings = get_dqn_settings()
 
 
 def get_device() -> torch.device:

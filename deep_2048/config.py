@@ -2,39 +2,11 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    """Game-level settings shared by every agent."""
+
     BOARD_SIZE: int = 4
     NUM_TILE_LEVELS: int = 16  # covers empty (0) + tiles 2^1 through 2^15
     SEED: int = 42
-
-    GAMMA: float = 0.99
-    LEARNING_RATE: float = 1e-4
-    BATCH_SIZE: int = 64
-    REPLAY_CAPACITY: int = 100_000
-    MIN_REPLAY_SIZE: int = 2_000
-
-    EPSILON_START: float = 1.0
-    EPSILON_END: float = 0.01
-    EPSILON_DECAY: int = 50_000
-
-    N_STEPS: int = 5
-    MILESTONE_BONUS_SCALE: float = 3.0
-    TAU: float = 1.0
-    TARGET_UPDATE_FREQUENCY: int = 1_000  # soft-update target network every N steps
-    LR_ETA_MIN: float = 1e-5             # cosine scheduler floor (was hardcoded 1e-6)
-    TRAINING_STEPS: int = 200_000
-    EVAL_EVERY: int = 10_000
-    EVAL_EPISODES: int = 100
-
-    HIDDEN_DIM: int = 256
-    GRAD_CLIP_NORM: float = 10.0
-
-    PER_ALPHA: float = 0.6        # priority exponent — 0 = uniform, 1 = fully prioritised
-    PER_BETA_START: float = 0.4   # IS weight exponent at start of training
-    PER_BETA_END: float = 1.0     # IS weight exponent at end of training (fully corrects bias)
-    PER_PRIORITY_EPSILON: float = 1e-5  # small constant added to TD errors to prevent zero priority
-
-    CHECKPOINT_DIR: str = "checkpoints"
-    OUTPUT_DIR: str = "output"
 
 
 def get_settings() -> Settings:

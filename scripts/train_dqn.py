@@ -1,6 +1,6 @@
 import argparse
 
-from deep_2048.model.trainer import train
+from deep_2048.agents.dqn.trainer import train
 
 
 def main() -> None:
@@ -9,7 +9,7 @@ def main() -> None:
         "--resume",
         metavar="CHECKPOINT",
         default=None,
-        help="Path to a checkpoint to resume training from (e.g. checkpoints/final.pt)",
+        help="Path to a checkpoint to resume training from (e.g. checkpoints/dqn/final.pt)",
     )
     args = parser.parse_args()
 

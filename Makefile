@@ -26,36 +26,36 @@ check: lint-check type-check
 .PHONY: format
 format: lint-fix type-check
 
-.PHONY: train
-train:
-	uv run python scripts/train.py
+.PHONY: train-dqn
+train-dqn:
+	uv run python scripts/train_dqn.py
 
-.PHONY: resume
-resume:
-	uv run python scripts/train.py --resume $(CHECKPOINT)
+.PHONY: resume-dqn
+resume-dqn:
+	uv run python scripts/train_dqn.py --resume $(CHECKPOINT)
 
-# Run a single game (ARGS="--mode drl_search", "--mode heuristic", "--render", etc.)
+# Run a single game (ARGS="--agent dqn_search", "--agent heuristic", "--render", etc.)
 .PHONY: play
 play:
 	uv run python scripts/play.py $(ARGS)
 
-# Evaluate agents over N games — defaults to all three side-by-side
-# Override: ARGS="--mode drl -n 200", ARGS="--mode heuristic -n 50", etc.
+# Evaluate agents over N games — defaults to DQN vs heuristic side-by-side
+# Override: ARGS="--agent dqn -n 200", ARGS="--agent heuristic -n 50", etc.
 .PHONY: evaluate
 evaluate:
-	uv run python scripts/evaluate.py --mode all $(ARGS)
+	uv run python scripts/evaluate.py --agent all $(ARGS)
 
 # Evaluate all agents and write results to frontend/public/benchmark.json
 .PHONY: benchmark
 benchmark:
-	uv run python scripts/evaluate.py --mode all --json frontend/public/benchmark.json $(ARGS)
+	uv run python scripts/evaluate.py --agent all --json frontend/public/benchmark.json $(ARGS)
 
 # Generate frontend replay JSON files
 .PHONY: replays
 replays:
 	uv run python scripts/generate_replays.py
 
-# Plot training metrics from output/training_history.csv
+# Plot DQN training metrics from output/dqn/training_history.csv
 .PHONY: plot
 plot:
 	uv run python scripts/plot.py $(ARGS)

@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from pydantic import BaseModel, ConfigDict, Field
 
-from deep_2048.game_logic.constants import Action
+from deep_2048.game.constants import Action
 
 
 class Transition(BaseModel):

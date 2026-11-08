@@ -1,4 +1,4 @@
-"""Show training results from output/training_history.csv."""
+"""Show training results from output/dqn/training_history.csv."""
 
 import argparse
 import csv
@@ -28,7 +28,7 @@ def load_csv(path: str) -> dict[str, list]:
     return columns
 
 
-def main(csv_path: str = "output/training_history.csv", window: int = 50) -> None:
+def main(csv_path: str = "output/dqn/training_history.csv", window: int = 50) -> None:
     data = load_csv(csv_path)
 
     steps = np.array(data["training_step"], dtype=float)
@@ -113,7 +113,7 @@ def main(csv_path: str = "output/training_history.csv", window: int = 50) -> Non
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--csv", default="output/training_history.csv")
+    parser.add_argument("--csv", default="output/dqn/training_history.csv")
     parser.add_argument("--window", type=int, default=50, help="Rolling mean window for raw episode score and loss")
     args = parser.parse_args()
     main(csv_path=args.csv, window=args.window)

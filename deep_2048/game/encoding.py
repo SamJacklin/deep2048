@@ -1,7 +1,7 @@
 import numpy as np
 
 from deep_2048.config import get_settings
-from deep_2048.game_logic.models import BoardEncoding
+from deep_2048.game.models import BoardEncoding
 
 settings = get_settings()
 
