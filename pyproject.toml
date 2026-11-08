@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "matplotlib>=3.10.8",
+    "numba>=0.68.1",
     "numpy>=2.4.3",
     "pydantic-settings>=2.13.1",
     "torch>=2.10.0",
@@ -16,6 +17,7 @@ dependencies = [
 dev = [
   "isort",
   "mypy[reports]==1.*",
+  "pytest>=9.2.0",
   "ruff",
 ]
 
@@ -29,6 +31,13 @@ sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "TESTS", "LOCALFOLDE
 
 [tool.mypy]
 plugins = ['pydantic.mypy']
+
+[[tool.mypy.overrides]]
+module = ["numba", "numba.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 200

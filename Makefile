@@ -26,6 +26,10 @@ check: lint-check type-check
 .PHONY: format
 format: lint-fix type-check
 
+.PHONY: test
+test:
+	uv run pytest $(ARGS)
+
 .PHONY: train-dqn
 train-dqn:
 	uv run python scripts/train_dqn.py
