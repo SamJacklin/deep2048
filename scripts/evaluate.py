@@ -4,6 +4,7 @@ Usage examples:
     uv run python scripts/evaluate.py                              # DQN best, 100 games
     uv run python scripts/evaluate.py --agent dqn_search -n 50
     uv run python scripts/evaluate.py --agent heuristic -n 50
+    uv run python scripts/evaluate.py --agent ntuple -n 100         # checkpoints/ntuple/latest.npz
     uv run python scripts/evaluate.py --agent all -n 100           # DQN vs heuristic side-by-side
     uv run python scripts/evaluate.py checkpoints/dqn/step_350068.pt --agent dqn -n 200
 """
@@ -15,7 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from deep_2048.agents import AGENT_NAMES, DEFAULT_DQN_CHECKPOINT, load_agent
+from deep_2048.agents import AGENT_NAMES, DEFAULT_DQN_CHECKPOINT, DEFAULT_NTUPLE_CHECKPOINT, load_agent
 from deep_2048.bench import EvalResult, run_games
 
 # Agents run by `--agent all`, in table order.
@@ -48,8 +49,8 @@ def main() -> None:
     parser.add_argument(
         "checkpoint",
         nargs="?",
-        default=DEFAULT_DQN_CHECKPOINT,
-        help=f"Path to .pt checkpoint for learned agents (default: {DEFAULT_DQN_CHECKPOINT})",
+        default=None,
+        help=f"Checkpoint for learned agents (default: {DEFAULT_DQN_CHECKPOINT} for DQN agents, {DEFAULT_NTUPLE_CHECKPOINT} for ntuple)",
     )
     parser.add_argument(
         "--agent",

@@ -6,8 +6,9 @@ Imports are deferred so that, for example, running the heuristic doesn't import 
 from deep_2048.agents.base import Agent, Decision
 
 DEFAULT_DQN_CHECKPOINT = "checkpoints/dqn/best.pt"
+DEFAULT_NTUPLE_CHECKPOINT = "checkpoints/ntuple/latest.npz"
 
-AGENT_NAMES: tuple[str, ...] = ("dqn", "dqn_search", "heuristic")
+AGENT_NAMES: tuple[str, ...] = ("dqn", "dqn_search", "heuristic", "ntuple")
 
 
 def load_agent(name: str, *, checkpoint: str | None = None, depth: int | None = None) -> Agent:
@@ -15,7 +16,7 @@ def load_agent(name: str, *, checkpoint: str | None = None, depth: int | None = 
 
     Args:
         name:       One of AGENT_NAMES.
-        checkpoint: Model checkpoint for learned agents (default: DEFAULT_DQN_CHECKPOINT).
+        checkpoint: Checkpoint for learned agents (default: that agent's DEFAULT_*_CHECKPOINT).
         depth:      Search depth for search-based agents (default: 2).
     """
     if name == "heuristic":
@@ -33,7 +34,12 @@ def load_agent(name: str, *, checkpoint: str | None = None, depth: int | None = 
 
         return DQNSearchPolicy(checkpoint or DEFAULT_DQN_CHECKPOINT, depth=depth or 2)
 
+    if name == "ntuple":
+        from deep_2048.agents.ntuple import NTupleAgent
+
+        return NTupleAgent(checkpoint or DEFAULT_NTUPLE_CHECKPOINT)
+
     raise ValueError(f"Unknown agent {name!r}. Choose from: {', '.join(AGENT_NAMES)}")
 
 
-__all__ = ["Agent", "Decision", "AGENT_NAMES", "DEFAULT_DQN_CHECKPOINT", "load_agent"]
+__all__ = ["Agent", "Decision", "AGENT_NAMES", "DEFAULT_DQN_CHECKPOINT", "DEFAULT_NTUPLE_CHECKPOINT", "load_agent"]

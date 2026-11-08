@@ -15,11 +15,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from deep_2048.agents import AGENT_NAMES, DEFAULT_DQN_CHECKPOINT, load_agent
+from deep_2048.agents import AGENT_NAMES, DEFAULT_DQN_CHECKPOINT, DEFAULT_NTUPLE_CHECKPOINT, load_agent
 from deep_2048.game.game import Game2048
 
 
-def play(name: str, depth: int, checkpoint: str, render: bool, delay: float) -> None:
+def play(name: str, depth: int, checkpoint: str | None, render: bool, delay: float) -> None:
     agent = load_agent(name, checkpoint=checkpoint, depth=depth)
 
     game = Game2048()
@@ -50,8 +50,8 @@ def main() -> None:
     parser.add_argument(
         "checkpoint",
         nargs="?",
-        default=DEFAULT_DQN_CHECKPOINT,
-        help=f"Path to .pt checkpoint for learned agents (default: {DEFAULT_DQN_CHECKPOINT})",
+        default=None,
+        help=f"Checkpoint for learned agents (default: {DEFAULT_DQN_CHECKPOINT} for DQN agents, {DEFAULT_NTUPLE_CHECKPOINT} for ntuple)",
     )
     parser.add_argument(
         "--agent",
