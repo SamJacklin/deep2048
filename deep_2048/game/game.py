@@ -1,17 +1,17 @@
 import numpy as np
 
 from deep_2048.config import get_settings
-from deep_2048.game_logic.board import (
+from deep_2048.game.board import (
     copy_board,
     get_max_tile,
     initialise_board,
     render_board,
     spawn_random_tile,
 )
-from deep_2048.game_logic.constants import SPAWN_TILE_WEIGHTS, Action
-from deep_2048.game_logic.encoding import encode_board
-from deep_2048.game_logic.models import GameInfo, GameSnapshot, GameState, StepResult
-from deep_2048.game_logic.moves import apply_move, get_valid_actions, is_game_over
+from deep_2048.game.constants import SPAWN_TILE_WEIGHTS, Action
+from deep_2048.game.encoding import encode_board
+from deep_2048.game.models import GameInfo, GameSnapshot, GameState, StepResult
+from deep_2048.game.moves import apply_move, get_valid_actions, is_game_over
 
 settings = get_settings()
 

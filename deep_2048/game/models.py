@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
-from deep_2048.game_logic.constants import Action
+from deep_2048.game.constants import Action
 
 
 class BoardEncoding(BaseModel):

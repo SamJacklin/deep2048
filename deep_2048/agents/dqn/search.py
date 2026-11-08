@@ -25,10 +25,10 @@ Leaf evaluation:
 import numpy as np
 import torch
 
-from deep_2048.game_logic.constants import Action
-from deep_2048.game_logic.encoding import encode_board
-from deep_2048.game_logic.moves import apply_move, get_valid_actions
-from deep_2048.model.agent import DQNAgent
+from deep_2048.agents.dqn.agent import DQNAgent
+from deep_2048.game.constants import Action
+from deep_2048.game.encoding import encode_board
+from deep_2048.game.moves import apply_move, get_valid_actions
 
 _SPAWN_PAIRS = ((2, 0.9), (4, 0.1))
 

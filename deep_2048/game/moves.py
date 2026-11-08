@@ -1,7 +1,7 @@
 import numpy as np
 
-from deep_2048.game_logic.constants import ACTIONS, Action
-from deep_2048.game_logic.models import MoveAnalysis, MoveResult
+from deep_2048.game.constants import ACTIONS, Action
+from deep_2048.game.models import MoveAnalysis, MoveResult
 
 
 def _collapse_row_left(row: np.ndarray) -> tuple[np.ndarray, int]:

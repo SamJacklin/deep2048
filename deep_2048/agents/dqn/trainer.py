@@ -8,10 +8,9 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from deep_2048.config import get_settings
-from deep_2048.game_logic import Game2048
-from deep_2048.model.agent import DQNAgent, get_device
-from deep_2048.model.models import (
+from deep_2048.agents.dqn.agent import DQNAgent, get_device
+from deep_2048.agents.dqn.config import get_dqn_settings
+from deep_2048.agents.dqn.models import (
     CheckpointMetadata,
     CheckpointResult,
     EpisodeSummary,
@@ -20,9 +19,10 @@ from deep_2048.model.models import (
     TrainingSummary,
     Transition,
 )
-from deep_2048.model.replay_buffer import NStepBuffer, PrioritizedReplayBuffer
+from deep_2048.agents.dqn.replay_buffer import NStepBuffer, PrioritizedReplayBuffer
+from deep_2048.game import Game2048
 
-settings = get_settings()
+settings = get_dqn_settings()
 
 
 def train(resume_from: str | None = None) -> TrainingSummary:

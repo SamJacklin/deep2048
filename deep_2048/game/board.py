@@ -1,6 +1,6 @@
 import numpy as np
 
-from deep_2048.game_logic.models import BoardStats, RenderedBoard, SpawnResult
+from deep_2048.game.models import BoardStats, RenderedBoard, SpawnResult
 
 
 def create_empty_board(board_size: int) -> np.ndarray:

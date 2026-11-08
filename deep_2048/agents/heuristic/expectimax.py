@@ -20,8 +20,8 @@ Design notes:
 
 import numpy as np
 
-from deep_2048.game_logic.constants import Action
-from deep_2048.game_logic.moves import apply_move, get_valid_actions, is_game_over
+from deep_2048.game.constants import Action
+from deep_2048.game.moves import apply_move, get_valid_actions, is_game_over
 
 
 def _log_board(board: np.ndarray) -> np.ndarray:
