@@ -39,6 +39,14 @@ resume-dqn:
 	uv run python scripts/train_dqn.py --resume $(CHECKPOINT)
 
 # Run a single game (ARGS="--agent dqn_search", "--agent heuristic", "--render", etc.)
+.PHONY: train-ntuple
+train-ntuple:
+	uv run python scripts/train_ntuple.py $(ARGS)
+
+.PHONY: resume-ntuple
+resume-ntuple:
+	uv run python scripts/train_ntuple.py --resume $(or $(CHECKPOINT),checkpoints/ntuple/latest.npz) $(ARGS)
+
 .PHONY: play
 play:
 	uv run python scripts/play.py $(ARGS)
