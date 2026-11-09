@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 class CheckpointMetadata(BaseModel):
     games_played: int
+    moves_played: int
     learning_rate: float
 
 
@@ -20,6 +21,7 @@ class GameResults(NamedTuple):
 
 class TrainingHistoryRow(BaseModel):
     games: int
+    moves: int
     avg_score: float
     max_score: int
     avg_moves: float
@@ -30,10 +32,11 @@ class TrainingHistoryRow(BaseModel):
     games_per_second: float
 
     @classmethod
-    def from_results(cls, games_played: int, results: GameResults, seconds: float) -> "TrainingHistoryRow":
+    def from_results(cls, games_played: int, moves_played: int, results: GameResults, seconds: float) -> "TrainingHistoryRow":
         tiles = np.left_shift(1, results.max_exponents)
         return cls(
             games=games_played,
+            moves=moves_played,
             avg_score=float(results.scores.mean()),
             max_score=int(results.scores.max()),
             avg_moves=float(results.moves.mean()),
@@ -46,7 +49,7 @@ class TrainingHistoryRow(BaseModel):
 
     def __str__(self) -> str:
         return (
-            f"  games {self.games:>8,}  avg score {self.avg_score:>8.0f}  max {self.max_score:>7}  "
+            f"  games {self.games:>9,}  moves {self.moves / 1e6:>8.1f}M  avg score {self.avg_score:>8.0f}  max {self.max_score:>7}  "
             f"≥2048 {self.rate_2048:5.1f}%  ≥4096 {self.rate_4096:5.1f}%  ≥8192 {self.rate_8192:5.1f}%  "
             f"| {self.games_per_second:6.1f} games/s"
         )

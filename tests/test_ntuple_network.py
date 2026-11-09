@@ -73,7 +73,7 @@ def test_update() -> None:
 def test_save_and_load_round_trip(tmp_path) -> None:
     network = random_network(7)
     path = tmp_path / "net.npz"
-    metadata = CheckpointMetadata(games_played=12, learning_rate=0.01)
+    metadata = CheckpointMetadata(games_played=12, moves_played=3_456, learning_rate=0.01)
     network.save(path, metadata)
 
     loaded, loaded_metadata = NTupleNetwork.load(path)

@@ -76,49 +76,66 @@ def play_games(n: int, weights: np.ndarray, layout: TupleLayout, learning_rate: 
     return results
 
 
-def train(resume_from: str | None = None, total_games: int | None = None, settings: NTupleSettings | None = None) -> TrainingSummary:
-    """Train until total_games have been played, including any in the resumed checkpoint. Ctrl-C saves and stops."""
+def train(
+    resume_from: str | None = None,
+    total_games: int | None = None,
+    snapshot_at: list[int] | None = None,
+    settings: NTupleSettings | None = None,
+) -> TrainingSummary:
+    """Train until total_games have been played, including any in the resumed checkpoint.
+
+    The network is also saved as games_<n>.npz at each game count in snapshot_at. Ctrl-C saves and stops.
+    """
     settings = settings or get_ntuple_settings()
     total_games = settings.TRAINING_GAMES if total_games is None else total_games
-    checkpoint_path = Path(settings.CHECKPOINT_DIR) / CHECKPOINT_NAME
+    snapshots = sorted(set(settings.SNAPSHOT_AT if snapshot_at is None else snapshot_at))
+    checkpoint_dir = Path(settings.CHECKPOINT_DIR)
+    checkpoint_path = checkpoint_dir / CHECKPOINT_NAME
     history_path = Path(settings.OUTPUT_DIR) / HISTORY_NAME
 
-    network, games_played = _load_or_create(resume_from)
+    network, progress = _load_or_create(resume_from, settings.LEARNING_RATE)
+    if resume_from is None:
+        history_path.unlink(missing_ok=True)
     # Offset by games played so a resumed run doesn't replay the same tile spawns
-    bb.seed(settings.SEED + games_played)
+    bb.seed(settings.SEED + progress.games_played)
     print(f"Training n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}")
     # Compile before timing starts, otherwise the first batch's games/s includes compilation
     play_games(0, network.weights, network.layout, settings.LEARNING_RATE, True)
 
     interrupted = False
     try:
-        while games_played < total_games:
-            batch = min(settings.LOG_EVERY, total_games - games_played)
+        while progress.games_played < total_games:
+            next_stop = min([total_games, *(s for s in snapshots if s > progress.games_played)])
+            batch = min(settings.LOG_EVERY, next_stop - progress.games_played)
             started = time.monotonic()
             results = play_games(batch, network.weights, network.layout, settings.LEARNING_RATE, True)
-            games_played += batch
+            progress.games_played += batch
+            progress.moves_played += int(results.moves.sum())
 
-            row = TrainingHistoryRow.from_results(games_played, results, time.monotonic() - started)
+            row = TrainingHistoryRow.from_results(progress.games_played, progress.moves_played, results, time.monotonic() - started)
             print(row, flush=True)
             _append_history(history_path, row)
 
-            if games_played % settings.CHECKPOINT_EVERY == 0 and games_played < total_games:
-                _save_checkpoint(network, checkpoint_path, games_played, settings.LEARNING_RATE)
+            if progress.games_played in snapshots:
+                _save_checkpoint(network, checkpoint_dir / f"games_{progress.games_played}.npz", progress)
+            if progress.games_played % settings.CHECKPOINT_EVERY == 0 and progress.games_played < total_games:
+                _save_checkpoint(network, checkpoint_path, progress)
     except KeyboardInterrupt:
         interrupted = True
-        print(f"\nStopped at {games_played:,} games")
+        print(f"\nStopped at {progress.games_played:,} games")
 
-    _save_checkpoint(network, checkpoint_path, games_played, settings.LEARNING_RATE)
-    return TrainingSummary(games_played=games_played, checkpoint_path=checkpoint_path, interrupted=interrupted)
+    _save_checkpoint(network, checkpoint_path, progress)
+    return TrainingSummary(games_played=progress.games_played, checkpoint_path=checkpoint_path, interrupted=interrupted)
 
 
-def _load_or_create(resume_from: str | None) -> tuple[NTupleNetwork, int]:
+def _load_or_create(resume_from: str | None, learning_rate: float) -> tuple[NTupleNetwork, CheckpointMetadata]:
+    """Return the network and how much training it has had, recording the learning rate used from now on."""
     if resume_from is None:
-        return NTupleNetwork(), 0
+        return NTupleNetwork(), CheckpointMetadata(games_played=0, moves_played=0, learning_rate=learning_rate)
 
     network, metadata = NTupleNetwork.load(resume_from)
     print(f"Resuming from {resume_from} at {metadata.games_played:,} games")
-    return network, metadata.games_played
+    return network, metadata.model_copy(update={"learning_rate": learning_rate})
 
 
 def _append_history(path: Path, row: TrainingHistoryRow) -> None:
@@ -131,6 +148,6 @@ def _append_history(path: Path, row: TrainingHistoryRow) -> None:
         writer.writerow(row.model_dump())
 
 
-def _save_checkpoint(network: NTupleNetwork, path: Path, games_played: int, learning_rate: float) -> None:
-    network.save(path, CheckpointMetadata(games_played=games_played, learning_rate=learning_rate))
-    print(f"  saved {path} ({games_played:,} games)")
+def _save_checkpoint(network: NTupleNetwork, path: Path, metadata: CheckpointMetadata) -> None:
+    network.save(path, metadata)
+    print(f"  saved {path} ({metadata.games_played:,} games)", flush=True)

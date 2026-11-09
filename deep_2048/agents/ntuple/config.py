@@ -11,6 +11,7 @@ class NTupleSettings(Settings):
     TRAINING_GAMES: int = 100_000
     LOG_EVERY: int = 1_000
     CHECKPOINT_EVERY: int = 10_000
+    SNAPSHOT_AT: list[int] = []
 
     CHECKPOINT_DIR: str = "checkpoints/ntuple"
     OUTPUT_DIR: str = "output/ntuple"

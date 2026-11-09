@@ -44,11 +44,31 @@ def test_train_checkpoints_and_resumes(tmp_path) -> None:
     assert metadata.games_played == 200
 
     second = train(resume_from=first.checkpoint_path, total_games=300, settings=settings)
-    _, metadata = NTupleNetwork.load(second.checkpoint_path)
-    assert second.games_played == 300 and metadata.games_played == 300
+    _, resumed = NTupleNetwork.load(second.checkpoint_path)
+    assert second.games_played == 300 and resumed.games_played == 300
+    assert resumed.moves_played > metadata.moves_played > 0
 
     with open(tmp_path / "output" / "training_history.csv") as f:
-        assert [int(row["games"]) for row in csv.DictReader(f)] == [100, 200, 300]
+        rows = list(csv.DictReader(f))
+    assert [int(row["games"]) for row in rows] == [100, 200, 300]
+    assert int(rows[-1]["moves"]) == resumed.moves_played
+
+
+def test_train_saves_snapshots_and_starts_a_fresh_history(tmp_path) -> None:
+    settings = NTupleSettings(
+        LOG_EVERY=100,
+        CHECKPOINT_DIR=str(tmp_path / "checkpoints"),
+        OUTPUT_DIR=str(tmp_path / "output"),
+    )
+    train(total_games=100, settings=settings)
+    train(total_games=250, snapshot_at=[50, 250], settings=settings)
+
+    _, snapshot = NTupleNetwork.load(tmp_path / "checkpoints" / "games_50.npz")
+    assert snapshot.games_played == 50
+    assert (tmp_path / "checkpoints" / "games_250.npz").exists()
+
+    with open(tmp_path / "output" / "training_history.csv") as f:
+        assert [int(row["games"]) for row in csv.DictReader(f)] == [50, 150, 250]
 
 
 def test_settings_ignore_dqn_env_vars(monkeypatch) -> None:
