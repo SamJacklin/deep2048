@@ -10,14 +10,15 @@ import numpy as np
 import torch
 
 from deep_2048.agents.base import Agent, Decision
-from deep_2048.agents.dqn.agent import DQNAgent, get_device
+from deep_2048.agents.dqn.agent import DQNAgent
 from deep_2048.agents.dqn.search import dqn_search_select
 from deep_2048.game.constants import Action
 from deep_2048.game.encoding import encode_board
 
 
 def load_dqn(checkpoint: str | Path, device: torch.device | None = None) -> DQNAgent:
-    learner = DQNAgent(device=device or get_device())
+    # Playing evaluates one board at a time, which is ~3x faster on CPU than with MPS's per-call overhead
+    learner = DQNAgent(device=device or torch.device("cpu"))
     learner.load(Path(checkpoint))
     learner.set_eval_mode()
     return learner
