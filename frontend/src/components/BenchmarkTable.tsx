@@ -5,8 +5,7 @@ interface BenchmarkTableProps {
   highlighted?: string;
 }
 
-const TILES = ['512', '1024', '2048'] as const;
-const TILE_LABELS: Record<string, string> = { '512': '≥512', '1024': '≥1024', '2048': '≥2048' };
+const TILES = ['512', '1024', '2048', '4096', '8192', '16384'] as const;
 
 function PctBar({ pct, active }: { pct: number; active: boolean }) {
   return (
@@ -35,7 +34,7 @@ export default function BenchmarkTable({ rows, highlighted }: BenchmarkTableProp
             <th className="text-right text-zinc-400 dark:text-zinc-500 uppercase tracking-widest py-2 px-3 font-normal">Avg tile</th>
             {TILES.map(t => (
               <th key={t} className="text-left text-zinc-400 dark:text-zinc-500 uppercase tracking-widest py-2 px-3 font-normal">
-                {TILE_LABELS[t]}
+                ≥{t}
               </th>
             ))}
           </tr>
@@ -62,7 +61,7 @@ export default function BenchmarkTable({ rows, highlighted }: BenchmarkTableProp
                 </td>
                 {TILES.map(t => (
                   <td key={t} className="py-3 px-3">
-                    <PctBar pct={row.tile_pcts[t as keyof typeof row.tile_pcts]} active={active} />
+                    <PctBar pct={row.tile_pcts[t]} active={active} />
                   </td>
                 ))}
               </tr>
