@@ -1,10 +1,10 @@
-"""Bitboard version of the game engine, used to train the n-tuple agent quickly.
+"""Bitboard version of the game engine, for agents that search or train on many boards.
 
 The board is a uint64 of 16 four-bit cells, with cell (row, col) at bit 4 * (4 * row + col).
 Each cell holds its tile's exponent (0 = empty, 1 = 2, 2 = 4, ...). Tiles cap at 32768, so
 two 32768s won't merge.
 
-The numba functions here and in network.py and train.py aren't cached, because numba only
+The numba functions here and in the modules that call them aren't cached, because numba only
 notices changes to a cached function's own file and would keep running stale callees. Small
 hot-path helpers use inline="always": numba otherwise calls them as separate functions, which
 roughly doubles the cost of evaluating a board.

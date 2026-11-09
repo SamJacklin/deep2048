@@ -3,10 +3,10 @@ import pytest
 
 from deep_2048.agents import load_agent
 from deep_2048.agents.ntuple import NTupleAgent, NTupleNetwork
-from deep_2048.agents.ntuple import bitboard as bb
 from deep_2048.agents.ntuple.models import CheckpointMetadata
 from deep_2048.agents.ntuple.train import play_games
 from deep_2048.bench import run_games
+from deep_2048.game import bitboard as bb
 from deep_2048.game.game import Game2048
 from deep_2048.game.moves import apply_move
 

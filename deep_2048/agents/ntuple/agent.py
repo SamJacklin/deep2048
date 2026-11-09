@@ -3,8 +3,8 @@ from pathlib import Path
 import numpy as np
 
 from deep_2048.agents.base import Agent, Decision
-from deep_2048.agents.ntuple import bitboard as bb
 from deep_2048.agents.ntuple.network import NTupleNetwork
+from deep_2048.game import bitboard as bb
 from deep_2048.game.constants import Action
 
 
