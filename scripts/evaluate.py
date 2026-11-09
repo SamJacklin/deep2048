@@ -7,6 +7,9 @@ Usage examples:
     uv run python scripts/evaluate.py --agent ntuple -n 100         # checkpoints/ntuple/latest.npz
     uv run python scripts/evaluate.py --agent all -n 100           # every benchmark agent side-by-side
     uv run python scripts/evaluate.py checkpoints/dqn/step_350068.pt --agent dqn -n 200
+    uv run python scripts/evaluate.py --agent all --rerun           # ignore cached results
+
+Results are cached in output/benchmark_cache/, keyed by agent label, checkpoint hash and game count.
 """
 
 import argparse
@@ -17,7 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from deep_2048.agents import AGENT_NAMES, DEFAULT_DQN_CHECKPOINT, DEFAULT_NTUPLE_CHECKPOINT, load_agent
-from deep_2048.bench import EvalResult, run_games
+from deep_2048.bench import EvalResult, ResultCache, RunKey, run_games
 
 # Agents run by `--agent all`, in table order.
 ALL_AGENTS = ("dqn", "heuristic", "ntuple")
@@ -77,14 +80,27 @@ def main() -> None:
         default=None,
         help="Save results as JSON to this path (e.g. frontend/public/benchmark.json)",
     )
+    parser.add_argument(
+        "--rerun",
+        action="store_true",
+        help="Replay games even if cached results exist (use after changing an agent's code)",
+    )
     args = parser.parse_args()
 
     names = ALL_AGENTS if args.agent == "all" else (args.agent,)
+    cache = ResultCache()
     results: list[EvalResult] = []
     for name in names:
         agent = load_agent(name, checkpoint=args.checkpoint, depth=args.depth)
-        print(f"\nEvaluating {agent.label}…")
-        results.append(run_games(agent, n=args.num_games))
+        key = RunKey.for_agent(agent, n_games=args.num_games)
+        result = None if args.rerun else cache.get(key)
+        if result is None:
+            print(f"\nEvaluating {agent.label}…")
+            result = run_games(agent, n=args.num_games)
+            cache.put(key, result)
+        else:
+            print(f"\nUsing cached results for {agent.label}")
+        results.append(result)
     print_results(results)
 
     if args.json:
