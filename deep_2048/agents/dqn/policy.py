@@ -31,6 +31,10 @@ class DQNPolicy(Agent):
         self.checkpoint = Path(checkpoint)
         self.label = f"DQN ({self.checkpoint.stem})"
 
+    def __reduce__(self) -> tuple:
+        # torch can't pickle MPS tensors, so worker processes reload the checkpoint instead
+        return DQNPolicy, (self.checkpoint,)
+
     def act(self, board: np.ndarray, valid_actions: list[Action]) -> Decision:
         result = self.learner.select_action(state=encode_board(board).vector, valid_actions=valid_actions, epsilon=0.0)
         scores = {action.name: q for action, q in zip(Action, result.q_values)}
@@ -45,6 +49,9 @@ class DQNSearchPolicy(Agent):
         self.checkpoint = Path(checkpoint)
         self.depth = depth
         self.label = f"DQN+Search depth={depth} ({self.checkpoint.stem})"
+
+    def __reduce__(self) -> tuple:
+        return DQNSearchPolicy, (self.checkpoint, self.depth)
 
     def act(self, board: np.ndarray, valid_actions: list[Action]) -> Decision:
         action, scores = dqn_search_select(self.learner, board, valid_actions, depth=self.depth)

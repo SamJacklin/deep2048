@@ -12,6 +12,11 @@ class FirstValidMove(Agent):
         return Decision(action=valid_actions[0])
 
 
+def test_parallel_games_match_serial() -> None:
+    agent = FirstValidMove()
+    assert run_games(agent, n=6, workers=3) == run_games(agent, n=6, workers=1)
+
+
 def test_cache_returns_stored_result(tmp_path) -> None:
     cache = ResultCache(tmp_path)
     key = RunKey.for_agent(FirstValidMove(), n_games=3)

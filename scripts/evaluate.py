@@ -8,12 +8,14 @@ Usage examples:
     uv run python scripts/evaluate.py --agent all -n 100           # every benchmark agent side-by-side
     uv run python scripts/evaluate.py checkpoints/dqn/step_350068.pt --agent dqn -n 200
     uv run python scripts/evaluate.py --agent all --rerun           # ignore cached results
+    uv run python scripts/evaluate.py --agent dqn --workers 1       # play games one at a time
 
 Results are cached in output/benchmark_cache/, keyed by agent label, checkpoint hash and game count.
 """
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -81,6 +83,12 @@ def main() -> None:
         help="Save results as JSON to this path (e.g. frontend/public/benchmark.json)",
     )
     parser.add_argument(
+        "--workers",
+        type=int,
+        default=os.cpu_count() or 1,
+        help="Processes to play games in parallel (default: one per CPU core)",
+    )
+    parser.add_argument(
         "--rerun",
         action="store_true",
         help="Replay games even if cached results exist (use after changing an agent's code)",
@@ -96,7 +104,7 @@ def main() -> None:
         result = None if args.rerun else cache.get(key)
         if result is None:
             print(f"\nEvaluating {agent.label}…")
-            result = run_games(agent, n=args.num_games)
+            result = run_games(agent, n=args.num_games, workers=args.workers)
             cache.put(key, result)
         else:
             print(f"\nUsing cached results for {agent.label}")
