@@ -4,6 +4,7 @@ from deep_2048.agents.ntuple.config import NTupleSettings
 from deep_2048.agents.ntuple.models import GameResults
 from deep_2048.agents.ntuple.network import NTupleNetwork
 from deep_2048.agents.ntuple.train import play_games, train
+from deep_2048.experiments import RunManifest
 from deep_2048.game import bitboard as bb
 
 from tests.helpers import SMALL_TUPLES
@@ -52,6 +53,12 @@ def test_train_checkpoints_and_resumes(tmp_path) -> None:
         rows = list(csv.DictReader(f))
     assert [int(row["games"]) for row in rows] == [100, 200, 300]
     assert int(rows[-1]["moves"]) == resumed.moves_played
+
+    manifest = RunManifest.load_or_create(tmp_path / "output")
+    first_session, second_session = manifest.sessions
+    assert first_session.resumed_from is None and second_session.resumed_from == str(first.checkpoint_path)
+    assert first_session.finished_with == second_session.started_with == {"games_played": 200, "moves_played": metadata.moves_played}
+    assert second_session.settings["TRAINING_GAMES"] == 300 and second_session.interrupted is False
 
 
 def test_train_saves_snapshots_and_starts_a_fresh_history(tmp_path) -> None:

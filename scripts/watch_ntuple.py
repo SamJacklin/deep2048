@@ -3,8 +3,9 @@
 Usage examples:
     uv run python scripts/watch_ntuple.py            # live window, refreshes every 5s
     uv run python scripts/watch_ntuple.py --once     # save the chart and exit
+    uv run python scripts/watch_ntuple.py --run lr-decay
 
-Each redraw is also saved to output/ntuple/training_progress.png.
+Each redraw is also saved as training_progress.png next to the history.
 """
 
 import argparse
@@ -19,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from deep_2048.agents.ntuple.config import get_ntuple_settings
 from deep_2048.agents.ntuple.train import HISTORY_NAME
+from deep_2048.experiments import EXPERIMENTS_DIR
 
 BENCHMARK_PATH = Path("frontend/public/benchmark.json")
 DQN_CHECKPOINT_INFO = Path("checkpoints/dqn/best.json")
@@ -91,22 +93,25 @@ def draw(fig: plt.Figure, history: np.ndarray, references: dict[str, float], dqn
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Chart n-tuple training progress")
-    parser.add_argument("--csv", type=Path, default=Path(get_ntuple_settings().OUTPUT_DIR) / HISTORY_NAME)
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument("--run", metavar="NAME", help="Chart the run recorded in experiments/NAME")
+    source.add_argument("--csv", type=Path, default=Path(get_ntuple_settings().OUTPUT_DIR) / HISTORY_NAME)
     parser.add_argument("--interval", type=float, default=5.0, help="Seconds between refreshes (default: 5)")
     parser.add_argument("--once", action="store_true", help="Save the chart once and exit")
     args = parser.parse_args()
 
-    image_path = args.csv.parent / "training_progress.png"
+    csv_path = EXPERIMENTS_DIR / args.run / HISTORY_NAME if args.run else args.csv
+    image_path = csv_path.parent / "training_progress.png"
     references = load_reference_scores()
     dqn_moves = load_dqn_training_moves()
     fig = plt.figure(figsize=(14, 8))
     last_modified = None
 
     while True:
-        modified = args.csv.stat().st_mtime if args.csv.exists() else None
+        modified = csv_path.stat().st_mtime if csv_path.exists() else None
         if modified is not None and modified != last_modified:
             try:
-                history = np.atleast_1d(np.genfromtxt(args.csv, delimiter=",", names=True))
+                history = np.atleast_1d(np.genfromtxt(csv_path, delimiter=",", names=True))
             except ValueError:
                 history = None  # caught the trainer mid-write, so try again on the next refresh
             if history is not None and history.size:

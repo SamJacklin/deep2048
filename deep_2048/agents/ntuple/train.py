@@ -16,6 +16,7 @@ from numba import njit
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
 from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, TrainingHistoryRow, TrainingSummary
 from deep_2048.agents.ntuple.network import NTupleNetwork, TupleLayout, evaluate, update
+from deep_2048.experiments import Environment, RunManifest, TrainingSession, command_line, now
 from deep_2048.game import bitboard as bb
 
 CHECKPOINT_NAME = "latest.npz"
@@ -84,18 +85,32 @@ def train(
 ) -> TrainingSummary:
     """Train until total_games have been played, including any in the resumed checkpoint.
 
-    The network is also saved as games_<n>.npz at each game count in snapshot_at. Ctrl-C saves and stops.
+    The network is also saved as games_<n>.npz at each game count in snapshot_at, and each call is
+    recorded as a session in the run's manifest. Ctrl-C saves and stops.
     """
     settings = settings or get_ntuple_settings()
     total_games = settings.TRAINING_GAMES if total_games is None else total_games
     snapshots = sorted(set(settings.SNAPSHOT_AT if snapshot_at is None else snapshot_at))
     checkpoint_dir = Path(settings.CHECKPOINT_DIR)
     checkpoint_path = checkpoint_dir / CHECKPOINT_NAME
-    history_path = Path(settings.OUTPUT_DIR) / HISTORY_NAME
+    output_dir = Path(settings.OUTPUT_DIR)
+    history_path = output_dir / HISTORY_NAME
 
     network, progress = _load_or_create(resume_from, settings.LEARNING_RATE)
     if resume_from is None:
         history_path.unlink(missing_ok=True)
+    manifest = RunManifest(name=output_dir.name) if resume_from is None else RunManifest.load_or_create(output_dir)
+    session = TrainingSession(
+        command=command_line(),
+        settings=settings.model_dump(mode="json") | {"TRAINING_GAMES": total_games, "SNAPSHOT_AT": snapshots},
+        resumed_from=None if resume_from is None else str(resume_from),
+        environment=Environment.capture(),
+        started_at=now(),
+        started_with=_counts(progress),
+    )
+    manifest.sessions.append(session)
+    manifest.save(output_dir)
+
     # Offset by games played so a resumed run doesn't replay the same tile spawns
     bb.seed(settings.SEED + progress.games_played)
     print(f"Training n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}")
@@ -125,6 +140,8 @@ def train(
         print(f"\nStopped at {progress.games_played:,} games")
 
     _save_checkpoint(network, checkpoint_path, progress)
+    session.finished_at, session.finished_with, session.interrupted = now(), _counts(progress), interrupted
+    manifest.save(output_dir)
     return TrainingSummary(games_played=progress.games_played, checkpoint_path=checkpoint_path, interrupted=interrupted)
 
 
@@ -136,6 +153,10 @@ def _load_or_create(resume_from: str | None, learning_rate: float) -> tuple[NTup
     network, metadata = NTupleNetwork.load(resume_from)
     print(f"Resuming from {resume_from} at {metadata.games_played:,} games")
     return network, metadata.model_copy(update={"learning_rate": learning_rate})
+
+
+def _counts(progress: CheckpointMetadata) -> dict[str, int]:
+    return {"games_played": progress.games_played, "moves_played": progress.moves_played}
 
 
 def _append_history(path: Path, row: TrainingHistoryRow) -> None:

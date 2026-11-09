@@ -41,16 +41,16 @@ resume-dqn:
 # Run a single game (ARGS="--agent dqn_search", "--agent heuristic", "--render", etc.)
 .PHONY: train-ntuple
 train-ntuple:
-	uv run python scripts/train_ntuple.py $(ARGS)
+	uv run python scripts/train_ntuple.py $(if $(RUN),--run $(RUN)) $(ARGS)
 
 .PHONY: resume-ntuple
 resume-ntuple:
-	uv run python scripts/train_ntuple.py --resume $(or $(CHECKPOINT),checkpoints/ntuple/latest.npz) $(ARGS)
+	uv run python scripts/train_ntuple.py $(if $(RUN),--run $(RUN)) --resume $(or $(CHECKPOINT),checkpoints/ntuple/latest.npz) $(ARGS)
 
 # Live chart of n-tuple training, redrawn from output/ntuple/training_history.csv
 .PHONY: watch-ntuple
 watch-ntuple:
-	uv run python scripts/watch_ntuple.py $(ARGS)
+	uv run python scripts/watch_ntuple.py $(if $(RUN),--run $(RUN)) $(ARGS)
 
 .PHONY: play
 play:

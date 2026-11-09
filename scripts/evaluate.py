@@ -9,6 +9,7 @@ Usage examples:
     uv run python scripts/evaluate.py checkpoints/dqn/step_350068.pt --agent dqn -n 200
     uv run python scripts/evaluate.py --agent all --rerun           # ignore cached results
     uv run python scripts/evaluate.py --agent dqn --workers 1       # play games one at a time
+    uv run python scripts/evaluate.py checkpoints/ntuple/games_1000.npz --agent ntuple --experiment experiments/ntuple-td-1m
 
 Results are cached in output/benchmark_cache/, keyed by agent label, checkpoint hash and game count.
 """
@@ -23,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from deep_2048.agents import AGENT_NAMES, DEFAULT_DQN_CHECKPOINT, DEFAULT_NTUPLE_CHECKPOINT, load_agent
 from deep_2048.bench import EvalResult, ResultCache, RunKey, run_games
+from deep_2048.experiments import Environment, EvaluationRecord, now, record_evaluation
 
 # Agents run by `--agent all`, in table order.
 ALL_AGENTS = ("dqn", "heuristic", "ntuple")
@@ -93,6 +95,13 @@ def main() -> None:
         action="store_true",
         help="Replay games even if cached results exist (use after changing an agent's code)",
     )
+    parser.add_argument(
+        "--experiment",
+        metavar="DIR",
+        type=Path,
+        default=None,
+        help="Also record per-game results in DIR/evaluations.json (e.g. experiments/ntuple-td-1m)",
+    )
     args = parser.parse_args()
 
     names = ALL_AGENTS if args.agent == "all" else (args.agent,)
@@ -102,6 +111,7 @@ def main() -> None:
         agent = load_agent(name, checkpoint=args.checkpoint, depth=args.depth)
         key = RunKey.for_agent(agent, n_games=args.num_games)
         result = None if args.rerun else cache.get(key)
+        from_cache = result is not None
         if result is None:
             print(f"\nEvaluating {agent.label}…")
             result = run_games(agent, n=args.num_games, workers=args.workers)
@@ -109,6 +119,11 @@ def main() -> None:
         else:
             print(f"\nUsing cached results for {agent.label}")
         results.append(result)
+
+        if args.experiment:
+            checkpoint = str(agent.checkpoint) if agent.checkpoint else None
+            record = EvaluationRecord(key=key, checkpoint=checkpoint, environment=Environment.capture(), recorded_at=now(), from_cache=from_cache, result=result)
+            record_evaluation(args.experiment, record)
     print_results(results)
 
     if args.json:
