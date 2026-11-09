@@ -37,7 +37,7 @@ export interface BenchmarkRow {
   n_games: number;
   avg_score: number;
   avg_max_tile: number;
-  tile_pcts: { '256': number; '512': number; '1024': number; '2048': number };
+  tile_pcts: Record<'256' | '512' | '1024' | '2048' | '4096' | '8192' | '16384', number>;
 }
 
 export interface CheckpointMeta {
