@@ -16,6 +16,7 @@ class NTupleAgent(Agent):
 
     def __init__(self, checkpoint: str | Path) -> None:
         self.network, metadata = NTupleNetwork.load(checkpoint)
+        self.checkpoint = Path(checkpoint)
         self.label = f"N-tuple TD ({metadata.games_played:,} games)"
 
     def act(self, board: np.ndarray, valid_actions: list[Action]) -> Decision:

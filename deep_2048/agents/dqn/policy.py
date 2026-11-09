@@ -28,7 +28,8 @@ class DQNPolicy(Agent):
 
     def __init__(self, checkpoint: str | Path, device: torch.device | None = None) -> None:
         self.learner = load_dqn(checkpoint, device)
-        self.label = f"DQN ({Path(checkpoint).stem})"
+        self.checkpoint = Path(checkpoint)
+        self.label = f"DQN ({self.checkpoint.stem})"
 
     def act(self, board: np.ndarray, valid_actions: list[Action]) -> Decision:
         result = self.learner.select_action(state=encode_board(board).vector, valid_actions=valid_actions, epsilon=0.0)
@@ -41,8 +42,9 @@ class DQNSearchPolicy(Agent):
 
     def __init__(self, checkpoint: str | Path, depth: int = 2, device: torch.device | None = None) -> None:
         self.learner = load_dqn(checkpoint, device)
+        self.checkpoint = Path(checkpoint)
         self.depth = depth
-        self.label = f"DQN+Search depth={depth} ({Path(checkpoint).stem})"
+        self.label = f"DQN+Search depth={depth} ({self.checkpoint.stem})"
 
     def act(self, board: np.ndarray, valid_actions: list[Action]) -> Decision:
         action, scores = dqn_search_select(self.learner, board, valid_actions, depth=self.depth)
