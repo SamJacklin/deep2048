@@ -26,7 +26,7 @@ def checkpoint(tmp_path_factory) -> str:
 def test_load_agent_builds_ntuple(checkpoint: str) -> None:
     agent = load_agent("ntuple", checkpoint=checkpoint)
     assert isinstance(agent, NTupleAgent)
-    assert agent.label == "N-tuple TD (500 games)"
+    assert agent.label == "N-tuple TD (500 games, lr 0.01)"
 
 
 def test_picks_best_reward_plus_afterstate_value(checkpoint: str) -> None:
