@@ -83,7 +83,7 @@ make train-dqn         # train from scratch (~hours on Apple Silicon / CUDA)
 make resume-dqn CHECKPOINT=checkpoints/dqn/step_500045.pt
 make train-ntuple      # 100k games from scratch (~1 minute on one CPU core)
 make resume-ntuple ARGS="--games 200000"
-make evaluate          # every agent, 100 games each
+make evaluate          # every agent, 100 games each, across all CPU cores
 make play ARGS="--agent heuristic --render"
 make plot              # training curves from output/dqn/training_history.csv
 make test
@@ -97,6 +97,8 @@ make replays           # writes frontend/public/replays/*.json
 cd frontend && npm install && npm run dev
 ```
 
+Evaluation results are cached per game in `output/benchmark_cache/`, keyed by agent label, checkpoint hash and game count, so `make benchmark` only replays agents that changed. Pass `ARGS="--rerun"` after changing an agent's code.
+
 The viewer is a static replay player — inference happens offline in `scripts/generate_replays.py`, which records every board state, chosen action, and the network's Q-values per move.
 
 ## Repo layout
@@ -109,7 +111,7 @@ deep_2048/
     heuristic/    # hand-crafted evaluator + expectimax
     dqn/          # network, learner, PER buffer, trainer, hybrid search, play-time policies
     ntuple/       # numba bitboard engine, n-tuple network, TD training, greedy agent
-  bench/          # seeded game runner used by evaluate.py
+  bench/          # seeded game runner (parallel across processes) and result cache used by evaluate.py
   config.py       # shared game settings (pydantic-settings, .env-overridable)
 scripts/          # train_dqn / train_ntuple / evaluate / play / plot / generate_replays
 tests/            # pytest: engine parity, network, training, agents
