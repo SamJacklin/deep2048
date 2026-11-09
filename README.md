@@ -57,9 +57,9 @@ A Rainbow-lite DQN:
 
 All hyperparameters live in a pydantic-settings config overridable via `.env` — the same code runs a seconds-long smoke test or the full 1M-step run (see `.env.example`).
 
-### The classical baseline (`deep_2048/agents/heuristic/expectimax.py`)
+### The classical baseline (`deep_2048/agents/heuristic/`)
 
-Depth-2 **expectimax** (max over player moves, expectation over the random tile spawns) with a four-signal board evaluator: monotonicity, merge potential, empty cells, and corner anchoring — all in log2 space. The docstring records the design iterations, including a positional bonus that was removed because it actively penalised merging.
+Depth-2 **expectimax** (max over player moves, expectation over the random tile spawns) with a four-signal board evaluator: monotonicity, merge potential, empty cells, and corner anchoring — all in log2 space. Both run in numba on the bitboard engine, with the evaluator's row signals precomputed for every possible row. The `evaluation.py` docstring records the design iterations, including a positional bonus that was removed because it actively penalised merging.
 
 ### The hybrid (`deep_2048/agents/dqn/search.py`)
 
