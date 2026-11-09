@@ -105,12 +105,12 @@ The viewer is a static replay player — inference happens offline in `scripts/g
 
 ```
 deep_2048/
-  game/           # environment: board, moves, encoding, game loop (shared by every agent)
+  game/           # environment: board, moves, encoding, game loop, numba bitboard engine (shared by every agent)
   agents/
     base.py       # Agent interface: act(board, valid_actions) -> Decision
     heuristic/    # hand-crafted evaluator + expectimax
     dqn/          # network, learner, PER buffer, trainer, hybrid search, play-time policies
-    ntuple/       # numba bitboard engine, n-tuple network, TD training, greedy agent
+    ntuple/       # n-tuple network, TD training, greedy agent
   bench/          # seeded game runner (parallel across processes) and result cache used by evaluate.py
   config.py       # shared game settings (pydantic-settings, .env-overridable)
 scripts/          # train_dqn / train_ntuple / evaluate / play / plot / generate_replays
