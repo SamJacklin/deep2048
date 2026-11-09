@@ -7,6 +7,7 @@ behind one method means the evaluation harness never needs to know which kind it
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 
@@ -27,6 +28,7 @@ class Decision:
 
 class Agent(ABC):
     label: str  # human-readable name used in results tables and benchmark.json
+    checkpoint: Path | None = None  # file the agent loaded, so cached results are invalidated when it changes
 
     @abstractmethod
     def act(self, board: np.ndarray, valid_actions: list[Action]) -> Decision:
