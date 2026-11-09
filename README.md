@@ -113,7 +113,8 @@ deep_2048/
     ntuple/       # n-tuple network, TD training, greedy agent
   bench/          # seeded game runner (parallel across processes) and result cache used by evaluate.py
   config.py       # shared game settings (pydantic-settings, .env-overridable)
-scripts/          # train_dqn / train_ntuple / evaluate / play / plot / generate_replays
+experiments/      # one folder per run: manifest, training history, per-game evaluations, notes
+scripts/          # train_dqn / train_ntuple / evaluate / play / watch_ntuple / plot / generate_replays
 tests/            # pytest: engine parity, network, training, agents
 frontend/         # React + Vite replay viewer
 .github/          # frontend CI + S3/CloudFront deploy (OIDC, no stored keys)

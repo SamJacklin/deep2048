@@ -1,0 +1,338 @@
+[
+  {
+    "checkpoint": "step_25128",
+    "training_step": 25128,
+    "episode_index": 221,
+    "epsilon": 0.9644618285714286,
+    "average_score": 1988.48,
+    "average_max_tile": 158.4
+  },
+  {
+    "checkpoint": "step_50060",
+    "training_step": 50060,
+    "episode_index": 435,
+    "epsilon": 0.9292008571428572,
+    "average_score": 2317.8,
+    "average_max_tile": 185.6
+  },
+  {
+    "checkpoint": "step_75038",
+    "training_step": 75038,
+    "episode_index": 642,
+    "epsilon": 0.8938748285714286,
+    "average_score": 2230.72,
+    "average_max_tile": 174.4
+  },
+  {
+    "checkpoint": "step_100083",
+    "training_step": 100083,
+    "episode_index": 847,
+    "epsilon": 0.8584540428571429,
+    "average_score": 2299.88,
+    "average_max_tile": 188.8
+  },
+  {
+    "checkpoint": "step_125047",
+    "training_step": 125047,
+    "episode_index": 1048,
+    "epsilon": 0.8231478142857143,
+    "average_score": 2643.04,
+    "average_max_tile": 213.12
+  },
+  {
+    "checkpoint": "step_150007",
+    "training_step": 150007,
+    "episode_index": 1249,
+    "epsilon": 0.7878472428571428,
+    "average_score": 2823.08,
+    "average_max_tile": 220.16
+  },
+  {
+    "checkpoint": "step_175063",
+    "training_step": 175063,
+    "episode_index": 1453,
+    "epsilon": 0.7524109,
+    "average_score": 2370.8,
+    "average_max_tile": 196.48
+  },
+  {
+    "checkpoint": "step_200072",
+    "training_step": 200072,
+    "episode_index": 1653,
+    "epsilon": 0.7170410285714286,
+    "average_score": 2949.92,
+    "average_max_tile": 231.04
+  },
+  {
+    "checkpoint": "step_225115",
+    "training_step": 225115,
+    "episode_index": 1853,
+    "epsilon": 0.6816230714285714,
+    "average_score": 2556.0,
+    "average_max_tile": 207.04
+  },
+  {
+    "checkpoint": "step_250031",
+    "training_step": 250031,
+    "episode_index": 2044,
+    "epsilon": 0.6463847285714286,
+    "average_score": 3268.48,
+    "average_max_tile": 260.48
+  },
+  {
+    "checkpoint": "step_275106",
+    "training_step": 275106,
+    "episode_index": 2231,
+    "epsilon": 0.6109215142857143,
+    "average_score": 2536.92,
+    "average_max_tile": 202.56
+  },
+  {
+    "checkpoint": "step_300064",
+    "training_step": 300064,
+    "episode_index": 2414,
+    "epsilon": 0.5756237714285715,
+    "average_score": 2516.24,
+    "average_max_tile": 207.04
+  },
+  {
+    "checkpoint": "step_325040",
+    "training_step": 325040,
+    "episode_index": 2587,
+    "epsilon": 0.5403005714285714,
+    "average_score": 2443.96,
+    "average_max_tile": 199.2
+  },
+  {
+    "checkpoint": "step_350068",
+    "training_step": 350068,
+    "episode_index": 2750,
+    "epsilon": 0.5049038285714285,
+    "average_score": 2516.12,
+    "average_max_tile": 201.6
+  },
+  {
+    "checkpoint": "step_375011",
+    "training_step": 375011,
+    "episode_index": 2916,
+    "epsilon": 0.46962729999999997,
+    "average_score": 2689.6,
+    "average_max_tile": 216.96
+  },
+  {
+    "checkpoint": "step_400097",
+    "training_step": 400097,
+    "episode_index": 3077,
+    "epsilon": 0.4341485285714286,
+    "average_score": 2919.32,
+    "average_max_tile": 235.2
+  },
+  {
+    "checkpoint": "step_425222",
+    "training_step": 425222,
+    "episode_index": 3238,
+    "epsilon": 0.39861460000000004,
+    "average_score": 2880.68,
+    "average_max_tile": 232.96
+  },
+  {
+    "checkpoint": "step_450026",
+    "training_step": 450026,
+    "episode_index": 3386,
+    "epsilon": 0.36353465714285715,
+    "average_score": 3137.24,
+    "average_max_tile": 254.4
+  },
+  {
+    "checkpoint": "step_475025",
+    "training_step": 475025,
+    "episode_index": 3528,
+    "epsilon": 0.3281789285714286,
+    "average_score": 3024.92,
+    "average_max_tile": 248.32
+  },
+  {
+    "checkpoint": "step_500045",
+    "training_step": 500045,
+    "episode_index": 3663,
+    "epsilon": 0.29279349999999993,
+    "average_score": 2820.52,
+    "average_max_tile": 232.96
+  },
+  {
+    "checkpoint": "step_525090",
+    "training_step": 525090,
+    "episode_index": 3796,
+    "epsilon": 0.2573727142857143,
+    "average_score": 2900.28,
+    "average_max_tile": 236.48
+  },
+  {
+    "checkpoint": "step_550125",
+    "training_step": 550125,
+    "episode_index": 3927,
+    "epsilon": 0.2219660714285714,
+    "average_score": 3212.6,
+    "average_max_tile": 263.04
+  },
+  {
+    "checkpoint": "step_575021",
+    "training_step": 575021,
+    "episode_index": 4051,
+    "epsilon": 0.1867560142857142,
+    "average_score": 3354.4,
+    "average_max_tile": 267.52
+  },
+  {
+    "checkpoint": "step_600146",
+    "training_step": 600146,
+    "episode_index": 4173,
+    "epsilon": 0.15122208571428575,
+    "average_score": 3027.96,
+    "average_max_tile": 236.8
+  },
+  {
+    "checkpoint": "step_625066",
+    "training_step": 625066,
+    "episode_index": 4290,
+    "epsilon": 0.1159780857142857,
+    "average_score": 3980.52,
+    "average_max_tile": 321.92
+  },
+  {
+    "checkpoint": "step_650022",
+    "training_step": 650022,
+    "episode_index": 4403,
+    "epsilon": 0.0806831714285714,
+    "average_score": 3973.04,
+    "average_max_tile": 311.36
+  },
+  {
+    "checkpoint": "step_675002",
+    "training_step": 675002,
+    "episode_index": 4503,
+    "epsilon": 0.04535431428571435,
+    "average_score": 3971.8,
+    "average_max_tile": 312.32
+  },
+  {
+    "checkpoint": "step_700097",
+    "training_step": 700097,
+    "episode_index": 4595,
+    "epsilon": 0.010000000000000009,
+    "average_score": 4192.2,
+    "average_max_tile": 323.2
+  },
+  {
+    "checkpoint": "step_725445",
+    "training_step": 725445,
+    "episode_index": 4679,
+    "epsilon": 0.010000000000000009,
+    "average_score": 4126.0,
+    "average_max_tile": 326.72
+  },
+  {
+    "checkpoint": "step_750271",
+    "training_step": 750271,
+    "episode_index": 4754,
+    "epsilon": 0.010000000000000009,
+    "average_score": 4616.8,
+    "average_max_tile": 368.64
+  },
+  {
+    "checkpoint": "step_775009",
+    "training_step": 775009,
+    "episode_index": 4825,
+    "epsilon": 0.010000000000000009,
+    "average_score": 5038.32,
+    "average_max_tile": 389.12
+  },
+  {
+    "checkpoint": "step_800367",
+    "training_step": 800367,
+    "episode_index": 4895,
+    "epsilon": 0.010000000000000009,
+    "average_score": 5203.28,
+    "average_max_tile": 384.64
+  },
+  {
+    "checkpoint": "step_825072",
+    "training_step": 825072,
+    "episode_index": 4958,
+    "epsilon": 0.010000000000000009,
+    "average_score": 5527.56,
+    "average_max_tile": 404.48
+  },
+  {
+    "checkpoint": "step_850151",
+    "training_step": 850151,
+    "episode_index": 5030,
+    "epsilon": 0.010000000000000009,
+    "average_score": 4813.8,
+    "average_max_tile": 366.08
+  },
+  {
+    "checkpoint": "step_875043",
+    "training_step": 875043,
+    "episode_index": 5094,
+    "epsilon": 0.010000000000000009,
+    "average_score": 5855.88,
+    "average_max_tile": 428.16
+  },
+  {
+    "checkpoint": "step_900042",
+    "training_step": 900042,
+    "episode_index": 5159,
+    "epsilon": 0.010000000000000009,
+    "average_score": 5759.2,
+    "average_max_tile": 416.64
+  },
+  {
+    "checkpoint": "best",
+    "training_step": 925281,
+    "episode_index": 5226,
+    "epsilon": 0.010000000000000009,
+    "average_score": 6045.92,
+    "average_max_tile": 445.44
+  },
+  {
+    "checkpoint": "step_925281",
+    "training_step": 925281,
+    "episode_index": 5226,
+    "epsilon": 0.010000000000000009,
+    "average_score": 6045.92,
+    "average_max_tile": 445.44
+  },
+  {
+    "checkpoint": "step_950460",
+    "training_step": 950460,
+    "episode_index": 5295,
+    "epsilon": 0.010000000000000009,
+    "average_score": 5900.92,
+    "average_max_tile": 432.0
+  },
+  {
+    "checkpoint": "step_975294",
+    "training_step": 975294,
+    "episode_index": 5361,
+    "epsilon": 0.010000000000000009,
+    "average_score": 5491.48,
+    "average_max_tile": 417.28
+  },
+  {
+    "checkpoint": "step_1000000",
+    "training_step": 1000000,
+    "episode_index": 5427,
+    "epsilon": 0.010000000000000009,
+    "average_score": 5640.2,
+    "average_max_tile": 414.4
+  },
+  {
+    "checkpoint": "final",
+    "training_step": 1000000,
+    "episode_index": 5427,
+    "epsilon": 0.010000000000000009,
+    "average_score": 5640.2,
+    "average_max_tile": 414.4
+  }
+]
