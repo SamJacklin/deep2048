@@ -47,6 +47,11 @@ train-ntuple:
 resume-ntuple:
 	uv run python scripts/train_ntuple.py --resume $(or $(CHECKPOINT),checkpoints/ntuple/latest.npz) $(ARGS)
 
+# Live chart of n-tuple training, redrawn from output/ntuple/training_history.csv
+.PHONY: watch-ntuple
+watch-ntuple:
+	uv run python scripts/watch_ntuple.py $(ARGS)
+
 .PHONY: play
 play:
 	uv run python scripts/play.py $(ARGS)
