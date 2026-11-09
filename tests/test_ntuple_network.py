@@ -1,8 +1,8 @@
 import numpy as np
 
-from deep_2048.agents.ntuple import bitboard as bb
 from deep_2048.agents.ntuple.models import CheckpointMetadata
 from deep_2048.agents.ntuple.network import TUPLES, NTupleNetwork
+from deep_2048.game import bitboard as bb
 
 from tests.helpers import SMALL_TUPLES, random_boards, symmetry_grids
 

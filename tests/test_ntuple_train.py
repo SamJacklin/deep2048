@@ -1,10 +1,10 @@
 import csv
 
-from deep_2048.agents.ntuple import bitboard as bb
 from deep_2048.agents.ntuple.config import NTupleSettings
 from deep_2048.agents.ntuple.models import GameResults
 from deep_2048.agents.ntuple.network import NTupleNetwork
 from deep_2048.agents.ntuple.train import play_games, train
+from deep_2048.game import bitboard as bb
 
 from tests.helpers import SMALL_TUPLES
 

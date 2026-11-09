@@ -12,8 +12,8 @@ from typing import NamedTuple
 import numpy as np
 from numba import njit
 
-from deep_2048.agents.ntuple import bitboard as bb
 from deep_2048.agents.ntuple.models import CheckpointMetadata
+from deep_2048.game import bitboard as bb
 
 TUPLES: tuple[tuple[int, ...], ...] = (
     (0, 1, 2, 3),

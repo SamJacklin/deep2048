@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from deep_2048.agents.ntuple import bitboard as bb
+from deep_2048.game import bitboard as bb
 from deep_2048.game.constants import ACTIONS, Action
 from deep_2048.game.game import Game2048
 from deep_2048.game.moves import apply_move, get_valid_actions

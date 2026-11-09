@@ -13,10 +13,10 @@ from pathlib import Path
 import numpy as np
 from numba import njit
 
-from deep_2048.agents.ntuple import bitboard as bb
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
 from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, TrainingHistoryRow, TrainingSummary
 from deep_2048.agents.ntuple.network import NTupleNetwork, TupleLayout, evaluate, update
+from deep_2048.game import bitboard as bb
 
 CHECKPOINT_NAME = "latest.npz"
 HISTORY_NAME = "training_history.csv"
