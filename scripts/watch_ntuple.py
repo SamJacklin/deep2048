@@ -4,8 +4,10 @@ Usage examples:
     uv run python scripts/watch_ntuple.py            # live window, refreshes every 5s
     uv run python scripts/watch_ntuple.py --once     # save the chart and exit
     uv run python scripts/watch_ntuple.py --run lr-decay
+    uv run python scripts/watch_ntuple.py --run lr-a lr-b lr-c  # overlay several runs
 
-Each redraw is also saved as training_progress.png next to the history.
+A single run's chart is also saved as training_progress.png next to its history, and an
+overlay is saved to the --image path.
 """
 
 import argparse
@@ -26,6 +28,7 @@ BENCHMARK_PATH = Path("frontend/public/benchmark.json")
 DQN_CHECKPOINT_INFO = Path("checkpoints/dqn/best.json")
 REFERENCE_AGENTS = {"DQN (best)": "firebrick", "Heuristic depth=2": "seagreen"}
 TILE_COLOURS = {2048: "goldenrod", 4096: "darkorange", 8192: "orangered", 16384: "purple"}
+RUN_COLOURS = ("steelblue", "darkorange", "seagreen", "firebrick", "purple", "saddlebrown")
 
 
 def load_reference_scores() -> dict[str, float]:
@@ -91,31 +94,71 @@ def draw(fig: plt.Figure, history: np.ndarray, references: dict[str, float], dqn
     fig.tight_layout()
 
 
+def draw_comparison(fig: plt.Figure, histories: dict[str, np.ndarray]) -> None:
+    """Overlay several runs, one colour each."""
+    fig.clear()
+    (score_ax, rate_8192_ax), (rate_4096_ax, speed_ax) = fig.subplots(2, 2)
+    fig.suptitle("N-tuple training runs: " + ", ".join(histories), fontweight="bold")
+
+    panels = (
+        (score_ax, "avg_score", "Average score", None),
+        (rate_8192_ax, "rate_8192", "% of games reaching 8192", (0, 100)),
+        (rate_4096_ax, "rate_4096", "% of games reaching 4096", (0, 100)),
+        (speed_ax, "games_per_second", "Games / second", None),
+    )
+    for ax, column, title, limits in panels:
+        for (name, history), colour in zip(histories.items(), RUN_COLOURS):
+            ax.plot(history["games"], history[column], color=colour, linewidth=1, alpha=0.9, label=f"{name} ({history[column][-1]:,.0f})")
+        ax.set_title(title)
+        ax.set_xlabel("Games played")
+        if limits:
+            ax.set_ylim(*limits)
+        ax.legend(fontsize=8, loc="lower right")
+        ax.grid(True, alpha=0.3)
+
+    fig.tight_layout()
+
+
+def load_history(path: Path) -> np.ndarray | None:
+    """Return the training history, or None if it's empty or the trainer is mid-write."""
+    if not path.exists():
+        return None
+    try:
+        history = np.atleast_1d(np.genfromtxt(path, delimiter=",", names=True))
+    except ValueError:
+        return None
+    return history if history.size else None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Chart n-tuple training progress")
     source = parser.add_mutually_exclusive_group()
-    source.add_argument("--run", metavar="NAME", help="Chart the run recorded in experiments/NAME")
+    source.add_argument("--run", metavar="NAME", nargs="+", help="Chart runs recorded in experiments/NAME, overlaid if there are several")
     source.add_argument("--csv", type=Path, default=Path(get_ntuple_settings().OUTPUT_DIR) / HISTORY_NAME)
+    parser.add_argument("--image", type=Path, default=Path("output/ntuple/comparison.png"), help="Where to save an overlay of several runs")
     parser.add_argument("--interval", type=float, default=5.0, help="Seconds between refreshes (default: 5)")
     parser.add_argument("--once", action="store_true", help="Save the chart once and exit")
     args = parser.parse_args()
 
-    csv_path = EXPERIMENTS_DIR / args.run / HISTORY_NAME if args.run else args.csv
-    image_path = csv_path.parent / "training_progress.png"
+    csv_paths = {name: EXPERIMENTS_DIR / name / HISTORY_NAME for name in args.run} if args.run else {args.csv.parent.name: args.csv}
+    image_path = next(iter(csv_paths.values())).parent / "training_progress.png" if len(csv_paths) == 1 else args.image
     references = load_reference_scores()
     dqn_moves = load_dqn_training_moves()
     fig = plt.figure(figsize=(14, 8))
-    last_modified = None
+    last_modified: dict[str, float] = {}
 
     while True:
-        modified = csv_path.stat().st_mtime if csv_path.exists() else None
-        if modified is not None and modified != last_modified:
-            try:
-                history = np.atleast_1d(np.genfromtxt(csv_path, delimiter=",", names=True))
-            except ValueError:
-                history = None  # caught the trainer mid-write, so try again on the next refresh
-            if history is not None and history.size:
-                draw(fig, history, references, dqn_moves)
+        modified = {name: path.stat().st_mtime for name, path in csv_paths.items() if path.exists()}
+        if modified and modified != last_modified:
+            # The trainer may be mid-write, in which case the next refresh tries again
+            histories = {name: load_history(path) for name, path in csv_paths.items()}
+            loaded = {name: history for name, history in histories.items() if history is not None}
+            if loaded and len(loaded) == len(modified):
+                if len(csv_paths) == 1:
+                    draw(fig, next(iter(loaded.values())), references, dqn_moves)
+                else:
+                    draw_comparison(fig, loaded)
+                image_path.parent.mkdir(parents=True, exist_ok=True)
                 fig.savefig(image_path, dpi=110)
                 last_modified = modified
         if args.once:
