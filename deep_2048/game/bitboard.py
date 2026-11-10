@@ -255,6 +255,28 @@ def upgrade(board: np.uint64) -> np.uint64:
     return shift_above(board, gap, 1)
 
 
+@njit(inline="always")
+def downgrade(board: np.uint64, min_exponent: int) -> np.uint64:
+    """Halve every tile above the largest gap if the board has a 2**min_exponent tile or larger, else return it unchanged."""
+    if max_exponent(board) < min_exponent:
+        return board
+    gap = largest_gap(board)
+    return board if gap == 0 else shift_above(board, gap, -1)
+
+
+@njit(inline="always")
+def large_tile_counts(board: np.uint64) -> int:
+    """Pack how many 2048, 4096, 8192, 16384 and 32768 tiles the board has, each capped at 3, into 10 bits."""
+    index = 0
+    for i in range(NUM_CELLS):
+        exponent = get_cell(board, i)
+        if exponent >= 11:
+            shift = 2 * (exponent - 11)
+            if (index >> shift) & 3 < 3:
+                index += 1 << shift
+    return index
+
+
 @njit
 def seed(value: int) -> None:
     """Seed numba's RNG, which is separate from numpy's."""
