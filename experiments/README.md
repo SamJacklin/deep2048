@@ -164,7 +164,7 @@ C, B and A are tested against a control on the best fast configuration from the 
 ```bash
 uv sync
 scripts/run_scale_sharing.sh                              # about 1.5–2 hours on a 10-core M4
-GAMES=3000 EVAL_GAMES=20 scripts/run_scale_sharing.sh     # smoke test, a few minutes
+GAMES=3000 EVAL_GAMES=20 scripts/run_scale_sharing.sh     # smoke test as separate smoke-* runs, about a minute
 make watch-ntuple ARGS="--run sharing-4x6-control sharing-4x6-late-starts sharing-4x6-downgrade-scale sharing-4x6-downgrade"
 ```
 

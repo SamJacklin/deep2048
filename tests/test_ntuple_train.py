@@ -8,7 +8,7 @@ from deep_2048.agents.ntuple.config import NTupleSettings
 from deep_2048.agents.ntuple.models import GameResults, LateStarts
 from deep_2048.agents.ntuple.network import NETWORKS, NTupleNetwork, load_traces
 from deep_2048.agents.ntuple.train import learning_rate_at, play_games, train
-from deep_2048.experiments import RunManifest
+from deep_2048.experiments import RunManifest, run_lock
 from deep_2048.game import bitboard as bb
 
 from tests.helpers import SMALL_TUPLES, random_boards
@@ -165,6 +165,14 @@ def test_train_with_scale_sharing(tmp_path) -> None:
 
     with pytest.raises(ValueError, match="scale_feature=True"):
         train(resume_from=summary.checkpoint_path, total_games=100, settings=settings.model_copy(update={"SCALE_FEATURE": False}))
+
+
+def test_train_refuses_a_folder_another_process_is_training(tmp_path) -> None:
+    settings = NTupleSettings(LOG_EVERY=50, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
+    with run_lock(tmp_path / "output"):
+        with pytest.raises(RuntimeError, match="already being trained"):
+            train(total_games=50, settings=settings)
+    assert not (tmp_path / "checkpoints").exists()
 
 
 def test_settings_ignore_dqn_env_vars(monkeypatch) -> None:

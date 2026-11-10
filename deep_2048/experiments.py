@@ -10,6 +10,8 @@ import os
 import platform
 import subprocess
 import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from importlib.metadata import version
 from pathlib import Path
@@ -22,7 +24,49 @@ from deep_2048.bench import EvalResult, RunKey
 EXPERIMENTS_DIR = Path("experiments")
 MANIFEST_NAME = "manifest.json"
 EVALUATIONS_NAME = "evaluations.json"
+LOCK_NAME = ".lock"
 RECORDED_PACKAGES = ("numpy", "numba", "torch", "pydantic")
+
+
+@contextmanager
+def run_lock(directory: Path) -> Iterator[None]:
+    """Hold a run folder for one process, refusing if another live process already holds it.
+
+    Two processes training into the same folder would mix their histories and overwrite each
+    other's checkpoints. A lock left by a process that has since died is replaced.
+    """
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / LOCK_NAME
+    for _ in range(2):
+        try:
+            descriptor = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            holder = int(path.read_text() or 0)
+            if _is_alive(holder):
+                raise RuntimeError(f"{directory} is already being trained by process {holder}") from None
+            path.unlink(missing_ok=True)
+            continue
+        with os.fdopen(descriptor, "w") as f:
+            f.write(str(os.getpid()))
+        break
+    else:
+        raise RuntimeError(f"couldn't lock {directory}")
+    try:
+        yield
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def _is_alive(pid: int) -> bool:
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
 
 
 def now() -> datetime:

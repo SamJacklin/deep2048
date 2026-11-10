@@ -22,7 +22,7 @@ from numba import njit
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
 from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, LateStarts, TrainingHistoryRow, TrainingSummary
 from deep_2048.agents.ntuple.network import NETWORKS, CoherenceTraces, NTupleNetwork, TupleLayout, evaluate, load_traces, network_name, update, update_coherent
-from deep_2048.experiments import Environment, RunManifest, TrainingSession, command_line, now
+from deep_2048.experiments import Environment, RunManifest, TrainingSession, command_line, now, run_lock
 from deep_2048.game import bitboard as bb
 
 CHECKPOINT_NAME = "latest.npz"
@@ -145,9 +145,15 @@ def train(
     """Train until total_games have been played, including any in the resumed checkpoint.
 
     The network is also saved as games_<n>.npz at each game count in snapshot_at, and each call is
-    recorded as a session in the run's manifest. Ctrl-C saves and stops.
+    recorded as a session in the run's manifest. Ctrl-C saves and stops. Refuses to start if another
+    process is already training into the same output folder.
     """
     settings = settings or get_ntuple_settings()
+    with run_lock(Path(settings.OUTPUT_DIR)):
+        return _train(resume_from, total_games, snapshot_at, settings)
+
+
+def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at: list[int] | None, settings: NTupleSettings) -> TrainingSummary:
     total_games = settings.TRAINING_GAMES if total_games is None else total_games
     snapshots = sorted(set(settings.SNAPSHOT_AT if snapshot_at is None else snapshot_at))
     checkpoint_dir = Path(settings.CHECKPOINT_DIR)
