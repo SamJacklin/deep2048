@@ -4,17 +4,20 @@ Reinforcement-learning agents that taught themselves to play 2048, benchmarked h
 
 [**▶ Watch the trained agents play**](https://samjacklin.com/deep-2048)
 
-The DQN is built with PyTorch and trained for ~1M steps on Apple Silicon. The n-tuple network trains in under a minute on one CPU core. The trained agents can be watched in an interactive replay viewer (React + Vite, deployed to S3/CloudFront via GitHub Actions).
+The DQN is built with PyTorch and trained for ~1M steps on Apple Silicon. The n-tuple network beats the classical search after a minute of training on one CPU core, and its strongest version trains in under an hour. The trained agents can be watched in an interactive replay viewer (React + Vite, deployed to S3/CloudFront via GitHub Actions).
 
 ## Results
 
-100 games per agent, seeded identically:
+1,000 games per agent, seeded identically, with 95% confidence intervals:
 
-| Agent | Avg score | Avg max tile | ≥512 | ≥1024 | ≥2048 | ≥4096 |
+| Agent | Avg score | Avg max tile | ≥1024 | ≥2048 | ≥8192 | ≥16384 |
 |---|---:|---:|---:|---:|---:|---:|
-| DQN (best checkpoint) | 6,157 | 449 | 62% | 9% | 0% | 0% |
-| Heuristic expectimax (depth 2) | 19,453 | 1,316 | 98% | 84% | 33% | 2% |
-| N-tuple TD (100k games) | **49,308** | **3,067** | **100%** | **99%** | **92%** | **52%** |
+| DQN (best checkpoint) | 5,689 ± 170 | 426 | 6.6% | 0% | 0% | 0% |
+| Heuristic expectimax (depth 2) | 19,981 ± 597 | 1,366 | 86.2% | 37.2% | 0% | 0% |
+| N-tuple TD (1.5M games, greedy) | 128,208 ± 2,640 | 7,071 | 99.8% | 98.6% | 74.2% | 0.7% |
+| N-tuple TD + expectimax (depth 3) | **202,291 ± 3,457** | **11,637** | **100%** | **100%** | **98.9%** | **42.6%** |
+
+Every result, with its training curves, settings and the commit that produced it, is recorded in [`experiments/`](experiments/README.md).
 
 ### The honest takeaway
 
@@ -22,7 +25,7 @@ The hand-crafted classical search beats the deep learning model by 3×. That res
 
 The DQN was the far more interesting system to build — it learns corner strategy and tile-chaining from nothing but board states and rewards. But a ~130-line heuristic with expectimax search is the better *product* than the DQN: stronger, faster to build, fully explainable, and with no training cost. Knowing which of those two things a problem actually needs is the point of doing the comparison properly.
 
-Learning itself wasn't the problem. An n-tuple network trained by temporal-difference learning (Szubert & Jaśkowski, 2014) beats the search by 2.5× and reaches 2048 in 92% of games. It's a large lookup table rather than a deep network, so each update takes nanoseconds and its 100,000 training games run in under a minute.
+Learning itself wasn't the problem. An n-tuple network trained by temporal-difference learning (Szubert & Jaśkowski, 2014) already beats the search after 100,000 training games, which take under a minute. It's a large lookup table rather than a deep network, so each update takes nanoseconds. Given the same experience as the DQN it scores about 22% higher, and it can afford over 1,000 times more. Trained for 1.5M games with temporal coherence learning, it averages 128k playing greedily. Putting a depth-3 expectimax search on top, the same idea as the classical baseline, lifts it to 202k, reaching 16384 in 43% of games.
 
 ## How it works
 
@@ -71,6 +74,8 @@ Four tuples (two straight lines of 4 cells and two 2×3 rectangles) are applied 
 
 Everything runs in numba on a bitboard: the whole board packed into one 64-bit integer, with moves done as row lookups. Training runs at about 3M moves per second, learning included. Tests check the bitboard against the reference game engine on every possible row.
 
+Training can also use temporal coherence (Beal & Smith, 1999), which scales each weight's learning rate by how consistently its errors point the same way, or a learning rate that decays over the run. At play time, `ntuple_search` adds expectimax: each move is worth its reward plus the expected value over every tile that could spawn, down to a fixed depth, where the network values the afterstate. Depth 1 is the greedy agent.
+
 ## Quickstart
 
 Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
@@ -83,11 +88,13 @@ make train-dqn         # train from scratch (~hours on Apple Silicon / CUDA)
 make resume-dqn CHECKPOINT=checkpoints/dqn/step_500045.pt
 make train-ntuple      # 100k games from scratch (~1 minute on one CPU core)
 make resume-ntuple ARGS="--games 200000"
-make evaluate          # every agent, 100 games each, across all CPU cores
+make evaluate          # every agent, 1,000 games each, across all CPU cores
 make play ARGS="--agent heuristic --render"
 make plot              # training curves from output/dqn/training_history.csv
 make test
 ```
+
+The n-tuple agents load `checkpoints/ntuple/best.npz` by default. To rebuild the benchmarked network, run the two training sessions in [`experiments/ntuple-td-1m`](experiments/ntuple-td-1m/NOTES.md) and [`experiments/ntuple-1m-cont-tc`](experiments/ntuple-1m-cont-tc/NOTES.md), then link the second run's 1.5M-game snapshot as `best.npz`. Training is deterministic, so this reproduces the same weights.
 
 Frontend replay viewer:
 
