@@ -7,7 +7,7 @@ reflections of the board using the same table. Cells are numbered 4 * row + col.
 
 import json
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 import numpy as np
 from numba import njit
@@ -101,6 +101,34 @@ def update(weights: np.ndarray, layout: TupleLayout, board: np.uint64, delta: fl
             weights[_weight_index(layout, t, symmetric_board)] += delta
 
 
+class CoherenceTraces(NamedTuple):
+    """Running sums of each weight's errors and their sizes, for temporal coherence learning. A NamedTuple so numba can use it."""
+
+    errors: np.ndarray
+    abs_errors: np.ndarray
+
+    @classmethod
+    def zeros(cls, n_weights: int) -> "CoherenceTraces":
+        return cls(np.zeros(n_weights, dtype=np.float32), np.zeros(n_weights, dtype=np.float32))
+
+
+@njit(inline="always")
+def update_coherent(weights: np.ndarray, traces: CoherenceTraces, layout: TupleLayout, board: np.uint64, learning_rate: float, error: float) -> None:
+    """Move each weight read for this board by learning_rate * coherence * error.
+
+    A weight's coherence is |sum of its errors| / sum of their sizes: near 1 while its errors keep
+    pointing the same way, and near 0 once they cancel out. A weight with no history learns at the full rate.
+    """
+    boards = bb.symmetries(board)
+    for t in range(len(layout.offsets)):
+        for symmetric_board in boards:
+            i = _weight_index(layout, t, symmetric_board)
+            coherence = abs(traces.errors[i]) / traces.abs_errors[i] if traces.abs_errors[i] > 0 else 1.0
+            weights[i] += learning_rate * coherence * error
+            traces.errors[i] += error
+            traces.abs_errors[i] += abs(error)
+
+
 class NTupleNetwork:
     def __init__(self, tuples: tuple[tuple[int, ...], ...] = TUPLES, weights: np.ndarray | None = None) -> None:
         self.tuples = tuples
@@ -117,13 +145,17 @@ class NTupleNetwork:
     def update(self, board: np.uint64, delta: float) -> None:
         update(self.weights, self.layout, np.uint64(board), delta)
 
-    def save(self, path: str | Path, metadata: CheckpointMetadata) -> None:
+    def save(self, path: str | Path, metadata: CheckpointMetadata, traces: CoherenceTraces | None = None) -> None:
+        """Save the network, plus its temporal coherence traces if it's being trained with them."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
+        arrays: dict[str, Any] = {"weights": self.weights, "tuples": json.dumps(self.tuples), "metadata": metadata.model_dump_json()}
+        if traces is not None:
+            arrays |= {"coherence_errors": traces.errors, "coherence_abs_errors": traces.abs_errors}
         # Write then rename so a Ctrl-C mid-save can't leave a broken checkpoint
         tmp = path.with_name(path.name + ".tmp")
         with open(tmp, "wb") as f:
-            np.savez(f, weights=self.weights, tuples=json.dumps(self.tuples), metadata=metadata.model_dump_json())
+            np.savez(f, **arrays)
         tmp.replace(path)
 
     @classmethod
@@ -134,3 +166,11 @@ class NTupleNetwork:
             network = cls(tuples=tuples, weights=data["weights"])
             metadata = CheckpointMetadata.model_validate_json(str(data["metadata"]))
         return network, metadata
+
+
+def load_traces(path: str | Path) -> CoherenceTraces | None:
+    """Load a checkpoint's temporal coherence traces, or None if it was trained without them."""
+    with np.load(path) as data:
+        if "coherence_errors" not in data:
+            return None
+        return CoherenceTraces(data["coherence_errors"], data["coherence_abs_errors"])

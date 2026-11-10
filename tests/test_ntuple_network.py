@@ -1,7 +1,7 @@
 import numpy as np
 
 from deep_2048.agents.ntuple.models import CheckpointMetadata
-from deep_2048.agents.ntuple.network import TUPLES, NTupleNetwork
+from deep_2048.agents.ntuple.network import TUPLES, CoherenceTraces, NTupleNetwork, load_traces, update_coherent
 from deep_2048.game import bitboard as bb
 
 from tests.helpers import SMALL_TUPLES, random_boards, symmetry_grids
@@ -13,18 +13,21 @@ def random_network(seed: int) -> NTupleNetwork:
     return network
 
 
-def reference_value(network: NTupleNetwork, board: np.ndarray) -> float:
-    """Compute the network value the slow, obvious way."""
+def reference_indices(network: NTupleNetwork, board: np.ndarray) -> list[int]:
+    """List the weights the network reads for a board, in read order, the slow, obvious way."""
     exponents = np.where(board == 0, 0, np.log2(np.maximum(board, 1))).astype(int).reshape(-1)
-    total = 0.0
+    indices = []
     offset = 0
     for cells in network.tuples:
         for symmetry in symmetry_grids():
             transformed = exponents[symmetry.reshape(-1)]
-            index = sum(int(transformed[c]) << (4 * k) for k, c in enumerate(cells))
-            total += float(network.weights[offset + index])
+            indices.append(offset + sum(int(transformed[c]) << (4 * k) for k, c in enumerate(cells)))
         offset += 16 ** len(cells)
-    return total
+    return indices
+
+
+def reference_value(network: NTupleNetwork, board: np.ndarray) -> float:
+    return sum(float(network.weights[i]) for i in reference_indices(network, board))
 
 
 def test_full_network_size() -> None:
@@ -70,6 +73,26 @@ def test_update() -> None:
     assert network.value(board) == float((hit**2).sum())
 
 
+def test_coherent_update_matches_reference() -> None:
+    network = random_network(5)
+    traces = CoherenceTraces.zeros(network.weights.size)
+    weights, errors, abs_errors = network.weights.astype(np.float64), np.zeros(network.weights.size), np.zeros(network.weights.size)
+    rng = np.random.default_rng(6)
+
+    for board in random_boards(100, seed=6):
+        error = float(rng.normal())
+        update_coherent(network.weights, traces, network.layout, bb.from_array(board), 0.1, error)
+        for i in reference_indices(network, board):
+            coherence = abs(errors[i]) / abs_errors[i] if abs_errors[i] > 0 else 1.0
+            weights[i] += 0.1 * coherence * error
+            errors[i] += error
+            abs_errors[i] += abs(error)
+
+    np.testing.assert_allclose(network.weights, weights, atol=1e-4)
+    np.testing.assert_allclose(traces.errors, errors, atol=1e-4)
+    np.testing.assert_allclose(traces.abs_errors, abs_errors, atol=1e-4)
+
+
 def test_save_and_load_round_trip(tmp_path) -> None:
     network = random_network(7)
     path = tmp_path / "net.npz"
@@ -80,4 +103,17 @@ def test_save_and_load_round_trip(tmp_path) -> None:
     assert loaded.tuples == SMALL_TUPLES
     np.testing.assert_array_equal(loaded.weights, network.weights)
     assert loaded_metadata == metadata
+    assert load_traces(path) is None
     assert not (tmp_path / "net.npz.tmp").exists()
+
+
+def test_save_and_load_coherence_traces(tmp_path) -> None:
+    network = random_network(8)
+    traces = CoherenceTraces(*np.random.default_rng(9).normal(size=(2, network.weights.size)).astype(np.float32))
+    path = tmp_path / "net.npz"
+    network.save(path, CheckpointMetadata(games_played=1, moves_played=1, learning_rate=0.01, temporal_coherence=True), traces)
+
+    loaded = load_traces(path)
+    assert loaded is not None
+    np.testing.assert_array_equal(loaded.errors, traces.errors)
+    np.testing.assert_array_equal(loaded.abs_errors, traces.abs_errors)
