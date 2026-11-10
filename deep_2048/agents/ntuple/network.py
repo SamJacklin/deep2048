@@ -82,7 +82,13 @@ class TupleLayout(NamedTuple):
     sharing: "ScaleSharing | None" = None
 
     @classmethod
-    def build(cls, tuples: tuple[tuple[int, ...], ...], downgrade_tile: int | None = None, scale_feature: bool = False) -> "TupleLayout":
+    def build(
+        cls,
+        tuples: tuple[tuple[int, ...], ...],
+        downgrade_tile: int | None = None,
+        scale_feature: bool = False,
+        scale_when_downgraded: bool = False,
+    ) -> "TupleLayout":
         max_runs = max(len(t) for t in tuples)
         offsets = np.zeros(len(tuples), dtype=np.int64)
         n_runs = np.zeros(len(tuples), dtype=np.int64)
@@ -104,7 +110,11 @@ class TupleLayout(NamedTuple):
         sharing = None
         if downgrade_tile is not None or scale_feature:
             downgrade_exponent = 0 if downgrade_tile is None else downgrade_tile.bit_length() - 1
-            sharing = ScaleSharing(downgrade_exponent=downgrade_exponent, scale_offset=table_start if scale_feature else -1)
+            sharing = ScaleSharing(
+                downgrade_exponent=downgrade_exponent,
+                scale_offset=table_start if scale_feature else -1,
+                scale_when_downgraded=scale_when_downgraded,
+            )
         return cls(
             offsets=offsets,
             n_runs=n_runs,
@@ -121,11 +131,13 @@ class ScaleSharing(NamedTuple):
 
     Boards with a 2**downgrade_exponent tile or larger are read by the tuples with their tiles above
     the largest gap halved (0 turns this off). If scale_offset isn't -1, one more weight is added
-    from a table there, indexed by how many tiles of each size from 2048 to 32768 the real board has.
+    from a table there, indexed by how many tiles of each size from 2048 to 32768 the real board has:
+    for every board, or only for boards that were downgraded if scale_when_downgraded is set.
     """
 
     downgrade_exponent: int
     scale_offset: int
+    scale_when_downgraded: bool = False
 
 
 @njit(inline="always")
@@ -141,8 +153,8 @@ def _tuple_board(layout: TupleLayout, board: np.uint64) -> np.uint64:
     raise NotImplementedError
 
 
-def _scale_index(layout: TupleLayout, board: np.uint64) -> int:
-    """Return the board's scale weight index, or -1 if the layout has no scale term. Numba only."""
+def _scale_index(layout: TupleLayout, board: np.uint64, tuple_board: np.uint64) -> int:
+    """Return the board's scale weight index, or -1 if it gets no scale weight. Numba only."""
     raise NotImplementedError
 
 
@@ -166,12 +178,14 @@ def _tuple_board_overload(layout, board):  # type: ignore[no-untyped-def]
 
 
 @overload(_scale_index, inline="always")
-def _scale_index_overload(layout, board):  # type: ignore[no-untyped-def]
+def _scale_index_overload(layout, board, tuple_board):  # type: ignore[no-untyped-def]
     if not _has_sharing(layout):
-        return lambda layout, board: -1
+        return lambda layout, board, tuple_board: -1
 
-    def scale_index(layout, board):  # type: ignore[no-untyped-def]
+    def scale_index(layout, board, tuple_board):  # type: ignore[no-untyped-def]
         if layout.sharing.scale_offset < 0:
+            return -1
+        if layout.sharing.scale_when_downgraded and tuple_board == board:
             return -1
         return layout.sharing.scale_offset + bb.large_tile_counts(board)
 
@@ -181,12 +195,13 @@ def _scale_index_overload(layout, board):  # type: ignore[no-untyped-def]
 @njit(inline="always")
 def evaluate(weights: np.ndarray, layout: TupleLayout, board: np.uint64) -> float:
     """Sum the weights each tuple reads from each symmetry of the board, plus the scale weight if any."""
-    boards = bb.symmetries(_tuple_board(layout, board))
+    tuple_board = _tuple_board(layout, board)
+    boards = bb.symmetries(tuple_board)
     total = 0.0
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
             total += weights[_weight_index(layout, t, symmetric_board)]
-    scale = _scale_index(layout, board)
+    scale = _scale_index(layout, board, tuple_board)
     if scale >= 0:
         total += weights[scale]
     return total
@@ -195,11 +210,12 @@ def evaluate(weights: np.ndarray, layout: TupleLayout, board: np.uint64) -> floa
 @njit(inline="always")
 def update(weights: np.ndarray, layout: TupleLayout, board: np.uint64, delta: float) -> None:
     """Add delta to every weight read for this board."""
-    boards = bb.symmetries(_tuple_board(layout, board))
+    tuple_board = _tuple_board(layout, board)
+    boards = bb.symmetries(tuple_board)
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
             weights[_weight_index(layout, t, symmetric_board)] += delta
-    scale = _scale_index(layout, board)
+    scale = _scale_index(layout, board, tuple_board)
     if scale >= 0:
         weights[scale] += delta
 
@@ -222,11 +238,12 @@ def update_coherent(weights: np.ndarray, traces: CoherenceTraces, layout: TupleL
     A weight's coherence is |sum of its errors| / sum of their sizes: near 1 while its errors keep
     pointing the same way, and near 0 once they cancel out. A weight with no history learns at the full rate.
     """
-    boards = bb.symmetries(_tuple_board(layout, board))
+    tuple_board = _tuple_board(layout, board)
+    boards = bb.symmetries(tuple_board)
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
             _update_coherent_weight(weights, traces, _weight_index(layout, t, symmetric_board), learning_rate, error)
-    scale = _scale_index(layout, board)
+    scale = _scale_index(layout, board, tuple_board)
     if scale >= 0:
         _update_coherent_weight(weights, traces, scale, learning_rate, error)
 
@@ -246,12 +263,19 @@ class NTupleNetwork:
         weights: np.ndarray | None = None,
         downgrade_tile: int | None = None,
         scale_feature: bool = False,
+        scale_when_downgraded: bool = False,
     ) -> None:
         self.tuples = tuples
         self.downgrade_tile = downgrade_tile
         self.scale_feature = scale_feature
-        self.layout = TupleLayout.build(tuples, downgrade_tile, scale_feature)
+        self.scale_when_downgraded = scale_when_downgraded
+        self.layout = TupleLayout.build(tuples, downgrade_tile, scale_feature, scale_when_downgraded)
         self.weights = np.zeros(self.layout.n_weights, dtype=np.float32) if weights is None else weights
+
+    @property
+    def features(self) -> dict[str, Any]:
+        """The scale-sharing options, as saved with a checkpoint."""
+        return {"downgrade_tile": self.downgrade_tile, "scale_feature": self.scale_feature, "scale_when_downgraded": self.scale_when_downgraded}
 
     @property
     def n_features(self) -> int:
@@ -267,7 +291,7 @@ class NTupleNetwork:
         """Save the network, plus its temporal coherence traces if it's being trained with them."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        features = json.dumps({"downgrade_tile": self.downgrade_tile, "scale_feature": self.scale_feature})
+        features = json.dumps(self.features)
         arrays: dict[str, Any] = {"weights": self.weights, "tuples": json.dumps(self.tuples), "features": features, "metadata": metadata.model_dump_json()}
         if traces is not None:
             arrays |= {"coherence_errors": traces.errors, "coherence_abs_errors": traces.abs_errors}

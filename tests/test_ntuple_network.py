@@ -137,11 +137,27 @@ def test_scale_sharing_features_match_reference() -> None:
     assert checked > 100
 
 
+def test_scale_term_when_downgraded_only_reads_downgraded_boards() -> None:
+    network = NTupleNetwork(tuples=SMALL_TUPLES, downgrade_tile=1024, scale_feature=True, scale_when_downgraded=True)
+    network.weights[:] = np.random.default_rng(14).normal(size=network.weights.shape)
+    scale_offset = network.weights.size - SCALE_WEIGHTS
+    downgraded = 0
+    for board in random_boards(500, seed=15):
+        packed = bb.from_array(board)
+        read = bb.to_array(np.uint64(bb.downgrade(packed, 10)))
+        expected = reference_value(network, read)
+        if not np.array_equal(read, board):
+            expected += float(network.weights[scale_offset + bb.large_tile_counts(packed)])
+            downgraded += 1
+        assert np.isclose(network.value(packed), expected)
+    assert 100 < downgraded < 500
+
+
 def test_scale_sharing_features_survive_save_and_load(tmp_path) -> None:
-    network = NTupleNetwork(tuples=SMALL_TUPLES, downgrade_tile=1024, scale_feature=True)
+    network = NTupleNetwork(tuples=SMALL_TUPLES, downgrade_tile=1024, scale_feature=True, scale_when_downgraded=True)
     network.save(tmp_path / "net.npz", CheckpointMetadata(games_played=1, moves_played=1, learning_rate=0.01))
     loaded, _ = NTupleNetwork.load(tmp_path / "net.npz")
-    assert loaded.downgrade_tile == 1024 and loaded.scale_feature
+    assert loaded.features == network.features
     assert loaded.layout.sharing == network.layout.sharing
     assert loaded.layout.sharing is not None and loaded.layout.sharing.downgrade_exponent == 10
 

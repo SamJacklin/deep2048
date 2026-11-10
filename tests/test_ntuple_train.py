@@ -163,7 +163,7 @@ def test_train_with_scale_sharing(tmp_path) -> None:
     summary = train(total_games=50, settings=settings)
     assert NTupleAgent(summary.checkpoint_path).label == "N-tuple TD (50 games, lr 0.0025, downgraded from 256, scale term)"
 
-    with pytest.raises(ValueError, match="scale_feature=True"):
+    with pytest.raises(ValueError, match="'scale_feature': True"):
         train(resume_from=summary.checkpoint_path, total_games=100, settings=settings.model_copy(update={"SCALE_FEATURE": False}))
 
 
@@ -173,6 +173,16 @@ def test_train_refuses_a_folder_another_process_is_training(tmp_path) -> None:
         with pytest.raises(RuntimeError, match="already being trained"):
             train(total_games=50, settings=settings)
     assert not (tmp_path / "checkpoints").exists()
+
+
+def test_scale_term_when_downgraded_needs_both_features(tmp_path) -> None:
+    settings = NTupleSettings(SCALE_WHEN_DOWNGRADED=True, SCALE_FEATURE=True, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
+    with pytest.raises(ValueError, match="needs SCALE_FEATURE and DOWNGRADE_TILE"):
+        train(total_games=10, settings=settings)
+
+    settings = settings.model_copy(update={"DOWNGRADE_TILE": 256, "LOG_EVERY": 50})
+    summary = train(total_games=50, settings=settings)
+    assert NTupleAgent(summary.checkpoint_path).label == "N-tuple TD (50 games, lr 0.0025, downgraded from 256, scale term when downgraded)"
 
 
 def test_settings_ignore_dqn_env_vars(monkeypatch) -> None:

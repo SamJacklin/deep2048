@@ -25,7 +25,7 @@ class NTupleAgent(Agent):
         if self.network.downgrade_tile is not None:
             details.append(f"downgraded from {self.network.downgrade_tile}")
         if self.network.scale_feature:
-            details.append("scale term")
+            details.append("scale term when downgraded" if self.network.scale_when_downgraded else "scale term")
         extras = "".join(f", {detail}" for detail in details)
         search = f" + search depth={depth}" if depth > 1 else ""
         self.label = f"N-tuple TD ({metadata.games_played:,} games, {rule}lr {metadata.learning_rate:.2g}{extras}){search}"
