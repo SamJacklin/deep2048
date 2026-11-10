@@ -25,6 +25,10 @@ class NTupleSettings(Settings):
     DOWNGRADE_TILE: int | None = None
     SCALE_FEATURE: bool = False
     SCALE_WHEN_DOWNGRADED: bool = False
+    # Threads playing and learning in parallel without locks: faster, but not bit-reproducible.
+    # The first THREADS_AFTER games are single-threaded, since a fresh network collides often.
+    THREADS: int = 1
+    THREADS_AFTER: int = 10_000
     TRAINING_GAMES: int = 100_000
     LOG_EVERY: int = 1_000
     CHECKPOINT_EVERY: int = 10_000

@@ -10,14 +10,20 @@ The learning rate is constant by default. It can instead decay over the session
 
 A share of games can start from synthetic late-game positions (LATE_START_FRACTION), made by
 doubling the tiles above a gap in positions from normal play, which keeps the game's dynamics.
+
+With THREADS > 1, games run on several threads that update the shared weights without locks, as in
+Jaśkowski (2018). Updates are sparse, so threads rarely touch the same weight at once, but runs are
+no longer bit-reproducible. The first THREADS_AFTER games stay single-threaded, because a fresh
+network's few common positions make collisions frequent.
 """
 
 import csv
 import time
 from pathlib import Path
 
+import numba
 import numpy as np
-from numba import njit
+from numba import njit, prange
 
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
 from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, LateStarts, TrainingHistoryRow, TrainingSummary
@@ -96,8 +102,7 @@ def play_game(
             harvested = board
 
 
-@njit
-def play_games(
+def _play_games(
     n: int,
     weights: np.ndarray,
     traces: CoherenceTraces | None,
@@ -106,9 +111,18 @@ def play_games(
     learn: bool,
     late_starts: LateStarts | None = None,
 ) -> GameResults:
-    """Play n games, starting a share of them from `late_starts` if given."""
-    results = GameResults(np.zeros(n, np.int64), np.zeros(n, np.int64), np.zeros(n, np.int64), np.zeros(n, np.bool_), np.zeros(n, np.uint64))
-    for i in range(n):
+    """Play n games, starting a share of them from `late_starts` if given.
+
+    Compiled twice: as play_games, where prange is an ordinary loop, and as play_games_threaded,
+    where the games run on several threads that update the shared weights without locks.
+    """
+    # Plain arrays rather than GameResults' own: numba's parallel loops drop writes made through a NamedTuple
+    scores = np.zeros(n, np.int64)
+    max_exponents = np.zeros(n, np.int64)
+    moves = np.zeros(n, np.int64)
+    synthetic = np.zeros(n, np.bool_)
+    harvested = np.zeros(n, np.uint64)
+    for i in prange(n):
         start = np.uint64(0)
         harvest_exponent = 0
         if late_starts is not None:
@@ -117,10 +131,13 @@ def play_games(
                 start = late_starts.pool[np.random.randint(late_starts.pool.size)]
                 # Synthetic games don't donate positions, so starts aren't upgraded again and again
                 harvest_exponent = 0
-                results.synthetic[i] = True
-        game = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent)
-        results.scores[i], results.max_exponents[i], results.moves[i], results.harvested[i] = game
-    return results
+                synthetic[i] = True
+        scores[i], max_exponents[i], moves[i], harvested[i] = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent)
+    return GameResults(scores, max_exponents, moves, synthetic, harvested)
+
+
+play_games = njit(_play_games)
+play_games_threaded = njit(parallel=True)(_play_games)
 
 
 @njit
@@ -182,19 +199,27 @@ def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at:
     bb.seed(settings.SEED + progress.games_played)
     schedule = f" decaying to {settings.LEARNING_RATE_END}" if settings.LEARNING_RATE_END is not None else ""
     coherence = ", temporal coherence" if settings.TEMPORAL_COHERENCE else ""
-    print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}{schedule}{coherence}")
+    threads = f", {settings.THREADS} threads after {settings.THREADS_AFTER:,} games" if settings.THREADS > 1 else ""
+    print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}{schedule}{coherence}{threads}")
     late_starts = _late_starts(settings)
+    _set_threads(settings)
     # Compile before timing starts, otherwise the first batch's games/s includes compilation
     play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts)
+    if settings.THREADS > 1:
+        play_games_threaded(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts)
 
     interrupted = False
     try:
         while progress.games_played < total_games:
-            next_stop = min([total_games, *(s for s in snapshots if s > progress.games_played)])
-            batch = min(settings.LOG_EVERY, next_stop - progress.games_played)
+            stops = [total_games, *(s for s in snapshots if s > progress.games_played)]
+            if settings.THREADS > 1 and settings.THREADS_AFTER > progress.games_played:
+                stops.append(settings.THREADS_AFTER)
+            batch = min(settings.LOG_EVERY, min(stops) - progress.games_played)
             progress.learning_rate = learning_rate_at(settings, start_games, total_games, progress.games_played)
+            threaded = settings.THREADS > 1 and progress.games_played >= settings.THREADS_AFTER
+            play = play_games_threaded if threaded else play_games
             started = time.monotonic()
-            results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts)
+            results = play(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts)
             if late_starts is not None:
                 late_starts = late_starts._replace(pool=_grow_pool(late_starts.pool, results, settings.LATE_START_POOL))
             progress.games_played += batch
@@ -258,6 +283,12 @@ def learning_rate_at(settings: NTupleSettings, start_games: int, total_games: in
         return settings.LEARNING_RATE
     progress = (games_played - start_games) / (total_games - start_games)
     return settings.LEARNING_RATE * (settings.LEARNING_RATE_END / settings.LEARNING_RATE) ** progress
+
+
+def _set_threads(settings: NTupleSettings) -> None:
+    if not 1 <= settings.THREADS <= numba.config.NUMBA_NUM_THREADS:
+        raise ValueError(f"THREADS must be between 1 and {numba.config.NUMBA_NUM_THREADS}, not {settings.THREADS}")
+    numba.set_num_threads(settings.THREADS)
 
 
 def _late_starts(settings: NTupleSettings) -> LateStarts | None:

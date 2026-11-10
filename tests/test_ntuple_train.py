@@ -1,5 +1,6 @@
 import csv
 
+import numba
 import numpy as np
 import pytest
 
@@ -7,7 +8,7 @@ from deep_2048.agents.ntuple import NTupleAgent
 from deep_2048.agents.ntuple.config import NTupleSettings
 from deep_2048.agents.ntuple.models import GameResults, LateStarts
 from deep_2048.agents.ntuple.network import NETWORKS, NTupleNetwork, load_traces
-from deep_2048.agents.ntuple.train import learning_rate_at, play_games, train
+from deep_2048.agents.ntuple.train import learning_rate_at, play_games, play_games_threaded, train
 from deep_2048.experiments import RunManifest, run_lock
 from deep_2048.game import bitboard as bb
 
@@ -183,6 +184,36 @@ def test_scale_term_when_downgraded_needs_both_features(tmp_path) -> None:
     settings = settings.model_copy(update={"DOWNGRADE_TILE": 256, "LOG_EVERY": 50})
     summary = train(total_games=50, settings=settings)
     assert NTupleAgent(summary.checkpoint_path).label == "N-tuple TD (50 games, lr 0.0025, downgraded from 256, scale term when downgraded)"
+
+
+def test_threaded_learning_improves_play() -> None:
+    network = NTupleNetwork(tuples=SMALL_TUPLES)
+    before = play(network, 200, learn=False, seed=0)
+    numba.set_num_threads(2)
+    bb.seed(1)
+    learned = play_games_threaded(2_000, network.weights, None, network.layout, 0.01, True)
+    after = play(network, 200, learn=False, seed=0)
+
+    assert (learned.moves > 0).all() and (learned.scores > 0).all()
+    assert after.scores.mean() > 1.5 * before.scores.mean()
+
+
+def test_train_switches_to_threads_after_the_warm_up(tmp_path) -> None:
+    settings = NTupleSettings(THREADS=2, THREADS_AFTER=100, LOG_EVERY=100, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
+    summary = train(total_games=300, settings=settings)
+    _, metadata = NTupleNetwork.load(summary.checkpoint_path)
+    assert metadata.games_played == 300 and metadata.moves_played > 0
+
+    session = RunManifest.load_or_create(tmp_path / "output").sessions[0]
+    assert session.settings["THREADS"] == 2 and session.settings["THREADS_AFTER"] == 100
+    with open(tmp_path / "output" / "training_history.csv") as f:
+        assert [int(row["games"]) for row in csv.DictReader(f)] == [100, 200, 300]
+
+
+def test_thread_count_must_be_available(tmp_path) -> None:
+    settings = NTupleSettings(THREADS=10_000, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
+    with pytest.raises(ValueError, match="THREADS must be between"):
+        train(total_games=10, settings=settings)
 
 
 def test_settings_ignore_dqn_env_vars(monkeypatch) -> None:
