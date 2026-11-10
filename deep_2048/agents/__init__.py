@@ -8,7 +8,7 @@ from deep_2048.agents.base import Agent, Decision
 DEFAULT_DQN_CHECKPOINT = "checkpoints/dqn/best.pt"
 DEFAULT_NTUPLE_CHECKPOINT = "checkpoints/ntuple/latest.npz"
 
-AGENT_NAMES: tuple[str, ...] = ("dqn", "dqn_search", "heuristic", "ntuple")
+AGENT_NAMES: tuple[str, ...] = ("dqn", "dqn_search", "heuristic", "ntuple", "ntuple_search")
 
 
 def load_agent(name: str, *, checkpoint: str | None = None, depth: int | None = None) -> Agent:
@@ -38,6 +38,11 @@ def load_agent(name: str, *, checkpoint: str | None = None, depth: int | None = 
         from deep_2048.agents.ntuple import NTupleAgent
 
         return NTupleAgent(checkpoint or DEFAULT_NTUPLE_CHECKPOINT)
+
+    if name == "ntuple_search":
+        from deep_2048.agents.ntuple import NTupleAgent
+
+        return NTupleAgent(checkpoint or DEFAULT_NTUPLE_CHECKPOINT, depth=depth or 2)
 
     raise ValueError(f"Unknown agent {name!r}. Choose from: {', '.join(AGENT_NAMES)}")
 
