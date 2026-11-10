@@ -7,6 +7,9 @@ the random tile spawns already give enough variety.
 
 The learning rate is constant by default. It can instead decay over the session
 (LEARNING_RATE_END), or be scaled per weight by temporal coherence (Beal & Smith, 1999).
+
+A share of games can start from synthetic late-game positions (LATE_START_FRACTION), made by
+doubling the tiles above a gap in positions from normal play, which keeps the game's dynamics.
 """
 
 import csv
@@ -17,7 +20,7 @@ import numpy as np
 from numba import njit
 
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
-from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, TrainingHistoryRow, TrainingSummary
+from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, LateStarts, TrainingHistoryRow, TrainingSummary
 from deep_2048.agents.ntuple.network import NETWORKS, CoherenceTraces, NTupleNetwork, TupleLayout, evaluate, load_traces, network_name, update, update_coherent
 from deep_2048.experiments import Environment, RunManifest, TrainingSession, command_line, now
 from deep_2048.game import bitboard as bb
@@ -54,9 +57,23 @@ def _best_move(weights: np.ndarray, layout: TupleLayout, board: np.uint64) -> tu
 
 
 @njit
-def play_game(weights: np.ndarray, traces: CoherenceTraces | None, layout: TupleLayout, learning_rate: float, learn: bool) -> tuple[int, int, int]:
-    """Play one greedy game, learning from it if `learn`, and return (score, max exponent, moves)."""
-    board = bb.initial_board()
+def play_game(
+    weights: np.ndarray,
+    traces: CoherenceTraces | None,
+    layout: TupleLayout,
+    learning_rate: float,
+    learn: bool,
+    start: np.uint64,
+    harvest_exponent: int,
+) -> tuple[int, int, int, np.uint64]:
+    """Play one greedy game, learning from it if `learn`, and return (score, max exponent, moves, harvested).
+
+    The game starts from `start`, or a fresh board if it's 0. If `harvest_exponent` is set, `harvested`
+    is the position where the game first made a 2**harvest_exponent tile, otherwise 0.
+    """
+    board = bb.initial_board() if start == np.uint64(0) else start
+    harvested = np.uint64(0)
+    harvest_reward = 1 << harvest_exponent if harvest_exponent > 0 else 0
     score = 0
     moves = 0
     previous_afterstate = np.uint64(0)
@@ -68,20 +85,55 @@ def play_game(weights: np.ndarray, traces: CoherenceTraces | None, layout: Tuple
             _learn(weights, traces, layout, previous_afterstate, 0.0 if game_over else best_value, learning_rate)
 
         if game_over:
-            return score, bb.max_exponent(board), moves
+            return score, bb.max_exponent(board), moves, harvested
 
         previous_afterstate = best_afterstate
         score += best_reward
         moves += 1
         board = bb.spawn_tile(best_afterstate)
+        # Only a merge scoring at least the harvest tile can make it, so most moves skip the board scan
+        if harvest_reward > 0 and harvested == np.uint64(0) and best_reward >= harvest_reward and bb.max_exponent(board) >= harvest_exponent:
+            harvested = board
 
 
 @njit
-def play_games(n: int, weights: np.ndarray, traces: CoherenceTraces | None, layout: TupleLayout, learning_rate: float, learn: bool) -> GameResults:
-    results = GameResults(np.zeros(n, dtype=np.int64), np.zeros(n, dtype=np.int64), np.zeros(n, dtype=np.int64))
+def play_games(
+    n: int,
+    weights: np.ndarray,
+    traces: CoherenceTraces | None,
+    layout: TupleLayout,
+    learning_rate: float,
+    learn: bool,
+    late_starts: LateStarts | None = None,
+) -> GameResults:
+    """Play n games, starting a share of them from `late_starts` if given."""
+    results = GameResults(np.zeros(n, np.int64), np.zeros(n, np.int64), np.zeros(n, np.int64), np.zeros(n, np.bool_), np.zeros(n, np.uint64))
     for i in range(n):
-        results.scores[i], results.max_exponents[i], results.moves[i] = play_game(weights, traces, layout, learning_rate, learn)
+        start = np.uint64(0)
+        harvest_exponent = 0
+        if late_starts is not None:
+            harvest_exponent = late_starts.harvest_exponent
+            if late_starts.pool.size > 0 and np.random.random() < late_starts.fraction:
+                start = late_starts.pool[np.random.randint(late_starts.pool.size)]
+                # Synthetic games don't donate positions, so starts aren't upgraded again and again
+                harvest_exponent = 0
+                results.synthetic[i] = True
+        game = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent)
+        results.scores[i], results.max_exponents[i], results.moves[i], results.harvested[i] = game
     return results
+
+
+@njit
+def upgrade_all(boards: np.ndarray) -> np.ndarray:
+    """Upgrade each board above its largest gap, keeping only those that changed."""
+    upgraded = np.zeros(boards.size, dtype=np.uint64)
+    kept = 0
+    for board in boards:
+        candidate = bb.upgrade(board)
+        if candidate != board:
+            upgraded[kept] = candidate
+            kept += 1
+    return upgraded[:kept]
 
 
 def train(
@@ -125,8 +177,9 @@ def train(
     schedule = f" decaying to {settings.LEARNING_RATE_END}" if settings.LEARNING_RATE_END is not None else ""
     coherence = ", temporal coherence" if settings.TEMPORAL_COHERENCE else ""
     print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}{schedule}{coherence}")
+    late_starts = _late_starts(settings)
     # Compile before timing starts, otherwise the first batch's games/s includes compilation
-    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True)
+    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts)
 
     interrupted = False
     try:
@@ -135,7 +188,9 @@ def train(
             batch = min(settings.LOG_EVERY, next_stop - progress.games_played)
             progress.learning_rate = learning_rate_at(settings, start_games, total_games, progress.games_played)
             started = time.monotonic()
-            results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True)
+            results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts)
+            if late_starts is not None:
+                late_starts = late_starts._replace(pool=_grow_pool(late_starts.pool, results, settings.LATE_START_POOL))
             progress.games_played += batch
             progress.moves_played += int(results.moves.sum())
 
@@ -184,6 +239,21 @@ def learning_rate_at(settings: NTupleSettings, start_games: int, total_games: in
         return settings.LEARNING_RATE
     progress = (games_played - start_games) / (total_games - start_games)
     return settings.LEARNING_RATE * (settings.LEARNING_RATE_END / settings.LEARNING_RATE) ** progress
+
+
+def _late_starts(settings: NTupleSettings) -> LateStarts | None:
+    """Return an empty pool of synthetic starts if they're enabled. The pool isn't checkpointed: a resumed run refills it."""
+    if settings.LATE_START_FRACTION <= 0:
+        return None
+    if settings.LATE_START_TILE & (settings.LATE_START_TILE - 1):
+        raise ValueError(f"LATE_START_TILE must be a power of two, not {settings.LATE_START_TILE}")
+    return LateStarts(np.zeros(0, dtype=np.uint64), settings.LATE_START_FRACTION, settings.LATE_START_TILE.bit_length() - 1)
+
+
+def _grow_pool(pool: np.ndarray, results: GameResults, size: int) -> np.ndarray:
+    """Add upgraded versions of the batch's donated positions to the pool, keeping the newest `size`."""
+    donated = results.harvested[(results.harvested != 0) & ~results.synthetic]
+    return np.concatenate([pool, upgrade_all(donated)])[-size:]
 
 
 def _counts(progress: CheckpointMetadata) -> dict[str, int]:

@@ -5,13 +5,13 @@ import pytest
 
 from deep_2048.agents.ntuple import NTupleAgent
 from deep_2048.agents.ntuple.config import NTupleSettings
-from deep_2048.agents.ntuple.models import GameResults
+from deep_2048.agents.ntuple.models import GameResults, LateStarts
 from deep_2048.agents.ntuple.network import NETWORKS, NTupleNetwork, load_traces
 from deep_2048.agents.ntuple.train import learning_rate_at, play_games, train
 from deep_2048.experiments import RunManifest
 from deep_2048.game import bitboard as bb
 
-from tests.helpers import SMALL_TUPLES
+from tests.helpers import SMALL_TUPLES, random_boards
 
 
 def play(network: NTupleNetwork, n: int, learn: bool, seed: int) -> GameResults:
@@ -118,6 +118,44 @@ def test_train_builds_the_configured_network(tmp_path) -> None:
 
     with pytest.raises(ValueError, match="holds a 4x6 network"):
         train(resume_from=summary.checkpoint_path, total_games=100, settings=settings.model_copy(update={"NETWORK": "8x6"}))
+
+
+def test_every_game_can_start_from_a_late_position() -> None:
+    network = NTupleNetwork(tuples=SMALL_TUPLES)
+    pool = np.array([bb.from_array(board) for board in random_boards(5, seed=30)], dtype=np.uint64)
+    bb.seed(0)
+    results = play_games(20, network.weights, None, network.layout, 0.01, True, LateStarts(pool, 1.0, 8))
+    assert results.synthetic.all() and not results.harvested.any()
+
+
+def late_start_settings(tmp_path, name: str) -> NTupleSettings:
+    return NTupleSettings(
+        LATE_START_FRACTION=0.5,
+        LATE_START_TILE=256,
+        LOG_EVERY=100,
+        CHECKPOINT_DIR=str(tmp_path / name / "checkpoints"),
+        OUTPUT_DIR=str(tmp_path / name / "output"),
+    )
+
+
+def test_late_starts_are_reported_separately_and_reproducible(tmp_path) -> None:
+    for name in ("first", "second"):
+        train(total_games=300, settings=late_start_settings(tmp_path, name))
+
+    histories = []
+    for name in ("first", "second"):
+        with open(tmp_path / name / "output" / "training_history.csv") as f:
+            histories.append([{k: v for k, v in row.items() if k != "games_per_second"} for row in csv.DictReader(f)])
+    assert histories[0] == histories[1]
+    # The first batch has no pool yet, so its games are all normal
+    assert [int(row["synthetic_games"]) for row in histories[0]][0] == 0
+    assert sum(int(row["synthetic_games"]) for row in histories[0]) > 50
+
+
+def test_late_start_tile_must_be_a_power_of_two(tmp_path) -> None:
+    settings = late_start_settings(tmp_path, "bad").model_copy(update={"LATE_START_TILE": 300})
+    with pytest.raises(ValueError, match="power of two"):
+        train(total_games=100, settings=settings)
 
 
 def test_settings_ignore_dqn_env_vars(monkeypatch) -> None:

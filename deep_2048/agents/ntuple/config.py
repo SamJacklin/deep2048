@@ -14,6 +14,11 @@ class NTupleSettings(Settings):
     LEARNING_RATE_END: float | None = None
     # Scale each weight's rate by how consistently its errors point the same way
     TEMPORAL_COHERENCE: bool = False
+    # Share of training games started from synthetic late-game positions: normal games donate the
+    # position where they first make LATE_START_TILE, and its tiles above the gap are doubled
+    LATE_START_FRACTION: float = 0.0
+    LATE_START_TILE: int = 8192
+    LATE_START_POOL: int = 10_000
     TRAINING_GAMES: int = 100_000
     LOG_EVERY: int = 1_000
     CHECKPOINT_EVERY: int = 10_000

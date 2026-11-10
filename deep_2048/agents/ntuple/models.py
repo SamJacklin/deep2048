@@ -13,14 +13,33 @@ class CheckpointMetadata(BaseModel):
 
 
 class GameResults(NamedTuple):
-    """Per-game results from a batch of training games. A NamedTuple so numba can build it."""
+    """Per-game results from a batch of training games. A NamedTuple so numba can build it.
+
+    `synthetic` marks games started from a synthetic late-game position, and `harvested` holds the
+    position each normal game donated for making those starts (0 if none).
+    """
 
     scores: np.ndarray
     max_exponents: np.ndarray
     moves: np.ndarray
+    synthetic: np.ndarray
+    harvested: np.ndarray
+
+
+class LateStarts(NamedTuple):
+    """Synthetic late-game positions to start a share of training games from. A NamedTuple so numba can use it.
+
+    Normal games donate the position where they first make a 2**harvest_exponent tile.
+    """
+
+    pool: np.ndarray
+    fraction: float
+    harvest_exponent: int
 
 
 class TrainingHistoryRow(BaseModel):
+    """Progress after a batch. Scores and tile rates cover normal games only, since synthetic ones start mid-game."""
+
     games: int
     moves: int
     avg_score: float
@@ -31,21 +50,24 @@ class TrainingHistoryRow(BaseModel):
     rate_8192: float
     rate_16384: float
     games_per_second: float
+    synthetic_games: int = 0
 
     @classmethod
     def from_results(cls, games_played: int, moves_played: int, results: GameResults, seconds: float) -> "TrainingHistoryRow":
-        tiles = np.left_shift(1, results.max_exponents)
+        normal = ~results.synthetic
+        tiles = np.left_shift(1, results.max_exponents[normal])
         return cls(
             games=games_played,
             moves=moves_played,
-            avg_score=float(results.scores.mean()),
-            max_score=int(results.scores.max()),
-            avg_moves=float(results.moves.mean()),
+            avg_score=float(results.scores[normal].mean()),
+            max_score=int(results.scores[normal].max()),
+            avg_moves=float(results.moves[normal].mean()),
             rate_2048=100 * float(np.mean(tiles >= 2048)),
             rate_4096=100 * float(np.mean(tiles >= 4096)),
             rate_8192=100 * float(np.mean(tiles >= 8192)),
             rate_16384=100 * float(np.mean(tiles >= 16384)),
             games_per_second=len(results.scores) / max(seconds, 1e-9),
+            synthetic_games=int(results.synthetic.sum()),
         )
 
     def __str__(self) -> str:
