@@ -212,7 +212,7 @@ def test_train_switches_to_threads_after_the_warm_up(tmp_path) -> None:
 
 def test_thread_count_must_be_available(tmp_path) -> None:
     settings = NTupleSettings(THREADS=10_000, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
-    with pytest.raises(ValueError, match="THREADS must be between"):
+    with pytest.raises(ValueError, match="isn't available"):
         train(total_games=10, settings=settings)
 
 

@@ -286,9 +286,10 @@ def learning_rate_at(settings: NTupleSettings, start_games: int, total_games: in
 
 
 def _set_threads(settings: NTupleSettings) -> None:
-    if not 1 <= settings.THREADS <= numba.config.NUMBA_NUM_THREADS:
-        raise ValueError(f"THREADS must be between 1 and {numba.config.NUMBA_NUM_THREADS}, not {settings.THREADS}")
-    numba.set_num_threads(settings.THREADS)
+    try:
+        numba.set_num_threads(settings.THREADS)
+    except ValueError as error:
+        raise ValueError(f"THREADS={settings.THREADS} isn't available: {error}") from None
 
 
 def _late_starts(settings: NTupleSettings) -> LateStarts | None:
