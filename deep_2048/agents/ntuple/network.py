@@ -7,7 +7,7 @@ reflections of the board using the same table. Cells are numbered 4 * row + col.
 
 import json
 from pathlib import Path
-from typing import Any, NamedTuple
+from typing import Any, Literal, NamedTuple, get_args
 
 import numpy as np
 from numba import njit
@@ -21,6 +21,32 @@ TUPLES: tuple[tuple[int, ...], ...] = (
     (0, 1, 2, 4, 5, 6),
     (4, 5, 6, 8, 9, 10),
 )
+
+NetworkName = Literal["2x4-2x6", "4x6", "8x6"]
+DEFAULT_NETWORK: NetworkName = "2x4-2x6"
+
+# Layouts as given in Guei's thesis (arXiv 2212.11087): 4x6 is Yeh et al.'s (2016), also Jaśkowski's 42-33
+# (2018), and 8x6 is Matsuzaki's, used by the state of the art.
+NETWORKS: dict[NetworkName, tuple[tuple[int, ...], ...]] = {
+    "2x4-2x6": TUPLES,
+    "4x6": ((0, 1, 2, 3, 4, 5), (4, 5, 6, 7, 8, 9), (0, 1, 2, 4, 5, 6), (4, 5, 6, 8, 9, 10)),
+    "8x6": (
+        (0, 1, 2, 4, 5, 6),
+        (4, 5, 6, 7, 8, 9),
+        (0, 1, 2, 3, 4, 5),
+        (2, 3, 4, 5, 6, 9),
+        (0, 1, 2, 5, 9, 10),
+        (3, 4, 5, 6, 7, 8),
+        (1, 3, 4, 5, 6, 7),
+        (0, 1, 4, 8, 9, 10),
+    ),
+}
+assert set(NETWORKS) == set(get_args(NetworkName))
+
+
+def network_name(tuples: tuple[tuple[int, ...], ...]) -> NetworkName | None:
+    """Return the name of a known network layout, or None for a custom one."""
+    return next((name for name, layout in NETWORKS.items() if layout == tuples), None)
 
 
 def _split_into_runs(cells: tuple[int, ...]) -> list[tuple[int, int, int]]:

@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 
 from deep_2048.agents.base import Agent, Decision
-from deep_2048.agents.ntuple.network import NTupleNetwork
+from deep_2048.agents.ntuple.network import DEFAULT_NETWORK, NTupleNetwork, network_name
 from deep_2048.agents.ntuple.search import action_values
 from deep_2048.game import bitboard as bb
 from deep_2048.game.constants import Action
@@ -20,8 +20,10 @@ class NTupleAgent(Agent):
         self.checkpoint = Path(checkpoint)
         self.depth = depth
         rule = "TC " if metadata.temporal_coherence else ""
+        name = network_name(self.network.tuples)
+        shape = f", {name} network" if name not in (None, DEFAULT_NETWORK) else ""
         search = f" + search depth={depth}" if depth > 1 else ""
-        self.label = f"N-tuple TD ({metadata.games_played:,} games, {rule}lr {metadata.learning_rate:.2g}){search}"
+        self.label = f"N-tuple TD ({metadata.games_played:,} games, {rule}lr {metadata.learning_rate:.2g}{shape}){search}"
 
     def act(self, board: np.ndarray, valid_actions: list[Action]) -> Decision:
         values = action_values(self.network.weights, self.network.layout, bb.from_array(board), self.depth)

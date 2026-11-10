@@ -18,7 +18,7 @@ from numba import njit
 
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
 from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, TrainingHistoryRow, TrainingSummary
-from deep_2048.agents.ntuple.network import CoherenceTraces, NTupleNetwork, TupleLayout, evaluate, load_traces, update, update_coherent
+from deep_2048.agents.ntuple.network import NETWORKS, CoherenceTraces, NTupleNetwork, TupleLayout, evaluate, load_traces, network_name, update, update_coherent
 from deep_2048.experiments import Environment, RunManifest, TrainingSession, command_line, now
 from deep_2048.game import bitboard as bb
 
@@ -124,7 +124,7 @@ def train(
     bb.seed(settings.SEED + progress.games_played)
     schedule = f" decaying to {settings.LEARNING_RATE_END}" if settings.LEARNING_RATE_END is not None else ""
     coherence = ", temporal coherence" if settings.TEMPORAL_COHERENCE else ""
-    print(f"Training n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}{schedule}{coherence}")
+    print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}{schedule}{coherence}")
     # Compile before timing starts, otherwise the first batch's games/s includes compilation
     play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True)
 
@@ -161,9 +161,11 @@ def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) ->
     """Return the network and how much training it has had, recording the learning setup used from now on."""
     learning = {"learning_rate": settings.LEARNING_RATE, "temporal_coherence": settings.TEMPORAL_COHERENCE}
     if resume_from is None:
-        return NTupleNetwork(), CheckpointMetadata(games_played=0, moves_played=0, **learning)
+        return NTupleNetwork(tuples=NETWORKS[settings.NETWORK]), CheckpointMetadata(games_played=0, moves_played=0, **learning)
 
     network, metadata = NTupleNetwork.load(resume_from)
+    if network_name(network.tuples) != settings.NETWORK:
+        raise ValueError(f"{resume_from} holds a {network_name(network.tuples) or 'custom'} network, not {settings.NETWORK}: set NTUPLE_NETWORK to match")
     print(f"Resuming from {resume_from} at {metadata.games_played:,} games")
     return network, metadata.model_copy(update=learning)
 

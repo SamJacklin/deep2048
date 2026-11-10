@@ -1,7 +1,7 @@
 import numpy as np
 
 from deep_2048.agents.ntuple.models import CheckpointMetadata
-from deep_2048.agents.ntuple.network import TUPLES, CoherenceTraces, NTupleNetwork, load_traces, update_coherent
+from deep_2048.agents.ntuple.network import NETWORKS, TUPLES, CoherenceTraces, NTupleNetwork, load_traces, network_name, update_coherent
 from deep_2048.game import bitboard as bb
 
 from tests.helpers import SMALL_TUPLES, random_boards, symmetry_grids
@@ -35,6 +35,20 @@ def test_full_network_size() -> None:
     assert network.tuples == TUPLES
     assert network.weights.size == 2 * 16**4 + 2 * 16**6
     assert network.n_features == 32
+
+
+def test_named_networks_read_the_reference_weights() -> None:
+    for name, tuples in NETWORKS.items():
+        network = NTupleNetwork(tuples=tuples)
+        assert network_name(network.tuples) == name
+        for board in random_boards(20, seed=10):
+            network.update(bb.from_array(board), 1.0)
+            indices = reference_indices(network, board)
+            touched = np.flatnonzero(network.weights)
+            np.testing.assert_array_equal(touched, np.unique(indices))
+            np.testing.assert_array_equal(network.weights[touched], np.bincount(indices)[touched])
+            network.weights[touched] = 0
+    assert network_name(SMALL_TUPLES) is None
 
 
 def test_symmetries_match_numpy_rotations() -> None:

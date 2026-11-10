@@ -1,10 +1,12 @@
 import csv
 
 import numpy as np
+import pytest
 
+from deep_2048.agents.ntuple import NTupleAgent
 from deep_2048.agents.ntuple.config import NTupleSettings
 from deep_2048.agents.ntuple.models import GameResults
-from deep_2048.agents.ntuple.network import NTupleNetwork, load_traces
+from deep_2048.agents.ntuple.network import NETWORKS, NTupleNetwork, load_traces
 from deep_2048.agents.ntuple.train import learning_rate_at, play_games, train
 from deep_2048.experiments import RunManifest
 from deep_2048.game import bitboard as bb
@@ -104,6 +106,18 @@ def test_temporal_coherence_traces_are_checkpointed_and_resumed(tmp_path) -> Non
     train(resume_from=first.checkpoint_path, total_games=200, settings=settings)
     resumed = load_traces(first.checkpoint_path)
     assert resumed is not None and resumed.abs_errors.sum() > first_errors
+
+
+def test_train_builds_the_configured_network(tmp_path) -> None:
+    settings = NTupleSettings(NETWORK="4x6", LOG_EVERY=50, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
+    summary = train(total_games=50, settings=settings)
+    network, _ = NTupleNetwork.load(summary.checkpoint_path)
+    assert network.tuples == NETWORKS["4x6"]
+    assert NTupleAgent(summary.checkpoint_path).label == "N-tuple TD (50 games, lr 0.0025, 4x6 network)"
+    assert RunManifest.load_or_create(tmp_path / "output").sessions[0].settings["NETWORK"] == "4x6"
+
+    with pytest.raises(ValueError, match="holds a 4x6 network"):
+        train(resume_from=summary.checkpoint_path, total_games=100, settings=settings.model_copy(update={"NETWORK": "8x6"}))
 
 
 def test_settings_ignore_dqn_env_vars(monkeypatch) -> None:
