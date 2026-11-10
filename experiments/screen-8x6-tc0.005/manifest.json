@@ -1,0 +1,62 @@
+{
+  "name": "screen-8x6-tc0.005",
+  "sessions": [
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "screen-8x6-tc0.005",
+        "--games",
+        "200000",
+        "--snapshot-at",
+        "50000",
+        "100000",
+        "200000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.005,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TRAINING_GAMES": 200000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 10000,
+        "SNAPSHOT_AT": [
+          50000,
+          100000,
+          200000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/screen-8x6-tc0.005",
+        "OUTPUT_DIR": "experiments/screen-8x6-tc0.005"
+      },
+      "resumed_from": null,
+      "environment": {
+        "git_commit": "01fa340e010951c879efde5695e8b6b28125d252",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-27.2-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-10T13:40:11.882222Z",
+      "started_with": {
+        "games_played": 0,
+        "moves_played": 0
+      },
+      "finished_at": "2026-11-10T14:50:35.809956Z",
+      "finished_with": {
+        "games_played": 200000,
+        "moves_played": 808790649
+      },
+      "interrupted": false
+    }
+  ]
+}
