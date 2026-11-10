@@ -17,7 +17,7 @@ from tests.helpers import SMALL_TUPLES
 def checkpoint(tmp_path_factory) -> str:
     network = NTupleNetwork(tuples=SMALL_TUPLES)
     bb.seed(0)
-    play_games(500, network.weights, network.layout, 0.01, True)
+    play_games(500, network.weights, None, network.layout, 0.01, True)
     path = tmp_path_factory.mktemp("ntuple") / "net.npz"
     network.save(path, CheckpointMetadata(games_played=500, moves_played=100_000, learning_rate=0.01))
     return str(path)

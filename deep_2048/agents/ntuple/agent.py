@@ -17,7 +17,8 @@ class NTupleAgent(Agent):
     def __init__(self, checkpoint: str | Path) -> None:
         self.network, metadata = NTupleNetwork.load(checkpoint)
         self.checkpoint = Path(checkpoint)
-        self.label = f"N-tuple TD ({metadata.games_played:,} games, lr {metadata.learning_rate:g})"
+        rule = "TC " if metadata.temporal_coherence else ""
+        self.label = f"N-tuple TD ({metadata.games_played:,} games, {rule}lr {metadata.learning_rate:g})"
 
     def act(self, board: np.ndarray, valid_actions: list[Action]) -> Decision:
         packed = bb.from_array(board)

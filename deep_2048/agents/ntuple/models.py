@@ -9,6 +9,7 @@ class CheckpointMetadata(BaseModel):
     games_played: int
     moves_played: int
     learning_rate: float
+    temporal_coherence: bool = False
 
 
 class GameResults(NamedTuple):
