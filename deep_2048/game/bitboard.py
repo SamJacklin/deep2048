@@ -211,6 +211,51 @@ def max_exponent(board: np.uint64) -> int:
 
 
 @njit
+def largest_gap(board: np.uint64) -> int:
+    """Return the largest tile exponent missing below the board's highest tile, or 0 if none is missing."""
+    present = 0
+    highest = 0
+    for i in range(NUM_CELLS):
+        exponent = get_cell(board, i)
+        present |= 1 << exponent
+        highest = max(highest, exponent)
+    for exponent in range(highest - 1, 0, -1):
+        if not present & (1 << exponent):
+            return exponent
+    return 0
+
+
+@njit
+def shift_above(board: np.uint64, gap: int, step: int) -> np.uint64:
+    """Add `step` to the exponent of every tile above `gap`, doubling (+1) or halving (-1) those tiles.
+
+    With `gap` a missing exponent, the result has the same legal moves, merges and slides as the
+    original until a small-tile merge fills the gap: big tiles stay equal to each other and can't
+    match a small one. Only the rewards for merging big tiles change.
+    """
+    shifted = np.uint64(0)
+    for i in range(NUM_CELLS):
+        exponent = get_cell(board, i)
+        if exponent > gap:
+            exponent += step
+        shifted |= np.uint64(exponent) << (_CELL_BITS * np.uint64(i))
+    return shifted
+
+
+@njit
+def upgrade(board: np.uint64) -> np.uint64:
+    """Double every tile above the largest gap, or return the board unchanged if there's no gap.
+
+    Boards with a 16384 or larger are also returned unchanged, because the doubled board could then
+    hold 32768s, which this engine never merges.
+    """
+    gap = largest_gap(board)
+    if gap == 0 or max_exponent(board) >= MAX_EXPONENT - 1:
+        return board
+    return shift_above(board, gap, 1)
+
+
+@njit
 def seed(value: int) -> None:
     """Seed numba's RNG, which is separate from numpy's."""
     np.random.seed(value)

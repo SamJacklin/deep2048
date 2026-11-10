@@ -108,3 +108,27 @@ def test_spawn_only_fills_empty_cells() -> None:
         else:
             assert changed.sum() == 1
             assert board[changed][0] == 0 and spawned[changed][0] in (2, 4)
+
+
+def test_largest_gap() -> None:
+    board = np.array([[8192, 2048, 4, 2], [0] * 4, [0] * 4, [0] * 4])
+    assert bb.largest_gap(bb.from_array(board)) == 12  # 4096 missing
+    assert bb.largest_gap(bb.from_array(np.array([[8, 4, 2, 0], [0] * 4, [0] * 4, [0] * 4]))) == 0
+
+
+def test_upgrading_above_a_gap_commutes_with_every_move() -> None:
+    checked = 0
+    for board in random_boards(2000, seed=21):
+        packed = bb.from_array(board)
+        gap = bb.largest_gap(packed)
+        if gap == 0 or bb.max_exponent(packed) >= bb.MAX_EXPONENT - 1:
+            assert bb.upgrade(packed) == packed
+            continue
+        upgraded = np.uint64(bb.upgrade(packed))
+        assert bb.shift_above(upgraded, gap + 1, -1) == packed
+        for action in range(bb.NUM_ACTIONS):
+            moved, _ = bb.move(packed, action)
+            moved_upgraded, _ = bb.move(upgraded, action)
+            assert moved_upgraded == bb.shift_above(np.uint64(moved), gap, 1)
+        checked += 1
+    assert checked > 500
