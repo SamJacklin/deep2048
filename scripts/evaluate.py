@@ -1,11 +1,12 @@
 """Evaluate one or more agents over N seeded games and print a summary table.
 
 Usage examples:
-    uv run python scripts/evaluate.py                              # DQN best, 100 games
+    uv run python scripts/evaluate.py                              # DQN best, 1000 games
     uv run python scripts/evaluate.py --agent dqn_search -n 50
     uv run python scripts/evaluate.py --agent heuristic -n 50
-    uv run python scripts/evaluate.py --agent ntuple -n 100         # checkpoints/ntuple/latest.npz
-    uv run python scripts/evaluate.py --agent all -n 100           # every benchmark agent side-by-side
+    uv run python scripts/evaluate.py --agent ntuple               # checkpoints/ntuple/best.npz
+    uv run python scripts/evaluate.py --agent ntuple_search --depth 3
+    uv run python scripts/evaluate.py --agent all                  # every benchmark agent side-by-side
     uv run python scripts/evaluate.py checkpoints/dqn/step_350068.pt --agent dqn -n 200
     uv run python scripts/evaluate.py --agent all --rerun           # ignore cached results
     uv run python scripts/evaluate.py --agent dqn --workers 1       # play games one at a time
@@ -27,12 +28,13 @@ from deep_2048.bench import EvalResult, ResultCache, RunKey, run_games
 from deep_2048.experiments import Environment, EvaluationRecord, now, record_evaluation
 
 # Agents run by `--agent all`, in table order.
-ALL_AGENTS = ("dqn", "heuristic", "ntuple")
+# (agent, search depth) pairs run by `--agent all`, in table order. None uses the agent's default.
+ALL_AGENTS: tuple[tuple[str, int | None], ...] = (("dqn", None), ("heuristic", 2), ("ntuple", None), ("ntuple_search", 3))
 TILES = (256, 512, 1024, 2048, 4096, 8192, 16384)
 
 
 def print_results(results: list[EvalResult]) -> None:
-    col = 42
+    col = max(42, *(len(r.label) for r in results))
 
     header = f"{'Agent':<{col}}  {'Avg score':>10}  {'Avg tile':>9}" + "".join(
         f"  {f'≥{t}':>7}" for t in TILES
@@ -63,7 +65,7 @@ def main() -> None:
         "--agent",
         choices=[*AGENT_NAMES, "all"],
         default="dqn",
-        help=f"Agent to evaluate. 'all' runs {', '.join(ALL_AGENTS)} side-by-side (default: dqn)",
+        help=f"Agent to evaluate. 'all' runs {', '.join(name for name, _ in ALL_AGENTS)} side-by-side (default: dqn)",
     )
     parser.add_argument(
         "--depth",
@@ -75,8 +77,8 @@ def main() -> None:
         "-n",
         "--num-games",
         type=int,
-        default=100,
-        help="Number of games to evaluate (default: 100)",
+        default=1000,
+        help="Number of games to evaluate (default: 1000)",
     )
     parser.add_argument(
         "--json",
@@ -104,11 +106,11 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    names = ALL_AGENTS if args.agent == "all" else (args.agent,)
+    specs = ALL_AGENTS if args.agent == "all" else ((args.agent, args.depth),)
     cache = ResultCache()
     results: list[EvalResult] = []
-    for name in names:
-        agent = load_agent(name, checkpoint=args.checkpoint, depth=args.depth)
+    for name, depth in specs:
+        agent = load_agent(name, checkpoint=args.checkpoint, depth=depth)
         key = RunKey.for_agent(agent, n_games=args.num_games)
         result = None if args.rerun else cache.get(key)
         from_cache = result is not None
