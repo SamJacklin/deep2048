@@ -1,7 +1,9 @@
+import json
+
 import numpy as np
 
 from deep_2048.agents.ntuple.models import CheckpointMetadata
-from deep_2048.agents.ntuple.network import NETWORKS, TUPLES, CoherenceTraces, NTupleNetwork, load_traces, network_name, update_coherent
+from deep_2048.agents.ntuple.network import NETWORKS, SCALE_WEIGHTS, TUPLES, CoherenceTraces, NTupleNetwork, load_traces, network_name, update_coherent
 from deep_2048.game import bitboard as bb
 
 from tests.helpers import SMALL_TUPLES, random_boards, symmetry_grids
@@ -119,6 +121,37 @@ def test_save_and_load_round_trip(tmp_path) -> None:
     assert loaded_metadata == metadata
     assert load_traces(path) is None
     assert not (tmp_path / "net.npz.tmp").exists()
+
+
+def test_scale_sharing_features_match_reference() -> None:
+    network = NTupleNetwork(tuples=SMALL_TUPLES, downgrade_tile=1024, scale_feature=True)
+    network.weights[:] = np.random.default_rng(11).normal(size=network.weights.shape)
+    scale_offset = network.weights.size - SCALE_WEIGHTS
+    checked = 0
+    for board in random_boards(500, seed=12):
+        packed = bb.from_array(board)
+        read = bb.to_array(np.uint64(bb.downgrade(packed, 10)))
+        checked += not np.array_equal(read, board)
+        expected = reference_value(network, read) + float(network.weights[scale_offset + bb.large_tile_counts(packed)])
+        assert np.isclose(network.value(packed), expected)
+    assert checked > 100
+
+
+def test_scale_sharing_features_survive_save_and_load(tmp_path) -> None:
+    network = NTupleNetwork(tuples=SMALL_TUPLES, downgrade_tile=1024, scale_feature=True)
+    network.save(tmp_path / "net.npz", CheckpointMetadata(games_played=1, moves_played=1, learning_rate=0.01))
+    loaded, _ = NTupleNetwork.load(tmp_path / "net.npz")
+    assert loaded.downgrade_tile == 1024 and loaded.scale_feature
+    assert loaded.layout.scale_offset == network.layout.scale_offset and loaded.layout.downgrade_exponent == 10
+
+
+def test_checkpoints_from_before_scale_sharing_still_load(tmp_path) -> None:
+    network = random_network(13)
+    metadata = CheckpointMetadata(games_played=1, moves_played=1, learning_rate=0.01)
+    np.savez(tmp_path / "old.npz", weights=network.weights, tuples=json.dumps(network.tuples), metadata=metadata.model_dump_json())
+    loaded, _ = NTupleNetwork.load(tmp_path / "old.npz")
+    assert loaded.downgrade_tile is None and not loaded.scale_feature
+    np.testing.assert_array_equal(loaded.weights, network.weights)
 
 
 def test_save_and_load_coherence_traces(tmp_path) -> None:

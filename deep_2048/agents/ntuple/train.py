@@ -215,12 +215,18 @@ def train(
 def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) -> tuple[NTupleNetwork, CheckpointMetadata]:
     """Return the network and how much training it has had, recording the learning setup used from now on."""
     learning = {"learning_rate": settings.LEARNING_RATE, "temporal_coherence": settings.TEMPORAL_COHERENCE}
+    if settings.DOWNGRADE_TILE is not None and settings.DOWNGRADE_TILE & (settings.DOWNGRADE_TILE - 1):
+        raise ValueError(f"DOWNGRADE_TILE must be a power of two, not {settings.DOWNGRADE_TILE}")
+    features = {"downgrade_tile": settings.DOWNGRADE_TILE, "scale_feature": settings.SCALE_FEATURE}
     if resume_from is None:
-        return NTupleNetwork(tuples=NETWORKS[settings.NETWORK]), CheckpointMetadata(games_played=0, moves_played=0, **learning)
+        network = NTupleNetwork(NETWORKS[settings.NETWORK], downgrade_tile=settings.DOWNGRADE_TILE, scale_feature=settings.SCALE_FEATURE)
+        return network, CheckpointMetadata(games_played=0, moves_played=0, **learning)
 
     network, metadata = NTupleNetwork.load(resume_from)
     if network_name(network.tuples) != settings.NETWORK:
         raise ValueError(f"{resume_from} holds a {network_name(network.tuples) or 'custom'} network, not {settings.NETWORK}: set NTUPLE_NETWORK to match")
+    if {"downgrade_tile": network.downgrade_tile, "scale_feature": network.scale_feature} != features:
+        raise ValueError(f"{resume_from} was trained with downgrade_tile={network.downgrade_tile}, scale_feature={network.scale_feature}: set the settings to match")
     print(f"Resuming from {resume_from} at {metadata.games_played:,} games")
     return network, metadata.model_copy(update=learning)
 

@@ -21,9 +21,14 @@ class NTupleAgent(Agent):
         self.depth = depth
         rule = "TC " if metadata.temporal_coherence else ""
         name = network_name(self.network.tuples)
-        shape = f", {name} network" if name not in (None, DEFAULT_NETWORK) else ""
+        details = [f"{name} network"] if name not in (None, DEFAULT_NETWORK) else []
+        if self.network.downgrade_tile is not None:
+            details.append(f"downgraded from {self.network.downgrade_tile}")
+        if self.network.scale_feature:
+            details.append("scale term")
+        extras = "".join(f", {detail}" for detail in details)
         search = f" + search depth={depth}" if depth > 1 else ""
-        self.label = f"N-tuple TD ({metadata.games_played:,} games, {rule}lr {metadata.learning_rate:.2g}{shape}){search}"
+        self.label = f"N-tuple TD ({metadata.games_played:,} games, {rule}lr {metadata.learning_rate:.2g}{extras}){search}"
 
     def act(self, board: np.ndarray, valid_actions: list[Action]) -> Decision:
         values = action_values(self.network.weights, self.network.layout, bb.from_array(board), self.depth)

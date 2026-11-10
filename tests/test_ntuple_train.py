@@ -158,6 +158,15 @@ def test_late_start_tile_must_be_a_power_of_two(tmp_path) -> None:
         train(total_games=100, settings=settings)
 
 
+def test_train_with_scale_sharing(tmp_path) -> None:
+    settings = NTupleSettings(DOWNGRADE_TILE=256, SCALE_FEATURE=True, LOG_EVERY=50, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
+    summary = train(total_games=50, settings=settings)
+    assert NTupleAgent(summary.checkpoint_path).label == "N-tuple TD (50 games, lr 0.0025, downgraded from 256, scale term)"
+
+    with pytest.raises(ValueError, match="scale_feature=True"):
+        train(resume_from=summary.checkpoint_path, total_games=100, settings=settings.model_copy(update={"SCALE_FEATURE": False}))
+
+
 def test_settings_ignore_dqn_env_vars(monkeypatch) -> None:
     monkeypatch.setenv("LEARNING_RATE", "5e-5")
     monkeypatch.setenv("NTUPLE_TRAINING_GAMES", "123")

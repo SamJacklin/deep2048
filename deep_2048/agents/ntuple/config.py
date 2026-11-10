@@ -19,6 +19,10 @@ class NTupleSettings(Settings):
     LATE_START_FRACTION: float = 0.0
     LATE_START_TILE: int = 8192
     LATE_START_POOL: int = 10_000
+    # Share late-game knowledge across tile scales: the tuples read boards with this tile or larger
+    # with their tiles above the largest gap halved, and SCALE_FEATURE adds a large-tile count term
+    DOWNGRADE_TILE: int | None = None
+    SCALE_FEATURE: bool = False
     TRAINING_GAMES: int = 100_000
     LOG_EVERY: int = 1_000
     CHECKPOINT_EVERY: int = 10_000
