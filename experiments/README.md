@@ -114,4 +114,4 @@ Two runs trained from scratch with temporal coherence, using the same seed and s
 
 - Search adds 30-58% at depth 3. Nearly every game reaches 8192, against about 72% greedy.
 - The networks are level when greedy but split apart under search. With depth 3, the one trained for 1.5M games reaches 16384 in 43% of games, against 2% for the 1M-game network. Greedy play rarely survives long enough for the 16384-stage weights to matter, so greedy evaluation understates the value of longer training.
-- Search is cheap: a depth-3 game takes about 6 seconds on one core, mostly in the Python game engine. Depth 4 takes about 70 seconds.
+- Search is cheap: a depth-3 game takes about 3 seconds alone, or 6 per core with all cores busy, mostly in the Python game engine. Depth 4 takes about 70 seconds alone.
