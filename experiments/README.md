@@ -32,6 +32,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | [`ntuple-tc-1m`](ntuple-tc-1m/NOTES.md) | Temporal coherence from scratch to 1M games, base rate 0.0025 |
 | [`ntuple-tc-1m-lr0.01`](ntuple-tc-1m-lr0.01/NOTES.md) | Temporal coherence from scratch to 1M games, base rate 0.01 |
 | `screen-*` (9 runs) | [Network screen](#network-screen): layout × temporal coherence rate, from scratch to 200k games |
+| `sharing-4x6-*` (4 runs) | [Scale sharing](#scale-sharing): control, late-game starts (C), downgrading (A), downgrading + scale term (B) |
 
 ## Learning at equal experience
 
@@ -143,7 +144,7 @@ The ≥8192 and ≥16384 columns are at 200k games.
 - **The 8×6 at 0.02 beats Yeh et al.'s 159,565 greedy (15M games) by 29% after 200k games,** and matches this project's earlier best agent *with* depth-3 search. Playing greedily, it reaches 16384 in 41% of games. It was still climbing steeply at 200k.
 - **Cost:** 8×6 trains at roughly a third of 4×6's speed. With up to seven runs sharing the machine, these runs' games/s aren't representative of solo speed.
 
-## Scale sharing (in progress)
+## Scale sharing
 
 Published comparisons are in [RELATED_WORK.md](RELATED_WORK.md). The weakness they point to is the late game: n-tuple weights are indexed by exact tile values, so a 16384-8192-4096 chain and an 8192-4096-2048 chain share nothing, and the rare late-game positions leave their weights undertrained.
 
@@ -157,9 +158,25 @@ Published comparisons are in [RELATED_WORK.md](RELATED_WORK.md). The weakness th
 
 The order is C, then B: C is the safest and answers "does more late-game experience help", and B is the most novel (it's Guei's proposed future work). A is B without the scale term, so it serves as B's ablation. Each is tested at 200–500k games against the best configuration from the network screen.
 
-### Running the scale-sharing test
+### Results
 
-C, B and A are tested against a control on the best fast configuration from the screen (4×6 at 0.08). Everything is the same except the feature, and each run goes to 300k games. One script trains all four in parallel, then evaluates every snapshot on 1,000 games into each run's folder:
+The 4×6 network with temporal coherence at base rate 0.08, four runs from scratch to 300k games with the same seed, differing only in the feature tested. 1,000 seeded greedy games per snapshot. The difference from the control is a paired per-game comparison on the same seeds, with a 95% confidence interval:
+
+| Run | 100k | 200k | 300k | ≥16384 at 300k | vs control at 300k | Moves to 300k |
+|---|---:|---:|---:|---:|---:|---:|
+| [Control](sharing-4x6-control/NOTES.md) | 132,332 | 154,758 | 172,077 ± 4,519 | 24.4% | — | 1.69B |
+| [**A: downgrading**](sharing-4x6-downgrade/NOTES.md) | 135,726 | 155,669 | **181,790 ± 5,015** | 27.5% | **+9,714 ± 6,729** | 1.72B |
+| [C: late-game starts](sharing-4x6-late-starts/NOTES.md) | 133,603 | 157,741 | 177,324 ± 5,140 | **28.5%** | +5,247 ± 6,830 | **1.55B** |
+| [B: downgrading + scale term](sharing-4x6-downgrade-scale/NOTES.md) | 113,764 | 144,132 | 163,073 ± 5,116 | 23.2% | −9,004 ± 6,886 | 1.55B |
+
+![Scale sharing](figures/scale-sharing.png)
+
+- **Downgrading (A) helps: +5.6% at 300k, significant at 95%.** It also raises the 16384 rate, and produced the only 32768 tile in these evaluations. It tracks the control until 16384 tiles appear, then pulls ahead. This is Guei's proposed future work (downgrading during training), and the first evidence that it pays off.
+- **Late-game starts (C) look positive but aren't conclusive:** +3.0%, with the interval still including zero. They also used 9% fewer moves than the control for the same number of games, since synthetic games start mid-game, so per unit of experience C is somewhat stronger than its score suggests. It has the highest 16384 rate.
+- **The scale term (B) hurts: −5.2%, significant.** B falls behind from the very first thousand games, before any large tile exists. That rules out downgrading as the cause, and points to the scale table's "no large tiles" entry acting as one shared bias weight updated at the full rate. A version that skips that entry, or gives the table its own lower rate, is untested.
+- Training is deterministic: an earlier run of the same script on an identical machine reached exactly the same 300k training averages for all four runs. That attempt's records were discarded, because a smoke test with the same run names overlapped it. The script now refuses to start a run that's already training, and smoke tests use separate `smoke-*` names.
+
+### Running it
 
 ```bash
 uv sync
@@ -168,15 +185,12 @@ GAMES=3000 EVAL_GAMES=20 scripts/run_scale_sharing.sh     # smoke test as separa
 make watch-ntuple ARGS="--run sharing-4x6-control sharing-4x6-late-starts sharing-4x6-downgrade-scale sharing-4x6-downgrade"
 ```
 
-The runs need about 1 GB of RAM each, and about 13 GB of disk for checkpoints (`checkpoints/` is gitignored). Notes from a brief first launch:
-- Control and downgrade-only (A) are identical until a 16384 appears.
-- B starts slower, because the scale table's "no large tiles" entry acts as a shared bias weight early on.
-- C's pool only fills once normal games make 8192 tiles, at about 30–50k games.
+The runs need about 1 GB of RAM each and about 13 GB of disk for checkpoints (`checkpoints/` is gitignored).
 
 ## Next experiments
 
 Open directions for improving the n-tuple agent further, roughly in order of expected payoff:
 
-0. **The long run:** the screen's best layout (8×6, rate 0.02 or higher) with whichever scale-sharing ingredients help, trained for 1–1.5M games, then evaluated greedily and with search against Yeh (160k greedy, 321k at 3-ply) and Jaśkowski (249k / 333k with TC only).
+0. **The long run:** the screen's best layout (8×6, rate 0.02 or higher) with downgrading (A), and possibly late-game starts (C), trained for 1–1.5M games, then evaluated greedily and with search against Yeh (160k greedy, 321k at 3-ply) and Jaśkowski (249k / 333k with TC only).
 1. **More training under temporal coherence, then search.** The 1.5M-game network reaches 16384 in 43% of depth-3 games against 2% for the 1M-game network, so late-game training looks like where the remaining gains are. Continue the 1.5M snapshot to 2-3M games, or train from scratch at base rate 0.01 for longer, then re-evaluate with search.
 2. **Depth-4 search on the 1.5M network.** It shows whether search returns keep growing beyond depth 3. A game takes about 70 seconds alone, so 200 games is about 30-50 minutes on 10 cores, and 1,000 games is 1-2 hours.
