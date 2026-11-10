@@ -159,19 +159,16 @@ The order is C, then B: C is the safest and answers "does more late-game experie
 
 ### Running the scale-sharing test
 
-C, B and A are tested against a control on the best fast configuration from the screen (4×6 at 0.08). Everything is the same except the feature, and each run goes to 300k games:
+C, B and A are tested against a control on the best fast configuration from the screen (4×6 at 0.08). Everything is the same except the feature, and each run goes to 300k games. One script trains all four in parallel, then evaluates every snapshot on 1,000 games into each run's folder:
 
 ```bash
-common="NTUPLE_NETWORK=4x6 NTUPLE_LEARNING_RATE=0.08 NTUPLE_TEMPORAL_COHERENCE=true"
-args="--games 300000 --snapshot-at 100000 200000 300000"
-env $common uv run python scripts/train_ntuple.py --run sharing-4x6-control $args
-env $common NTUPLE_LATE_START_FRACTION=0.2 NTUPLE_LATE_START_TILE=8192 uv run python scripts/train_ntuple.py --run sharing-4x6-late-starts $args
-env $common NTUPLE_DOWNGRADE_TILE=16384 NTUPLE_SCALE_FEATURE=true uv run python scripts/train_ntuple.py --run sharing-4x6-downgrade-scale $args
-env $common NTUPLE_DOWNGRADE_TILE=16384 uv run python scripts/train_ntuple.py --run sharing-4x6-downgrade $args
+uv sync
+scripts/run_scale_sharing.sh                              # about 1.5–2 hours on a 10-core M4
+GAMES=3000 EVAL_GAMES=20 scripts/run_scale_sharing.sh     # smoke test, a few minutes
 make watch-ntuple ARGS="--run sharing-4x6-control sharing-4x6-late-starts sharing-4x6-downgrade-scale sharing-4x6-downgrade"
 ```
 
-Then evaluate each snapshot on 1,000 games with `--experiment experiments/<run>`. The four runs fit on one machine together (about 1 GB each). Notes from a brief first launch:
+The runs need about 1 GB of RAM each, and about 13 GB of disk for checkpoints (`checkpoints/` is gitignored). Notes from a brief first launch:
 - Control and downgrade-only (A) are identical until a 16384 appears.
 - B starts slower, because the scale table's "no large tiles" entry acts as a shared bias weight early on.
 - C's pool only fills once normal games make 8192 tiles, at about 30–50k games.
