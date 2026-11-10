@@ -6,7 +6,7 @@ Imports are deferred so that, for example, running the heuristic doesn't import 
 from deep_2048.agents.base import Agent, Decision
 
 DEFAULT_DQN_CHECKPOINT = "checkpoints/dqn/best.pt"
-DEFAULT_NTUPLE_CHECKPOINT = "checkpoints/ntuple/latest.npz"
+DEFAULT_NTUPLE_CHECKPOINT = "checkpoints/ntuple/best.npz"
 
 AGENT_NAMES: tuple[str, ...] = ("dqn", "dqn_search", "heuristic", "ntuple", "ntuple_search")
 
