@@ -187,6 +187,23 @@ make watch-ntuple ARGS="--run sharing-4x6-control sharing-4x6-late-starts sharin
 
 The runs need about 1 GB of RAM each and about 13 GB of disk for checkpoints (`checkpoints/` is gitignored).
 
+## Built, not yet run
+
+### Scale term on downgraded boards only (B′)
+
+The scale term from B, applied only to boards that were actually downgraded. Its job is to restore the scale information downgrading hides, so boards that weren't downgraded don't need it, and early training (before any 16384) never touches it. That avoids B's shared-bias problem. It needs `NTUPLE_DOWNGRADE_TILE` and `NTUPLE_SCALE_FEATURE=true` with `NTUPLE_SCALE_WHEN_DOWNGRADED=true`, and is compared with A (downgrading only) on the same 4×6 setup.
+
+### Multi-threaded training check
+
+`NTUPLE_THREADS=n` plays games on n threads that update the shared weights without locks (Jaśkowski 2018). The first `NTUPLE_THREADS_AFTER` games (default 10,000) stay single-threaded, since a fresh network collides often. Threaded runs aren't bit-reproducible. A smoke test reached 5.25M moves/s on 8 threads against 1.06M on one, early in training.
+
+`scripts/run_thread_check.sh` trains the 4×6 at rate 0.08 to 200k games twice on 8 threads. It compares them with the single-threaded `screen-4x6-tc0.08` run (154,758 ± 4,066 at 200k) and with each other, measures moves per second at 1, 2, 4 and 8 threads from the 200k snapshot, and evaluates both runs.
+
+```bash
+scripts/run_thread_check.sh                                                     # about 30–45 minutes
+GAMES=6000 EVAL_GAMES=20 SPEED_GAMES=500 NTUPLE_THREADS_AFTER=1000 scripts/run_thread_check.sh   # smoke test, under a minute
+```
+
 ## Next experiments
 
 Open directions for improving the n-tuple agent further, roughly in order of expected payoff:
