@@ -106,9 +106,14 @@ def draw_comparison(fig: plt.Figure, histories: dict[str, np.ndarray]) -> None:
         (rate_4096_ax, "rate_4096", "% of games reaching 4096", (0, 100)),
         (speed_ax, "games_per_second", "Games / second", None),
     )
+    first_games = min(history["games"][0] for history in histories.values())
+    last_games = max(history["games"][-1] for history in histories.values())
     for ax, column, title, limits in panels:
         for (name, history), colour in zip(histories.items(), RUN_COLOURS):
             ax.plot(history["games"], history[column], color=colour, linewidth=1, alpha=0.9, label=f"{name} ({history[column][-1]:,.0f})")
+        # Runs trained from scratch span several orders of magnitude, so early learning needs a log scale to be visible
+        if last_games > 20 * first_games:
+            ax.set_xscale("log")
         ax.set_title(title)
         ax.set_xlabel("Games played")
         if limits:
