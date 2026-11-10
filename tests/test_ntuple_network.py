@@ -142,7 +142,8 @@ def test_scale_sharing_features_survive_save_and_load(tmp_path) -> None:
     network.save(tmp_path / "net.npz", CheckpointMetadata(games_played=1, moves_played=1, learning_rate=0.01))
     loaded, _ = NTupleNetwork.load(tmp_path / "net.npz")
     assert loaded.downgrade_tile == 1024 and loaded.scale_feature
-    assert loaded.layout.scale_offset == network.layout.scale_offset and loaded.layout.downgrade_exponent == 10
+    assert loaded.layout.sharing == network.layout.sharing
+    assert loaded.layout.sharing is not None and loaded.layout.sharing.downgrade_exponent == 10
 
 
 def test_checkpoints_from_before_scale_sharing_still_load(tmp_path) -> None:

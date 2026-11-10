@@ -10,7 +10,8 @@ from pathlib import Path
 from typing import Any, Literal, NamedTuple, get_args
 
 import numpy as np
-from numba import njit
+from numba import njit, types
+from numba.extending import overload
 
 from deep_2048.agents.ntuple.models import CheckpointMetadata
 from deep_2048.game import bitboard as bb
@@ -70,11 +71,6 @@ class TupleLayout(NamedTuple):
     Each tuple's cells are split into runs of adjacent cells in the same row, so a run is read
     in one step: run j of tuple t is (board >> shifts[t, j]) & masks[t, j], placed at bit
     dests[t, j] of the index. Tuple t's weights start at offsets[t] in the flat weight array.
-
-    Two optional features share late-game knowledge across tile scales. If downgrade_exponent is
-    set, the tuples read boards with a 2**downgrade_exponent tile or larger with their tiles above
-    the largest gap halved. If scale_offset is set, one more weight is added from a table there,
-    indexed by how many tiles of each size from 2048 to 32768 the real board has.
     """
 
     offsets: np.ndarray
@@ -83,8 +79,7 @@ class TupleLayout(NamedTuple):
     masks: np.ndarray
     dests: np.ndarray
     n_weights: int
-    downgrade_exponent: int = 0
-    scale_offset: int = -1
+    sharing: "ScaleSharing | None" = None
 
     @classmethod
     def build(cls, tuples: tuple[tuple[int, ...], ...], downgrade_tile: int | None = None, scale_feature: bool = False) -> "TupleLayout":
@@ -106,7 +101,10 @@ class TupleLayout(NamedTuple):
             offsets[t] = table_start
             table_start += 16 ** len(cells)
 
-        scale_offset = table_start if scale_feature else -1
+        sharing = None
+        if downgrade_tile is not None or scale_feature:
+            downgrade_exponent = 0 if downgrade_tile is None else downgrade_tile.bit_length() - 1
+            sharing = ScaleSharing(downgrade_exponent=downgrade_exponent, scale_offset=table_start if scale_feature else -1)
         return cls(
             offsets=offsets,
             n_runs=n_runs,
@@ -114,9 +112,20 @@ class TupleLayout(NamedTuple):
             masks=masks,
             dests=dests,
             n_weights=table_start + (SCALE_WEIGHTS if scale_feature else 0),
-            downgrade_exponent=0 if downgrade_tile is None else downgrade_tile.bit_length() - 1,
-            scale_offset=scale_offset,
+            sharing=sharing,
         )
+
+
+class ScaleSharing(NamedTuple):
+    """How a layout shares late-game knowledge across tile scales. A NamedTuple so numba can use it.
+
+    Boards with a 2**downgrade_exponent tile or larger are read by the tuples with their tiles above
+    the largest gap halved (0 turns this off). If scale_offset isn't -1, one more weight is added
+    from a table there, indexed by how many tiles of each size from 2048 to 32768 the real board has.
+    """
+
+    downgrade_exponent: int
+    scale_offset: int
 
 
 @njit(inline="always")
@@ -127,10 +136,46 @@ def _weight_index(layout: TupleLayout, t: int, board: np.uint64) -> int:
     return int(layout.offsets[t] + np.int64(index))
 
 
-@njit(inline="always")
 def _tuple_board(layout: TupleLayout, board: np.uint64) -> np.uint64:
-    """Return the board the tuples read: downgraded if the layout asks for it."""
-    return bb.downgrade(board, layout.downgrade_exponent) if layout.downgrade_exponent > 0 else board
+    """Return the board the tuples read: downgraded if the layout's sharing asks for it. Numba only."""
+    raise NotImplementedError
+
+
+def _scale_index(layout: TupleLayout, board: np.uint64) -> int:
+    """Return the board's scale weight index, or -1 if the layout has no scale term. Numba only."""
+    raise NotImplementedError
+
+
+def _has_sharing(layout_type: types.NamedTuple) -> bool:
+    return not isinstance(layout_type.types[layout_type.fields.index("sharing")], types.NoneType)
+
+
+# These dispatch on the layout's type rather than branching on its values. A runtime check here cost
+# about 15% even with sharing off, whereas this compiles plain layouts exactly as before.
+@overload(_tuple_board, inline="always")
+def _tuple_board_overload(layout, board):  # type: ignore[no-untyped-def]
+    if not _has_sharing(layout):
+        return lambda layout, board: board
+
+    def downgraded(layout, board):  # type: ignore[no-untyped-def]
+        if layout.sharing.downgrade_exponent == 0:
+            return board
+        return bb.downgrade(board, layout.sharing.downgrade_exponent)
+
+    return downgraded
+
+
+@overload(_scale_index, inline="always")
+def _scale_index_overload(layout, board):  # type: ignore[no-untyped-def]
+    if not _has_sharing(layout):
+        return lambda layout, board: -1
+
+    def scale_index(layout, board):  # type: ignore[no-untyped-def]
+        if layout.sharing.scale_offset < 0:
+            return -1
+        return layout.sharing.scale_offset + bb.large_tile_counts(board)
+
+    return scale_index
 
 
 @njit(inline="always")
@@ -141,8 +186,9 @@ def evaluate(weights: np.ndarray, layout: TupleLayout, board: np.uint64) -> floa
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
             total += weights[_weight_index(layout, t, symmetric_board)]
-    if layout.scale_offset >= 0:
-        total += weights[layout.scale_offset + bb.large_tile_counts(board)]
+    scale = _scale_index(layout, board)
+    if scale >= 0:
+        total += weights[scale]
     return total
 
 
@@ -153,8 +199,9 @@ def update(weights: np.ndarray, layout: TupleLayout, board: np.uint64, delta: fl
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
             weights[_weight_index(layout, t, symmetric_board)] += delta
-    if layout.scale_offset >= 0:
-        weights[layout.scale_offset + bb.large_tile_counts(board)] += delta
+    scale = _scale_index(layout, board)
+    if scale >= 0:
+        weights[scale] += delta
 
 
 class CoherenceTraces(NamedTuple):
@@ -179,8 +226,9 @@ def update_coherent(weights: np.ndarray, traces: CoherenceTraces, layout: TupleL
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
             _update_coherent_weight(weights, traces, _weight_index(layout, t, symmetric_board), learning_rate, error)
-    if layout.scale_offset >= 0:
-        _update_coherent_weight(weights, traces, layout.scale_offset + bb.large_tile_counts(board), learning_rate, error)
+    scale = _scale_index(layout, board)
+    if scale >= 0:
+        _update_coherent_weight(weights, traces, scale, learning_rate, error)
 
 
 @njit(inline="always")

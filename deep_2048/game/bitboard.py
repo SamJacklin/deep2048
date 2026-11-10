@@ -255,7 +255,7 @@ def upgrade(board: np.uint64) -> np.uint64:
     return shift_above(board, gap, 1)
 
 
-@njit(inline="always")
+@njit
 def downgrade(board: np.uint64, min_exponent: int) -> np.uint64:
     """Halve every tile above the largest gap if the board has a 2**min_exponent tile or larger, else return it unchanged."""
     if max_exponent(board) < min_exponent:
@@ -264,7 +264,7 @@ def downgrade(board: np.uint64, min_exponent: int) -> np.uint64:
     return board if gap == 0 else shift_above(board, gap, -1)
 
 
-@njit(inline="always")
+@njit
 def large_tile_counts(board: np.uint64) -> int:
     """Pack how many 2048, 4096, 8192, 16384 and 32768 tiles the board has, each capped at 3, into 10 bits."""
     index = 0
