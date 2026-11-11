@@ -40,7 +40,7 @@ Guei (2022) trained for 100M games per network, with optimistic initialisation (
 
 ## Open questions for this project
 
-1. **Does TC stall over long training here?** This project's TC runs were still improving at 1.5M games. The long run (1.5M games on the 8×6) is the first chance to see a plateau. If it does stall, periodic TC resets are a cheap remedy to test.
+1. **Does TC stall over long training here?** This project's TC runs were still improving at 1.5M games. The [long run](README.md#the-long-run) (1.5M games on the 8×6) doesn't stall either: its greedy score gained +14.7k ± 10.7k from 1M to 1.5M games, close to the +17.5k from 500k to 1M. Guei's stall came after tens of millions of games, so periodic TC resets are still worth testing before a run that long.
 2. **Constant rate, then TC:** worth testing only for much longer training (tens of millions of games), where Guei found it best on the 8×6.
 3. **TD(λ):** untested here. A quick multi-seed test on the 4×6 harness (λ = 0.5 with TC, against TD(0) with TC) would show whether each game becomes more informative. That matters most for this project's sample-efficiency goal.
 4. **How TC interacts with the scale-sharing ingredients.** All the ingredient tests used TC. Late-game starts in particular change which weights see coherent errors.

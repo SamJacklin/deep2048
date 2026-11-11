@@ -38,6 +38,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | `threads-4x6-t8-*` (2 runs) | [Multi-threaded training](#multi-threaded-training): lock-free 8-thread training vs single-threaded |
 | `seed-4x6-tc0.08-*` (2 runs) | [Seed-to-seed variation](#seed-to-seed-variation): the screen's 4×6 at 0.08 configuration with seeds 7 and 123 |
 | `ingredients-4x6-*` (15 runs) | [Ingredient test across seeds](#ingredient-test-across-seeds): control, A, C, A + C and B′, seeds 1–3 |
+| [`long-8x6`](long-8x6/NOTES.md) | [The long run](#the-long-run): 8×6 at 0.02 with A + C, on 8 threads to 1.5M games, then search |
 
 ## Learning at equal experience
 
@@ -265,10 +266,69 @@ The ≥16384 and moves columns are averages over the three seeds.
 - **B′ is erratic** (−11k, +14k, +10k). Restricting the scale term to downgraded boards removed B's early damage, but the few heavily shared scale weights still make late-game learning noisy. It's left out.
 - The earlier single-seed results fit this picture. A's +9.7k with seed 42 was above anything seen across these three seeds (−3.6k to +8.0k), so that test happened to land on a favourable seed. C's +5.2k sits within its range.
 
+## The long run
+
+The screen's best layout and rate (8×6, temporal coherence at 0.02) with the ingredient test's best pair, downgrading and late-game starts (A + C). Trained from scratch to 1.5M games on 8 threads with seed 42, in 2 h 02 min on the M4. 1,000 seeded games per evaluation, 95% confidence intervals:
+
+| Games | Moves | Greedy | Median | ≥8192 | ≥16384 | ≥32768 |
+|---:|---:|---:|---:|---:|---:|---:|
+| 100k | 0.44B | 167,785 ± 5,097 | 167,712 | 76.2% | 20.6% | 0.2% |
+| 250k | 1.59B | 244,076 ± 7,054 | 256,096 | 87.8% | 55.3% | 1.9% |
+| 500k | 3.87B | 267,705 ± 7,346 | 286,228 | 92.1% | 61.5% | 4.2% |
+| 1M | 8.76B | 285,232 ± 7,405 | 314,318 | 92.3% | 68.0% | 4.4% |
+| 1.5M | 13.86B | **299,894 ± 7,668** | 339,306 | 92.1% | 73.2% | 6.4% |
+
+With search on the 1.5M network. The gain is paired per game against greedy on the same seeds:
+
+| Agent | Score | Median | vs greedy | ≥16384 | ≥32768 | Time for 1,000 games |
+|---|---:|---:|---:|---:|---:|---:|
+| Greedy | 299,894 ± 7,668 | 339,306 | — | 73.2% | 6.4% | 5 min |
+| Depth 2 | 343,160 ± 6,327 | 373,222 | +43,267 ± 9,629 | 85.8% | 7.2% | 7 min |
+| Depth 3 | **365,404 ± 5,769** | 377,960 | +65,510 ± 9,458 | 90.7% | 8.5% | 31 min |
+
+![The long run](long-8x6/training_progress.png)
+
+Against the published agents in [RELATED_WORK.md](RELATED_WORK.md):
+
+| Agent | Greedy | 3-ply | Training |
+|---|---:|---:|---|
+| Guei et al. 2022 (state of the art) | 412,785 | 563,316 | 200M episodes, 66 h on 20 threads |
+| Jaśkowski 2018, full method | 324,710 | 511,759 | 4×10¹⁰ moves, 5.5 days on 24 cores |
+| **This run** | **299,894** | **365,404** | 1.4×10¹⁰ moves, 2 h on a 10-core laptop |
+| Yeh et al. 2016, plain TD | 159,565 | 321,496 | 15M games |
+| Jaśkowski 2018, TC only | 248,770 | 333,010 | 10¹⁰ moves, 1.16 days on 24 cores |
+
+- **This is the project's best agent by far: 2.3× the previous best greedy (128k) and 1.8× at depth 3 (202k).**
+  - Greedy, it beats every published n-tuple result except Jaśkowski's full method (92% of it) and Guei's (73%).
+  - At 3-ply it beats Yeh and Jaśkowski's TC-only network, and reaches 65% of the state of the art.
+- **Sample efficiency is where it leads.**
+  - At 1M games (8.8×10⁹ moves) it scores 285k greedy, against 249k for Jaśkowski's TC-only network after 10¹⁰ moves.
+  - Guei reports that n-tuple networks "could not even achieve 240000 points" after 10¹⁰ moves, and his 4×6 needed 10M episodes to reach 248k.
+  - Guei's 8×6 reaches 360–371k greedy after 100M games, so this run reaches 81–83% of that with 1.5% of the games.
+- **Still improving at 1.5M, with no sign of temporal coherence stalling.**
+  - The paired gains are +17,527 ± 10,259 from 500k to 1M games and +14,662 ± 10,713 from 1M to 1.5M, about +20–25k per doubling of games.
+  - The training averages flattened over the last 100k games (+0.7k), but the evaluations don't confirm a plateau, so that was noise.
+- **Search helps less than on weaker networks: +22% at depth 3, against +58% for the [earlier 1.5M-game network](#expectimax-search-on-the-n-tuple-network).** Almost every searched game reaches 16384, and depth 3 adds only 4.7k to depth 2's median.
+- **The remaining gap is 32768.**
+  - Building a 16384 tile with its 8192 and 4096 chain is worth about 380k, which is where the median sits at depths 2 and 3. Making a 32768 tile alone is worth about 460k.
+  - Even at depth 3, only 8.5% of games make a 32768 tile. The state of the art's 3-ply average of 563k needs it in most games.
+  - So the gap to the state of the art is about late-game training, more than search.
+
 ## Next experiments
 
 Open directions for improving the n-tuple agent further, roughly in order of expected payoff:
 
-0. **The long run:** the screen's best layout (8×6, rate 0.02) with downgrading and late-game starts (A + C), on 8 threads (`scripts/run_long_run.sh`), trained for 1–1.5M games, then evaluated greedily and with search against Yeh (160k greedy, 321k at 3-ply) and Jaśkowski (249k / 333k with TC only).
-1. **More training under temporal coherence, then search.** The 1.5M-game network reaches 16384 in 43% of depth-3 games against 2% for the 1M-game network, so late-game training looks like where the remaining gains are. Continue the 1.5M snapshot to 2-3M games, or train from scratch at base rate 0.01 for longer, then re-evaluate with search.
-2. **Depth-4 search on the 1.5M network.** It shows whether search returns keep growing beyond depth 3. A game takes about 70 seconds alone, so 200 games is about 30-50 minutes on 10 cores, and 1,000 games is 1-2 hours.
+The [long run](#the-long-run) is within reach of the state of the art given more training, so these come first, to decide what goes into a much longer run:
+
+1. **Faster search.** Depth 3 on the 8×6 takes 31 minutes per 1,000 games, so depth 4 and above are impractical as it stands.
+   - Prune spawns whose cumulative probability falls below a threshold, and ignore 4-spawns below the top levels.
+   - Add a transposition table, then time-limited search by iterative deepening.
+   - Needs no retraining. Downgrading is already applied at play time, inside the network's lookup.
+2. **The learning-rate schedule for long training.**
+   - Guei found that temporal coherence settles too early on the 8×6 over 100M games, so his best recipe was a constant rate with temporal coherence only at the end.
+   - This run shows no stall yet. To test it, continue the 1.5M snapshot to 2–3M games three ways: temporal coherence as is (the control), temporal coherence with its sums reset (as Guei did every 1M games), and a constant rate.
+3. **TD(λ).** On the 4×6 harness with three seeds: λ = 0.5 against λ = 0, both with temporal coherence, as in Jaśkowski's delayed TC(λ). See [learning rules](learning-rules.md).
+4. **Two-stage network.** A second weight set from the first 16384 tile, warm-started from the first.
+   - It works against downgrading's sharing across scales, so it needs testing, not assuming.
+   - Test it by continuing the 1.5M snapshot with and without the split. The 4×6 harness reaches 16384 too rarely to train a second stage.
+5. **The run at scale.** 10M+ games with whatever survives the tests above. Optimistic initialisation, Guei's main ingredient, only pays off after about 10M episodes, so whether to include it is decided here.
