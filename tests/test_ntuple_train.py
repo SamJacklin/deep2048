@@ -1,6 +1,5 @@
 import csv
 
-import numba
 import numpy as np
 import pytest
 
@@ -189,9 +188,8 @@ def test_scale_term_when_downgraded_needs_both_features(tmp_path) -> None:
 def test_threaded_learning_improves_play() -> None:
     network = NTupleNetwork(tuples=SMALL_TUPLES)
     before = play(network, 200, learn=False, seed=0)
-    numba.set_num_threads(2)
     bb.seed(1)
-    learned = play_games_threaded(2_000, network.weights, None, network.layout, 0.01, True)
+    learned = play_games_threaded(2_000, network.weights, None, network.layout, 0.01, True, None, threads=2)
     after = play(network, 200, learn=False, seed=0)
 
     assert (learned.moves > 0).all() and (learned.scores > 0).all()
@@ -210,9 +208,28 @@ def test_train_switches_to_threads_after_the_warm_up(tmp_path) -> None:
         assert [int(row["games"]) for row in csv.DictReader(f)] == [100, 200, 300]
 
 
+def test_threads_work_with_scale_sharing_and_late_starts(tmp_path) -> None:
+    settings = NTupleSettings(
+        THREADS=2,
+        THREADS_AFTER=50,
+        LOG_EVERY=50,
+        DOWNGRADE_TILE=256,
+        SCALE_FEATURE=True,
+        SCALE_WHEN_DOWNGRADED=True,
+        LATE_START_FRACTION=0.5,
+        LATE_START_TILE=256,
+        CHECKPOINT_DIR=str(tmp_path / "checkpoints"),
+        OUTPUT_DIR=str(tmp_path / "output"),
+    )
+    summary = train(total_games=200, settings=settings)
+    with open(tmp_path / "output" / "training_history.csv") as f:
+        rows = list(csv.DictReader(f))
+    assert summary.games_played == 200 and sum(int(row["synthetic_games"]) for row in rows) > 0
+
+
 def test_thread_count_must_be_available(tmp_path) -> None:
     settings = NTupleSettings(THREADS=10_000, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
-    with pytest.raises(ValueError, match="isn't available"):
+    with pytest.raises(ValueError, match="THREADS must be between"):
         train(total_games=10, settings=settings)
 
 

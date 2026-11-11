@@ -11,19 +11,20 @@ The learning rate is constant by default. It can instead decay over the session
 A share of games can start from synthetic late-game positions (LATE_START_FRACTION), made by
 doubling the tiles above a gap in positions from normal play, which keeps the game's dynamics.
 
-With THREADS > 1, games run on several threads that update the shared weights without locks, as in
-Jaśkowski (2018). Updates are sparse, so threads rarely touch the same weight at once, but runs are
+With THREADS > 1, a batch's games are shared across threads that update the shared weights without
+locks, as in Jaśkowski (2018). Updates are sparse, so threads rarely touch the same weight at once, but runs are
 no longer bit-reproducible. The first THREADS_AFTER games stay single-threaded, because a fresh
 network's few common positions make collisions frequent.
 """
 
 import csv
+import os
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-import numba
 import numpy as np
-from numba import njit, prange
+from numba import njit
 
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
 from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, LateStarts, TrainingHistoryRow, TrainingSummary
@@ -102,7 +103,8 @@ def play_game(
             harvested = board
 
 
-def _play_games(
+@njit(nogil=True)
+def play_games(
     n: int,
     weights: np.ndarray,
     traces: CoherenceTraces | None,
@@ -113,16 +115,14 @@ def _play_games(
 ) -> GameResults:
     """Play n games, starting a share of them from `late_starts` if given.
 
-    Compiled twice: as play_games, where prange is an ordinary loop, and as play_games_threaded,
-    where the games run on several threads that update the shared weights without locks.
+    Releases the GIL, so several threads can run it at once on the same weights.
     """
-    # Plain arrays rather than GameResults' own: numba's parallel loops drop writes made through a NamedTuple
     scores = np.zeros(n, np.int64)
     max_exponents = np.zeros(n, np.int64)
     moves = np.zeros(n, np.int64)
     synthetic = np.zeros(n, np.bool_)
     harvested = np.zeros(n, np.uint64)
-    for i in prange(n):
+    for i in range(n):
         start = np.uint64(0)
         harvest_exponent = 0
         if late_starts is not None:
@@ -136,8 +136,22 @@ def _play_games(
     return GameResults(scores, max_exponents, moves, synthetic, harvested)
 
 
-play_games = njit(_play_games)
-play_games_threaded = njit(parallel=True)(_play_games)
+def play_games_threaded(
+    n: int,
+    weights: np.ndarray,
+    traces: CoherenceTraces | None,
+    layout: TupleLayout,
+    learning_rate: float,
+    learn: bool,
+    late_starts: LateStarts | None,
+    threads: int,
+) -> GameResults:
+    """Play n games split across `threads` threads, which update the shared weights without locks."""
+    # Game lengths vary a lot, so small shares handed out as threads free up keep every thread busy
+    shares = [len(games) for games in np.array_split(np.arange(n), 8 * threads)]
+    with ThreadPoolExecutor(max_workers=threads) as pool:
+        parts = list(pool.map(lambda share: play_games(share, weights, traces, layout, learning_rate, learn, late_starts), shares))
+    return GameResults(*(np.concatenate(field) for field in zip(*parts)))
 
 
 @njit
@@ -202,11 +216,10 @@ def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at:
     threads = f", {settings.THREADS} threads after {settings.THREADS_AFTER:,} games" if settings.THREADS > 1 else ""
     print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}{schedule}{coherence}{threads}")
     late_starts = _late_starts(settings)
-    _set_threads(settings)
+    if not 1 <= settings.THREADS <= (os.cpu_count() or 1):
+        raise ValueError(f"THREADS must be between 1 and {os.cpu_count()}, not {settings.THREADS}")
     # Compile before timing starts, otherwise the first batch's games/s includes compilation
     play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts)
-    if settings.THREADS > 1:
-        play_games_threaded(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts)
 
     interrupted = False
     try:
@@ -217,9 +230,11 @@ def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at:
             batch = min(settings.LOG_EVERY, min(stops) - progress.games_played)
             progress.learning_rate = learning_rate_at(settings, start_games, total_games, progress.games_played)
             threaded = settings.THREADS > 1 and progress.games_played >= settings.THREADS_AFTER
-            play = play_games_threaded if threaded else play_games
             started = time.monotonic()
-            results = play(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts)
+            if threaded:
+                results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS)
+            else:
+                results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts)
             if late_starts is not None:
                 late_starts = late_starts._replace(pool=_grow_pool(late_starts.pool, results, settings.LATE_START_POOL))
             progress.games_played += batch
@@ -283,13 +298,6 @@ def learning_rate_at(settings: NTupleSettings, start_games: int, total_games: in
         return settings.LEARNING_RATE
     progress = (games_played - start_games) / (total_games - start_games)
     return settings.LEARNING_RATE * (settings.LEARNING_RATE_END / settings.LEARNING_RATE) ** progress
-
-
-def _set_threads(settings: NTupleSettings) -> None:
-    try:
-        numba.set_num_threads(settings.THREADS)
-    except ValueError as error:
-        raise ValueError(f"THREADS={settings.THREADS} isn't available: {error}") from None
 
 
 def _late_starts(settings: NTupleSettings) -> LateStarts | None:
