@@ -41,15 +41,17 @@ export NTUPLE_DOWNGRADE_TILE=16384 NTUPLE_LATE_START_FRACTION=0.2 NTUPLE_LATE_ST
 for seed in "${SEED_LIST[@]}"; do
     for arm in "${ARMS[@]}"; do
         run=$PREFIX-$arm-s$seed
-        if [ -f "checkpoints/ntuple/$run/games_$GAMES.npz" ]; then
-            echo "$run already trained, skipping"
+        if [ -f "experiments/$run/evaluations.json" ]; then
+            echo "$run already trained and evaluated, skipping"
             continue
         fi
-        echo "Training $run"
-        mkdir -p "experiments/$run"
-        # shellcheck disable=SC2046  # the arm's settings are deliberately split into separate variables
-        env NTUPLE_SEED="$seed" $(arm_settings "$arm") uv run python -u scripts/train_ntuple.py --run "$run" --games "$GAMES" --snapshot-at "$GAMES" \
-            > "experiments/$run/train.log" 2>&1
+        if [ ! -f "checkpoints/ntuple/$run/games_$GAMES.npz" ]; then
+            echo "Training $run"
+            mkdir -p "experiments/$run"
+            # shellcheck disable=SC2046  # the arm's settings are deliberately split into separate variables
+            env NTUPLE_SEED="$seed" $(arm_settings "$arm") uv run python -u scripts/train_ntuple.py --run "$run" --games "$GAMES" --snapshot-at "$GAMES" \
+                > "experiments/$run/train.log" 2>&1
+        fi
         uv run python scripts/evaluate.py "checkpoints/ntuple/$run/games_$GAMES.npz" --agent ntuple -n "$EVAL_GAMES" --experiment "experiments/$run" \
             | tr '\r' '\n' | grep -E "^N-tuple"
     done
