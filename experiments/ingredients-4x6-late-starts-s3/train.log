@@ -1,0 +1,339 @@
+Training 4x6 n-tuple network (67,108,864 weights) to 300,000 games, lr 0.08, temporal coherence, 8 threads after 10,000 games
+  games     1,000  moves      0.7M  avg score    11780  max   52748  ≥2048   7.2%  ≥4096   0.1%  ≥8192   0.0%  | 1079.9 games/s
+  games     2,000  moves      1.9M  avg score    21816  max   68164  ≥2048  42.1%  ≥4096   1.2%  ≥8192   0.0%  |  837.6 games/s
+  games     3,000  moves      3.4M  avg score    29090  max   79572  ≥2048  66.2%  ≥4096   6.7%  ≥8192   0.0%  |  668.6 games/s
+  games     4,000  moves      5.2M  avg score    33697  max  101596  ≥2048  75.1%  ≥4096  12.3%  ≥8192   0.1%  |  595.1 games/s
+  games     5,000  moves      6.8M  avg score    37661  max  104828  ≥2048  80.6%  ≥4096  21.0%  ≥8192   0.2%  |  622.1 games/s
+  games     6,000  moves      8.6M  avg score    40592  max  132640  ≥2048  79.9%  ≥4096  27.8%  ≥8192   0.4%  |  552.6 games/s
+  games     7,000  moves     10.6M  avg score    43366  max  148844  ≥2048  86.6%  ≥4096  32.0%  ≥8192   0.2%  |  524.5 games/s
+  games     8,000  moves     12.6M  avg score    46302  max  129984  ≥2048  87.1%  ≥4096  37.9%  ≥8192   0.9%  |  507.3 games/s
+  games     9,000  moves     14.8M  avg score    48362  max  144860  ≥2048  86.5%  ≥4096  44.2%  ≥8192   0.9%  |  474.7 games/s
+  games    10,000  moves     17.0M  avg score    50523  max  134792  ≥2048  90.0%  ≥4096  47.1%  ≥8192   1.9%  |  477.6 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (10,000 games)
+  games    11,000  moves     19.3M  avg score    53936  max  164316  ≥2048  89.2%  ≥4096  54.4%  ≥8192   3.4%  | 1777.0 games/s
+  games    12,000  moves     21.6M  avg score    53938  max  171556  ≥2048  87.9%  ≥4096  51.1%  ≥8192   4.3%  | 1796.5 games/s
+  games    13,000  moves     24.1M  avg score    59078  max  158836  ≥2048  91.6%  ≥4096  60.0%  ≥8192   6.5%  | 1500.8 games/s
+  games    14,000  moves     26.6M  avg score    59858  max  157724  ≥2048  90.6%  ≥4096  61.4%  ≥8192   7.2%  | 1718.1 games/s
+  games    15,000  moves     29.2M  avg score    60742  max  158296  ≥2048  91.2%  ≥4096  62.1%  ≥8192   7.3%  | 1667.4 games/s
+  games    16,000  moves     31.8M  avg score    63584  max  174360  ≥2048  92.4%  ≥4096  65.8%  ≥8192   8.0%  | 1627.5 games/s
+  games    17,000  moves     34.5M  avg score    63530  max  157664  ≥2048  91.8%  ≥4096  65.9%  ≥8192   8.5%  | 1571.4 games/s
+  games    18,000  moves     37.2M  avg score    66488  max  173324  ≥2048  92.3%  ≥4096  69.2%  ≥8192  11.2%  | 1509.0 games/s
+  games    19,000  moves     40.1M  avg score    68207  max  169960  ≥2048  92.1%  ≥4096  70.8%  ≥8192  13.6%  | 1476.7 games/s
+  games    20,000  moves     42.9M  avg score    68249  max  175268  ≥2048  92.3%  ≥4096  70.4%  ≥8192  14.0%  | 1573.7 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (20,000 games)
+  games    21,000  moves     45.8M  avg score    70087  max  172940  ≥2048  92.6%  ≥4096  71.2%  ≥8192  14.9%  | 1468.3 games/s
+  games    22,000  moves     48.8M  avg score    73659  max  177052  ≥2048  94.5%  ≥4096  73.9%  ≥8192  18.2%  | 1452.6 games/s
+  games    23,000  moves     51.7M  avg score    71975  max  188036  ≥2048  92.8%  ≥4096  71.3%  ≥8192  16.1%  | 1469.3 games/s
+  games    24,000  moves     54.7M  avg score    73459  max  191804  ≥2048  94.0%  ≥4096  74.9%  ≥8192  17.1%  | 1474.1 games/s
+  games    25,000  moves     57.8M  avg score    75372  max  189044  ≥2048  94.5%  ≥4096  75.1%  ≥8192  19.1%  | 1455.6 games/s
+  games    26,000  moves     60.9M  avg score    77470  max  246000  ≥2048  93.1%  ≥4096  76.9%  ≥8192  21.9%  | 1437.5 games/s
+  games    27,000  moves     64.1M  avg score    78835  max  188676  ≥2048  93.2%  ≥4096  77.3%  ≥8192  22.6%  | 1344.0 games/s
+  games    28,000  moves     67.3M  avg score    79998  max  175928  ≥2048  96.2%  ≥4096  77.2%  ≥8192  25.3%  | 1336.4 games/s
+  games    29,000  moves     70.5M  avg score    78814  max  183756  ≥2048  93.7%  ≥4096  77.7%  ≥8192  23.0%  | 1377.7 games/s
+  games    30,000  moves     73.9M  avg score    82992  max  180640  ≥2048  95.5%  ≥4096  81.5%  ≥8192  27.0%  | 1258.9 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (30,000 games)
+  games    31,000  moves     77.3M  avg score    86427  max  273040  ≥2048  96.8%  ≥4096  81.7%  ≥8192  29.1%  | 1304.9 games/s
+  games    32,000  moves     80.7M  avg score    85583  max  265884  ≥2048  94.7%  ≥4096  80.0%  ≥8192  30.2%  | 1314.0 games/s
+  games    33,000  moves     84.1M  avg score    86029  max  197464  ≥2048  95.8%  ≥4096  80.0%  ≥8192  31.3%  | 1241.8 games/s
+  games    34,000  moves     87.6M  avg score    88900  max  290620  ≥2048  96.0%  ≥4096  83.5%  ≥8192  33.2%  | 1259.2 games/s
+  games    35,000  moves     91.1M  avg score    88982  max  197436  ≥2048  95.2%  ≥4096  83.7%  ≥8192  33.3%  | 1184.2 games/s
+  games    36,000  moves     94.6M  avg score    87130  max  265316  ≥2048  94.0%  ≥4096  81.5%  ≥8192  31.2%  | 1220.9 games/s
+  games    37,000  moves     98.3M  avg score    92953  max  203132  ≥2048  95.7%  ≥4096  83.0%  ≥8192  37.8%  | 1105.7 games/s
+  games    38,000  moves    102.0M  avg score    94154  max  251128  ≥2048  95.9%  ≥4096  84.0%  ≥8192  40.2%  | 1092.2 games/s
+  games    39,000  moves    105.6M  avg score    91338  max  253580  ≥2048  95.8%  ≥4096  83.8%  ≥8192  34.5%  | 1146.6 games/s
+  games    40,000  moves    109.4M  avg score    92915  max  313124  ≥2048  94.8%  ≥4096  83.1%  ≥8192  37.6%  | 1085.7 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (40,000 games)
+  games    41,000  moves    113.2M  avg score    97333  max  266296  ≥2048  97.1%  ≥4096  87.2%  ≥8192  39.6%  | 1133.3 games/s
+  games    42,000  moves    117.0M  avg score    98855  max  300144  ≥2048  97.2%  ≥4096  87.2%  ≥8192  41.4%  | 1156.1 games/s
+  games    43,000  moves    121.0M  avg score    99967  max  284700  ≥2048  96.9%  ≥4096  86.5%  ≥8192  42.2%  | 1118.2 games/s
+  games    44,000  moves    124.8M  avg score    97782  max  196660  ≥2048  96.7%  ≥4096  85.4%  ≥8192  40.6%  | 1147.5 games/s
+  games    45,000  moves    128.9M  avg score   103142  max  279512  ≥2048  96.8%  ≥4096  87.1%  ≥8192  46.2%  | 1123.5 games/s
+  games    46,000  moves    132.9M  avg score   104815  max  286648  ≥2048  98.3%  ≥4096  89.9%  ≥8192  47.3%  | 1040.5 games/s
+  games    47,000  moves    137.0M  avg score   103168  max  281940  ≥2048  97.5%  ≥4096  85.9%  ≥8192  46.1%  | 1098.5 games/s
+  games    48,000  moves    141.1M  avg score   103857  max  286356  ≥2048  95.8%  ≥4096  87.4%  ≥8192  45.1%  | 1012.1 games/s
+  games    49,000  moves    145.2M  avg score   104037  max  288360  ≥2048  96.9%  ≥4096  86.3%  ≥8192  45.6%  | 1022.9 games/s
+  games    50,000  moves    149.3M  avg score   106993  max  326536  ≥2048  97.8%  ≥4096  89.1%  ≥8192  49.0%  | 1056.7 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (50,000 games)
+  games    51,000  moves    153.4M  avg score   105881  max  269876  ≥2048  97.3%  ≥4096  89.6%  ≥8192  45.6%  | 1049.6 games/s
+  games    52,000  moves    157.7M  avg score   110434  max  364272  ≥2048  97.7%  ≥4096  89.5%  ≥8192  50.1%  |  983.7 games/s
+  games    53,000  moves    161.8M  avg score   105529  max  262248  ≥2048  96.5%  ≥4096  87.4%  ≥8192  47.2%  | 1088.0 games/s
+  games    54,000  moves    166.0M  avg score   107008  max  290384  ≥2048  95.7%  ≥4096  87.5%  ≥8192  48.7%  | 1035.1 games/s
+  games    55,000  moves    170.2M  avg score   109468  max  278124  ≥2048  96.9%  ≥4096  90.4%  ≥8192  48.7%  | 1039.8 games/s
+  games    56,000  moves    174.4M  avg score   109867  max  292236  ≥2048  97.2%  ≥4096  88.1%  ≥8192  50.8%  | 1016.0 games/s
+  games    57,000  moves    178.7M  avg score   109422  max  292392  ≥2048  97.4%  ≥4096  90.6%  ≥8192  49.7%  | 1019.1 games/s
+  games    58,000  moves    183.0M  avg score   113079  max  291132  ≥2048  97.5%  ≥4096  90.2%  ≥8192  52.5%  | 1009.7 games/s
+  games    59,000  moves    187.4M  avg score   114231  max  291252  ≥2048  96.6%  ≥4096  89.7%  ≥8192  53.6%  |  951.2 games/s
+  games    60,000  moves    191.7M  avg score   110670  max  288496  ≥2048  96.0%  ≥4096  87.0%  ≥8192  51.2%  |  975.6 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (60,000 games)
+  games    61,000  moves    196.2M  avg score   114501  max  313560  ≥2048  96.5%  ≥4096  89.1%  ≥8192  55.6%  |  960.0 games/s
+  games    62,000  moves    200.6M  avg score   115740  max  290080  ≥2048  96.8%  ≥4096  88.9%  ≥8192  55.7%  |  983.6 games/s
+  games    63,000  moves    205.0M  avg score   113400  max  299640  ≥2048  96.4%  ≥4096  88.7%  ≥8192  54.9%  |  968.6 games/s
+  games    64,000  moves    209.5M  avg score   115335  max  314520  ≥2048  96.4%  ≥4096  90.1%  ≥8192  55.5%  |  965.3 games/s
+  games    65,000  moves    213.9M  avg score   116043  max  290980  ≥2048  96.6%  ≥4096  91.0%  ≥8192  54.3%  | 1012.2 games/s
+  games    66,000  moves    218.5M  avg score   117879  max  312224  ≥2048  98.0%  ≥4096  91.5%  ≥8192  56.7%  |  915.4 games/s
+  games    67,000  moves    223.0M  avg score   116769  max  289640  ≥2048  98.0%  ≥4096  90.5%  ≥8192  56.6%  |  970.6 games/s
+  games    68,000  moves    227.4M  avg score   114985  max  296004  ≥2048  97.0%  ≥4096  90.1%  ≥8192  55.1%  | 1011.6 games/s
+  games    69,000  moves    232.0M  avg score   118503  max  289640  ≥2048  98.1%  ≥4096  91.0%  ≥8192  57.7%  |  905.1 games/s
+  games    70,000  moves    236.4M  avg score   114923  max  314540  ≥2048  97.1%  ≥4096  88.6%  ≥8192  54.7%  |  952.5 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (70,000 games)
+  games    71,000  moves    241.0M  avg score   118973  max  353684  ≥2048  97.6%  ≥4096  91.4%  ≥8192  57.3%  |  908.8 games/s
+  games    72,000  moves    245.5M  avg score   118256  max  292608  ≥2048  97.6%  ≥4096  90.2%  ≥8192  56.5%  |  905.6 games/s
+  games    73,000  moves    250.0M  avg score   116392  max  312500  ≥2048  97.1%  ≥4096  89.8%  ≥8192  55.7%  |  934.5 games/s
+  games    74,000  moves    254.7M  avg score   121611  max  332048  ≥2048  97.4%  ≥4096  90.8%  ≥8192  60.8%  |  893.0 games/s
+  games    75,000  moves    259.2M  avg score   119854  max  289388  ≥2048  97.0%  ≥4096  92.1%  ≥8192  57.9%  |  964.4 games/s
+  games    76,000  moves    263.8M  avg score   120251  max  289232  ≥2048  98.2%  ≥4096  91.8%  ≥8192  59.9%  |  925.1 games/s
+  games    77,000  moves    268.3M  avg score   117409  max  290104  ≥2048  97.9%  ≥4096  89.9%  ≥8192  56.2%  |  913.8 games/s
+  games    78,000  moves    273.0M  avg score   117576  max  283828  ≥2048  96.0%  ≥4096  88.0%  ≥8192  56.7%  |  905.3 games/s
+  games    79,000  moves    277.7M  avg score   124875  max  311908  ≥2048  97.4%  ≥4096  92.2%  ≥8192  63.4%  |  942.1 games/s
+  games    80,000  moves    282.4M  avg score   121606  max  321128  ≥2048  97.7%  ≥4096  92.7%  ≥8192  57.8%  |  895.6 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (80,000 games)
+  games    81,000  moves    287.1M  avg score   124843  max  342260  ≥2048  96.6%  ≥4096  90.2%  ≥8192  62.2%  |  920.5 games/s
+  games    82,000  moves    291.9M  avg score   123330  max  327980  ≥2048  98.2%  ≥4096  91.8%  ≥8192  61.4%  |  860.4 games/s
+  games    83,000  moves    296.5M  avg score   122698  max  321228  ≥2048  97.4%  ≥4096  91.4%  ≥8192  61.5%  |  955.6 games/s
+  games    84,000  moves    301.2M  avg score   122823  max  289524  ≥2048  97.7%  ≥4096  91.6%  ≥8192  60.3%  |  914.0 games/s
+  games    85,000  moves    305.9M  avg score   123905  max  300436  ≥2048  98.0%  ≥4096  91.5%  ≥8192  63.1%  |  959.5 games/s
+  games    86,000  moves    310.7M  avg score   124645  max  289824  ≥2048  98.3%  ≥4096  94.5%  ≥8192  62.1%  |  897.7 games/s
+  games    87,000  moves    315.5M  avg score   125138  max  340220  ≥2048  96.5%  ≥4096  91.2%  ≥8192  63.7%  |  880.9 games/s
+  games    88,000  moves    320.3M  avg score   126207  max  332988  ≥2048  97.7%  ≥4096  92.6%  ≥8192  63.6%  |  912.0 games/s
+  games    89,000  moves    325.1M  avg score   124095  max  306184  ≥2048  96.4%  ≥4096  91.9%  ≥8192  62.7%  |  852.8 games/s
+  games    90,000  moves    329.8M  avg score   123685  max  313772  ≥2048  97.0%  ≥4096  89.6%  ≥8192  62.3%  |  872.4 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (90,000 games)
+  games    91,000  moves    334.8M  avg score   129192  max  338236  ≥2048  98.0%  ≥4096  91.7%  ≥8192  65.6%  |  838.9 games/s
+  games    92,000  moves    339.6M  avg score   128482  max  341960  ≥2048  97.7%  ≥4096  92.2%  ≥8192  64.7%  |  877.8 games/s
+  games    93,000  moves    344.5M  avg score   126857  max  322840  ≥2048  97.2%  ≥4096  92.0%  ≥8192  64.2%  |  882.0 games/s
+  games    94,000  moves    349.3M  avg score   125018  max  289384  ≥2048  97.8%  ≥4096  89.6%  ≥8192  63.4%  |  914.1 games/s
+  games    95,000  moves    354.2M  avg score   127877  max  319180  ≥2048  98.0%  ≥4096  93.5%  ≥8192  64.1%  |  861.3 games/s
+  games    96,000  moves    359.1M  avg score   128582  max  342824  ≥2048  97.6%  ≥4096  91.1%  ≥8192  65.1%  |  905.3 games/s
+  games    97,000  moves    364.0M  avg score   129926  max  340796  ≥2048  97.4%  ≥4096  92.7%  ≥8192  66.1%  |  853.0 games/s
+  games    98,000  moves    368.9M  avg score   129910  max  361804  ≥2048  97.9%  ≥4096  90.1%  ≥8192  65.0%  |  864.3 games/s
+  games    99,000  moves    373.9M  avg score   131973  max  366356  ≥2048  97.4%  ≥4096  91.1%  ≥8192  66.3%  |  887.8 games/s
+  games   100,000  moves    378.9M  avg score   129668  max  310724  ≥2048  96.9%  ≥4096  91.7%  ≥8192  65.7%  |  849.3 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (100,000 games)
+  games   101,000  moves    383.9M  avg score   132632  max  339672  ≥2048  96.5%  ≥4096  92.5%  ≥8192  67.5%  |  858.8 games/s
+  games   102,000  moves    388.9M  avg score   131243  max  329744  ≥2048  96.9%  ≥4096  91.8%  ≥8192  65.3%  |  842.3 games/s
+  games   103,000  moves    393.9M  avg score   134270  max  386632  ≥2048  98.0%  ≥4096  92.7%  ≥8192  67.3%  |  827.7 games/s
+  games   104,000  moves    399.1M  avg score   133858  max  368360  ≥2048  98.3%  ≥4096  93.0%  ≥8192  68.9%  |  813.2 games/s
+  games   105,000  moves    404.1M  avg score   132640  max  354168  ≥2048  97.9%  ≥4096  92.4%  ≥8192  67.2%  |  848.8 games/s
+  games   106,000  moves    409.1M  avg score   133385  max  353976  ≥2048  97.0%  ≥4096  91.8%  ≥8192  66.6%  |  815.9 games/s
+  games   107,000  moves    414.2M  avg score   135944  max  333852  ≥2048  99.0%  ≥4096  94.9%  ≥8192  69.1%  |  867.0 games/s
+  games   108,000  moves    419.3M  avg score   136312  max  342860  ≥2048  97.9%  ≥4096  92.9%  ≥8192  71.1%  |  814.4 games/s
+  games   109,000  moves    424.4M  avg score   135869  max  332880  ≥2048  98.0%  ≥4096  93.2%  ≥8192  69.0%  |  845.4 games/s
+  games   110,000  moves    429.5M  avg score   133199  max  324324  ≥2048  98.5%  ≥4096  93.1%  ≥8192  67.5%  |  840.1 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (110,000 games)
+  games   111,000  moves    434.7M  avg score   138198  max  325624  ≥2048  97.2%  ≥4096  92.1%  ≥8192  68.8%  |  852.7 games/s
+  games   112,000  moves    439.8M  avg score   136184  max  362700  ≥2048  98.4%  ≥4096  92.8%  ≥8192  68.4%  |  815.8 games/s
+  games   113,000  moves    444.9M  avg score   136812  max  342504  ≥2048  98.2%  ≥4096  93.6%  ≥8192  71.5%  |  835.8 games/s
+  games   114,000  moves    450.1M  avg score   137505  max  323996  ≥2048  97.6%  ≥4096  93.1%  ≥8192  69.0%  |  847.1 games/s
+  games   115,000  moves    455.3M  avg score   138892  max  355996  ≥2048  98.0%  ≥4096  92.5%  ≥8192  70.7%  |  825.4 games/s
+  games   116,000  moves    460.5M  avg score   140713  max  356108  ≥2048  98.6%  ≥4096  94.3%  ≥8192  71.2%  |  829.7 games/s
+  games   117,000  moves    465.7M  avg score   137001  max  338332  ≥2048  98.7%  ≥4096  93.1%  ≥8192  68.4%  |  800.9 games/s
+  games   118,000  moves    470.9M  avg score   138727  max  342968  ≥2048  98.2%  ≥4096  93.2%  ≥8192  69.9%  |  798.7 games/s
+  games   119,000  moves    476.1M  avg score   136034  max  333568  ≥2048  98.3%  ≥4096  93.1%  ≥8192  68.7%  |  853.2 games/s
+  games   120,000  moves    481.3M  avg score   138558  max  337292  ≥2048  97.9%  ≥4096  92.8%  ≥8192  71.8%  |  788.5 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (120,000 games)
+  games   121,000  moves    486.6M  avg score   140180  max  340260  ≥2048  98.5%  ≥4096  92.3%  ≥8192  69.8%  |  810.6 games/s
+  games   122,000  moves    491.8M  avg score   139464  max  342724  ≥2048  97.9%  ≥4096  93.1%  ≥8192  71.7%  |  802.3 games/s
+  games   123,000  moves    497.0M  avg score   137537  max  319992  ≥2048  98.2%  ≥4096  93.0%  ≥8192  68.9%  |  811.0 games/s
+  games   124,000  moves    502.3M  avg score   142299  max  342940  ≥2048  98.5%  ≥4096  93.6%  ≥8192  72.1%  |  821.1 games/s
+  games   125,000  moves    507.4M  avg score   138232  max  339148  ≥2048  97.6%  ≥4096  91.8%  ≥8192  68.4%  |  758.7 games/s
+  games   126,000  moves    512.7M  avg score   140872  max  358416  ≥2048  98.1%  ≥4096  93.8%  ≥8192  73.4%  |  808.9 games/s
+  games   127,000  moves    517.8M  avg score   138025  max  340720  ≥2048  98.4%  ≥4096  92.5%  ≥8192  68.9%  |  824.9 games/s
+  games   128,000  moves    523.2M  avg score   143671  max  342676  ≥2048  98.4%  ≥4096  94.4%  ≥8192  74.3%  |  715.5 games/s
+  games   129,000  moves    528.5M  avg score   137902  max  342400  ≥2048  97.9%  ≥4096  92.2%  ≥8192  70.3%  |  813.8 games/s
+  games   130,000  moves    533.5M  avg score   135362  max  338348  ≥2048  97.0%  ≥4096  91.6%  ≥8192  67.7%  |  841.1 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (130,000 games)
+  games   131,000  moves    538.8M  avg score   142444  max  343112  ≥2048  98.9%  ≥4096  94.9%  ≥8192  70.3%  |  861.3 games/s
+  games   132,000  moves    544.1M  avg score   139774  max  365620  ≥2048  98.8%  ≥4096  93.5%  ≥8192  70.0%  |  829.2 games/s
+  games   133,000  moves    549.3M  avg score   139637  max  342720  ≥2048  97.4%  ≥4096  91.9%  ≥8192  69.8%  |  843.6 games/s
+  games   134,000  moves    554.6M  avg score   138357  max  340768  ≥2048  98.4%  ≥4096  92.8%  ≥8192  70.2%  |  789.4 games/s
+  games   135,000  moves    559.9M  avg score   142672  max  352444  ≥2048  97.8%  ≥4096  94.0%  ≥8192  73.0%  |  822.3 games/s
+  games   136,000  moves    565.3M  avg score   143770  max  341116  ≥2048  98.0%  ≥4096  92.7%  ≥8192  75.0%  |  791.4 games/s
+  games   137,000  moves    570.6M  avg score   140906  max  377760  ≥2048  97.9%  ≥4096  94.2%  ≥8192  69.8%  |  804.3 games/s
+  games   138,000  moves    575.9M  avg score   141178  max  339156  ≥2048  97.9%  ≥4096  93.0%  ≥8192  71.9%  |  808.7 games/s
+  games   139,000  moves    581.2M  avg score   143409  max  344604  ≥2048  98.6%  ≥4096  94.2%  ≥8192  72.8%  |  776.0 games/s
+  games   140,000  moves    586.7M  avg score   145536  max  341152  ≥2048  98.7%  ≥4096  94.0%  ≥8192  74.8%  |  778.8 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (140,000 games)
+  games   141,000  moves    592.1M  avg score   144823  max  377824  ≥2048  98.0%  ≥4096  94.8%  ≥8192  73.3%  |  773.8 games/s
+  games   142,000  moves    597.3M  avg score   141138  max  337984  ≥2048  98.5%  ≥4096  94.1%  ≥8192  73.6%  |  835.0 games/s
+  games   143,000  moves    602.8M  avg score   145772  max  340820  ≥2048  99.6%  ≥4096  95.0%  ≥8192  75.5%  |  783.2 games/s
+  games   144,000  moves    608.1M  avg score   140926  max  322772  ≥2048  98.0%  ≥4096  94.1%  ≥8192  72.2%  |  788.4 games/s
+  games   145,000  moves    613.5M  avg score   144123  max  354156  ≥2048  98.1%  ≥4096  94.1%  ≥8192  72.9%  |  784.4 games/s
+  games   146,000  moves    618.8M  avg score   143174  max  361596  ≥2048  98.8%  ≥4096  94.2%  ≥8192  74.1%  |  768.1 games/s
+  games   147,000  moves    624.2M  avg score   144514  max  340984  ≥2048  98.2%  ≥4096  93.2%  ≥8192  73.8%  |  806.3 games/s
+  games   148,000  moves    629.6M  avg score   142737  max  343248  ≥2048  98.9%  ≥4096  93.8%  ≥8192  74.4%  |  801.7 games/s
+  games   149,000  moves    635.0M  avg score   146334  max  342620  ≥2048  98.2%  ≥4096  94.9%  ≥8192  75.7%  |  799.9 games/s
+  games   150,000  moves    640.4M  avg score   145165  max  339848  ≥2048  98.5%  ≥4096  93.8%  ≥8192  75.1%  |  802.2 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (150,000 games)
+  games   151,000  moves    645.8M  avg score   145108  max  334196  ≥2048  98.1%  ≥4096  93.3%  ≥8192  73.5%  |  757.2 games/s
+  games   152,000  moves    651.3M  avg score   144358  max  366304  ≥2048  98.3%  ≥4096  94.0%  ≥8192  73.8%  |  816.3 games/s
+  games   153,000  moves    656.7M  avg score   145585  max  362024  ≥2048  98.3%  ≥4096  94.3%  ≥8192  73.4%  |  785.4 games/s
+  games   154,000  moves    662.1M  avg score   145309  max  342468  ≥2048  98.4%  ≥4096  92.5%  ≥8192  75.7%  |  796.8 games/s
+  games   155,000  moves    667.6M  avg score   149037  max  343728  ≥2048  98.1%  ≥4096  93.7%  ≥8192  76.4%  |  779.1 games/s
+  games   156,000  moves    673.0M  avg score   145205  max  366968  ≥2048  98.2%  ≥4096  93.9%  ≥8192  74.4%  |  797.1 games/s
+  games   157,000  moves    678.5M  avg score   144922  max  363140  ≥2048  98.2%  ≥4096  93.4%  ≥8192  75.4%  |  794.3 games/s
+  games   158,000  moves    683.8M  avg score   142458  max  378084  ≥2048  98.7%  ≥4096  94.7%  ≥8192  74.0%  |  803.3 games/s
+  games   159,000  moves    689.3M  avg score   146626  max  358096  ≥2048  98.0%  ≥4096  93.6%  ≥8192  73.7%  |  789.8 games/s
+  games   160,000  moves    694.7M  avg score   145354  max  357992  ≥2048  98.6%  ≥4096  93.6%  ≥8192  75.1%  |  815.7 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (160,000 games)
+  games   161,000  moves    700.2M  avg score   145953  max  342232  ≥2048  98.6%  ≥4096  94.6%  ≥8192  74.7%  |  777.5 games/s
+  games   162,000  moves    705.6M  avg score   146549  max  355368  ≥2048  98.2%  ≥4096  93.1%  ≥8192  75.9%  |  778.8 games/s
+  games   163,000  moves    711.2M  avg score   149627  max  342164  ≥2048  98.0%  ≥4096  94.2%  ≥8192  76.7%  |  772.9 games/s
+  games   164,000  moves    716.5M  avg score   142827  max  362736  ≥2048  98.0%  ≥4096  93.9%  ≥8192  72.7%  |  769.8 games/s
+  games   165,000  moves    722.0M  avg score   147961  max  357076  ≥2048  98.2%  ≥4096  94.8%  ≥8192  75.5%  |  747.9 games/s
+  games   166,000  moves    727.5M  avg score   146999  max  362320  ≥2048  99.0%  ≥4096  95.7%  ≥8192  75.1%  |  803.9 games/s
+  games   167,000  moves    733.0M  avg score   146594  max  377320  ≥2048  98.1%  ≥4096  94.1%  ≥8192  74.9%  |  785.4 games/s
+  games   168,000  moves    738.4M  avg score   145385  max  342592  ≥2048  98.4%  ≥4096  93.0%  ≥8192  73.1%  |  769.3 games/s
+  games   169,000  moves    743.9M  avg score   146221  max  363116  ≥2048  99.0%  ≥4096  94.3%  ≥8192  75.9%  |  795.0 games/s
+  games   170,000  moves    749.4M  avg score   148181  max  361468  ≥2048  98.7%  ≥4096  95.6%  ≥8192  76.4%  |  772.4 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (170,000 games)
+  games   171,000  moves    754.9M  avg score   146770  max  377468  ≥2048  99.0%  ≥4096  94.7%  ≥8192  78.1%  |  779.9 games/s
+  games   172,000  moves    760.4M  avg score   148353  max  338932  ≥2048  98.7%  ≥4096  94.6%  ≥8192  76.2%  |  789.5 games/s
+  games   173,000  moves    765.9M  avg score   149879  max  342120  ≥2048  98.5%  ≥4096  94.4%  ≥8192  78.1%  |  739.9 games/s
+  games   174,000  moves    771.5M  avg score   147805  max  353456  ≥2048  98.9%  ≥4096  94.8%  ≥8192  75.3%  |  744.5 games/s
+  games   175,000  moves    776.8M  avg score   143292  max  365136  ≥2048  98.6%  ≥4096  94.2%  ≥8192  74.5%  |  782.1 games/s
+  games   176,000  moves    782.4M  avg score   150747  max  363036  ≥2048  98.9%  ≥4096  94.9%  ≥8192  78.9%  |  764.7 games/s
+  games   177,000  moves    787.9M  avg score   146307  max  334048  ≥2048  98.3%  ≥4096  95.9%  ≥8192  75.8%  |  791.7 games/s
+  games   178,000  moves    793.4M  avg score   146961  max  370164  ≥2048  98.8%  ≥4096  93.9%  ≥8192  75.3%  |  781.9 games/s
+  games   179,000  moves    799.0M  avg score   151018  max  358208  ≥2048  99.0%  ≥4096  94.3%  ≥8192  77.2%  |  739.0 games/s
+  games   180,000  moves    804.5M  avg score   147767  max  336760  ≥2048  98.1%  ≥4096  93.7%  ≥8192  77.6%  |  793.4 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (180,000 games)
+  games   181,000  moves    809.9M  avg score   145459  max  358208  ≥2048  97.9%  ≥4096  93.8%  ≥8192  73.4%  |  765.3 games/s
+  games   182,000  moves    815.4M  avg score   146259  max  354292  ≥2048  98.7%  ≥4096  94.0%  ≥8192  76.7%  |  747.9 games/s
+  games   183,000  moves    820.9M  avg score   148300  max  361640  ≥2048  98.7%  ≥4096  94.2%  ≥8192  76.5%  |  814.1 games/s
+  games   184,000  moves    826.5M  avg score   150132  max  361412  ≥2048  99.0%  ≥4096  96.1%  ≥8192  75.8%  |  755.2 games/s
+  games   185,000  moves    832.0M  avg score   148592  max  328256  ≥2048  98.5%  ≥4096  94.6%  ≥8192  76.0%  |  739.3 games/s
+  games   186,000  moves    837.6M  avg score   152654  max  358208  ≥2048  99.4%  ≥4096  95.8%  ≥8192  80.1%  |  745.5 games/s
+  games   187,000  moves    843.1M  avg score   145948  max  356432  ≥2048  98.8%  ≥4096  94.1%  ≥8192  76.6%  |  728.2 games/s
+  games   188,000  moves    848.7M  avg score   150896  max  359536  ≥2048  98.1%  ≥4096  93.6%  ≥8192  76.8%  |  746.0 games/s
+  games   189,000  moves    854.4M  avg score   152000  max  355816  ≥2048  98.9%  ≥4096  94.8%  ≥8192  78.9%  |  745.6 games/s
+  games   190,000  moves    860.0M  avg score   150996  max  374108  ≥2048  97.8%  ≥4096  94.7%  ≥8192  77.0%  |  765.7 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (190,000 games)
+  games   191,000  moves    865.5M  avg score   150450  max  381560  ≥2048  98.7%  ≥4096  96.1%  ≥8192  77.5%  |  748.3 games/s
+  games   192,000  moves    871.1M  avg score   151772  max  365128  ≥2048  98.7%  ≥4096  94.8%  ≥8192  78.5%  |  769.1 games/s
+  games   193,000  moves    876.8M  avg score   151855  max  341144  ≥2048  98.6%  ≥4096  95.4%  ≥8192  76.9%  |  738.4 games/s
+  games   194,000  moves    882.4M  avg score   153140  max  341736  ≥2048  98.9%  ≥4096  94.5%  ≥8192  80.1%  |  730.8 games/s
+  games   195,000  moves    888.0M  avg score   150791  max  366368  ≥2048  99.1%  ≥4096  96.3%  ≥8192  78.5%  |  739.3 games/s
+  games   196,000  moves    893.6M  avg score   152342  max  362300  ≥2048  98.4%  ≥4096  94.3%  ≥8192  77.0%  |  774.3 games/s
+  games   197,000  moves    899.2M  avg score   150229  max  360956  ≥2048  98.6%  ≥4096  95.5%  ≥8192  75.6%  |  772.5 games/s
+  games   198,000  moves    904.7M  avg score   151785  max  361528  ≥2048  97.9%  ≥4096  95.2%  ≥8192  79.0%  |  750.3 games/s
+  games   199,000  moves    910.3M  avg score   152258  max  366284  ≥2048  99.0%  ≥4096  95.8%  ≥8192  78.3%  |  786.5 games/s
+  games   200,000  moves    915.9M  avg score   153202  max  376932  ≥2048  98.9%  ≥4096  95.6%  ≥8192  79.0%  |  786.6 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (200,000 games)
+  games   201,000  moves    921.7M  avg score   155126  max  366852  ≥2048  98.6%  ≥4096  95.4%  ≥8192  80.7%  |  779.0 games/s
+  games   202,000  moves    927.4M  avg score   153979  max  382600  ≥2048  98.8%  ≥4096  95.6%  ≥8192  77.4%  |  766.2 games/s
+  games   203,000  moves    932.8M  avg score   146822  max  353384  ≥2048  97.7%  ≥4096  93.3%  ≥8192  74.9%  |  821.1 games/s
+  games   204,000  moves    938.6M  avg score   156161  max  366768  ≥2048  98.2%  ≥4096  95.1%  ≥8192  78.2%  |  687.3 games/s
+  games   205,000  moves    944.2M  avg score   151743  max  370324  ≥2048  99.0%  ≥4096  94.8%  ≥8192  78.8%  |  708.7 games/s
+  games   206,000  moves    949.8M  avg score   153801  max  349620  ≥2048  97.7%  ≥4096  95.3%  ≥8192  77.4%  |  745.2 games/s
+  games   207,000  moves    955.4M  avg score   151192  max  354288  ≥2048  98.5%  ≥4096  93.8%  ≥8192  76.4%  |  762.5 games/s
+  games   208,000  moves    961.0M  avg score   150312  max  367428  ≥2048  98.2%  ≥4096  93.6%  ≥8192  75.8%  |  761.9 games/s
+  games   209,000  moves    966.7M  avg score   153868  max  364644  ≥2048  98.5%  ≥4096  95.5%  ≥8192  78.6%  |  712.0 games/s
+  games   210,000  moves    972.5M  avg score   157603  max  368968  ≥2048  98.7%  ≥4096  96.1%  ≥8192  80.9%  |  769.8 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (210,000 games)
+  games   211,000  moves    978.1M  avg score   151096  max  363328  ≥2048  99.3%  ≥4096  95.4%  ≥8192  76.4%  |  748.4 games/s
+  games   212,000  moves    983.9M  avg score   154300  max  373916  ≥2048  99.0%  ≥4096  96.2%  ≥8192  79.3%  |  790.8 games/s
+  games   213,000  moves    989.5M  avg score   154355  max  341572  ≥2048  98.1%  ≥4096  94.3%  ≥8192  78.5%  |  764.0 games/s
+  games   214,000  moves    995.4M  avg score   158437  max  340540  ≥2048  98.8%  ≥4096  95.6%  ≥8192  79.9%  |  715.4 games/s
+  games   215,000  moves   1001.1M  avg score   153399  max  363820  ≥2048  99.0%  ≥4096  96.6%  ≥8192  79.0%  |  730.8 games/s
+  games   216,000  moves   1006.8M  avg score   154832  max  357880  ≥2048  98.5%  ≥4096  94.8%  ≥8192  79.9%  |  769.1 games/s
+  games   217,000  moves   1012.6M  avg score   157465  max  363896  ≥2048  99.0%  ≥4096  95.5%  ≥8192  79.2%  |  710.1 games/s
+  games   218,000  moves   1018.3M  avg score   156902  max  364252  ≥2048  99.6%  ≥4096  94.7%  ≥8192  79.4%  |  740.3 games/s
+  games   219,000  moves   1024.0M  avg score   151062  max  358328  ≥2048  97.4%  ≥4096  93.3%  ≥8192  76.8%  |  722.2 games/s
+  games   220,000  moves   1029.7M  avg score   156529  max  375796  ≥2048  98.0%  ≥4096  95.4%  ≥8192  78.1%  |  697.7 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (220,000 games)
+  games   221,000  moves   1035.5M  avg score   156316  max  375580  ≥2048  98.1%  ≥4096  94.4%  ≥8192  78.3%  |  733.1 games/s
+  games   222,000  moves   1041.2M  avg score   159646  max  352520  ≥2048  99.6%  ≥4096  96.5%  ≥8192  80.2%  |  724.9 games/s
+  games   223,000  moves   1047.1M  avg score   159910  max  382464  ≥2048  99.0%  ≥4096  96.4%  ≥8192  79.1%  |  716.9 games/s
+  games   224,000  moves   1052.8M  avg score   154775  max  360916  ≥2048  98.1%  ≥4096  95.8%  ≥8192  79.2%  |  755.9 games/s
+  games   225,000  moves   1058.6M  avg score   157727  max  372700  ≥2048  98.7%  ≥4096  94.7%  ≥8192  78.4%  |  723.4 games/s
+  games   226,000  moves   1064.5M  avg score   159992  max  364960  ≥2048  99.2%  ≥4096  96.5%  ≥8192  81.2%  |  707.1 games/s
+  games   227,000  moves   1070.3M  avg score   156973  max  365616  ≥2048  98.8%  ≥4096  95.5%  ≥8192  78.6%  |  730.1 games/s
+  games   228,000  moves   1076.2M  avg score   159273  max  356840  ≥2048  98.8%  ≥4096  95.3%  ≥8192  79.6%  |  733.8 games/s
+  games   229,000  moves   1082.0M  avg score   159684  max  369796  ≥2048  98.5%  ≥4096  95.8%  ≥8192  79.9%  |  711.3 games/s
+  games   230,000  moves   1087.6M  avg score   151422  max  358016  ≥2048  97.7%  ≥4096  94.3%  ≥8192  76.1%  |  737.4 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (230,000 games)
+  games   231,000  moves   1093.4M  avg score   158423  max  377504  ≥2048  99.0%  ≥4096  95.7%  ≥8192  79.2%  |  740.3 games/s
+  games   232,000  moves   1099.2M  avg score   157796  max  374336  ≥2048  98.7%  ≥4096  95.9%  ≥8192  79.9%  |  728.3 games/s
+  games   233,000  moves   1105.0M  avg score   154930  max  360052  ≥2048  98.9%  ≥4096  96.1%  ≥8192  77.7%  |  709.6 games/s
+  games   234,000  moves   1110.8M  avg score   156670  max  362740  ≥2048  98.5%  ≥4096  94.0%  ≥8192  77.2%  |  765.6 games/s
+  games   235,000  moves   1116.4M  avg score   154965  max  365468  ≥2048  98.7%  ≥4096  95.2%  ≥8192  78.6%  |  750.4 games/s
+  games   236,000  moves   1122.3M  avg score   157674  max  343112  ≥2048  98.4%  ≥4096  95.0%  ≥8192  80.1%  |  725.1 games/s
+  games   237,000  moves   1128.1M  avg score   157795  max  364784  ≥2048  99.0%  ≥4096  94.7%  ≥8192  80.5%  |  745.8 games/s
+  games   238,000  moves   1133.9M  avg score   159271  max  363220  ≥2048  98.4%  ≥4096  96.0%  ≥8192  80.8%  |  725.8 games/s
+  games   239,000  moves   1139.7M  avg score   156336  max  367092  ≥2048  98.7%  ≥4096  95.3%  ≥8192  77.8%  |  747.4 games/s
+  games   240,000  moves   1145.7M  avg score   163034  max  362388  ≥2048  98.8%  ≥4096  95.3%  ≥8192  81.7%  |  713.9 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (240,000 games)
+  games   241,000  moves   1151.6M  avg score   162477  max  367144  ≥2048  98.8%  ≥4096  95.6%  ≥8192  81.8%  |  712.0 games/s
+  games   242,000  moves   1157.6M  avg score   162906  max  374340  ≥2048  98.9%  ≥4096  96.0%  ≥8192  80.8%  |  703.2 games/s
+  games   243,000  moves   1163.5M  avg score   162653  max  365632  ≥2048  98.5%  ≥4096  95.0%  ≥8192  80.6%  |  694.4 games/s
+  games   244,000  moves   1169.5M  avg score   161011  max  377412  ≥2048  99.0%  ≥4096  96.4%  ≥8192  79.3%  |  707.5 games/s
+  games   245,000  moves   1175.5M  avg score   163655  max  372616  ≥2048  98.5%  ≥4096  96.4%  ≥8192  80.9%  |  679.1 games/s
+  games   246,000  moves   1181.4M  avg score   162118  max  368208  ≥2048  98.7%  ≥4096  95.3%  ≥8192  79.9%  |  692.5 games/s
+  games   247,000  moves   1187.5M  avg score   164990  max  377952  ≥2048  98.8%  ≥4096  94.7%  ≥8192  81.2%  |  719.1 games/s
+  games   248,000  moves   1193.4M  avg score   161438  max  375988  ≥2048  99.2%  ≥4096  96.1%  ≥8192  80.2%  |  738.3 games/s
+  games   249,000  moves   1199.4M  avg score   164004  max  366488  ≥2048  98.9%  ≥4096  95.2%  ≥8192  81.5%  |  710.1 games/s
+  games   250,000  moves   1205.3M  avg score   161830  max  363124  ≥2048  98.5%  ≥4096  95.4%  ≥8192  79.8%  |  743.4 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (250,000 games)
+  games   251,000  moves   1211.1M  avg score   159499  max  368156  ≥2048  98.4%  ≥4096  93.8%  ≥8192  78.3%  |  749.6 games/s
+  games   252,000  moves   1217.0M  avg score   160417  max  364928  ≥2048  99.0%  ≥4096  95.0%  ≥8192  80.0%  |  734.6 games/s
+  games   253,000  moves   1223.0M  avg score   163123  max  360496  ≥2048  98.8%  ≥4096  95.2%  ≥8192  81.6%  |  713.7 games/s
+  games   254,000  moves   1229.0M  avg score   162015  max  369572  ≥2048  98.5%  ≥4096  96.2%  ≥8192  79.3%  |  719.9 games/s
+  games   255,000  moves   1234.9M  avg score   161199  max  373220  ≥2048  98.8%  ≥4096  95.9%  ≥8192  80.8%  |  748.1 games/s
+  games   256,000  moves   1241.0M  avg score   164581  max  375968  ≥2048  99.0%  ≥4096  95.3%  ≥8192  80.7%  |  706.9 games/s
+  games   257,000  moves   1246.9M  avg score   162907  max  386292  ≥2048  98.9%  ≥4096  95.4%  ≥8192  80.1%  |  727.8 games/s
+  games   258,000  moves   1253.0M  avg score   167303  max  377264  ≥2048  98.4%  ≥4096  94.8%  ≥8192  82.0%  |  719.1 games/s
+  games   259,000  moves   1258.9M  avg score   161321  max  363048  ≥2048  98.4%  ≥4096  95.6%  ≥8192  81.3%  |  737.1 games/s
+  games   260,000  moves   1264.8M  avg score   165541  max  368736  ≥2048  98.7%  ≥4096  96.2%  ≥8192  81.4%  |  718.0 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (260,000 games)
+  games   261,000  moves   1270.8M  avg score   163391  max  358168  ≥2048  98.5%  ≥4096  96.2%  ≥8192  80.1%  |  695.2 games/s
+  games   262,000  moves   1276.7M  avg score   163468  max  365648  ≥2048  99.4%  ≥4096  96.8%  ≥8192  81.9%  |  703.4 games/s
+  games   263,000  moves   1282.6M  avg score   163002  max  380932  ≥2048  99.0%  ≥4096  95.9%  ≥8192  79.5%  |  697.5 games/s
+  games   264,000  moves   1288.7M  avg score   163854  max  366864  ≥2048  98.8%  ≥4096  95.7%  ≥8192  79.4%  |  637.9 games/s
+  games   265,000  moves   1294.7M  avg score   165870  max  368164  ≥2048  99.2%  ≥4096  96.9%  ≥8192  79.6%  |  714.5 games/s
+  games   266,000  moves   1300.7M  avg score   165740  max  367044  ≥2048  99.1%  ≥4096  96.4%  ≥8192  81.9%  |  712.2 games/s
+  games   267,000  moves   1306.7M  avg score   165037  max  361456  ≥2048  98.6%  ≥4096  95.7%  ≥8192  79.6%  |  708.5 games/s
+  games   268,000  moves   1312.8M  avg score   166866  max  376156  ≥2048  99.0%  ≥4096  96.2%  ≥8192  83.4%  |  740.7 games/s
+  games   269,000  moves   1319.0M  avg score   167987  max  382624  ≥2048  98.0%  ≥4096  96.0%  ≥8192  82.3%  |  713.9 games/s
+  games   270,000  moves   1325.1M  avg score   166868  max  414980  ≥2048  98.6%  ≥4096  96.6%  ≥8192  83.4%  |  711.9 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (270,000 games)
+  games   271,000  moves   1331.1M  avg score   162900  max  386528  ≥2048  98.1%  ≥4096  94.8%  ≥8192  80.3%  |  725.3 games/s
+  games   272,000  moves   1337.2M  avg score   166443  max  378032  ≥2048  98.1%  ≥4096  94.2%  ≥8192  79.2%  |  707.5 games/s
+  games   273,000  moves   1343.3M  avg score   168002  max  367928  ≥2048  98.1%  ≥4096  94.9%  ≥8192  82.3%  |  656.5 games/s
+  games   274,000  moves   1349.4M  avg score   166808  max  371892  ≥2048  98.5%  ≥4096  95.5%  ≥8192  82.1%  |  725.3 games/s
+  games   275,000  moves   1355.5M  avg score   166441  max  383100  ≥2048  98.8%  ≥4096  95.3%  ≥8192  81.5%  |  675.5 games/s
+  games   276,000  moves   1361.5M  avg score   167649  max  375464  ≥2048  98.5%  ≥4096  95.7%  ≥8192  82.1%  |  707.7 games/s
+  games   277,000  moves   1367.8M  avg score   171832  max  374112  ≥2048  98.7%  ≥4096  96.2%  ≥8192  83.2%  |  678.1 games/s
+  games   278,000  moves   1373.7M  avg score   164227  max  376548  ≥2048  98.7%  ≥4096  96.5%  ≥8192  81.9%  |  736.7 games/s
+  games   279,000  moves   1379.9M  avg score   170374  max  381656  ≥2048  98.6%  ≥4096  96.6%  ≥8192  84.1%  |  735.7 games/s
+  games   280,000  moves   1386.2M  avg score   172658  max  386556  ≥2048  98.3%  ≥4096  95.8%  ≥8192  82.3%  |  698.5 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (280,000 games)
+  games   281,000  moves   1392.3M  avg score   166788  max  365064  ≥2048  99.1%  ≥4096  96.1%  ≥8192  82.3%  |  682.0 games/s
+  games   282,000  moves   1398.4M  avg score   168531  max  384764  ≥2048  98.8%  ≥4096  95.3%  ≥8192  81.7%  |  683.7 games/s
+  games   283,000  moves   1404.5M  avg score   169699  max  367336  ≥2048  99.4%  ≥4096  97.2%  ≥8192  82.4%  |  727.4 games/s
+  games   284,000  moves   1410.5M  avg score   161163  max  372256  ≥2048  98.8%  ≥4096  95.4%  ≥8192  79.7%  |  679.5 games/s
+  games   285,000  moves   1416.7M  avg score   169021  max  379804  ≥2048  99.0%  ≥4096  95.9%  ≥8192  79.4%  |  695.1 games/s
+  games   286,000  moves   1422.8M  avg score   168387  max  366796  ≥2048  98.1%  ≥4096  95.1%  ≥8192  82.0%  |  583.1 games/s
+  games   287,000  moves   1428.8M  avg score   164378  max  375808  ≥2048  99.0%  ≥4096  96.4%  ≥8192  82.4%  |  672.4 games/s
+  games   288,000  moves   1434.8M  avg score   165358  max  376164  ≥2048  99.0%  ≥4096  96.8%  ≥8192  80.6%  |  665.3 games/s
+  games   289,000  moves   1440.9M  avg score   166636  max  380808  ≥2048  98.6%  ≥4096  94.0%  ≥8192  80.5%  |  649.7 games/s
+  games   290,000  moves   1447.0M  avg score   169933  max  381372  ≥2048  99.0%  ≥4096  96.0%  ≥8192  82.7%  |  687.6 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (290,000 games)
+  games   291,000  moves   1453.1M  avg score   168884  max  367084  ≥2048  99.2%  ≥4096  96.1%  ≥8192  83.5%  |  668.2 games/s
+  games   292,000  moves   1459.2M  avg score   170439  max  365636  ≥2048  98.6%  ≥4096  96.5%  ≥8192  81.9%  |  724.1 games/s
+  games   293,000  moves   1465.4M  avg score   171075  max  384788  ≥2048  98.7%  ≥4096  95.5%  ≥8192  82.0%  |  712.6 games/s
+  games   294,000  moves   1471.6M  avg score   169056  max  384784  ≥2048  99.0%  ≥4096  95.7%  ≥8192  82.6%  |  677.5 games/s
+  games   295,000  moves   1477.8M  avg score   172290  max  367204  ≥2048  99.3%  ≥4096  95.3%  ≥8192  83.1%  |  646.5 games/s
+  games   296,000  moves   1484.0M  avg score   168868  max  374192  ≥2048  99.0%  ≥4096  96.9%  ≥8192  81.3%  |  705.0 games/s
+  games   297,000  moves   1490.1M  avg score   168945  max  377740  ≥2048  98.4%  ≥4096  95.9%  ≥8192  82.6%  |  691.9 games/s
+  games   298,000  moves   1496.1M  avg score   168488  max  380560  ≥2048  99.1%  ≥4096  95.8%  ≥8192  80.8%  |  710.0 games/s
+  games   299,000  moves   1502.4M  avg score   173106  max  357640  ≥2048  98.1%  ≥4096  95.7%  ≥8192  83.9%  |  682.7 games/s
+  games   300,000  moves   1508.5M  avg score   168012  max  382596  ≥2048  98.7%  ≥4096  95.7%  ≥8192  80.3%  |  697.0 games/s
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/games_300000.npz (300,000 games)
+  saved checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz (300,000 games)
+
+Training complete
+{
+  "games_played": 300000,
+  "checkpoint_path": "checkpoints/ntuple/ingredients-4x6-late-starts-s3/latest.npz",
+  "interrupted": false
+}

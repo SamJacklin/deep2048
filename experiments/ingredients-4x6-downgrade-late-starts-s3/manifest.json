@@ -1,0 +1,66 @@
+{
+  "name": "ingredients-4x6-downgrade-late-starts-s3",
+  "sessions": [
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "ingredients-4x6-downgrade-late-starts-s3",
+        "--games",
+        "300000",
+        "--snapshot-at",
+        "300000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 3,
+        "NETWORK": "4x6",
+        "LEARNING_RATE": 0.08,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "LATE_START_FRACTION": 0.2,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "THREADS": 8,
+        "THREADS_AFTER": 10000,
+        "TRAINING_GAMES": 300000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 10000,
+        "SNAPSHOT_AT": [
+          300000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/ingredients-4x6-downgrade-late-starts-s3",
+        "OUTPUT_DIR": "experiments/ingredients-4x6-downgrade-late-starts-s3"
+      },
+      "resumed_from": null,
+      "environment": {
+        "git_commit": "6558b73a0c62216e4d310d8ee487bbfcb751d294",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-27.2-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-11T12:03:00.700304Z",
+      "started_with": {
+        "games_played": 0,
+        "moves_played": 0
+      },
+      "finished_at": "2026-11-11T12:10:43.114003Z",
+      "finished_with": {
+        "games_played": 300000,
+        "moves_played": 1596218435
+      },
+      "interrupted": false
+    }
+  ]
+}

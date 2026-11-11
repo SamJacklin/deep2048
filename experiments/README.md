@@ -37,6 +37,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | `sharing-4x6-*` (4 runs) | [Scale sharing](#scale-sharing): control, late-game starts (C), downgrading (A), downgrading + scale term (B) |
 | `threads-4x6-t8-*` (2 runs) | [Multi-threaded training](#multi-threaded-training): lock-free 8-thread training vs single-threaded |
 | `seed-4x6-tc0.08-*` (2 runs) | [Seed-to-seed variation](#seed-to-seed-variation): the screen's 4×6 at 0.08 configuration with seeds 7 and 123 |
+| `ingredients-4x6-*` (15 runs) | [Ingredient test across seeds](#ingredient-test-across-seeds): control, A, C, A + C and B′, seeds 1–3 |
 
 ## Learning at equal experience
 
@@ -240,16 +241,34 @@ Runs vary by about ±2% between seeds at 200k games (one standard deviation, 3.3
 - **Not conclusive:** late-game starts (C, +5.2k), 4×6 at 0.08 vs 0.04 (+3.6%), and the earlier single-run learning-rate comparisons where differences are within a few percent.
 - Effects of a few percent need several seeds per arm, which multi-threaded training now makes affordable.
 
-## Built, not yet run
+## Ingredient test across seeds
 
-### Scale term on downgraded boards only (B′)
+The single-seed scale-sharing test left late-game starts (C) inconclusive, and the [seed check](#seed-to-seed-variation) showed single runs vary by about ±2%. So each ingredient was retested with three seeds:
+- **The arms:** control, downgrading (A), late-game starts (C), both together (A + C), and B′.
+- **B′** is the scale term applied only to downgraded boards, a redesign of B intended to avoid its shared-bias problem.
+- **The setup:** the 4×6 at temporal coherence rate 0.08, trained from scratch to 300k games on 8 threads, with seeds 1–3, and evaluated on 1,000 seeded greedy games.
 
-The scale term from B, applied only to boards that were actually downgraded. Its job is to restore the scale information downgrading hides, so boards that weren't downgraded don't need it, and early training (before any 16384) never touches it. That avoids B's shared-bias problem. It needs `NTUPLE_DOWNGRADE_TILE` and `NTUPLE_SCALE_FEATURE=true` with `NTUPLE_SCALE_WHEN_DOWNGRADED=true`, and is compared with A (downgrading only) on the same 4×6 setup.
+| Arm | Seed 1 | Seed 2 | Seed 3 | Mean of seeds ± sd | vs control (paired by seed) | ≥16384 | Moves |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Control | 162,538 | 162,231 | 171,064 | 165,278 ± 5,013 | — | 20.6% | 1.67B |
+| A: downgrading | 170,248 | 158,596 | 179,014 | 169,286 ± 10,243 | +4,008 ± 6,621 | 19.8% | 1.67B |
+| C: late-game starts | 175,163 | 173,399 | 168,682 | 172,415 ± 3,351 | +7,137 ± 8,276 | 24.9% | 1.52B |
+| **A + C** | **186,413** | **186,809** | **187,498** | **186,906 ± 549** | **+21,629 ± 4,513** | **31.2%** | 1.59B |
+| B′: downgrading + scale term on downgraded boards | 151,519 | 175,887 | 180,914 | 169,440 ± 15,722 | +4,163 ± 13,284 | 20.4% | 1.69B |
+
+The ≥16384 and moves columns are averages over the three seeds.
+
+![Ingredient test, seed 2](figures/ingredients-seed2.png)
+
+- **A + C is a robust +13%.** All three seeds gain 16–25k, and the mean gain is about 8 standard errors from zero. It also raises the 16384 rate by half, uses fewer moves than the control, and is strikingly consistent: its seeds differ by 1.1k, against 9k for the control.
+- **The two ingredients are much stronger together than apart.** Alone, each gives a small gain that isn't consistent across seeds (A +4.0k, C +7.1k). Together they give +21.6k, about twice the sum. A likely mechanism: late-game starts supply the rare late-game experience, and downgrading lets it train weights shared across tile scales, so each synthetic game teaches every scale at once.
+- **B′ is erratic** (−11k, +14k, +10k). Restricting the scale term to downgraded boards removed B's early damage, but the few heavily shared scale weights still make late-game learning noisy. It's left out.
+- The earlier single-seed results fit this picture. A's +9.7k with seed 42 was at the high end of its range, and C's +5.2k was typical of it.
 
 ## Next experiments
 
 Open directions for improving the n-tuple agent further, roughly in order of expected payoff:
 
-0. **The long run:** the screen's best layout (8×6, rate 0.02 or higher) with downgrading (A), and possibly late-game starts (C), trained for 1–1.5M games, then evaluated greedily and with search against Yeh (160k greedy, 321k at 3-ply) and Jaśkowski (249k / 333k with TC only).
+0. **The long run:** the screen's best layout (8×6, rate 0.02) with downgrading and late-game starts (A + C), on 8 threads (`scripts/run_long_run.sh`), trained for 1–1.5M games, then evaluated greedily and with search against Yeh (160k greedy, 321k at 3-ply) and Jaśkowski (249k / 333k with TC only).
 1. **More training under temporal coherence, then search.** The 1.5M-game network reaches 16384 in 43% of depth-3 games against 2% for the 1M-game network, so late-game training looks like where the remaining gains are. Continue the 1.5M snapshot to 2-3M games, or train from scratch at base rate 0.01 for longer, then re-evaluate with search.
 2. **Depth-4 search on the 1.5M network.** It shows whether search returns keep growing beyond depth 3. A game takes about 70 seconds alone, so 200 games is about 30-50 minutes on 10 cores, and 1,000 games is 1-2 hours.
