@@ -37,6 +37,13 @@ class LateStarts(NamedTuple):
     harvest_exponent: int
 
 
+class LambdaReturn(NamedTuple):
+    """TD(λ) settings: each afterstate learns towards a blend of its 1- to horizon-step returns. A NamedTuple so numba can use it."""
+
+    lam: float
+    horizon: int
+
+
 class TrainingHistoryRow(BaseModel):
     """Progress after a batch. Scores and tile rates cover normal games only, since synthetic ones start mid-game."""
 

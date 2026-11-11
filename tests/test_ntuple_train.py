@@ -5,9 +5,9 @@ import pytest
 
 from deep_2048.agents.ntuple import NTupleAgent
 from deep_2048.agents.ntuple.config import NTupleSettings
-from deep_2048.agents.ntuple.models import GameResults, LateStarts
+from deep_2048.agents.ntuple.models import GameResults, LambdaReturn, LateStarts
 from deep_2048.agents.ntuple.network import NETWORKS, NTupleNetwork, load_traces
-from deep_2048.agents.ntuple.train import learning_rate_at, play_games, play_games_threaded, train
+from deep_2048.agents.ntuple.train import lambda_return, learning_rate_at, play_games, play_games_threaded, train
 from deep_2048.experiments import RunManifest, run_lock
 from deep_2048.game import bitboard as bb
 
@@ -230,6 +230,44 @@ def test_threads_work_with_scale_sharing_and_late_starts(tmp_path) -> None:
 def test_thread_count_must_be_available(tmp_path) -> None:
     settings = NTupleSettings(THREADS=10_000, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
     with pytest.raises(ValueError, match="THREADS must be between"):
+        train(total_games=10, settings=settings)
+
+
+def test_lambda_return_blends_n_step_returns() -> None:
+    # Ring of 4 with the oldest afterstate at 0: rewards and values for the three steps after it
+    rewards = np.array([0.0, 4.0, 8.0, 16.0])
+    values = np.array([0.0, 100.0, 200.0, 300.0])
+    one, two, three = 4 + 100, 4 + 8 + 200, 4 + 8 + 16 + 300
+    assert lambda_return(rewards, values, 0, 3, False, 0.5, 3) == 0.5 * one + 0.25 * two + 0.25 * three
+
+    # The game ended after two steps, so the longer returns are just the rewards collected
+    assert lambda_return(rewards, values, 0, 2, True, 0.5, 3) == 0.5 * one + 0.25 * (4 + 8) + 0.25 * (4 + 8)
+    assert lambda_return(rewards, values, 0, 0, True, 0.5, 3) == 0.0
+
+
+def test_lambda_with_horizon_one_is_exactly_td_zero() -> None:
+    results = []
+    for td_lambda in (None, LambdaReturn(0.7, 1)):
+        network = NTupleNetwork(tuples=SMALL_TUPLES)
+        bb.seed(3)
+        played = play_games(300, network.weights, None, network.layout, 0.01, True, None, td_lambda)
+        results.append((played.scores.copy(), network.weights.copy()))
+    np.testing.assert_array_equal(results[0][0], results[1][0])
+    np.testing.assert_array_equal(results[0][1], results[1][1])
+
+
+def test_td_lambda_learning_improves_play() -> None:
+    network = NTupleNetwork(tuples=SMALL_TUPLES)
+    before = play(network, 200, learn=False, seed=0)
+    bb.seed(1)
+    play_games(2_000, network.weights, None, network.layout, 0.01, True, None, LambdaReturn(0.5, 3))
+    after = play(network, 200, learn=False, seed=0)
+    assert after.scores.mean() > 1.5 * before.scores.mean()
+
+
+def test_lambda_settings_are_checked(tmp_path) -> None:
+    settings = NTupleSettings(LAMBDA=1.5, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
+    with pytest.raises(ValueError, match="LAMBDA must be between 0 and 1"):
         train(total_games=10, settings=settings)
 
 
