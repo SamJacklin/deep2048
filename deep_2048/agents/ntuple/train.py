@@ -11,6 +11,10 @@ The learning rate is constant by default. It can instead decay over the session
 A share of games can start from synthetic late-game positions (LATE_START_FRACTION), made by
 doubling the tiles above a gap in positions from normal play, which keeps the game's dynamics.
 
+With LAMBDA > 0, learning is delayed TD(λ) as in Jaśkowski (2018): each afterstate is updated
+LAMBDA_HORIZON moves after it was played, towards a blend of its 1- to LAMBDA_HORIZON-step returns
+built from the rewards and the values computed when those moves were chosen.
+
 With THREADS > 1, a batch's games are shared across threads that update the shared weights without
 locks, as in Jaśkowski (2018). Updates are sparse, so threads rarely touch the same weight at once, but runs are
 no longer bit-reproducible. The first THREADS_AFTER games stay single-threaded, because a fresh
@@ -27,7 +31,7 @@ import numpy as np
 from numba import njit
 
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
-from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, LateStarts, TrainingHistoryRow, TrainingSummary
+from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, LambdaReturn, LateStarts, TrainingHistoryRow, TrainingSummary
 from deep_2048.agents.ntuple.network import NETWORKS, CoherenceTraces, NTupleNetwork, TupleLayout, evaluate, load_traces, network_name, update, update_coherent
 from deep_2048.experiments import Environment, RunManifest, TrainingSession, command_line, now, run_lock
 from deep_2048.game import bitboard as bb
@@ -103,6 +107,81 @@ def play_game(
             harvested = board
 
 
+@njit(inline="always")
+def lambda_return(rewards: np.ndarray, values: np.ndarray, oldest: int, after: int, ended: bool, lam: float, horizon: int) -> float:
+    """Return the truncated λ-return for the afterstate at ring position `oldest`.
+
+    `after` steps follow it in the ring (rewards and afterstate values at those positions). If the
+    game has ended, every return longer than those steps is just the rewards collected, since
+    nothing more can be scored.
+    """
+    size = rewards.size
+    target = 0.0
+    collected = 0.0
+    for n in range(1, horizon + 1):
+        if n <= after:
+            i = (oldest + n) % size
+            collected += rewards[i]
+            n_step = collected if ended and n == after else collected + values[i]
+        else:
+            n_step = collected
+        weight = (1.0 - lam) * lam ** (n - 1) if n < horizon else lam ** (horizon - 1)
+        target += weight * n_step
+    return target
+
+
+@njit
+def play_game_lambda(
+    weights: np.ndarray,
+    traces: CoherenceTraces | None,
+    layout: TupleLayout,
+    learning_rate: float,
+    learn: bool,
+    start: np.uint64,
+    harvest_exponent: int,
+    td_lambda: LambdaReturn,
+) -> tuple[int, int, int, np.uint64]:
+    """As play_game, but each afterstate learns `horizon` moves later towards its truncated λ-return."""
+    horizon = td_lambda.horizon
+    size = horizon + 1
+    afterstates = np.zeros(size, np.uint64)
+    rewards = np.zeros(size)
+    values = np.zeros(size)
+    oldest = 0
+    pending = 0
+    board = bb.initial_board() if start == np.uint64(0) else start
+    harvested = np.uint64(0)
+    harvest_reward = 1 << harvest_exponent if harvest_exponent > 0 else 0
+    score = 0
+    moves = 0
+
+    while True:
+        best_afterstate, best_reward, best_value = _best_move(weights, layout, board)
+        if best_value == -np.inf:
+            while learn and pending > 0:
+                target = lambda_return(rewards, values, oldest, pending - 1, True, td_lambda.lam, horizon)
+                _learn(weights, traces, layout, afterstates[oldest], target, learning_rate)
+                oldest = (oldest + 1) % size
+                pending -= 1
+            return score, bb.max_exponent(board), moves, harvested
+
+        newest = (oldest + pending) % size
+        afterstates[newest], rewards[newest], values[newest] = best_afterstate, best_reward, best_value - best_reward
+        pending += 1
+        if pending == size:
+            if learn:
+                target = lambda_return(rewards, values, oldest, horizon, False, td_lambda.lam, horizon)
+                _learn(weights, traces, layout, afterstates[oldest], target, learning_rate)
+            oldest = (oldest + 1) % size
+            pending -= 1
+
+        score += best_reward
+        moves += 1
+        board = bb.spawn_tile(best_afterstate)
+        if harvest_reward > 0 and harvested == np.uint64(0) and best_reward >= harvest_reward and bb.max_exponent(board) >= harvest_exponent:
+            harvested = board
+
+
 @njit(nogil=True)
 def play_games(
     n: int,
@@ -112,8 +191,9 @@ def play_games(
     learning_rate: float,
     learn: bool,
     late_starts: LateStarts | None = None,
+    td_lambda: LambdaReturn | None = None,
 ) -> GameResults:
-    """Play n games, starting a share of them from `late_starts` if given.
+    """Play n games, starting a share of them from `late_starts` if given, and learning by TD(λ) if `td_lambda` is.
 
     Releases the GIL, so several threads can run it at once on the same weights.
     """
@@ -132,7 +212,11 @@ def play_games(
                 # Synthetic games don't donate positions, so starts aren't upgraded again and again
                 harvest_exponent = 0
                 synthetic[i] = True
-        scores[i], max_exponents[i], moves[i], harvested[i] = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent)
+        if td_lambda is None:
+            game = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent)
+        else:
+            game = play_game_lambda(weights, traces, layout, learning_rate, learn, start, harvest_exponent, td_lambda)
+        scores[i], max_exponents[i], moves[i], harvested[i] = game
     return GameResults(scores, max_exponents, moves, synthetic, harvested)
 
 
@@ -145,12 +229,13 @@ def play_games_threaded(
     learn: bool,
     late_starts: LateStarts | None,
     threads: int,
+    td_lambda: LambdaReturn | None = None,
 ) -> GameResults:
     """Play n games split across `threads` threads, which update the shared weights without locks."""
     # Game lengths vary a lot, so small shares handed out as threads free up keep every thread busy
     shares = [len(games) for games in np.array_split(np.arange(n), 8 * threads)]
     with ThreadPoolExecutor(max_workers=threads) as pool:
-        parts = list(pool.map(lambda share: play_games(share, weights, traces, layout, learning_rate, learn, late_starts), shares))
+        parts = list(pool.map(lambda share: play_games(share, weights, traces, layout, learning_rate, learn, late_starts, td_lambda), shares))
     return GameResults(*(np.concatenate(field) for field in zip(*parts)))
 
 
@@ -213,13 +298,16 @@ def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at:
     bb.seed(settings.SEED + progress.games_played)
     schedule = f" decaying to {settings.LEARNING_RATE_END}" if settings.LEARNING_RATE_END is not None else ""
     coherence = ", temporal coherence" if settings.TEMPORAL_COHERENCE else ""
+    if settings.LAMBDA > 0:
+        coherence += f", TD(λ={settings.LAMBDA}) over {settings.LAMBDA_HORIZON} moves"
     threads = f", {settings.THREADS} threads after {settings.THREADS_AFTER:,} games" if settings.THREADS > 1 else ""
     print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}{schedule}{coherence}{threads}")
     late_starts = _late_starts(settings)
+    td_lambda = _td_lambda(settings)
     if not 1 <= settings.THREADS <= (os.cpu_count() or 1):
         raise ValueError(f"THREADS must be between 1 and {os.cpu_count()}, not {settings.THREADS}")
     # Compile before timing starts, otherwise the first batch's games/s includes compilation
-    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts)
+    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts, td_lambda)
 
     interrupted = False
     try:
@@ -232,9 +320,9 @@ def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at:
             threaded = settings.THREADS > 1 and progress.games_played >= settings.THREADS_AFTER
             started = time.monotonic()
             if threaded:
-                results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS)
+                results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS, td_lambda)
             else:
-                results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts)
+                results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, td_lambda)
             if late_starts is not None:
                 late_starts = late_starts._replace(pool=_grow_pool(late_starts.pool, results, settings.LATE_START_POOL))
             progress.games_played += batch
@@ -298,6 +386,13 @@ def learning_rate_at(settings: NTupleSettings, start_games: int, total_games: in
         return settings.LEARNING_RATE
     progress = (games_played - start_games) / (total_games - start_games)
     return settings.LEARNING_RATE * (settings.LEARNING_RATE_END / settings.LEARNING_RATE) ** progress
+
+
+def _td_lambda(settings: NTupleSettings) -> LambdaReturn | None:
+    """Return the TD(λ) settings, or None for plain TD(0)."""
+    if not 0 <= settings.LAMBDA <= 1 or settings.LAMBDA_HORIZON < 1:
+        raise ValueError(f"LAMBDA must be between 0 and 1 and LAMBDA_HORIZON at least 1, not {settings.LAMBDA} and {settings.LAMBDA_HORIZON}")
+    return LambdaReturn(settings.LAMBDA, settings.LAMBDA_HORIZON) if settings.LAMBDA > 0 else None
 
 
 def _late_starts(settings: NTupleSettings) -> LateStarts | None:
