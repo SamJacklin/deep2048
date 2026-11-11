@@ -33,6 +33,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | [`ntuple-tc-1m-lr0.01`](ntuple-tc-1m-lr0.01/NOTES.md) | Temporal coherence from scratch to 1M games, base rate 0.01 |
 | `screen-*` (9 runs) | [Network screen](#network-screen): layout × temporal coherence rate, from scratch to 200k games |
 | `sharing-4x6-*` (4 runs) | [Scale sharing](#scale-sharing): control, late-game starts (C), downgrading (A), downgrading + scale term (B) |
+| `threads-4x6-t8-*` (2 runs) | [Multi-threaded training](#multi-threaded-training): lock-free 8-thread training vs single-threaded |
 
 ## Learning at equal experience
 
@@ -187,22 +188,39 @@ make watch-ntuple ARGS="--run sharing-4x6-control sharing-4x6-late-starts sharin
 
 The runs need about 1 GB of RAM each and about 13 GB of disk for checkpoints (`checkpoints/` is gitignored).
 
+## Multi-threaded training
+
+`NTUPLE_THREADS=n` plays games on n threads that update the shared weights without locks, as in Jaśkowski (2018). The first `NTUPLE_THREADS_AFTER` games (default 10,000) stay single-threaded, since a fresh network collides often. Threaded runs aren't bit-reproducible.
+
+**Speed.** Measured from a 200k-game snapshot of the 4×6 network with temporal coherence:
+
+| Threads | 1 | 2 | 4 | 8 |
+|---|---:|---:|---:|---:|
+| Moves/s | 1.06M | 2.17M | 3.86M | 5.04M |
+| Speed-up | 1× | 2.0× | 3.6× | 4.8× |
+
+Scaling is near-linear up to the M4's 4 performance cores, and threads beyond that land on efficiency cores. Each 200k-game threaded run took about 3.5 minutes.
+
+**Quality.** Two 8-thread runs, A and B, of the 4×6 at rate 0.08 to 200k games, against the single-threaded [`screen-4x6-tc0.08`](screen-4x6-tc0.08/NOTES.md). 1,000 seeded greedy games each. The difference is paired per game on the same seeds:
+
+| Run | 100k games | 200k games | ≥16384 at 200k | vs single-threaded at 200k |
+|---|---:|---:|---:|---:|
+| Single-threaded | 132,332 ± 3,317 | 154,758 ± 4,066 | 14.9% | — |
+| [8 threads, A](threads-4x6-t8-a/NOTES.md) | 134,380 ± 3,376 | 154,931 ± 3,847 | 13.4% | +172 ± 5,649 |
+| [8 threads, B](threads-4x6-t8-b/NOTES.md) | 131,040 ± 3,450 | 146,648 ± 3,594 | 8.9% | −8,110 ± 5,328 |
+
+![Threaded vs single-threaded training](figures/threads.png)
+
+- Run A matches single-threaded training. Run B is about 5% lower at 200k, beyond evaluation noise.
+- A and B differ only by chance, in the order threads touched the weights and in each thread's random games, yet they differ from each other by as much as B does from the single-threaded run. So B's deficit may be ordinary run-to-run variation rather than a cost of threading.
+- That can't be decided yet: run-to-run variation of single-threaded training (different seeds) hasn't been measured. Every comparison in this archive uses seed 42. **Open:** train the same configuration single-threaded with two more seeds. If they spread as widely as A and B, threading costs nothing measurable. If they cluster, threading adds variance.
+- Possible mechanisms for a real cost: lost updates when two threads write the same weight at once (mostly the most common early-game patterns), and slightly stale weights while a game is played.
+
 ## Built, not yet run
 
 ### Scale term on downgraded boards only (B′)
 
 The scale term from B, applied only to boards that were actually downgraded. Its job is to restore the scale information downgrading hides, so boards that weren't downgraded don't need it, and early training (before any 16384) never touches it. That avoids B's shared-bias problem. It needs `NTUPLE_DOWNGRADE_TILE` and `NTUPLE_SCALE_FEATURE=true` with `NTUPLE_SCALE_WHEN_DOWNGRADED=true`, and is compared with A (downgrading only) on the same 4×6 setup.
-
-### Multi-threaded training check
-
-`NTUPLE_THREADS=n` plays games on n threads that update the shared weights without locks (Jaśkowski 2018). The first `NTUPLE_THREADS_AFTER` games (default 10,000) stay single-threaded, since a fresh network collides often. Threaded runs aren't bit-reproducible. A smoke test reached 5.25M moves/s on 8 threads against 1.06M on one, early in training.
-
-`scripts/run_thread_check.sh` trains the 4×6 at rate 0.08 to 200k games twice on 8 threads. It compares them with the single-threaded `screen-4x6-tc0.08` run (154,758 ± 4,066 at 200k) and with each other, measures moves per second at 1, 2, 4 and 8 threads from the 200k snapshot, and evaluates both runs.
-
-```bash
-scripts/run_thread_check.sh                                                     # about 30–45 minutes
-GAMES=6000 EVAL_GAMES=20 SPEED_GAMES=500 NTUPLE_THREADS_AFTER=1000 scripts/run_thread_check.sh   # smoke test, under a minute
-```
 
 ## Next experiments
 
