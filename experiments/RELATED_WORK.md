@@ -16,10 +16,11 @@ Published 2048 agents, for placing this project's results. All use the standard 
 | nneonneo/xificurk: hand-tuned heuristic expectimax, adaptive depth 4–8 | | | mean 432,557 | none | 2,000 games (Yeh's rerun) |
 | Stochastic MuZero, Antonoglou et al. 2022 | | | ≈510,000 *second-hand* | about 10¹¹ states | |
 
-**Where this project stands** (1,000 games each): 128,208 greedy and 202,291 at 3-ply, after 1.5M games (about 6×10⁹ moves) on one CPU core.
-- **Greedy:** above Szubert & Jaśkowski on the same network design, and below every larger-network result.
-- **3-ply:** about 35–40% of the state of the art.
-- **The weakness is the late game:** the 8192 rate at 3-ply matches the field (99%), but 16384 is reached in only 43% of games, against 91% for Yeh's plain TD.
+**Where this project stands** (1,000 games each): 299,894 greedy and 365,404 at 3-ply, from the [long run](README.md#the-long-run). It's an 8×6 network trained for 1.5M games (1.4×10¹⁰ moves) in 2 hours on 8 threads.
+- **Greedy:** above every result here except Jaśkowski's full method (92% of it) and Guei's (73%).
+- **3-ply:** above Yeh and Jaśkowski's TC-only network, and 65% of the state of the art.
+- **Sample efficiency:** at 1M games (8.8×10⁹ moves) it scores 285k greedy, where Guei reports n-tuple networks under 240k after 10¹⁰ moves, and Jaśkowski's TC-only network scores 249k.
+- **The weakness is now 32768.** At 3-ply, 16384 is reached in 91% of games, level with Yeh, but 32768 in only 8.5%.
 
 ## Guei et al.: what the state of the art leaves open
 
