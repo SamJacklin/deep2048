@@ -7,7 +7,7 @@ from deep_2048.agents.ntuple import NTupleAgent
 from deep_2048.agents.ntuple.config import NTupleSettings
 from deep_2048.agents.ntuple.models import GameResults, LambdaReturn, LateStarts
 from deep_2048.agents.ntuple.network import NETWORKS, NTupleNetwork, load_traces
-from deep_2048.agents.ntuple.train import lambda_return, learning_rate_at, play_games, play_games_threaded, train
+from deep_2048.agents.ntuple.train import lambda_at, lambda_return, learning_rate_at, play_games, play_games_threaded, train
 from deep_2048.experiments import RunManifest, run_lock
 from deep_2048.game import bitboard as bb
 
@@ -265,9 +265,15 @@ def test_td_lambda_learning_improves_play() -> None:
     assert after.scores.mean() > 1.5 * before.scores.mean()
 
 
+def test_lambda_moves_linearly_over_the_session() -> None:
+    settings = NTupleSettings(LAMBDA=0.8, LAMBDA_END=0.0)
+    assert [lambda_at(settings, 100, 300, games) for games in (100, 200, 300)] == pytest.approx([0.8, 0.4, 0.0])
+    assert lambda_at(NTupleSettings(LAMBDA=0.5), 100, 300, 200) == 0.5
+
+
 def test_lambda_settings_are_checked(tmp_path) -> None:
     settings = NTupleSettings(LAMBDA=1.5, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
-    with pytest.raises(ValueError, match="LAMBDA must be between 0 and 1"):
+    with pytest.raises(ValueError, match="must be between 0 and 1"):
         train(total_games=10, settings=settings)
 
 

@@ -299,7 +299,8 @@ def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at:
     schedule = f" decaying to {settings.LEARNING_RATE_END}" if settings.LEARNING_RATE_END is not None else ""
     coherence = ", temporal coherence" if settings.TEMPORAL_COHERENCE else ""
     if settings.LAMBDA > 0:
-        coherence += f", TD(λ={settings.LAMBDA}) over {settings.LAMBDA_HORIZON} moves"
+        schedule_end = f" to {settings.LAMBDA_END}" if settings.LAMBDA_END is not None else ""
+        coherence += f", TD(λ={settings.LAMBDA}{schedule_end}) over {settings.LAMBDA_HORIZON} moves"
     threads = f", {settings.THREADS} threads after {settings.THREADS_AFTER:,} games" if settings.THREADS > 1 else ""
     print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}{schedule}{coherence}{threads}")
     late_starts = _late_starts(settings)
@@ -317,6 +318,8 @@ def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at:
                 stops.append(settings.THREADS_AFTER)
             batch = min(settings.LOG_EVERY, min(stops) - progress.games_played)
             progress.learning_rate = learning_rate_at(settings, start_games, total_games, progress.games_played)
+            if td_lambda is not None:
+                td_lambda = td_lambda._replace(lam=lambda_at(settings, start_games, total_games, progress.games_played))
             threaded = settings.THREADS > 1 and progress.games_played >= settings.THREADS_AFTER
             started = time.monotonic()
             if threaded:
@@ -390,9 +393,18 @@ def learning_rate_at(settings: NTupleSettings, start_games: int, total_games: in
 
 def _td_lambda(settings: NTupleSettings) -> LambdaReturn | None:
     """Return the TD(λ) settings, or None for plain TD(0)."""
-    if not 0 <= settings.LAMBDA <= 1 or settings.LAMBDA_HORIZON < 1:
-        raise ValueError(f"LAMBDA must be between 0 and 1 and LAMBDA_HORIZON at least 1, not {settings.LAMBDA} and {settings.LAMBDA_HORIZON}")
+    lambdas = [settings.LAMBDA] if settings.LAMBDA_END is None else [settings.LAMBDA, settings.LAMBDA_END]
+    if not all(0 <= lam <= 1 for lam in lambdas) or settings.LAMBDA_HORIZON < 1:
+        raise ValueError(f"LAMBDA and LAMBDA_END must be between 0 and 1 and LAMBDA_HORIZON at least 1, not {lambdas} and {settings.LAMBDA_HORIZON}")
     return LambdaReturn(settings.LAMBDA, settings.LAMBDA_HORIZON) if settings.LAMBDA > 0 else None
+
+
+def lambda_at(settings: NTupleSettings, start_games: int, total_games: int, games_played: int) -> float:
+    """Return λ for the next batch, moving linearly from LAMBDA to LAMBDA_END over the session if it's set."""
+    if settings.LAMBDA_END is None or total_games <= start_games:
+        return settings.LAMBDA
+    progress = (games_played - start_games) / (total_games - start_games)
+    return settings.LAMBDA + (settings.LAMBDA_END - settings.LAMBDA) * progress
 
 
 def _late_starts(settings: NTupleSettings) -> LateStarts | None:
