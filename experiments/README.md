@@ -11,6 +11,8 @@ One folder per run, committed so every result can be traced to the code and sett
 
 Checkpoints aren't committed. Training is deterministic, so the commit and command rebuild them exactly.
 
+Thematic notes for the write-up: [related work](RELATED_WORK.md) and [learning rules: TD, temporal coherence and TD(λ)](learning-rules.md).
+
 ```bash
 make train-ntuple RUN=my-run ARGS="--games 100000"     # records to experiments/my-run
 make watch-ntuple RUN=my-run                           # live chart of that run
