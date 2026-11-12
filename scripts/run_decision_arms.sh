@@ -111,7 +111,7 @@ def evaluations(run: str) -> list[dict]:
 control = evaluations(reference)
 runs = dict.fromkeys([reference, *(f"{prefix}-{arm}" for arm in arms)])
 print(f"\nReference: {reference}")
-print(f"\n{'Run':<28}{'Evaluation':<34}{'Score':>10}{'vs reference':>20}{'≥32768':>9}")
+print(f"\n{'Run':<34}{'Evaluation':<34}{'Score':>10}{'vs reference':>20}{'≥32768':>9}")
 for run in runs:
     for record, baseline in zip(evaluations(run), control):
         scores, tiles = np.array(record["result"]["scores"]), np.array(record["result"]["max_tiles"])
@@ -120,5 +120,5 @@ for run in runs:
         label = record["key"]["label"]
         what = label[label.index("(") + 1 : label.index(" games")] + " games" + (" + depth 3" if "depth=3" in label else ", greedy")
         paired = f"{difference.mean():+,.0f} ± {interval:,.0f}" if run != reference else "—"
-        print(f"{run:<28}{what:<34}{scores.mean():>10,.0f}{paired:>20}{(tiles >= 32768).mean() * 100:>8.1f}%")
+        print(f"{run:<34}{what:<34}{scores.mean():>10,.0f}{paired:>20}{(tiles >= 32768).mean() * 100:>8.1f}%")
 EOF
