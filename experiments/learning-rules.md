@@ -23,7 +23,7 @@ Averages are greedy over 1,000 games, except Jaśkowski's, which are his own eva
 
 - **At the budgets tested here, TC wins every time.** It learns fast while weights are badly wrong, and settles them once their errors stop agreeing, which a single constant rate can't do. A constant rate is either too slow early or too noisy late.
 - **TC does slow learning in the middle of training at a careful base rate.** From scratch at 0.0025 it trailed the constant rate from about 50k to 900k games (32,300 vs 53,748 at 100k; 84,955 vs 102,693 at 500k), then overtook. With a 4× higher base rate it led throughout. TC works best as a brake on an aggressive rate.
-- **TC lets the rate be much higher.** In the network screen, every doubling of the TC base rate helped up to 0.04–0.08 on the 4×6, which is 16–32× the constant rate used by Szubert & Jaśkowski and Yeh et al.
+- **TC lets the rate be much higher.** In the network screen, every doubling of the TC base rate helped up to 0.04–0.08 on the 4×6, which is 16–32× the constant rate used by Szubert & Jaśkowski and Yeh et al. At 0.08, a weight that hasn't yet been slowed down by TC can move a value by up to 2.56× its error, well past the full correction Jaśkowski (2018) treats as the maximum sensible rate. TC's quick braking is what makes that work.
 
 ## Evidence: TD(λ) with TC
 
@@ -32,7 +32,7 @@ The full results are in [TD(λ) across seeds](README.md#tdλ-across-seeds). The 
 | Target | Mean of seeds | vs TD(0), paired by seed |
 |---|---:|---:|
 | TD(0) | 186,906 | — |
-| λ = 0.5, horizon 3 (Jaśkowski's setting) | 155,724 | −31,182 ± 1,105 |
+| λ = 0.5, horizon 3 (close to Jaśkowski's setting, which is horizon 4 here) | 155,724 | −31,182 ± 1,105 |
 | λ = 0.75, horizon 6 | 126,074 | −60,832 ± 2,247 |
 | λ = 0.75 → 0 over the session, horizon 6 | 155,061 | −31,845 ± 2,855 |
 
@@ -42,6 +42,16 @@ The full results are in [TD(λ) across seeds](README.md#tdλ-across-seeds). The 
   - At base rate 0.08 the noise goes straight into the weights.
   - Noisier errors cancel more, so TC shrinks each weight's rate sooner.
 - **The damage outlasts λ.** Annealing λ to 0 left the run learning about half as fast as TD(0) over the last 100k games, when λ was already below 0.25. TC's error sums accumulate over the whole run, so a noisy phase can leave the rates permanently low.
+
+### Why this differs from Jaśkowski
+
+- **There's no published evidence that λ helps alongside TC.** Jaśkowski fixed λ = 0.5 throughout. He says it came from "informal preliminary experiments", in which "λ = 0.5, h = 3 work the best", and reports no numbers or settings for them. This test may be the first published direct comparison of λ with TC.
+- **His horizon is one step longer.** His delayed update sums the h + 1 errors δ_t … δ_{t+h}, so his h = 3 is horizon 4 in this project's terms. The longer horizon did worse here, so his exact setting would probably do no better.
+- **The rate is the likeliest explanation.** He divides the rate by the number of n-tuples, and calls 1.0 "the maximum sensible value, since for s′_t, it immediately reduces the prediction error δ_t to zero". That holds only if the division counts every weight read, including the 8 symmetric copies.
+  - On the 4×6 his maximum is therefore 1/32 ≈ 0.031 per weight.
+  - This project's 0.08 is about 2.5× that: before TC slows it, one update can move a value by up to 2.56× its error.
+  - Overshooting is tolerable with a one-step target, and TD(0) at 0.08 is this project's best 4×6 recipe. It amplifies the extra noise of a multi-step target.
+- **The training budget is a weaker explanation.** He trained for 10¹⁰ moves, about 6× this test. But the gap here widened from −4k at 100k games to −31k at 300k, so a longer run would more likely widen it further.
 
 ## Over very long training
 
@@ -60,12 +70,7 @@ Guei (2022) trained for 100M games per network, with optimistic initialisation (
 
 1. **Does TC stall over long training here?** This project's TC runs were still improving at 1.5M games. The [long run](README.md#the-long-run) (1.5M games on the 8×6) doesn't stall either: its greedy score gained +14.7k ± 10.7k from 1M to 1.5M games, close to the +17.5k from 500k to 1M. Guei's stall came after tens of millions of games, so periodic TC resets are still worth testing before a run that long.
 2. **Constant rate, then TC:** worth testing only for much longer training (tens of millions of games), where Guei found it best on the 8×6.
-3. **When can TD(λ) help?** At base rate 0.08 it only helps for the first ~70k games. Three cheap tests would show whether its early gain can be kept:
-   - λ for the early phase only, then TD(0).
-   - TD(λ) at lower base rates (0.02–0.04), where the extra noise should matter less.
-   - Resetting the TC sums when λ is switched off.
-
-   Jaśkowski's λ = 0.5 was chosen for 10¹⁰ moves of training, so it may also pay off only over much longer runs.
+3. **Does TD(λ) help at lower rates?** At base rate 0.08 it only helps for the first ~70k games, so it's dropped from the [final training run](README.md#final-training-run). Using λ only early isn't worth testing for that run, since the head start is minutes of a multi-day run. TD(λ) against TD(0) at base rates 0.02–0.04 would test the rate explanation above, but it's a low priority.
 4. **How TC interacts with the scale-sharing ingredients.** All the ingredient tests used TC. Late-game starts in particular change which weights see coherent errors.
 
 ## Sources
