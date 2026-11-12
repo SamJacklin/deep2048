@@ -4,8 +4,10 @@ import pytest
 from deep_2048.agents import load_agent
 from deep_2048.agents.ntuple import NTupleAgent, NTupleNetwork
 from deep_2048.agents.ntuple.models import CheckpointMetadata
+from deep_2048.agents.ntuple.search import has_two_top_tiles
 from deep_2048.agents.ntuple.train import play_games
 from deep_2048.bench import run_games
+from deep_2048.bench.runner import play_on_engine
 from deep_2048.game import bitboard as bb
 from deep_2048.game.game import Game2048
 from deep_2048.game.moves import apply_move
@@ -48,6 +50,22 @@ def test_picks_best_reward_plus_afterstate_value(checkpoint: str) -> None:
             assert all(np.isclose(decision.scores[name], value) for name, value in expected.items())
             assert decision.scores[decision.action.name] == max(decision.scores.values())
             game.step(decision.action)
+
+
+@pytest.mark.parametrize("depth", [1, 2])
+def test_numba_games_match_the_python_engine(checkpoint: str, depth: int) -> None:
+    agent = NTupleAgent(checkpoint, depth=depth)
+    for seed in range(10):
+        assert agent.play(seed) == play_on_engine(agent, seed)
+
+
+def test_detects_two_top_tiles() -> None:
+    one = np.zeros((4, 4), dtype=np.int32)
+    one[0, 0] = 32768
+    two = one.copy()
+    two[3, 3] = 32768
+    assert not has_two_top_tiles(bb.from_array(one))
+    assert has_two_top_tiles(bb.from_array(two))
 
 
 def test_seeded_games_are_reproducible(checkpoint: str) -> None:

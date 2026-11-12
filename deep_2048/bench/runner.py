@@ -6,7 +6,7 @@ Games are independent, so they can be spread across worker processes.
 """
 
 import time
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import Executor, ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import NamedTuple
 
@@ -41,7 +41,19 @@ class GameOutcome(NamedTuple):
 
 
 def play_game(agent: Agent, seed: int) -> GameOutcome:
-    """Play one game to the end with `agent`."""
+    """Play one game to the end with `agent`, through its own whole-game `play(seed)` if it has one."""
+    if (play := getattr(agent, "play", None)) is not None:
+        score, max_tile = play(seed)
+        return GameOutcome(score=int(score), max_tile=int(max_tile))
+    return play_on_engine(agent, seed)
+
+
+def play_on_engine(agent: Agent, seed: int) -> GameOutcome:
+    """Play one game on the Python engine, calling `agent.act` each move. An agent's `play(seed)` must match it.
+
+    The reset() replaces the board Game2048 dealt on creation, so games start from the seed's second board.
+    That's kept as it is, since every recorded evaluation used it.
+    """
     game = Game2048(seed=seed)
     game.reset()
     while not game.is_game_over():
@@ -64,8 +76,14 @@ def run_games(agent: Agent, n: int, seed_offset: int = 0, workers: int = 1) -> E
             outcomes[seed] = play_game(agent, seed)
             progress.update(outcomes[seed])
     else:
-        with ProcessPoolExecutor(max_workers=workers, initializer=_init_worker, initargs=(agent,)) as pool:
+        # Whole-game play() runs in numba without the GIL, so threads can share one copy of the agent
+        if hasattr(agent, "play"):
+            pool: Executor = ThreadPoolExecutor(max_workers=workers)
+            futures = {pool.submit(play_game, agent, seed): seed for seed in seeds}
+        else:
+            pool = ProcessPoolExecutor(max_workers=workers, initializer=_init_worker, initargs=(agent,))
             futures = {pool.submit(_play_in_worker, seed): seed for seed in seeds}
+        with pool:
             for future in as_completed(futures):
                 outcomes[futures[future]] = future.result()
                 progress.update(outcomes[futures[future]])
