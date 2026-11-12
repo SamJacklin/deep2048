@@ -313,33 +313,6 @@ The training average score at points during training is shown below: the mean of
   - **Horizon.** His exact setting, one step longer than this arm, would probably do no better, since the longer horizon did worse here.
 - **For the [final training run](#final-training-run), TD(λ) is dropped.** Its only gain is a head start in the first ~70k games, which is minutes of a multi-day run. TD(λ) at lower base rates (0.02–0.04) would test the rate explanation, but it's a low priority.
 
-## Final training run
-
-The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
-
-- **The machine:**
-  - AMD Ryzen 7 9850X3D (8 cores, 16 threads), 32 GB of DDR5-6000, Windows.
-  - Expect roughly the speed of the Macs used here. The 8×6 did 1.5M games in about 2 hours on 8 threads, so 3 days is in the region of 50M games: tens of millions, not Guei's 200M.
-  - Memory isn't a constraint. The 8×6 with temporal coherence sums takes a few GB, and a 2-stage version would still fit.
-- **What the short tests settle, and what they don't:**
-  - **These carry over:**
-    - training throughput and correctness (threading, determinism);
-    - the evaluation method, including that single seeds vary by about ±2%;
-    - choices that held up at 1.5M games: the 8×6 network, an aggressive temporal coherence rate early on, and downgrading with late-game starts. The 1.5M-game run built on them reached about 300k greedy.
-  - **These don't:**
-    - learning-rate tuning, since 0.08 won at 200k games but a long run will need lower rates or a schedule later;
-    - anything whose benefit is early speed, which is why TD(λ) is dropped;
-    - how much late-game starts help once natural games reach 16384 far more often.
-- **Decisions that only matter at scale**, to be tested by branching from a mature checkpoint (the 1.5M-game 8×6) for about 500k games per arm, not by training from scratch:
-  1. The learning-rate schedule: keep temporal coherence throughout, reset its sums periodically, or use a constant rate then temporal coherence (Guei's best on the 8×6).
-  2. Multi-stage networks, with separate weights for the late game.
-  3. Optimistic initialisation, which only paid off after 12M+ games for Guei.
-  4. Thread scaling on the target machine: 8 against 16 threads, before committing days to it.
-- **Running on Windows:**
-  - Use WSL2, since the scripts are bash and use `pgrep`, and keep the repo on the Linux filesystem, not `/mnt/c`.
-  - Raise WSL's memory cap in `.wslconfig`.
-  - Disable sleep and pause Windows Update restarts for the run. Checkpoints every 10k games and resume support limit the cost of an interruption to minutes.
-
 ## The long run
 
 The screen's best layout and rate (8×6, temporal coherence at 0.02) with the ingredient test's best pair, downgrading and late-game starts (A + C). Trained from scratch to 1.5M games on 8 threads with seed 42, in 2 h 02 min on the M4. 1,000 seeded games per evaluation, 95% confidence intervals:
@@ -427,35 +400,59 @@ Two changes make search on the 8×6 cheap enough to use routinely, and a third m
 - **Pruned results aren't N-ply results.** At cutoff 0.1, most branches stop well short of the nominal depth. So "depth 6" here isn't comparable with Guei's 6-ply, and pruned results should be reported with their time per move. For comparison with papers, use exact depths: 3-ply takes 13 minutes per 1,000 games, and 4-ply should take 2–3 hours.
 - **The bitboard caps tiles at 32768.** Two 32768s don't merge there, though they do on the Python engine. Whole-game play stops with an error if a board ever holds two, so a result can't silently differ from the Python engine. None of these games did.
 
+## Final training run
+
+The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
+
+- **The machine:**
+  - AMD Ryzen 7 9850X3D (8 cores, 16 threads), 32 GB of DDR5-6000, Windows.
+  - Expect roughly the speed of the Macs used here. The 8×6 did 1.5M games in about 2 hours on 8 threads, so 3 days is in the region of 50M games: tens of millions, not Guei's 200M.
+  - It may well be faster. Training is limited by memory latency, and the M4's 8 threads include 4 efficiency cores, where the Ryzen has 8 full cores, SMT and a 96 MB L3 cache. Decision 5 below measures it.
+  - Memory isn't a constraint. The 8×6 with temporal coherence sums takes a few GB, and a 2-stage version would still fit.
+- **What the short tests settle, and what they don't:**
+  - **These carry over:**
+    - training throughput and correctness (threading, determinism);
+    - the evaluation method, including that single seeds vary by about ±2%;
+    - choices that held up at 1.5M games: the 8×6 network, an aggressive temporal coherence rate early on, and downgrading with late-game starts. The 1.5M-game run built on them reached about 300k greedy.
+  - **These don't:**
+    - learning-rate tuning, since 0.08 won at 200k games but a long run will need lower rates or a schedule later;
+    - anything whose benefit is early speed, which is why TD(λ) is dropped;
+    - how much late-game starts help once natural games reach 16384 far more often.
+- **Where the final model's gap is.** The [long run](#the-long-run) and [faster search](#faster-search) show it's the late game: 16384 is reached in 90% of depth-3 games, but 32768 in under 12%, and the state of the art needs it in most. Deeper search added only 3%, so the decisions below target late-game training.
+- **Decisions that only matter at scale**, to be tested by branching from a mature checkpoint (the 1.5M-game 8×6) for about 500k games per arm, not by training from scratch:
+  1. **The learning-rate schedule:** keep temporal coherence throughout, reset its sums periodically, or use a constant rate then temporal coherence (Guei's best on the 8×6).
+     - The TD(λ) test adds a reason to check: its annealed arm kept learning at half speed after λ had gone, which fits temporal coherence's sums holding rates low long after a noisy phase.
+     - For a constant rate, about 0.002 matches Guei's 0.1 spread over the 8×6's 64 weights.
+  2. **Late-game starts from 32768 positions** (`NTUPLE_LATE_START_TILE=16384`). Starts now double the position where a game first makes 8192, so they hold a 16384. Natural games now reach 16384 in 73% of greedy games, so doubling those positions gives the missing 32768-stage experience. It's a single setting.
+  3. **Multi-stage networks,** with separate weights for the late game. They work against downgrading's sharing across scales, and double the memory, so they're worth testing only if decision 2 leaves much of the 32768 gap.
+  4. **Optimistic initialisation,** which only paid off after 12M+ games for Guei.
+  5. **Thread scaling on the target machine:** 8 against 16 threads, before committing days to it.
+
+  The arms can share one control: temporal coherence as is, with late-game starts at 8192. Evaluate each arm every 250k games greedily and at exact depth 3. With [faster search](#faster-search) that's about 15 minutes per snapshot.
+- **Evaluating the final model:** 1,000 seeded games at exact 3-ply and 4-ply, for comparison with the papers, and with pruned search (depth 6 at cutoff 0.1, or deeper) as the strongest agent, reported with its time per move.
+- **Running on Windows:**
+  - Use WSL2, since the scripts are bash and use `pgrep`, and keep the repo on the Linux filesystem, not `/mnt/c`.
+  - Raise WSL's memory cap in `.wslconfig`.
+  - Disable sleep and pause Windows Update restarts for the run. Checkpoints every 10k games and resume support limit the cost of an interruption to minutes.
+
 ## Next experiments
 
 Where things stand, as of these runs:
 - **The [long run](#the-long-run)** reached 300k greedy and 365k at 3-ply after 1.5M games. That's more sample-efficient than any n-tuple result in [RELATED_WORK.md](RELATED_WORK.md), and it was still improving at about +20–25k per doubling of games.
 - **[Faster search](#faster-search)** made evaluation cheap, but deeper search added only 3%.
-- **The TD(λ) test** (on `feat/ntuple-td-lambda`) found that every variant hurts at this rate and budget. Jaśkowski's λ = 0.5 cost 17% on all three seeds.
+- **[TD(λ)](#tdλ-across-seeds)** hurts at this rate and budget in every variant, and is dropped.
 
-Open directions for improving the n-tuple agent further, roughly in order of expected payoff. The [final training run](#final-training-run) section sets the priorities for decisions that only matter at scale.
+The [final training run](#final-training-run) sets the decisions. In order:
 
-So the gap to the state of the art is the network's late game: 32768 is reached in under 12% of games, and the state of the art needs it in most. The aim now is to settle what goes into a much longer run. In order:
-
-1. **The learning-rate schedule for long training.** This is the decision the long run depends on most.
-   - Guei found that temporal coherence settles too early on the 8×6 over 100M games, and his best recipe was a constant rate with temporal coherence only at the end.
-   - The TD(λ) test adds a second warning: the annealed arm kept learning at half speed after λ had gone, consistent with temporal coherence's sums holding rates low long after a noisy phase.
-   - **The test:** continue the 1.5M snapshot to 3M games three ways: temporal coherence as is (the control), temporal coherence with its sums reset every 500k games, and a constant rate of about 0.002 (Guei's 0.1 spread over the 8×6's 64 weights).
-   - It's about 2.5 hours of training per arm on the M4. Evaluate every 250k games greedily and at depth 3, now that both are cheap.
-2. **More late-game experience.** Raise the late-game start tile from 8192 to 16384.
-   - Late-game starts now donate the position where a game first makes 8192 and double it, so synthetic starts hold a 16384. Normal games now reach 16384 in 73% of greedy games, so starting from 32768 positions is the natural next step.
-   - It gives the 32768 stage the experience it's missing, which is exactly the gap above.
-   - **The test:** continue the 1.5M snapshot with `NTUPLE_LATE_START_TILE=16384`, against the same continuation at 8192. It can share its control with item 1.
-3. **Two-stage network.** A second weight set from the first 16384 tile, warm-started from the first.
-   - It works against downgrading's sharing across scales, so it needs testing, not assuming.
-   - It's also more costly than item 2 (twice the memory, about 3 GB with temporal coherence). So it's worth trying only if item 2 doesn't close much of the 32768 gap.
-   - **The test:** continue the 1.5M snapshot with and without the split.
-4. **The run at scale.** 10M+ games with whatever survives items 1–3.
-   - At the long run's speed, that's about 1.2×10¹¹ moves, or 15–20 hours on the M4. A desktop with more fast cores, or a rented server, would cut that.
-   - Optimistic initialisation, Guei's main ingredient, slows early learning and pays off only after about 10M episodes. So whether to include it is decided here, not in short tests.
-   - Evaluate the result at exact 3-ply and 4-ply for comparison with the papers, and at depth 6 with cutoff 0.1 (or deeper) as the strongest agent, with its time per move.
+1. **The decision arms on the M4,** each branching from the 1.5M-game 8×6 for 500k games. That's about 45 minutes of training per arm, plus evaluations:
+   - the control (temporal coherence as is, late-game starts at 8192);
+   - temporal coherence sums reset at the branch point;
+   - a constant rate of about 0.002;
+   - late-game starts at 16384.
+2. **Multi-stage networks,** only if late-game starts at 16384 leave most of the 32768 gap.
+3. **On the Ryzen:** check 8 against 16 threads and the real speed, then decide on optimistic initialisation, which can't be tested in a short arm.
+4. **The final training run** with what survives, evaluated as its section describes.
 
 Left out for now:
-- **TD(λ)** follow-ups, such as λ early in training only, or at lower rates. Its only gain was in the first 70k games, which doesn't matter at 10M+ games.
+- **TD(λ) at lower base rates** (0.02–0.04). It would test the rate explanation in [TD(λ) across seeds](#tdλ-across-seeds), but it can't help the final run.
 - **Time-limited search.** The cutoff already gives most of what iterative deepening would. Add it only for a like-for-like comparison with Jaśkowski's 1 s per move.
