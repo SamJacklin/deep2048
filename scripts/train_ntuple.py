@@ -50,6 +50,11 @@ def main() -> None:
         metavar="GAMES",
         help="Also save the network as games_<n>.npz at each of these game counts",
     )
+    parser.add_argument(
+        "--reset-coherence",
+        action="store_true",
+        help="Start the temporal coherence sums from zero instead of the resumed checkpoint's, restoring every weight's full rate",
+    )
     args = parser.parse_args()
 
     settings = get_ntuple_settings()
@@ -57,7 +62,7 @@ def main() -> None:
         run_dirs = {"OUTPUT_DIR": str(EXPERIMENTS_DIR / args.run), "CHECKPOINT_DIR": str(Path(settings.CHECKPOINT_DIR) / args.run)}
         settings = settings.model_copy(update=run_dirs)
 
-    summary = train(resume_from=args.resume, total_games=args.games, snapshot_at=args.snapshot_at, settings=settings)
+    summary = train(resume_from=args.resume, total_games=args.games, snapshot_at=args.snapshot_at, settings=settings, reset_coherence=args.reset_coherence)
 
     print("\nTraining stopped" if summary.interrupted else "\nTraining complete")
     print(summary.model_dump_json(indent=2))

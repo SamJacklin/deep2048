@@ -107,6 +107,12 @@ def test_temporal_coherence_traces_are_checkpointed_and_resumed(tmp_path) -> Non
     resumed = load_traces(first.checkpoint_path)
     assert resumed is not None and resumed.abs_errors.sum() > first_errors
 
+    # Resetting keeps the weights but starts the sums from zero, so one more game leaves far smaller sums
+    reset_settings = settings.model_copy(update={"CHECKPOINT_DIR": str(tmp_path / "reset")})
+    reset = train(resume_from=first.checkpoint_path, total_games=201, settings=reset_settings, reset_coherence=True)
+    reset_traces = load_traces(reset.checkpoint_path)
+    assert reset_traces is not None and 0 < reset_traces.abs_errors.sum() < first_errors / 10
+
 
 def test_train_builds_the_configured_network(tmp_path) -> None:
     settings = NTupleSettings(NETWORK="4x6", LOG_EVERY=50, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
@@ -155,6 +161,12 @@ def test_late_starts_are_reported_separately_and_reproducible(tmp_path) -> None:
 def test_late_start_tile_must_be_a_power_of_two(tmp_path) -> None:
     settings = late_start_settings(tmp_path, "bad").model_copy(update={"LATE_START_TILE": 300})
     with pytest.raises(ValueError, match="power of two"):
+        train(total_games=100, settings=settings)
+
+
+def test_late_start_tile_must_be_doublable(tmp_path) -> None:
+    settings = late_start_settings(tmp_path, "too-big").model_copy(update={"LATE_START_TILE": 16384})
+    with pytest.raises(ValueError, match="can't be doubled"):
         train(total_games=100, settings=settings)
 
 
