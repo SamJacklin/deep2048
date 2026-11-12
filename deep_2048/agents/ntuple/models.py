@@ -58,6 +58,7 @@ class TrainingHistoryRow(BaseModel):
     rate_16384: float
     games_per_second: float
     synthetic_games: int = 0
+    rate_32768: float = 0.0
 
     @classmethod
     def from_results(cls, games_played: int, moves_played: int, results: GameResults, seconds: float) -> "TrainingHistoryRow":
@@ -75,12 +76,14 @@ class TrainingHistoryRow(BaseModel):
             rate_16384=100 * float(np.mean(tiles >= 16384)),
             games_per_second=len(results.scores) / max(seconds, 1e-9),
             synthetic_games=int(results.synthetic.sum()),
+            rate_32768=100 * float(np.mean(tiles >= 32768)),
         )
 
     def __str__(self) -> str:
         return (
             f"  games {self.games:>9,}  moves {self.moves / 1e6:>8.1f}M  avg score {self.avg_score:>8.0f}  max {self.max_score:>7}  "
             f"≥2048 {self.rate_2048:5.1f}%  ≥4096 {self.rate_4096:5.1f}%  ≥8192 {self.rate_8192:5.1f}%  "
+            f"≥16384 {self.rate_16384:5.1f}%  ≥32768 {self.rate_32768:4.1f}%  "
             f"| {self.games_per_second:6.1f} games/s"
         )
 

@@ -456,8 +456,10 @@ def _counts(progress: CheckpointMetadata) -> dict[str, int]:
 def _append_history(path: Path, row: TrainingHistoryRow) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     is_new = not path.exists()
+    # A resumed run keeps its file's columns, so histories from before a column was added stay aligned
+    fields = list(TrainingHistoryRow.model_fields) if is_new else path.open().readline().strip().split(",")
     with path.open("a", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(TrainingHistoryRow.model_fields))
+        writer = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
         if is_new:
             writer.writeheader()
         writer.writerow(row.model_dump())

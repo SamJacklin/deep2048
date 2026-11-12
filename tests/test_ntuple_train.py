@@ -5,9 +5,9 @@ import pytest
 
 from deep_2048.agents.ntuple import NTupleAgent
 from deep_2048.agents.ntuple.config import NTupleSettings
-from deep_2048.agents.ntuple.models import GameResults, LambdaReturn, LateStarts
+from deep_2048.agents.ntuple.models import GameResults, LambdaReturn, LateStarts, TrainingHistoryRow
 from deep_2048.agents.ntuple.network import NETWORKS, NTupleNetwork, load_traces
-from deep_2048.agents.ntuple.train import lambda_at, lambda_return, learning_rate_at, play_games, play_games_threaded, train
+from deep_2048.agents.ntuple.train import _append_history, lambda_at, lambda_return, learning_rate_at, play_games, play_games_threaded, train
 from deep_2048.experiments import RunManifest, run_lock
 from deep_2048.game import bitboard as bb
 
@@ -317,3 +317,19 @@ def test_settings_ignore_dqn_env_vars(monkeypatch) -> None:
     settings = NTupleSettings()
     assert settings.LEARNING_RATE == 0.0025
     assert settings.TRAINING_GAMES == 123
+
+
+def test_history_keeps_an_older_files_columns(tmp_path) -> None:
+    row = TrainingHistoryRow(games=1, moves=2, avg_score=3.0, max_score=4, avg_moves=5.0, rate_2048=6.0, rate_4096=7.0, rate_8192=8.0, rate_16384=9.0, games_per_second=10.0, rate_32768=11.0)
+    old_columns = [name for name in TrainingHistoryRow.model_fields if name != "rate_32768"]
+    path = tmp_path / "history.csv"
+    path.write_text(",".join(old_columns) + "\n")
+    _append_history(path, row)
+    with open(path) as f:
+        rows = list(csv.DictReader(f))
+    assert list(rows[0]) == old_columns and rows[0]["rate_16384"] == "9.0"
+
+    new_path = tmp_path / "new.csv"
+    _append_history(new_path, row)
+    with open(new_path) as f:
+        assert next(csv.DictReader(f))["rate_32768"] == "11.0"

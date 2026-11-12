@@ -27,7 +27,7 @@ from deep_2048.experiments import EXPERIMENTS_DIR
 BENCHMARK_PATH = Path("frontend/public/benchmark.json")
 DQN_CHECKPOINT_INFO = Path("checkpoints/dqn/best.json")
 REFERENCE_AGENTS = {"DQN (best)": "firebrick", "Heuristic depth=2": "seagreen"}
-TILE_COLOURS = {2048: "goldenrod", 4096: "darkorange", 8192: "orangered", 16384: "purple"}
+TILE_COLOURS = {2048: "goldenrod", 4096: "darkorange", 8192: "orangered", 16384: "purple", 32768: "black"}
 RUN_COLOURS = ("steelblue", "darkorange", "seagreen", "firebrick", "purple", "saddlebrown")
 
 
@@ -70,7 +70,8 @@ def draw(fig: plt.Figure, history: np.ndarray, references: dict[str, float], dqn
         experience_ax.axvline(dqn_moves, color=REFERENCE_AGENTS["DQN (best)"], linestyle=":", linewidth=1.5, label="DQN's training budget")
         experience_ax.legend(fontsize=8, loc="upper left")
 
-    for tile, colour in TILE_COLOURS.items():
+    # Histories from before the 32768 column was added don't have it
+    for tile, colour in ((tile, colour) for tile, colour in TILE_COLOURS.items() if f"rate_{tile}" in history.dtype.names):
         tiles_ax.plot(history["games"], history[f"rate_{tile}"], color=colour, linewidth=1.5, label=f"≥{tile}")
     tiles_ax.set_title("Games reaching each tile")
     tiles_ax.set_xscale("log")
