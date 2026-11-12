@@ -19,6 +19,7 @@ Published 2048 agents, for placing this project's results. All use the standard 
 **Where this project stands** (1,000 games each): 299,894 greedy and 365,404 at 3-ply, from the [long run](README.md#the-long-run). It's an 8×6 network trained for 1.5M games (1.4×10¹⁰ moves) in 2 hours on 8 threads.
 - **Greedy:** above every result here except Jaśkowski's full method (92% of it) and Guei's (73%).
 - **3-ply:** above Yeh and Jaśkowski's TC-only network, and 65% of the state of the art.
+- **Best search:** 376,221 with [pruned search](README.md#faster-search) at nominal depth 6, at about 0.4 ms per move on one thread. Pruned search isn't N-ply, so its fair comparison is by time per move: Jaśkowski's 609k used 1 s per move, about 2,500× as much.
 - **Sample efficiency:** at 1M games (8.8×10⁹ moves) it scores 285k greedy, where Guei reports n-tuple networks under 240k after 10¹⁰ moves, and Jaśkowski's TC-only network scores 249k.
 - **The weakness is now 32768.** At 3-ply, 16384 is reached in 91% of games, level with Yeh, but 32768 in only 8.5%.
 

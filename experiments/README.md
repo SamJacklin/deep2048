@@ -39,6 +39,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | `seed-4x6-tc0.08-*` (2 runs) | [Seed-to-seed variation](#seed-to-seed-variation): the screen's 4×6 at 0.08 configuration with seeds 7 and 123 |
 | `ingredients-4x6-*` (15 runs) | [Ingredient test across seeds](#ingredient-test-across-seeds): control, A, C, A + C and B′, seeds 1–3 |
 | [`long-8x6`](long-8x6/NOTES.md) | [The long run](#the-long-run): 8×6 at 0.02 with A + C, on 8 threads to 1.5M games, then search |
+| [`search-long-8x6`](search-long-8x6/NOTES.md) | [Faster search](#faster-search): exact and pruned search at depths 3–6 on the long run's 1.5M network |
 
 ## Learning at equal experience
 
@@ -314,21 +315,72 @@ Against the published agents in [RELATED_WORK.md](RELATED_WORK.md):
   - Even at depth 3, only 8.5% of games make a 32768 tile. The state of the art's 3-ply average of 563k needs it in most games.
   - So the gap to the state of the art is about late-game training, more than search.
 
+## Faster search
+
+Two changes make search on the 8×6 cheap enough to use routinely, and a third makes deeper search affordable:
+
+- **Whole games in numba.** Evaluations used to play on the Python engine, calling the agent once per move, and that overhead cost about 0.2 ms per move, which is more than the greedy search itself. The n-tuple agent now plays each seeded game entirely in numba, drawing tile spawns from the same `np.random.default_rng(seed)` stream in the same order. So it plays exactly the same games as before: every stored evaluation of the long run replays game for game. The games run on threads that share one copy of the network, where each worker process used to load its own 660 MB.
+- **A transposition table.** Each search caches the values of the afterstates it has expanded, keyed by board and remaining depth, since different move orders often reach the same board. Exact search gives the same values as before.
+- **A probability cutoff** (`--cutoff`). A spawn branch less likely than the cutoff, counted from the root, stops at the network's value instead of being expanded. The search then goes deep only on crowded boards, where each spawn is likely, so the depth adapts to the position, much like nneonneo's expectimax.
+  - It's in the agent's label, so cached results for exact and pruned search can't mix.
+
+**Speed.** Per move on one thread, over 125 positions from greedy games of the 1.5M long-run network. Times for 1,000 games are on 10 threads of the M4:
+
+| Search | Per move | 1,000 games, before | 1,000 games, now |
+|---|---:|---:|---:|
+| Greedy | 0.003 ms | 5 min | 4.5 s |
+| Depth 2 | 0.034 ms | 7 min | 53 s |
+| Depth 3 | 0.53 → 0.35 ms | 31 min | 13 min |
+| Depth 4 | about 4 ms | | |
+| Depth 3, cutoff 0.05 | 0.21 ms | | 8 min |
+| Depth 4, cutoff 0.1 | 0.27 ms | | 10 min |
+| Depth 5, cutoff 0.1 | 0.31 ms | | 12 min |
+| Depth 6, cutoff 0.1 | 0.38 ms | | 15 min |
+
+**Strength.** The 1.5M long-run network, 1,000 seeded games each ([`search-long-8x6`](search-long-8x6/NOTES.md)), compared game for game with exact depth 3:
+
+| Search | Score | vs exact depth 3 | ≥16384 | ≥32768 |
+|---|---:|---:|---:|---:|
+| Depth 3 | 365,404 ± 5,769 | — | 90.7% | 8.5% |
+| Depth 3, cutoff 0.05 | 364,295 ± 5,884 | −1,108 ± 8,201 | 89.8% | 8.3% |
+| Depth 4, cutoff 0.1 | 369,289 ± 5,827 | +3,885 ± 8,457 | 91.2% | 8.9% |
+| Depth 4, cutoff 0.05 | 371,047 ± 5,582 | +5,643 ± 7,978 | 92.3% | 8.5% |
+| Depth 5, cutoff 0.1 | 371,048 ± 5,789 | +5,644 ± 8,107 | 92.0% | 9.2% |
+| **Depth 6, cutoff 0.1** | **376,221 ± 6,143** | **+10,817 ± 8,534** | 92.1% | **11.7%** |
+
+- **Exact depth 3 is 2.3× faster, and greedy evaluation is about 70× faster.** Evaluating snapshots during experiments is now cheap.
+- **Pruned deeper search gains a little, and only depth 6 is clear of noise.** Depth 6 at cutoff 0.1 adds 3% and raises the 32768 rate from 8.5% to 11.7%. It costs about what exact depth 3 does now, and half what it used to.
+- **That's much less than the published agents gain from search.** Guei goes from 563k at 3-ply to 625k at 6-ply (+11%), and Jaśkowski from 512k to 609k at 1 s per move (+19%). Their searches spend hundreds to thousands of times more per move, but the main limit is the network. All these settings reach 16384 in 90–92% of games and 32768 in under 12%, and search can't make up for poorly learned 32768-stage values.
+- **Pruned results aren't N-ply results.** At cutoff 0.1, most branches stop well short of the nominal depth. So "depth 6" here isn't comparable with Guei's 6-ply, and pruned results should be reported with their time per move. For comparison with papers, use exact depths: 3-ply takes 13 minutes per 1,000 games, and 4-ply should take 2–3 hours.
+- **The bitboard caps tiles at 32768.** Two 32768s don't merge there, though they do on the Python engine. Whole-game play stops with an error if a board ever holds two, so a result can't silently differ from the Python engine. None of these games did.
+
 ## Next experiments
 
-Open directions for improving the n-tuple agent further, roughly in order of expected payoff:
+Where things stand, as of these runs:
+- **The [long run](#the-long-run)** reached 300k greedy and 365k at 3-ply after 1.5M games. That's more sample-efficient than any n-tuple result in [RELATED_WORK.md](RELATED_WORK.md), and it was still improving at about +20–25k per doubling of games.
+- **[Faster search](#faster-search)** made evaluation cheap, but deeper search added only 3%.
+- **The TD(λ) test** (on `feat/ntuple-td-lambda`) found that every variant hurts at this rate and budget. Jaśkowski's λ = 0.5 cost 17% on all three seeds.
 
-The [long run](#the-long-run) is within reach of the state of the art given more training, so these come first, to decide what goes into a much longer run:
+So the gap to the state of the art is the network's late game: 32768 is reached in under 12% of games, and the state of the art needs it in most. The aim now is to settle what goes into a much longer run. In order:
 
-1. **Faster search.** Depth 3 on the 8×6 takes 31 minutes per 1,000 games, so depth 4 and above are impractical as it stands.
-   - Prune spawns whose cumulative probability falls below a threshold, and ignore 4-spawns below the top levels.
-   - Add a transposition table, then time-limited search by iterative deepening.
-   - Needs no retraining. Downgrading is already applied at play time, inside the network's lookup.
-2. **The learning-rate schedule for long training.**
-   - Guei found that temporal coherence settles too early on the 8×6 over 100M games, so his best recipe was a constant rate with temporal coherence only at the end.
-   - This run shows no stall yet. To test it, continue the 1.5M snapshot to 2–3M games three ways: temporal coherence as is (the control), temporal coherence with its sums reset (as Guei did every 1M games), and a constant rate.
-3. **TD(λ).** On the 4×6 harness with three seeds: λ = 0.5 against λ = 0, both with temporal coherence, as in Jaśkowski's delayed TC(λ). See [learning rules](learning-rules.md).
-4. **Two-stage network.** A second weight set from the first 16384 tile, warm-started from the first.
+1. **The learning-rate schedule for long training.** This is the decision the long run depends on most.
+   - Guei found that temporal coherence settles too early on the 8×6 over 100M games, and his best recipe was a constant rate with temporal coherence only at the end.
+   - The TD(λ) test adds a second warning: the annealed arm kept learning at half speed after λ had gone, consistent with temporal coherence's sums holding rates low long after a noisy phase.
+   - **The test:** continue the 1.5M snapshot to 3M games three ways: temporal coherence as is (the control), temporal coherence with its sums reset every 500k games, and a constant rate of about 0.002 (Guei's 0.1 spread over the 8×6's 64 weights).
+   - It's about 2.5 hours of training per arm on the M4. Evaluate every 250k games greedily and at depth 3, now that both are cheap.
+2. **More late-game experience.** Raise the late-game start tile from 8192 to 16384.
+   - Late-game starts now donate the position where a game first makes 8192 and double it, so synthetic starts hold a 16384. Normal games now reach 16384 in 73% of greedy games, so starting from 32768 positions is the natural next step.
+   - It gives the 32768 stage the experience it's missing, which is exactly the gap above.
+   - **The test:** continue the 1.5M snapshot with `NTUPLE_LATE_START_TILE=16384`, against the same continuation at 8192. It can share its control with item 1.
+3. **Two-stage network.** A second weight set from the first 16384 tile, warm-started from the first.
    - It works against downgrading's sharing across scales, so it needs testing, not assuming.
-   - Test it by continuing the 1.5M snapshot with and without the split. The 4×6 harness reaches 16384 too rarely to train a second stage.
-5. **The run at scale.** 10M+ games with whatever survives the tests above. Optimistic initialisation, Guei's main ingredient, only pays off after about 10M episodes, so whether to include it is decided here.
+   - It's also more costly than item 2 (twice the memory, about 3 GB with temporal coherence). So it's worth trying only if item 2 doesn't close much of the 32768 gap.
+   - **The test:** continue the 1.5M snapshot with and without the split.
+4. **The run at scale.** 10M+ games with whatever survives items 1–3.
+   - At the long run's speed, that's about 1.2×10¹¹ moves, or 15–20 hours on the M4. A desktop with more fast cores, or a rented server, would cut that.
+   - Optimistic initialisation, Guei's main ingredient, slows early learning and pays off only after about 10M episodes. So whether to include it is decided here, not in short tests.
+   - Evaluate the result at exact 3-ply and 4-ply for comparison with the papers, and at depth 6 with cutoff 0.1 (or deeper) as the strongest agent, with its time per move.
+
+Left out for now:
+- **TD(λ)** follow-ups, such as λ early in training only, or at lower rates. Its only gain was in the first 70k games, which doesn't matter at 10M+ games.
+- **Time-limited search.** The cutoff already gives most of what iterative deepening would. Add it only for a like-for-like comparison with Jaśkowski's 1 s per move.
