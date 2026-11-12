@@ -6,6 +6,7 @@ Usage examples:
     uv run python scripts/evaluate.py --agent heuristic -n 50
     uv run python scripts/evaluate.py --agent ntuple               # checkpoints/ntuple/best.npz
     uv run python scripts/evaluate.py --agent ntuple_search --depth 3
+    uv run python scripts/evaluate.py --agent ntuple_search --depth 5 --cutoff 0.1   # prune unlikely spawns
     uv run python scripts/evaluate.py --agent all                  # every benchmark agent side-by-side
     uv run python scripts/evaluate.py checkpoints/dqn/step_350068.pt --agent dqn -n 200
     uv run python scripts/evaluate.py --agent all --rerun           # ignore cached results
@@ -74,6 +75,12 @@ def main() -> None:
         help="Search depth for search-based agents (default: 2)",
     )
     parser.add_argument(
+        "--cutoff",
+        type=float,
+        default=0.0,
+        help="For ntuple_search, don't expand spawn branches less likely than this from the root (default: 0, exact)",
+    )
+    parser.add_argument(
         "-n",
         "--num-games",
         type=int,
@@ -110,7 +117,7 @@ def main() -> None:
     cache = ResultCache()
     results: list[EvalResult] = []
     for name, depth in specs:
-        agent = load_agent(name, checkpoint=args.checkpoint, depth=depth)
+        agent = load_agent(name, checkpoint=args.checkpoint, depth=depth, cutoff=args.cutoff)
         key = RunKey.for_agent(agent, n_games=args.num_games)
         result = None if args.rerun else cache.get(key)
         from_cache = result is not None

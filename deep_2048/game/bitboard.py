@@ -293,6 +293,29 @@ def spawn_tile(board: np.uint64) -> np.uint64:
 
     target = np.random.randint(n_empty)
     exponent = np.uint64(2) if np.random.random() < SPAWN_FOUR_PROBABILITY else np.uint64(1)
+    return _place_in_empty(board, empty, target, exponent)
+
+
+@njit
+def spawn_tile_seeded(board: np.uint64, rng: np.random.Generator) -> np.uint64:
+    """Add a 2 or 4 to a random empty cell, drawing from `rng` exactly as Game2048 does.
+
+    So a numba game loop given np.random.default_rng(seed) plays the same game as Game2048(seed).
+    """
+    empty = _empty_cells(board)
+    n_empty = _count_cells(empty)
+    if n_empty == 0:
+        return board
+
+    target = rng.integers(0, n_empty)
+    # Game2048 draws the value with rng.choice(p=[0.9, 0.1]), which consumes one random() and picks 2 below 0.9
+    exponent = np.uint64(1) if rng.random() < 1.0 - SPAWN_FOUR_PROBABILITY else np.uint64(2)
+    return _place_in_empty(board, empty, target, exponent)
+
+
+@njit(inline="always")
+def _place_in_empty(board: np.uint64, empty: np.uint64, target: int, exponent: np.uint64) -> np.uint64:
+    """Put the tile in the target-th empty cell, counting from cell 0 (row-major, like np.argwhere)."""
     for _ in range(target):
         empty &= empty - np.uint64(1)
     lowest_empty = empty & (~empty + np.uint64(1))
