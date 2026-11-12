@@ -19,6 +19,9 @@
 #   continue      unchanged, so the first reset's cycle carries on
 #   reset-again   the sums reset a second time
 #   gentle-reset  the sums scaled by 0.1: rates stay as they were but adapt to new errors sooner, avoiding the full reset's dip
+# Round 3, from round 1's tc-reset at 2M games, compared with round 2's continue (the same start, no change):
+#   optimism-1000  every never-updated weight set to 1,000, so greedy play explores unfamiliar patterns
+#   optimism-5000  the same at 5,000, 2048-rl's 320,000 per board spread over 64 weights
 # Arms train one after another, since each uses most of the machine. Rerunning resumes an interrupted
 # arm from its own latest checkpoint and skips finished ones (evaluations come from the cache).
 # Each snapshot is evaluated greedily, and the final one also at exact depth 3, on EVAL_GAMES seeded games.
@@ -28,12 +31,14 @@ cd "$(dirname "$0")/.."
 case ${ROUND:-1} in
     1) BASE=checkpoints/ntuple/long-8x6/games_1500000.npz FULL_GAMES=2000000 PREFIX=decision-8x6 ARMS=(control tc-reset constant late-share) ;;
     2) BASE=checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision2-8x6 ARMS=(continue reset-again gentle-reset) ;;
-    *) echo "ROUND must be 1 or 2" >&2 && exit 1 ;;
+    3) BASE=checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision3-8x6 ARMS=(optimism-1000 optimism-5000) REFERENCE=decision2-8x6-continue ;;
+    *) echo "ROUND must be 1, 2 or 3" >&2 && exit 1 ;;
 esac
 GAMES=${GAMES:-$FULL_GAMES}
 EVAL_GAMES=${EVAL_GAMES:-1000}
 if [ "$GAMES" -lt "$FULL_GAMES" ]; then
-    PREFIX=smoke-$PREFIX
+    # A smoke test's few games can't be paired with a full run's, so it compares with its own first arm
+    PREFIX=smoke-$PREFIX REFERENCE=
 fi
 START=$(uv run python -c "from deep_2048.agents.ntuple import NTupleNetwork; print(NTupleNetwork.load('$BASE')[1].games_played)")
 SNAPSHOTS=("$(((START + GAMES) / 2))" "$GAMES")
@@ -49,6 +54,7 @@ arm_flags() {
     case $1 in
         tc-reset | reset-again) echo --reset-coherence ;;
         gentle-reset) echo --coherence-scale 0.1 ;;
+        optimism-*) echo --optimistic-unvisited "${1#optimism-}" ;;
     esac
 }
 
@@ -87,30 +93,32 @@ for arm in "${ARMS[@]}"; do
         | tr '\r' '\n' | grep -E "^N-tuple"
 done
 
-uv run python - "$PREFIX" "${ARMS[@]}" <<'EOF'
+# The reference is the round's first arm unless the round names a run of its own
+uv run python - "$PREFIX" "${REFERENCE:-$PREFIX-${ARMS[0]}}" "${ARMS[@]}" <<'EOF'
 import json
 import sys
 from pathlib import Path
 
 import numpy as np
 
-prefix, arms = sys.argv[1], sys.argv[2:]
+prefix, reference, arms = sys.argv[1], sys.argv[2], sys.argv[3:]
 
 
-def evaluations(arm: str) -> list[dict]:
-    return json.loads(Path(f"experiments/{prefix}-{arm}/evaluations.json").read_text())
+def evaluations(run: str) -> list[dict]:
+    return json.loads(Path(f"experiments/{run}/evaluations.json").read_text())
 
 
-reference = arms[0]
 control = evaluations(reference)
-print(f"\n{'Arm':<14}{'Evaluation':<34}{'Score':>10}{'vs ' + reference:>20}{'≥32768':>9}")
-for arm in arms:
-    for record, baseline in zip(evaluations(arm), control):
+runs = dict.fromkeys([reference, *(f"{prefix}-{arm}" for arm in arms)])
+print(f"\nReference: {reference}")
+print(f"\n{'Run':<28}{'Evaluation':<34}{'Score':>10}{'vs reference':>20}{'≥32768':>9}")
+for run in runs:
+    for record, baseline in zip(evaluations(run), control):
         scores, tiles = np.array(record["result"]["scores"]), np.array(record["result"]["max_tiles"])
         difference = scores - np.array(baseline["result"]["scores"])
-        interval = 1.96 * difference.std(ddof=1) / np.sqrt(len(difference)) if arm != reference else 0
+        interval = 1.96 * difference.std(ddof=1) / np.sqrt(len(difference)) if run != reference else 0
         label = record["key"]["label"]
         what = label[label.index("(") + 1 : label.index(" games")] + " games" + (" + depth 3" if "depth=3" in label else ", greedy")
-        paired = f"{difference.mean():+,.0f} ± {interval:,.0f}" if arm != reference else "—"
-        print(f"{arm:<14}{what:<34}{scores.mean():>10,.0f}{paired:>20}{(tiles >= 32768).mean() * 100:>8.1f}%")
+        paired = f"{difference.mean():+,.0f} ± {interval:,.0f}" if run != reference else "—"
+        print(f"{run:<28}{what:<34}{scores.mean():>10,.0f}{paired:>20}{(tiles >= 32768).mean() * 100:>8.1f}%")
 EOF

@@ -64,6 +64,12 @@ def main() -> None:
         metavar="FACTOR",
         help="Multiply the resumed temporal coherence sums by FACTOR: rates stay as they were but adapt to new errors sooner",
     )
+    parser.add_argument(
+        "--optimistic-unvisited",
+        type=float,
+        metavar="VALUE",
+        help="Set every weight training has never updated to VALUE, so greedy play explores unfamiliar patterns",
+    )
     args = parser.parse_args()
 
     settings = get_ntuple_settings()
@@ -71,7 +77,14 @@ def main() -> None:
         run_dirs = {"OUTPUT_DIR": str(EXPERIMENTS_DIR / args.run), "CHECKPOINT_DIR": str(Path(settings.CHECKPOINT_DIR) / args.run)}
         settings = settings.model_copy(update=run_dirs)
 
-    summary = train(resume_from=args.resume, total_games=args.games, snapshot_at=args.snapshot_at, settings=settings, coherence_scale=args.coherence_scale)
+    summary = train(
+        resume_from=args.resume,
+        total_games=args.games,
+        snapshot_at=args.snapshot_at,
+        settings=settings,
+        coherence_scale=args.coherence_scale,
+        optimistic_unvisited=args.optimistic_unvisited,
+    )
 
     print("\nTraining stopped" if summary.interrupted else "\nTraining complete")
     print(summary.model_dump_json(indent=2))

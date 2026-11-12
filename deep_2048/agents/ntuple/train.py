@@ -258,6 +258,7 @@ def train(
     snapshot_at: list[int] | None = None,
     settings: NTupleSettings | None = None,
     coherence_scale: float | None = None,
+    optimistic_unvisited: float | None = None,
 ) -> TrainingSummary:
     """Train until total_games have been played, including any in the resumed checkpoint.
 
@@ -265,16 +266,26 @@ def train(
     its full rate. A fraction keeps each weight's rate for now but lets new errors move it sooner, since
     a rate depends on the ratio of the two sums.
 
+    optimistic_unvisited sets every weight that training has never updated (still exactly 0) to this
+    value, so positions made of unexplored patterns look promising and greedy play seeks them out.
+
     The network is also saved as games_<n>.npz at each game count in snapshot_at, and each call is
     recorded as a session in the run's manifest. Ctrl-C saves and stops. Refuses to start if another
     process is already training into the same output folder.
     """
     settings = settings or get_ntuple_settings()
     with run_lock(Path(settings.OUTPUT_DIR)):
-        return _train(resume_from, total_games, snapshot_at, settings, coherence_scale)
+        return _train(resume_from, total_games, snapshot_at, settings, coherence_scale, optimistic_unvisited)
 
 
-def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at: list[int] | None, settings: NTupleSettings, coherence_scale: float | None) -> TrainingSummary:
+def _train(
+    resume_from: str | Path | None,
+    total_games: int | None,
+    snapshot_at: list[int] | None,
+    settings: NTupleSettings,
+    coherence_scale: float | None,
+    optimistic_unvisited: float | None,
+) -> TrainingSummary:
     total_games = settings.TRAINING_GAMES if total_games is None else total_games
     snapshots = sorted(set(settings.SNAPSHOT_AT if snapshot_at is None else snapshot_at))
     checkpoint_dir = Path(settings.CHECKPOINT_DIR)
@@ -284,6 +295,10 @@ def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at:
 
     network, progress = _load_or_create(resume_from, settings)
     traces = _load_or_create_traces(resume_from, network, settings)
+    if optimistic_unvisited is not None:
+        unvisited = network.weights == 0
+        network.weights[unvisited] = optimistic_unvisited
+        print(f"{unvisited.sum():,} never-updated weights ({unvisited.mean():.1%}) set to {optimistic_unvisited:g}")
     if coherence_scale is not None and traces is not None:
         traces.errors[:] *= coherence_scale
         traces.abs_errors[:] *= coherence_scale

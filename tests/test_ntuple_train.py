@@ -121,6 +121,21 @@ def test_temporal_coherence_traces_are_checkpointed_and_resumed(tmp_path) -> Non
     assert scaled_traces is not None and 0.5 * resumed_errors < scaled_traces.abs_errors.sum() < 0.6 * resumed_errors
 
 
+def test_optimistic_unvisited_fills_only_the_weights_training_never_touched(tmp_path) -> None:
+    settings = NTupleSettings(TEMPORAL_COHERENCE=True, LOG_EVERY=100, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
+    first = train(total_games=100, settings=settings)
+    before, _ = NTupleNetwork.load(first.checkpoint_path)
+    visited = before.weights != 0
+    assert visited.any() and not visited.all()
+
+    optimistic_settings = settings.model_copy(update={"CHECKPOINT_DIR": str(tmp_path / "optimistic")})
+    after_summary = train(resume_from=first.checkpoint_path, total_games=101, settings=optimistic_settings, optimistic_unvisited=7.0)
+    after, _ = NTupleNetwork.load(after_summary.checkpoint_path)
+    # One more game touches few weights, so most of the unvisited ones still hold exactly the optimistic value
+    assert (after.weights[~visited] == 7.0).mean() > 0.9
+    assert not (after.weights == 0).any()
+
+
 def test_train_builds_the_configured_network(tmp_path) -> None:
     settings = NTupleSettings(NETWORK="4x6", LOG_EVERY=50, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"))
     summary = train(total_games=50, settings=settings)
