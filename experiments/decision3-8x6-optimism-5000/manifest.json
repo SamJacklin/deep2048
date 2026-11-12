@@ -1,0 +1,75 @@
+{
+  "name": "decision3-8x6-optimism-5000",
+  "sessions": [
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "decision3-8x6-optimism-5000",
+        "--resume",
+        "checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz",
+        "--optimistic-unvisited",
+        "5000",
+        "--games",
+        "2500000",
+        "--snapshot-at",
+        "2250000",
+        "2500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.2,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "THREADS": 8,
+        "THREADS_AFTER": 10000,
+        "TRAINING_GAMES": 2500000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 10000,
+        "SNAPSHOT_AT": [
+          2250000,
+          2500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/decision3-8x6-optimism-5000",
+        "OUTPUT_DIR": "experiments/decision3-8x6-optimism-5000"
+      },
+      "resumed_from": "checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz",
+      "environment": {
+        "git_commit": "5f6348a39f86466a38af9bd58820330658fab978",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-12T21:27:00.744118Z",
+      "started_with": {
+        "games_played": 2000000,
+        "moves_played": 19128016850
+      },
+      "finished_at": "2026-11-12T22:18:23.201221Z",
+      "finished_with": {
+        "games_played": 2500000,
+        "moves_played": 24550372778
+      },
+      "interrupted": false
+    }
+  ]
+}

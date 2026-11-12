@@ -43,6 +43,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | [`search-long-8x6`](search-long-8x6/NOTES.md) | [Faster search](#faster-search): exact and pruned search at depths 3–6 on the long run's 1.5M network |
 | `decision-8x6-*` (4 runs) | [Decision arms](#decision-arms): control, TC reset, constant rate and a larger late-game share, each 1.5M → 2M games from the long run |
 | `decision2-8x6-*` (3 runs) | [Decision arms, round 2](#round-2-do-resets-keep-paying): continue, reset again and a gentle reset, each 2M → 2.5M games from round 1's TC reset |
+| `decision3-8x6-*` (2 runs) | [Decision arms, round 3](#round-3-optimism-for-never-updated-weights): optimism at 1,000 and 5,000 for never-updated weights, each 2M → 2.5M games from round 1's TC reset |
 
 ## Learning at equal experience
 
@@ -473,6 +474,40 @@ At 2.25M games the greedy differences were −15,974 ± 10,649 (reset again) and
 - **A gentle reset avoids the dip but gains nothing.** It stayed within about 5k of continue in training and ended level on both measures.
 - **So resetting learning rates is a one-off fix, not a schedule.** It released one stall, but at about 315k it no longer restarts progress, while Guei's and 2048-rl's single 8×6 networks reach about 360–370k greedy. The next limit isn't the rates.
 
+### Round 3: optimism for never-updated weights
+
+Guei's and 2048-rl's single 8×6 networks reach about 360–370k greedy, against about 315k here, and both use optimistic initialisation: every weight starts high, so greedy play is drawn to positions it hasn't learned yet. 65% of this network's weights had never been updated by 2M games, which looked like a lack of exploration. Round 3 sets every never-updated weight (still exactly 0) to an optimistic value, from round 1's TC reset at 2M games, for another 500k games (`ROUND=3 scripts/run_decision_arms.sh`, `--optimistic-unvisited VALUE`):
+- **1,000 per weight.**
+- **5,000 per weight:** 2048-rl's 320,000 per board, spread over 64 weights.
+
+The control is round 2's continue, which started from the same network and changed nothing.
+
+| Arm | Greedy at 2.5M | vs continue | Exact depth 3 at 2.5M | vs continue | ≥32768 at depth 3 |
+|---|---:|---:|---:|---:|---:|
+| Continue | 314,202 | — | 397,229 | — | 18.1% |
+| Optimism at 1,000 | 310,682 | −3,519 ± 10,738 | 396,528 | −701 ± 9,713 | 18.6% |
+| Optimism at 5,000 | 317,967 | +3,766 ± 10,824 | 389,712 | −7,518 ± 9,360 | 16.6% |
+
+At 2.25M games the greedy differences were −4,339 ± 10,900 (1,000) and −9,940 ± 10,943 (5,000).
+
+![Decision arms, round 3](figures/decision-arms-round3.png)
+
+- **Optimism changed nothing.** Both arms tracked continue within a few thousand points in training and ended within noise on both measures.
+- **Most never-updated weights can't be reached at all.** Broken down by the largest tile in each weight's pattern:
+
+  | Patterns that include… | Share of all weights | Never updated |
+  |---|---:|---:|
+  | a 32768 | 32% | 100% |
+  | a 16384 or 32768 | 55% | 86% |
+  | only tiles up to 8192 | 45% | 40% |
+
+  - With downgrading from 16384, the tuples read every board holding a 16384 with its large tiles halved. So they almost never see a 16384 and never a 32768.
+  - About 73% of the never-updated weights are patterns that can't occur, and the rest are mostly rare combinations.
+  - So the 65% measured downgrading's footprint, not a lack of exploration, and optimism had little real territory to work on.
+- **What this points to instead:** downgrading from 16384 leaves more than half of the 134M weights permanently unused, while one set of shared weights must fit both the 8192 and 16384 stages, whose true values differ.
+  - Sharing paid off early, when 16384 was rare (it was most of A + C's +13%).
+  - With 75% of games now reaching 16384, it may be the ceiling. The [32768 downgrading test](#next-experiments) checks this by giving the 16384 stage its own weights.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
@@ -497,10 +532,10 @@ The end goal is a single multi-day training run that produces the final model. T
      - Temporal coherence stalls by 1.5M games, and one reset gave +18k greedy and +33k at depth 3, and doubled the 32768 rate.
      - Switching to a constant rate cost 22% greedy. Guei's schedule, with a constant rate from the start and optimism, would need its own run from scratch.
      - [Round 2](#round-2-do-resets-keep-paying) found the reset is a one-off: a second full reset 500k games later hurt at depth 3, and a gentle reset was neutral. So the final run resets once, at the first stall.
-     - The next plateau, at about 315k, needs something other than learning rates. 65% of the network's weights have never been updated, which points to exploration, the job optimistic initialisation does in Guei's and 2048-rl's single networks. Round 3 tests optimism for the never-updated weights.
+     - The next plateau, at about 315k, needs something other than learning rates. [Round 3](#round-3-optimism-for-never-updated-weights) found that optimism for the never-updated weights doesn't help either: most of them are patterns downgrading makes unreachable.
   2. **More late-game experience. Answered: it doesn't help.** Starts from 32768 positions turned out to be impossible in the bitboard, and a larger share of the starts that are possible cost 12k at depth 3. Late-game starts stay at a fifth of games, from 8192.
   3. **Multi-stage networks,** with separate weights for the late game. They work against downgrading's sharing across scales, and double the memory, so they're worth testing only if resets leave most of the 32768 gap.
-  4. **Optimistic initialisation,** which only paid off after 12M+ games for Guei. It's designed for a constant-rate schedule, so it matters less now that temporal coherence with resets is the plan.
+  4. **Optimistic initialisation,** which only paid off after 12M+ games for Guei. Adding it to a trained network did nothing (round 3), so it's worth trying only from scratch, and only once the downgrading threshold is settled.
   5. **Thread scaling on the target machine:** 8 against 16 threads, before committing days to it.
 - **Training speed:** temporal coherence costs 1.8× in moves per second. Since it stays for the whole run, storing each weight next to its sums is worth building first: it cuts the memory accesses per update from three to one.
 - **Evaluating the final model:** 1,000 seeded games at exact 3-ply and 4-ply, for comparison with the papers, and with pruned search (depth 6 at cutoff 0.1, or deeper) as the strongest agent, reported with its time per move.
@@ -517,10 +552,13 @@ Where things stand, as of these runs:
 - **[TD(λ)](#tdλ-across-seeds)** hurts at this rate and budget in every variant, and is dropped.
 - **The [decision arms](#decision-arms)** found that temporal coherence stalls by 1.5M games, and that resetting its sums breaks the stall: 320k greedy, 402k at 3-ply, and 32768 in 20% of depth-3 games, after 2M games. A constant rate and more late-game starts both hurt.
 - **[Round 2](#round-2-do-resets-keep-paying)** found the reset works once: neither a second full reset nor a gentle one restarted progress from about 315k.
+- **[Round 3](#round-3-optimism-for-never-updated-weights)** found that optimism for never-updated weights doesn't help, and that most of those weights are unreachable because of downgrading from 16384.
 
 The [final training run](#final-training-run) sets the decisions. In order:
 
-1. **Optimism for the never-updated weights** (round 3): from the reset arm at 2M games, set every never-updated weight to 1,000 or 5,000 and train 500k games, against round 2's continue. If it works, the final run starts with optimistic initialisation.
+1. **Downgrading from 32768 instead of 16384** (running): the long run from scratch with `DOWNGRADE_TILE=32768`, so the 16384 stage gets its own weights, using capacity that sits idle now.
+   - Greedy evaluations every 250k games (`EVAL_EVERY=250000 scripts/run_long_run.sh`), compared with the long run at each point.
+   - It's expected to trail early, since sharing at 16384 was most of A + C's early gain. The question is whether it keeps climbing past the long run's stall at about 1.5M games.
 2. **Faster temporal coherence:** store each weight next to its two sums, then measure the speed-up on the M4.
 3. **Multi-stage networks,** only if resets leave most of the 32768 gap.
 4. **On the Ryzen:** check 8 against 16 threads and the real speed.
