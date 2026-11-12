@@ -257,8 +257,12 @@ def train(
     total_games: int | None = None,
     snapshot_at: list[int] | None = None,
     settings: NTupleSettings | None = None,
+    reset_coherence: bool = False,
 ) -> TrainingSummary:
     """Train until total_games have been played, including any in the resumed checkpoint.
+
+    reset_coherence starts the temporal coherence sums from zero instead of the checkpoint's, which
+    gives every weight back its full rate.
 
     The network is also saved as games_<n>.npz at each game count in snapshot_at, and each call is
     recorded as a session in the run's manifest. Ctrl-C saves and stops. Refuses to start if another
@@ -266,10 +270,10 @@ def train(
     """
     settings = settings or get_ntuple_settings()
     with run_lock(Path(settings.OUTPUT_DIR)):
-        return _train(resume_from, total_games, snapshot_at, settings)
+        return _train(resume_from, total_games, snapshot_at, settings, reset_coherence)
 
 
-def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at: list[int] | None, settings: NTupleSettings) -> TrainingSummary:
+def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at: list[int] | None, settings: NTupleSettings, reset_coherence: bool) -> TrainingSummary:
     total_games = settings.TRAINING_GAMES if total_games is None else total_games
     snapshots = sorted(set(settings.SNAPSHOT_AT if snapshot_at is None else snapshot_at))
     checkpoint_dir = Path(settings.CHECKPOINT_DIR)
@@ -278,7 +282,9 @@ def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at:
     history_path = output_dir / HISTORY_NAME
 
     network, progress = _load_or_create(resume_from, settings)
-    traces = _load_or_create_traces(resume_from, network, settings)
+    traces = _load_or_create_traces(None if reset_coherence else resume_from, network, settings)
+    if reset_coherence and traces is not None:
+        print("Temporal coherence sums reset: every weight starts back at the full rate")
     start_games = progress.games_played
     if resume_from is None:
         history_path.unlink(missing_ok=True)
@@ -413,6 +419,9 @@ def _late_starts(settings: NTupleSettings) -> LateStarts | None:
         return None
     if settings.LATE_START_TILE & (settings.LATE_START_TILE - 1):
         raise ValueError(f"LATE_START_TILE must be a power of two, not {settings.LATE_START_TILE}")
+    if settings.LATE_START_TILE.bit_length() - 1 >= bb.MAX_EXPONENT - 1:
+        # upgrade() leaves such boards alone, since doubled they could need two 32768s merged, so no starts would ever be made
+        raise ValueError(f"LATE_START_TILE must be below {1 << (bb.MAX_EXPONENT - 1)}, not {settings.LATE_START_TILE}: its positions can't be doubled")
     return LateStarts(np.zeros(0, dtype=np.uint64), settings.LATE_START_FRACTION, settings.LATE_START_TILE.bit_length() - 1)
 
 
