@@ -1,0 +1,339 @@
+Training 4x6 n-tuple network (67,108,864 weights) to 300,000 games, lr 0.08, temporal coherence, TD(λ=0.75 to 0.0) over 6 moves, 8 threads after 10,000 games
+  games     1,000  moves      0.6M  avg score     9737  max   32356  ≥2048   4.4%  ≥4096   0.0%  ≥8192   0.0%  | 1135.6 games/s
+  games     2,000  moves      1.7M  avg score    19151  max   60552  ≥2048  31.4%  ≥4096   1.7%  ≥8192   0.0%  |  836.2 games/s
+  games     3,000  moves      3.0M  avg score    24478  max   79704  ≥2048  54.6%  ≥4096   4.8%  ≥8192   0.0%  |  705.9 games/s
+  games     4,000  moves      4.5M  avg score    30019  max   76460  ≥2048  70.3%  ≥4096  11.7%  ≥8192   0.0%  |  541.2 games/s
+  games     5,000  moves      6.2M  avg score    33026  max   80464  ≥2048  75.6%  ≥4096  16.4%  ≥8192   0.0%  |  589.5 games/s
+  games     6,000  moves      8.0M  avg score    36466  max  108084  ≥2048  81.2%  ≥4096  24.0%  ≥8192   0.1%  |  572.1 games/s
+  games     7,000  moves      9.8M  avg score    40054  max  111936  ≥2048  83.3%  ≥4096  32.7%  ≥8192   0.1%  |  552.4 games/s
+  games     8,000  moves     11.7M  avg score    42748  max  109900  ≥2048  86.1%  ≥4096  38.9%  ≥8192   0.6%  |  519.2 games/s
+  games     9,000  moves     13.6M  avg score    45876  max  123044  ≥2048  86.3%  ≥4096  47.0%  ≥8192   0.4%  |  507.8 games/s
+  games    10,000  moves     15.7M  avg score    48569  max  124896  ≥2048  90.0%  ≥4096  50.9%  ≥8192   0.5%  |  498.5 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (10,000 games)
+  games    11,000  moves     17.8M  avg score    50569  max  132676  ≥2048  89.2%  ≥4096  54.9%  ≥8192   0.9%  | 1752.8 games/s
+  games    12,000  moves     20.0M  avg score    52889  max  156508  ≥2048  90.9%  ≥4096  58.5%  ≥8192   1.1%  | 1559.1 games/s
+  games    13,000  moves     22.3M  avg score    54506  max  132804  ≥2048  92.7%  ≥4096  61.2%  ≥8192   1.3%  | 1407.9 games/s
+  games    14,000  moves     24.6M  avg score    54419  max  132740  ≥2048  91.5%  ≥4096  61.0%  ≥8192   1.2%  | 1285.9 games/s
+  games    15,000  moves     26.9M  avg score    55933  max  132896  ≥2048  92.5%  ≥4096  64.2%  ≥8192   1.3%  | 1334.3 games/s
+  games    16,000  moves     29.3M  avg score    57632  max  154672  ≥2048  93.6%  ≥4096  67.3%  ≥8192   1.9%  | 1240.5 games/s
+  games    17,000  moves     31.7M  avg score    56695  max  129012  ≥2048  92.2%  ≥4096  65.3%  ≥8192   0.9%  | 1453.9 games/s
+  games    18,000  moves     34.2M  avg score    59426  max  155596  ≥2048  94.2%  ≥4096  71.2%  ≥8192   1.6%  | 1136.8 games/s
+  games    19,000  moves     36.6M  avg score    59902  max  148916  ≥2048  93.8%  ≥4096  71.7%  ≥8192   1.9%  | 1118.7 games/s
+  games    20,000  moves     39.1M  avg score    58703  max  140872  ≥2048  92.5%  ≥4096  69.6%  ≥8192   1.6%  | 1103.5 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (20,000 games)
+  games    21,000  moves     41.6M  avg score    60707  max  155416  ≥2048  93.2%  ≥4096  72.4%  ≥8192   2.5%  | 1077.3 games/s
+  games    22,000  moves     44.0M  avg score    59657  max  148940  ≥2048  92.7%  ≥4096  69.1%  ≥8192   1.7%  | 1149.0 games/s
+  games    23,000  moves     46.6M  avg score    61926  max  148220  ≥2048  94.9%  ≥4096  73.4%  ≥8192   3.3%  | 1172.6 games/s
+  games    24,000  moves     49.2M  avg score    63009  max  153496  ≥2048  94.2%  ≥4096  74.1%  ≥8192   3.7%  | 1132.1 games/s
+  games    25,000  moves     51.8M  avg score    64216  max  133000  ≥2048  95.4%  ≥4096  75.6%  ≥8192   5.5%  | 1136.8 games/s
+  games    26,000  moves     54.4M  avg score    64399  max  156596  ≥2048  95.7%  ≥4096  77.6%  ≥8192   4.5%  | 1295.3 games/s
+  games    27,000  moves     57.1M  avg score    65125  max  147832  ≥2048  93.7%  ≥4096  79.1%  ≥8192   4.8%  | 1094.2 games/s
+  games    28,000  moves     59.8M  avg score    65036  max  155020  ≥2048  96.3%  ≥4096  78.2%  ≥8192   3.7%  | 1080.3 games/s
+  games    29,000  moves     62.3M  avg score    62770  max  147480  ≥2048  94.1%  ≥4096  74.2%  ≥8192   4.5%  | 1106.2 games/s
+  games    30,000  moves     65.0M  avg score    66370  max  155600  ≥2048  96.1%  ≥4096  80.6%  ≥8192   5.8%  | 1042.1 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (30,000 games)
+  games    31,000  moves     67.7M  avg score    66157  max  155388  ≥2048  95.8%  ≥4096  80.3%  ≥8192   4.6%  | 1165.1 games/s
+  games    32,000  moves     70.5M  avg score    66066  max  141748  ≥2048  94.8%  ≥4096  80.0%  ≥8192   5.4%  |  986.1 games/s
+  games    33,000  moves     73.2M  avg score    67440  max  149608  ≥2048  96.1%  ≥4096  82.2%  ≥8192   6.3%  |  985.8 games/s
+  games    34,000  moves     75.9M  avg score    67715  max  162204  ≥2048  96.0%  ≥4096  80.2%  ≥8192   6.7%  | 1051.6 games/s
+  games    35,000  moves     78.6M  avg score    66358  max  147968  ≥2048  95.4%  ≥4096  79.8%  ≥8192   5.6%  | 1205.9 games/s
+  games    36,000  moves     81.4M  avg score    67172  max  144752  ≥2048  95.8%  ≥4096  81.8%  ≥8192   6.0%  | 1066.5 games/s
+  games    37,000  moves     84.1M  avg score    66699  max  153620  ≥2048  96.6%  ≥4096  78.7%  ≥8192   6.3%  | 1006.6 games/s
+  games    38,000  moves     86.8M  avg score    68266  max  163592  ≥2048  96.2%  ≥4096  83.2%  ≥8192   6.0%  | 1032.8 games/s
+  games    39,000  moves     89.6M  avg score    67917  max  152520  ≥2048  95.3%  ≥4096  82.2%  ≥8192   5.3%  | 1231.1 games/s
+  games    40,000  moves     92.3M  avg score    67955  max  154940  ≥2048  97.0%  ≥4096  83.3%  ≥8192   5.0%  | 1038.1 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (40,000 games)
+  games    41,000  moves     95.2M  avg score    68857  max  164192  ≥2048  95.8%  ≥4096  83.5%  ≥8192   6.5%  | 1069.4 games/s
+  games    42,000  moves     98.0M  avg score    69262  max  156792  ≥2048  97.1%  ≥4096  85.0%  ≥8192   6.3%  | 1025.8 games/s
+  games    43,000  moves    100.8M  avg score    70184  max  156324  ≥2048  96.1%  ≥4096  83.6%  ≥8192   8.1%  |  958.0 games/s
+  games    44,000  moves    103.6M  avg score    69681  max  156440  ≥2048  95.8%  ≥4096  83.0%  ≥8192   7.5%  | 1123.3 games/s
+  games    45,000  moves    106.5M  avg score    69735  max  156852  ≥2048  96.2%  ≥4096  83.9%  ≥8192   6.3%  | 1075.6 games/s
+  games    46,000  moves    109.3M  avg score    70354  max  176556  ≥2048  97.8%  ≥4096  84.7%  ≥8192   7.4%  |  902.5 games/s
+  games    47,000  moves    112.2M  avg score    70258  max  156308  ≥2048  96.7%  ≥4096  86.1%  ≥8192   6.5%  | 1019.3 games/s
+  games    48,000  moves    115.0M  avg score    70446  max  166608  ≥2048  96.6%  ≥4096  84.2%  ≥8192   8.3%  | 1068.6 games/s
+  games    49,000  moves    117.8M  avg score    70611  max  156568  ≥2048  95.9%  ≥4096  85.2%  ≥8192   7.9%  | 1013.8 games/s
+  games    50,000  moves    120.8M  avg score    71849  max  156436  ≥2048  97.4%  ≥4096  87.9%  ≥8192   7.9%  | 1102.6 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (50,000 games)
+  games    51,000  moves    123.7M  avg score    72542  max  165168  ≥2048  96.9%  ≥4096  86.4%  ≥8192   9.2%  | 1076.4 games/s
+  games    52,000  moves    126.7M  avg score    73047  max  157200  ≥2048  97.3%  ≥4096  86.1%  ≥8192  11.1%  | 1028.8 games/s
+  games    53,000  moves    129.6M  avg score    72375  max  167560  ≥2048  96.7%  ≥4096  84.8%  ≥8192   9.8%  |  919.7 games/s
+  games    54,000  moves    132.7M  avg score    76421  max  166208  ≥2048  98.9%  ≥4096  88.1%  ≥8192  13.9%  |  866.0 games/s
+  games    55,000  moves    135.7M  avg score    74282  max  167636  ≥2048  97.6%  ≥4096  86.4%  ≥8192  12.9%  |  926.1 games/s
+  games    56,000  moves    138.8M  avg score    76934  max  163004  ≥2048  98.7%  ≥4096  89.7%  ≥8192  15.4%  |  934.5 games/s
+  games    57,000  moves    141.8M  avg score    75733  max  174640  ≥2048  97.5%  ≥4096  86.6%  ≥8192  15.4%  |  941.3 games/s
+  games    58,000  moves    144.9M  avg score    77921  max  166204  ≥2048  97.3%  ≥4096  89.6%  ≥8192  15.9%  |  829.9 games/s
+  games    59,000  moves    148.0M  avg score    79270  max  167256  ≥2048  97.9%  ≥4096  88.8%  ≥8192  18.7%  |  957.0 games/s
+  games    60,000  moves    151.2M  avg score    79406  max  164468  ≥2048  97.2%  ≥4096  87.3%  ≥8192  21.4%  |  982.6 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (60,000 games)
+  games    61,000  moves    154.4M  avg score    80676  max  168184  ≥2048  97.1%  ≥4096  89.2%  ≥8192  21.6%  |  908.4 games/s
+  games    62,000  moves    157.7M  avg score    83909  max  168648  ≥2048  98.3%  ≥4096  91.3%  ≥8192  25.5%  |  894.6 games/s
+  games    63,000  moves    161.0M  avg score    84896  max  172392  ≥2048  98.0%  ≥4096  89.8%  ≥8192  27.1%  |  851.5 games/s
+  games    64,000  moves    164.5M  avg score    86374  max  167508  ≥2048  97.0%  ≥4096  89.0%  ≥8192  30.4%  |  845.5 games/s
+  games    65,000  moves    167.9M  avg score    87899  max  167964  ≥2048  97.9%  ≥4096  88.4%  ≥8192  33.5%  |  938.9 games/s
+  games    66,000  moves    171.4M  avg score    88809  max  176728  ≥2048  97.5%  ≥4096  87.9%  ≥8192  34.2%  |  800.0 games/s
+  games    67,000  moves    174.8M  avg score    88149  max  172220  ≥2048  96.6%  ≥4096  88.9%  ≥8192  32.0%  |  889.3 games/s
+  games    68,000  moves    178.3M  avg score    90955  max  173332  ≥2048  98.0%  ≥4096  89.9%  ≥8192  36.0%  |  943.9 games/s
+  games    69,000  moves    182.0M  avg score    94027  max  176944  ≥2048  98.4%  ≥4096  92.0%  ≥8192  39.7%  |  780.6 games/s
+  games    70,000  moves    185.6M  avg score    93782  max  173168  ≥2048  98.5%  ≥4096  90.9%  ≥8192  39.6%  |  739.1 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (70,000 games)
+  games    71,000  moves    189.2M  avg score    92923  max  175032  ≥2048  98.1%  ≥4096  89.9%  ≥8192  38.9%  |  706.9 games/s
+  games    72,000  moves    192.8M  avg score    93716  max  177112  ≥2048  98.4%  ≥4096  90.8%  ≥8192  38.9%  |  768.0 games/s
+  games    73,000  moves    196.5M  avg score    96192  max  172320  ≥2048  97.8%  ≥4096  90.7%  ≥8192  42.4%  |  801.4 games/s
+  games    74,000  moves    200.1M  avg score    94178  max  176976  ≥2048  98.5%  ≥4096  90.5%  ≥8192  38.9%  |  828.2 games/s
+  games    75,000  moves    203.9M  avg score    97729  max  176500  ≥2048  98.8%  ≥4096  92.9%  ≥8192  42.1%  |  723.0 games/s
+  games    76,000  moves    207.7M  avg score    99145  max  176856  ≥2048  97.8%  ≥4096  91.3%  ≥8192  45.5%  |  715.5 games/s
+  games    77,000  moves    211.6M  avg score   100131  max  245928  ≥2048  98.0%  ≥4096  89.7%  ≥8192  46.5%  |  734.5 games/s
+  games    78,000  moves    215.5M  avg score   102793  max  177052  ≥2048  98.3%  ≥4096  92.3%  ≥8192  49.3%  |  684.6 games/s
+  games    79,000  moves    219.4M  avg score   101376  max  175180  ≥2048  97.6%  ≥4096  90.4%  ≥8192  48.4%  |  784.6 games/s
+  games    80,000  moves    223.4M  avg score   104714  max  176364  ≥2048  98.2%  ≥4096  90.6%  ≥8192  52.3%  |  645.3 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (80,000 games)
+  games    81,000  moves    227.4M  avg score   104083  max  176560  ≥2048  98.5%  ≥4096  91.5%  ≥8192  50.0%  |  729.0 games/s
+  games    82,000  moves    231.6M  avg score   106909  max  235644  ≥2048  97.8%  ≥4096  91.9%  ≥8192  53.3%  |  702.3 games/s
+  games    83,000  moves    235.8M  avg score   111110  max  268796  ≥2048  99.1%  ≥4096  93.6%  ≥8192  56.7%  |  644.9 games/s
+  games    84,000  moves    240.0M  avg score   108731  max  236332  ≥2048  98.8%  ≥4096  92.1%  ≥8192  55.0%  |  627.9 games/s
+  games    85,000  moves    244.2M  avg score   110727  max  288492  ≥2048  98.9%  ≥4096  91.3%  ≥8192  56.4%  |  623.0 games/s
+  games    86,000  moves    248.3M  avg score   108670  max  268904  ≥2048  98.4%  ≥4096  92.3%  ≥8192  54.2%  |  718.0 games/s
+  games    87,000  moves    252.5M  avg score   110947  max  279880  ≥2048  98.7%  ≥4096  92.9%  ≥8192  56.4%  |  706.7 games/s
+  games    88,000  moves    256.9M  avg score   113844  max  279880  ≥2048  98.4%  ≥4096  93.7%  ≥8192  58.9%  |  669.2 games/s
+  games    89,000  moves    261.1M  avg score   113170  max  260492  ≥2048  99.1%  ≥4096  93.1%  ≥8192  60.1%  |  680.3 games/s
+  games    90,000  moves    265.4M  avg score   112336  max  193500  ≥2048  98.4%  ≥4096  92.4%  ≥8192  58.9%  |  598.6 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (90,000 games)
+  games    91,000  moves    269.8M  avg score   115012  max  277288  ≥2048  98.0%  ≥4096  93.1%  ≥8192  60.9%  |  634.7 games/s
+  games    92,000  moves    274.1M  avg score   113439  max  176652  ≥2048  98.9%  ≥4096  92.5%  ≥8192  58.6%  |  693.0 games/s
+  games    93,000  moves    278.5M  avg score   114296  max  258804  ≥2048  98.0%  ≥4096  91.2%  ≥8192  60.2%  |  663.7 games/s
+  games    94,000  moves    282.9M  avg score   112881  max  177136  ≥2048  98.0%  ≥4096  92.6%  ≥8192  56.9%  |  633.9 games/s
+  games    95,000  moves    287.2M  avg score   113971  max  176656  ≥2048  98.1%  ≥4096  92.5%  ≥8192  58.8%  |  596.5 games/s
+  games    96,000  moves    291.7M  avg score   118397  max  188260  ≥2048  99.4%  ≥4096  94.2%  ≥8192  62.2%  |  667.6 games/s
+  games    97,000  moves    296.2M  avg score   117167  max  277356  ≥2048  98.5%  ≥4096  93.4%  ≥8192  62.7%  |  625.8 games/s
+  games    98,000  moves    300.6M  avg score   118081  max  272900  ≥2048  99.1%  ≥4096  92.8%  ≥8192  62.1%  |  703.9 games/s
+  games    99,000  moves    305.0M  avg score   116359  max  196380  ≥2048  98.7%  ≥4096  93.6%  ≥8192  60.6%  |  655.1 games/s
+  games   100,000  moves    309.5M  avg score   116783  max  270256  ≥2048  99.1%  ≥4096  92.8%  ≥8192  62.1%  |  641.7 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (100,000 games)
+  games   101,000  moves    314.0M  avg score   119183  max  280152  ≥2048  98.5%  ≥4096  91.6%  ≥8192  65.2%  |  629.2 games/s
+  games   102,000  moves    318.5M  avg score   117449  max  192600  ≥2048  98.6%  ≥4096  92.0%  ≥8192  63.0%  |  655.6 games/s
+  games   103,000  moves    323.1M  avg score   119828  max  177144  ≥2048  98.9%  ≥4096  92.6%  ≥8192  65.3%  |  706.0 games/s
+  games   104,000  moves    327.5M  avg score   118991  max  225300  ≥2048  98.8%  ≥4096  93.3%  ≥8192  63.6%  |  676.9 games/s
+  games   105,000  moves    332.1M  avg score   118512  max  237700  ≥2048  99.3%  ≥4096  93.2%  ≥8192  64.4%  |  590.7 games/s
+  games   106,000  moves    336.6M  avg score   118947  max  293084  ≥2048  98.5%  ≥4096  93.6%  ≥8192  63.3%  |  663.0 games/s
+  games   107,000  moves    341.1M  avg score   119511  max  262356  ≥2048  98.1%  ≥4096  93.5%  ≥8192  64.9%  |  615.3 games/s
+  games   108,000  moves    345.6M  avg score   119189  max  279656  ≥2048  99.0%  ≥4096  92.2%  ≥8192  63.1%  |  684.7 games/s
+  games   109,000  moves    350.3M  avg score   124331  max  280668  ≥2048  98.9%  ≥4096  94.8%  ≥8192  67.6%  |  604.3 games/s
+  games   110,000  moves    355.0M  avg score   124148  max  282308  ≥2048  98.2%  ≥4096  93.1%  ≥8192  67.8%  |  577.5 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (110,000 games)
+  games   111,000  moves    359.7M  avg score   123566  max  269252  ≥2048  98.1%  ≥4096  94.0%  ≥8192  69.0%  |  573.1 games/s
+  games   112,000  moves    364.4M  avg score   121601  max  196708  ≥2048  99.4%  ≥4096  93.2%  ≥8192  66.6%  |  597.5 games/s
+  games   113,000  moves    369.0M  avg score   123783  max  261116  ≥2048  98.7%  ≥4096  92.8%  ≥8192  68.2%  |  570.1 games/s
+  games   114,000  moves    373.7M  avg score   123897  max  309324  ≥2048  98.0%  ≥4096  93.2%  ≥8192  68.6%  |  665.7 games/s
+  games   115,000  moves    378.3M  avg score   122979  max  281532  ≥2048  98.9%  ≥4096  93.4%  ≥8192  67.0%  |  625.4 games/s
+  games   116,000  moves    383.1M  avg score   124348  max  260332  ≥2048  98.2%  ≥4096  93.9%  ≥8192  68.6%  |  565.1 games/s
+  games   117,000  moves    387.7M  avg score   122853  max  272132  ≥2048  99.7%  ≥4096  93.3%  ≥8192  66.8%  |  565.0 games/s
+  games   118,000  moves    392.4M  avg score   125182  max  286008  ≥2048  98.5%  ≥4096  93.7%  ≥8192  68.4%  |  565.4 games/s
+  games   119,000  moves    397.1M  avg score   125167  max  281356  ≥2048  99.2%  ≥4096  94.5%  ≥8192  69.0%  |  586.5 games/s
+  games   120,000  moves    401.8M  avg score   125193  max  281232  ≥2048  98.5%  ≥4096  93.3%  ≥8192  69.0%  |  657.0 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (120,000 games)
+  games   121,000  moves    406.5M  avg score   124647  max  279632  ≥2048  98.7%  ≥4096  93.3%  ≥8192  67.7%  |  562.4 games/s
+  games   122,000  moves    411.3M  avg score   124822  max  287756  ≥2048  98.5%  ≥4096  93.6%  ≥8192  68.6%  |  619.3 games/s
+  games   123,000  moves    416.0M  avg score   124217  max  289576  ≥2048  99.0%  ≥4096  94.1%  ≥8192  68.8%  |  657.8 games/s
+  games   124,000  moves    420.7M  avg score   124380  max  290184  ≥2048  98.8%  ≥4096  94.1%  ≥8192  68.7%  |  611.2 games/s
+  games   125,000  moves    425.6M  avg score   128490  max  269468  ≥2048  99.0%  ≥4096  94.6%  ≥8192  72.3%  |  593.6 games/s
+  games   126,000  moves    430.4M  avg score   129383  max  286440  ≥2048  99.1%  ≥4096  94.5%  ≥8192  72.3%  |  550.4 games/s
+  games   127,000  moves    435.2M  avg score   127514  max  284876  ≥2048  99.3%  ≥4096  94.1%  ≥8192  71.2%  |  508.1 games/s
+  games   128,000  moves    440.0M  avg score   127888  max  281976  ≥2048  99.2%  ≥4096  96.0%  ≥8192  70.5%  |  577.1 games/s
+  games   129,000  moves    444.8M  avg score   125203  max  285968  ≥2048  98.3%  ≥4096  92.3%  ≥8192  69.0%  |  625.1 games/s
+  games   130,000  moves    449.6M  avg score   127799  max  287932  ≥2048  98.9%  ≥4096  94.6%  ≥8192  69.9%  |  559.3 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (130,000 games)
+  games   131,000  moves    454.5M  avg score   130192  max  312784  ≥2048  99.4%  ≥4096  94.4%  ≥8192  74.5%  |  580.6 games/s
+  games   132,000  moves    459.3M  avg score   130405  max  282508  ≥2048  99.2%  ≥4096  94.8%  ≥8192  71.8%  |  561.6 games/s
+  games   133,000  moves    464.1M  avg score   126780  max  288644  ≥2048  98.3%  ≥4096  93.2%  ≥8192  70.9%  |  591.3 games/s
+  games   134,000  moves    468.9M  avg score   126196  max  281520  ≥2048  98.9%  ≥4096  92.8%  ≥8192  68.7%  |  627.6 games/s
+  games   135,000  moves    473.8M  avg score   129988  max  286068  ≥2048  98.8%  ≥4096  95.0%  ≥8192  72.5%  |  612.1 games/s
+  games   136,000  moves    478.6M  avg score   126800  max  286052  ≥2048  98.0%  ≥4096  93.4%  ≥8192  70.1%  |  568.6 games/s
+  games   137,000  moves    483.6M  avg score   130794  max  276892  ≥2048  99.1%  ≥4096  95.5%  ≥8192  74.4%  |  586.2 games/s
+  games   138,000  moves    488.4M  avg score   126916  max  288488  ≥2048  99.0%  ≥4096  94.3%  ≥8192  70.1%  |  500.0 games/s
+  games   139,000  moves    493.3M  avg score   131633  max  332908  ≥2048  99.0%  ≥4096  94.3%  ≥8192  74.6%  |  547.0 games/s
+  games   140,000  moves    498.1M  avg score   131254  max  288068  ≥2048  98.5%  ≥4096  96.1%  ≥8192  74.5%  |  601.3 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (140,000 games)
+  games   141,000  moves    503.0M  avg score   129363  max  331052  ≥2048  99.4%  ≥4096  94.5%  ≥8192  71.9%  |  556.6 games/s
+  games   142,000  moves    507.9M  avg score   129998  max  282228  ≥2048  98.9%  ≥4096  96.0%  ≥8192  73.4%  |  589.8 games/s
+  games   143,000  moves    512.8M  avg score   131123  max  284524  ≥2048  99.2%  ≥4096  95.9%  ≥8192  73.8%  |  583.8 games/s
+  games   144,000  moves    517.7M  avg score   130776  max  287560  ≥2048  99.2%  ≥4096  95.0%  ≥8192  74.5%  |  568.8 games/s
+  games   145,000  moves    522.6M  avg score   131726  max  313840  ≥2048  98.9%  ≥4096  94.2%  ≥8192  73.8%  |  639.2 games/s
+  games   146,000  moves    527.5M  avg score   130034  max  284308  ≥2048  98.3%  ≥4096  94.3%  ≥8192  71.7%  |  514.0 games/s
+  games   147,000  moves    532.4M  avg score   129297  max  279592  ≥2048  99.1%  ≥4096  94.6%  ≥8192  72.0%  |  523.2 games/s
+  games   148,000  moves    537.3M  avg score   130625  max  282344  ≥2048  98.7%  ≥4096  94.5%  ≥8192  74.2%  |  557.9 games/s
+  games   149,000  moves    542.2M  avg score   132701  max  279560  ≥2048  98.8%  ≥4096  95.4%  ≥8192  74.7%  |  577.8 games/s
+  games   150,000  moves    547.3M  avg score   134612  max  285784  ≥2048  99.3%  ≥4096  96.3%  ≥8192  75.3%  |  551.2 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (150,000 games)
+  games   151,000  moves    552.3M  avg score   132897  max  287660  ≥2048  98.6%  ≥4096  95.9%  ≥8192  74.7%  |  577.1 games/s
+  games   152,000  moves    557.2M  avg score   130201  max  287864  ≥2048  99.4%  ≥4096  94.7%  ≥8192  71.4%  |  533.0 games/s
+  games   153,000  moves    562.2M  avg score   133450  max  317176  ≥2048  99.4%  ≥4096  95.8%  ≥8192  73.7%  |  622.8 games/s
+  games   154,000  moves    567.3M  avg score   132003  max  284008  ≥2048  99.2%  ≥4096  94.9%  ≥8192  72.0%  |  630.6 games/s
+  games   155,000  moves    572.3M  avg score   133521  max  284380  ≥2048  99.4%  ≥4096  94.2%  ≥8192  72.3%  |  594.1 games/s
+  games   156,000  moves    577.2M  avg score   131808  max  288380  ≥2048  99.5%  ≥4096  95.0%  ≥8192  74.6%  |  606.6 games/s
+  games   157,000  moves    582.2M  avg score   132457  max  321844  ≥2048  98.8%  ≥4096  94.6%  ≥8192  74.2%  |  607.5 games/s
+  games   158,000  moves    587.3M  avg score   135296  max  288264  ≥2048  99.5%  ≥4096  95.2%  ≥8192  74.5%  |  592.4 games/s
+  games   159,000  moves    592.3M  avg score   131579  max  322176  ≥2048  98.8%  ≥4096  95.2%  ≥8192  73.1%  |  623.1 games/s
+  games   160,000  moves    597.3M  avg score   132726  max  319372  ≥2048  99.3%  ≥4096  95.2%  ≥8192  73.4%  |  575.3 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (160,000 games)
+  games   161,000  moves    602.2M  avg score   131220  max  288484  ≥2048  98.7%  ≥4096  95.5%  ≥8192  71.8%  |  622.9 games/s
+  games   162,000  moves    607.3M  avg score   133953  max  322880  ≥2048  99.0%  ≥4096  94.8%  ≥8192  75.1%  |  631.0 games/s
+  games   163,000  moves    612.3M  avg score   134019  max  317208  ≥2048  99.0%  ≥4096  95.6%  ≥8192  73.7%  |  581.0 games/s
+  games   164,000  moves    617.3M  avg score   134802  max  289344  ≥2048  98.7%  ≥4096  94.7%  ≥8192  73.7%  |  575.9 games/s
+  games   165,000  moves    622.4M  avg score   136469  max  364056  ≥2048  99.1%  ≥4096  95.0%  ≥8192  74.7%  |  564.4 games/s
+  games   166,000  moves    627.5M  avg score   137091  max  290240  ≥2048  98.9%  ≥4096  94.8%  ≥8192  77.3%  |  520.5 games/s
+  games   167,000  moves    632.7M  avg score   139018  max  356300  ≥2048  98.8%  ≥4096  95.9%  ≥8192  78.8%  |  567.1 games/s
+  games   168,000  moves    637.8M  avg score   136768  max  322820  ≥2048  99.1%  ≥4096  96.4%  ≥8192  75.8%  |  567.6 games/s
+  games   169,000  moves    642.9M  avg score   135684  max  290412  ≥2048  99.2%  ≥4096  95.4%  ≥8192  74.3%  |  548.0 games/s
+  games   170,000  moves    647.9M  avg score   135069  max  313100  ≥2048  98.4%  ≥4096  94.7%  ≥8192  74.8%  |  646.5 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (170,000 games)
+  games   171,000  moves    653.0M  avg score   139271  max  327868  ≥2048  99.1%  ≥4096  95.7%  ≥8192  76.3%  |  609.0 games/s
+  games   172,000  moves    658.1M  avg score   137661  max  289488  ≥2048  99.1%  ≥4096  94.5%  ≥8192  76.3%  |  586.9 games/s
+  games   173,000  moves    663.2M  avg score   137489  max  289956  ≥2048  99.0%  ≥4096  94.7%  ≥8192  77.0%  |  584.4 games/s
+  games   174,000  moves    668.4M  avg score   139187  max  332464  ≥2048  99.5%  ≥4096  95.2%  ≥8192  78.4%  |  681.6 games/s
+  games   175,000  moves    673.5M  avg score   136853  max  332136  ≥2048  98.7%  ≥4096  95.2%  ≥8192  74.3%  |  615.3 games/s
+  games   176,000  moves    678.7M  avg score   139216  max  333888  ≥2048  99.4%  ≥4096  94.4%  ≥8192  75.7%  |  617.7 games/s
+  games   177,000  moves    683.8M  avg score   139755  max  320824  ≥2048  98.6%  ≥4096  94.2%  ≥8192  75.7%  |  548.7 games/s
+  games   178,000  moves    689.1M  avg score   140129  max  308244  ≥2048  99.6%  ≥4096  96.5%  ≥8192  77.6%  |  558.0 games/s
+  games   179,000  moves    694.4M  avg score   143638  max  290168  ≥2048  99.8%  ≥4096  97.3%  ≥8192  79.7%  |  517.0 games/s
+  games   180,000  moves    699.5M  avg score   139077  max  333192  ≥2048  99.1%  ≥4096  95.9%  ≥8192  74.6%  |  555.8 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (180,000 games)
+  games   181,000  moves    704.8M  avg score   139535  max  352328  ≥2048  98.9%  ≥4096  94.8%  ≥8192  75.9%  |  505.2 games/s
+  games   182,000  moves    710.0M  avg score   140738  max  332760  ≥2048  99.2%  ≥4096  95.9%  ≥8192  74.4%  |  545.8 games/s
+  games   183,000  moves    715.3M  avg score   141863  max  357436  ≥2048  99.6%  ≥4096  96.5%  ≥8192  78.2%  |  599.2 games/s
+  games   184,000  moves    720.5M  avg score   138938  max  364816  ≥2048  99.0%  ≥4096  94.0%  ≥8192  75.3%  |  559.2 games/s
+  games   185,000  moves    725.7M  avg score   141045  max  342284  ≥2048  99.2%  ≥4096  95.8%  ≥8192  76.2%  |  550.5 games/s
+  games   186,000  moves    731.0M  avg score   142714  max  338976  ≥2048  99.0%  ≥4096  95.1%  ≥8192  78.9%  |  554.0 games/s
+  games   187,000  moves    736.1M  avg score   137887  max  352196  ≥2048  99.1%  ≥4096  93.6%  ≥8192  73.9%  |  613.4 games/s
+  games   188,000  moves    741.2M  avg score   139131  max  332008  ≥2048  98.5%  ≥4096  95.1%  ≥8192  75.9%  |  633.6 games/s
+  games   189,000  moves    746.5M  avg score   140794  max  318028  ≥2048  99.1%  ≥4096  95.3%  ≥8192  77.6%  |  551.8 games/s
+  games   190,000  moves    751.7M  avg score   141588  max  365572  ≥2048  99.2%  ≥4096  96.0%  ≥8192  76.7%  |  565.6 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (190,000 games)
+  games   191,000  moves    757.0M  avg score   141870  max  340784  ≥2048  99.3%  ≥4096  95.9%  ≥8192  78.2%  |  538.1 games/s
+  games   192,000  moves    762.4M  avg score   144077  max  356732  ≥2048  99.0%  ≥4096  95.7%  ≥8192  78.9%  |  605.8 games/s
+  games   193,000  moves    767.7M  avg score   144402  max  341272  ≥2048  98.8%  ≥4096  95.6%  ≥8192  77.6%  |  583.0 games/s
+  games   194,000  moves    773.0M  avg score   143078  max  356656  ≥2048  99.5%  ≥4096  95.9%  ≥8192  77.5%  |  555.5 games/s
+  games   195,000  moves    778.4M  avg score   142799  max  331360  ≥2048  99.1%  ≥4096  95.4%  ≥8192  78.1%  |  532.2 games/s
+  games   196,000  moves    783.7M  avg score   140963  max  332192  ≥2048  99.4%  ≥4096  95.2%  ≥8192  74.6%  |  552.5 games/s
+  games   197,000  moves    789.1M  avg score   147046  max  343048  ≥2048  99.5%  ≥4096  96.8%  ≥8192  80.5%  |  482.7 games/s
+  games   198,000  moves    794.3M  avg score   141936  max  341016  ≥2048  99.0%  ≥4096  93.5%  ≥8192  76.1%  |  553.1 games/s
+  games   199,000  moves    799.8M  avg score   146785  max  354004  ≥2048  99.1%  ≥4096  96.9%  ≥8192  79.1%  |  553.8 games/s
+  games   200,000  moves    805.2M  avg score   143774  max  381504  ≥2048  99.6%  ≥4096  96.9%  ≥8192  77.8%  |  562.4 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (200,000 games)
+  games   201,000  moves    810.6M  avg score   143871  max  382272  ≥2048  99.5%  ≥4096  94.5%  ≥8192  76.3%  |  556.8 games/s
+  games   202,000  moves    815.9M  avg score   142336  max  357536  ≥2048  99.8%  ≥4096  95.4%  ≥8192  75.6%  |  470.0 games/s
+  games   203,000  moves    821.2M  avg score   143899  max  353724  ≥2048  99.6%  ≥4096  96.4%  ≥8192  77.8%  |  579.5 games/s
+  games   204,000  moves    826.6M  avg score   145067  max  381516  ≥2048  99.0%  ≥4096  94.8%  ≥8192  76.5%  |  546.8 games/s
+  games   205,000  moves    832.0M  avg score   143729  max  364864  ≥2048  99.3%  ≥4096  94.3%  ≥8192  75.9%  |  520.8 games/s
+  games   206,000  moves    837.4M  avg score   143993  max  342300  ≥2048  99.0%  ≥4096  94.8%  ≥8192  79.1%  |  557.1 games/s
+  games   207,000  moves    842.8M  avg score   145843  max  358260  ≥2048  98.7%  ≥4096  96.6%  ≥8192  77.1%  |  559.5 games/s
+  games   208,000  moves    848.2M  avg score   146630  max  342632  ≥2048  99.4%  ≥4096  96.5%  ≥8192  78.9%  |  537.7 games/s
+  games   209,000  moves    853.5M  avg score   143205  max  340756  ≥2048  98.9%  ≥4096  95.8%  ≥8192  78.0%  |  604.2 games/s
+  games   210,000  moves    858.9M  avg score   147497  max  358464  ≥2048  99.2%  ≥4096  96.0%  ≥8192  78.7%  |  581.0 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (210,000 games)
+  games   211,000  moves    864.3M  avg score   144041  max  340584  ≥2048  99.4%  ≥4096  95.2%  ≥8192  78.2%  |  644.1 games/s
+  games   212,000  moves    869.7M  avg score   145058  max  333376  ≥2048  99.0%  ≥4096  96.5%  ≥8192  78.6%  |  604.0 games/s
+  games   213,000  moves    875.2M  avg score   145860  max  335084  ≥2048  99.5%  ≥4096  96.5%  ≥8192  77.8%  |  490.5 games/s
+  games   214,000  moves    880.5M  avg score   146291  max  361168  ≥2048  99.0%  ≥4096  96.7%  ≥8192  78.1%  |  538.4 games/s
+  games   215,000  moves    886.0M  avg score   145971  max  361924  ≥2048  99.9%  ≥4096  97.6%  ≥8192  76.4%  |  550.3 games/s
+  games   216,000  moves    891.2M  avg score   142872  max  334204  ≥2048  99.9%  ≥4096  96.2%  ≥8192  76.1%  |  637.4 games/s
+  games   217,000  moves    896.7M  avg score   147533  max  354072  ≥2048  99.5%  ≥4096  96.4%  ≥8192  78.4%  |  529.6 games/s
+  games   218,000  moves    902.2M  avg score   144873  max  361572  ≥2048  98.3%  ≥4096  94.0%  ≥8192  77.7%  |  513.0 games/s
+  games   219,000  moves    907.7M  avg score   147583  max  355608  ≥2048  99.1%  ≥4096  96.0%  ≥8192  78.1%  |  458.7 games/s
+  games   220,000  moves    913.3M  avg score   150060  max  338408  ≥2048  99.4%  ≥4096  96.6%  ≥8192  79.7%  |  527.6 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (220,000 games)
+  games   221,000  moves    918.7M  avg score   146586  max  357064  ≥2048  99.1%  ≥4096  96.2%  ≥8192  79.2%  |  550.1 games/s
+  games   222,000  moves    924.1M  avg score   148486  max  356472  ≥2048  98.7%  ≥4096  95.8%  ≥8192  78.9%  |  536.7 games/s
+  games   223,000  moves    929.5M  avg score   144308  max  341928  ≥2048  98.6%  ≥4096  94.7%  ≥8192  76.7%  |  566.8 games/s
+  games   224,000  moves    935.1M  avg score   149225  max  361380  ≥2048  99.3%  ≥4096  95.3%  ≥8192  79.8%  |  566.1 games/s
+  games   225,000  moves    940.6M  avg score   149394  max  362460  ≥2048  99.0%  ≥4096  95.8%  ≥8192  79.6%  |  527.7 games/s
+  games   226,000  moves    946.2M  avg score   149888  max  374164  ≥2048  99.4%  ≥4096  96.4%  ≥8192  78.1%  |  547.7 games/s
+  games   227,000  moves    951.7M  avg score   148957  max  357116  ≥2048  99.2%  ≥4096  96.4%  ≥8192  80.2%  |  535.7 games/s
+  games   228,000  moves    957.1M  avg score   147291  max  330196  ≥2048  99.6%  ≥4096  96.3%  ≥8192  78.6%  |  537.9 games/s
+  games   229,000  moves    962.6M  avg score   147518  max  371352  ≥2048  99.4%  ≥4096  95.7%  ≥8192  78.7%  |  510.0 games/s
+  games   230,000  moves    968.1M  avg score   149547  max  363284  ≥2048  99.1%  ≥4096  96.5%  ≥8192  78.9%  |  518.6 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (230,000 games)
+  games   231,000  moves    973.6M  avg score   148209  max  365372  ≥2048  99.1%  ≥4096  95.2%  ≥8192  76.4%  |  574.6 games/s
+  games   232,000  moves    979.3M  avg score   148575  max  334024  ≥2048  99.5%  ≥4096  96.4%  ≥8192  79.0%  |  495.8 games/s
+  games   233,000  moves    984.8M  avg score   149720  max  356132  ≥2048  99.8%  ≥4096  97.3%  ≥8192  79.3%  |  517.0 games/s
+  games   234,000  moves    990.4M  avg score   149033  max  358132  ≥2048  99.4%  ≥4096  95.9%  ≥8192  78.1%  |  471.3 games/s
+  games   235,000  moves    996.0M  avg score   150022  max  356468  ≥2048  99.4%  ≥4096  97.6%  ≥8192  80.4%  |  508.0 games/s
+  games   236,000  moves   1001.6M  avg score   147950  max  342196  ≥2048  99.0%  ≥4096  95.6%  ≥8192  76.1%  |  583.2 games/s
+  games   237,000  moves   1007.1M  avg score   149906  max  340436  ≥2048  99.1%  ≥4096  95.9%  ≥8192  79.6%  |  564.9 games/s
+  games   238,000  moves   1012.6M  avg score   148667  max  342564  ≥2048  99.2%  ≥4096  96.9%  ≥8192  77.9%  |  573.2 games/s
+  games   239,000  moves   1018.1M  avg score   151003  max  356444  ≥2048  99.0%  ≥4096  96.0%  ≥8192  79.2%  |  586.7 games/s
+  games   240,000  moves   1023.6M  avg score   149038  max  338444  ≥2048  98.7%  ≥4096  95.8%  ≥8192  78.9%  |  507.8 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (240,000 games)
+  games   241,000  moves   1029.1M  avg score   149628  max  362568  ≥2048  99.1%  ≥4096  94.2%  ≥8192  79.7%  |  530.3 games/s
+  games   242,000  moves   1034.7M  avg score   150625  max  341256  ≥2048  99.0%  ≥4096  96.6%  ≥8192  80.1%  |  499.4 games/s
+  games   243,000  moves   1040.2M  avg score   150142  max  376720  ≥2048  99.2%  ≥4096  96.0%  ≥8192  79.4%  |  606.8 games/s
+  games   244,000  moves   1045.7M  avg score   147415  max  366636  ≥2048  99.6%  ≥4096  96.5%  ≥8192  79.0%  |  599.2 games/s
+  games   245,000  moves   1051.3M  avg score   150295  max  360620  ≥2048  99.4%  ≥4096  96.3%  ≥8192  78.5%  |  506.6 games/s
+  games   246,000  moves   1056.8M  avg score   146864  max  358004  ≥2048  99.8%  ≥4096  96.3%  ≥8192  77.9%  |  637.2 games/s
+  games   247,000  moves   1062.4M  avg score   151805  max  359084  ≥2048  99.4%  ≥4096  96.1%  ≥8192  79.7%  |  540.0 games/s
+  games   248,000  moves   1067.9M  avg score   151273  max  366460  ≥2048  99.6%  ≥4096  97.6%  ≥8192  77.0%  |  464.5 games/s
+  games   249,000  moves   1073.4M  avg score   147503  max  362252  ≥2048  98.5%  ≥4096  95.1%  ≥8192  77.0%  |  571.9 games/s
+  games   250,000  moves   1079.0M  avg score   152205  max  363488  ≥2048  99.0%  ≥4096  95.7%  ≥8192  79.4%  |  488.9 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (250,000 games)
+  games   251,000  moves   1084.7M  avg score   152218  max  337068  ≥2048  99.4%  ≥4096  97.1%  ≥8192  80.2%  |  502.6 games/s
+  games   252,000  moves   1090.3M  avg score   150848  max  387264  ≥2048  99.4%  ≥4096  96.5%  ≥8192  77.7%  |  556.8 games/s
+  games   253,000  moves   1095.8M  avg score   151594  max  337176  ≥2048  99.2%  ≥4096  96.9%  ≥8192  80.6%  |  541.3 games/s
+  games   254,000  moves   1101.4M  avg score   151249  max  352484  ≥2048  99.0%  ≥4096  95.0%  ≥8192  79.1%  |  508.0 games/s
+  games   255,000  moves   1107.0M  avg score   151027  max  371852  ≥2048  99.6%  ≥4096  96.0%  ≥8192  79.4%  |  519.8 games/s
+  games   256,000  moves   1112.7M  avg score   153778  max  361224  ≥2048  99.1%  ≥4096  95.4%  ≥8192  77.7%  |  528.1 games/s
+  games   257,000  moves   1118.4M  avg score   152597  max  354220  ≥2048  99.5%  ≥4096  95.3%  ≥8192  80.5%  |  516.5 games/s
+  games   258,000  moves   1124.1M  avg score   153179  max  361112  ≥2048  99.3%  ≥4096  96.7%  ≥8192  78.7%  |  472.8 games/s
+  games   259,000  moves   1129.7M  avg score   154141  max  353644  ≥2048  99.4%  ≥4096  97.1%  ≥8192  81.2%  |  518.2 games/s
+  games   260,000  moves   1135.4M  avg score   151164  max  356300  ≥2048  98.8%  ≥4096  97.1%  ≥8192  80.1%  |  518.4 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (260,000 games)
+  games   261,000  moves   1141.1M  avg score   153796  max  367588  ≥2048  99.5%  ≥4096  96.4%  ≥8192  81.7%  |  505.4 games/s
+  games   262,000  moves   1146.6M  avg score   149526  max  376368  ≥2048  99.0%  ≥4096  95.0%  ≥8192  79.7%  |  538.2 games/s
+  games   263,000  moves   1152.3M  avg score   152330  max  365120  ≥2048  99.1%  ≥4096  96.2%  ≥8192  80.3%  |  512.2 games/s
+  games   264,000  moves   1157.9M  avg score   153863  max  360544  ≥2048  99.1%  ≥4096  96.5%  ≥8192  80.1%  |  555.7 games/s
+  games   265,000  moves   1163.6M  avg score   151872  max  382276  ≥2048  99.9%  ≥4096  96.2%  ≥8192  78.1%  |  534.4 games/s
+  games   266,000  moves   1169.3M  avg score   154586  max  382532  ≥2048  99.0%  ≥4096  96.1%  ≥8192  81.5%  |  487.9 games/s
+  games   267,000  moves   1174.9M  avg score   151310  max  364792  ≥2048  99.2%  ≥4096  95.9%  ≥8192  78.9%  |  505.9 games/s
+  games   268,000  moves   1180.6M  avg score   154485  max  364996  ≥2048  99.4%  ≥4096  96.7%  ≥8192  81.3%  |  506.9 games/s
+  games   269,000  moves   1186.3M  avg score   153559  max  372144  ≥2048  99.5%  ≥4096  97.1%  ≥8192  81.0%  |  521.3 games/s
+  games   270,000  moves   1192.1M  avg score   156507  max  387040  ≥2048  99.4%  ≥4096  95.0%  ≥8192  80.6%  |  559.5 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (270,000 games)
+  games   271,000  moves   1197.7M  avg score   151977  max  362992  ≥2048  99.5%  ≥4096  96.1%  ≥8192  81.2%  |  567.7 games/s
+  games   272,000  moves   1203.5M  avg score   150889  max  357796  ≥2048  99.2%  ≥4096  97.0%  ≥8192  79.8%  |  533.4 games/s
+  games   273,000  moves   1209.2M  avg score   156025  max  358232  ≥2048  99.5%  ≥4096  96.3%  ≥8192  82.1%  |  513.6 games/s
+  games   274,000  moves   1215.0M  avg score   156436  max  364464  ≥2048  99.5%  ≥4096  95.5%  ≥8192  80.9%  |  585.1 games/s
+  games   275,000  moves   1220.7M  avg score   153474  max  375288  ≥2048  99.6%  ≥4096  97.6%  ≥8192  80.8%  |  480.1 games/s
+  games   276,000  moves   1226.3M  avg score   153874  max  384832  ≥2048  99.0%  ≥4096  96.8%  ≥8192  80.3%  |  505.9 games/s
+  games   277,000  moves   1232.1M  avg score   153667  max  364408  ≥2048  99.3%  ≥4096  97.3%  ≥8192  80.1%  |  528.8 games/s
+  games   278,000  moves   1237.8M  avg score   154231  max  361812  ≥2048  99.3%  ≥4096  97.3%  ≥8192  80.5%  |  585.1 games/s
+  games   279,000  moves   1243.4M  avg score   152669  max  362524  ≥2048  99.5%  ≥4096  96.2%  ≥8192  79.6%  |  560.3 games/s
+  games   280,000  moves   1249.1M  avg score   155575  max  358248  ≥2048  99.5%  ≥4096  96.8%  ≥8192  79.7%  |  529.3 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (280,000 games)
+  games   281,000  moves   1254.8M  avg score   155364  max  381636  ≥2048  99.7%  ≥4096  97.5%  ≥8192  82.5%  |  508.6 games/s
+  games   282,000  moves   1260.5M  avg score   156379  max  363624  ≥2048  99.5%  ≥4096  96.5%  ≥8192  81.1%  |  547.3 games/s
+  games   283,000  moves   1266.3M  avg score   154844  max  367200  ≥2048  99.9%  ≥4096  96.4%  ≥8192  79.0%  |  502.1 games/s
+  games   284,000  moves   1272.0M  avg score   156315  max  378256  ≥2048  98.7%  ≥4096  95.7%  ≥8192  80.6%  |  542.6 games/s
+  games   285,000  moves   1277.8M  avg score   156788  max  364768  ≥2048  99.6%  ≥4096  96.6%  ≥8192  81.5%  |  545.8 games/s
+  games   286,000  moves   1283.5M  avg score   155831  max  357232  ≥2048  99.0%  ≥4096  96.8%  ≥8192  80.8%  |  516.0 games/s
+  games   287,000  moves   1289.3M  avg score   158555  max  365616  ≥2048  99.5%  ≥4096  96.5%  ≥8192  81.7%  |  508.7 games/s
+  games   288,000  moves   1295.1M  avg score   157719  max  364588  ≥2048  99.0%  ≥4096  96.3%  ≥8192  81.6%  |  458.8 games/s
+  games   289,000  moves   1300.8M  avg score   153357  max  378536  ≥2048  99.4%  ≥4096  96.8%  ≥8192  79.0%  |  513.5 games/s
+  games   290,000  moves   1306.5M  avg score   156063  max  357444  ≥2048  99.5%  ≥4096  96.7%  ≥8192  82.1%  |  484.9 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (290,000 games)
+  games   291,000  moves   1312.4M  avg score   156875  max  358552  ≥2048  99.5%  ≥4096  96.4%  ≥8192  80.8%  |  519.5 games/s
+  games   292,000  moves   1318.1M  avg score   155448  max  382216  ≥2048  99.5%  ≥4096  97.5%  ≥8192  80.9%  |  517.4 games/s
+  games   293,000  moves   1323.9M  avg score   156700  max  381236  ≥2048  99.5%  ≥4096  96.7%  ≥8192  80.8%  |  521.7 games/s
+  games   294,000  moves   1329.7M  avg score   156011  max  367416  ≥2048  99.8%  ≥4096  97.4%  ≥8192  80.4%  |  528.9 games/s
+  games   295,000  moves   1335.4M  avg score   155862  max  366220  ≥2048  99.1%  ≥4096  96.4%  ≥8192  81.0%  |  562.4 games/s
+  games   296,000  moves   1341.3M  avg score   158608  max  380756  ≥2048  98.5%  ≥4096  96.5%  ≥8192  80.9%  |  498.2 games/s
+  games   297,000  moves   1347.1M  avg score   157362  max  334072  ≥2048  99.5%  ≥4096  97.1%  ≥8192  80.6%  |  458.2 games/s
+  games   298,000  moves   1352.9M  avg score   155408  max  365080  ≥2048  99.4%  ≥4096  96.3%  ≥8192  80.9%  |  478.3 games/s
+  games   299,000  moves   1358.7M  avg score   158785  max  372392  ≥2048  99.2%  ≥4096  96.9%  ≥8192  81.1%  |  500.4 games/s
+  games   300,000  moves   1364.3M  avg score   154625  max  354860  ≥2048  99.4%  ≥4096  95.5%  ≥8192  79.4%  |  484.2 games/s
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/games_300000.npz (300,000 games)
+  saved checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz (300,000 games)
+
+Training complete
+{
+  "games_played": 300000,
+  "checkpoint_path": "checkpoints/ntuple/lambda-4x6-annealed-s2/latest.npz",
+  "interrupted": false
+}

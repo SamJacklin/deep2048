@@ -38,6 +38,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | `threads-4x6-t8-*` (2 runs) | [Multi-threaded training](#multi-threaded-training): lock-free 8-thread training vs single-threaded |
 | `seed-4x6-tc0.08-*` (2 runs) | [Seed-to-seed variation](#seed-to-seed-variation): the screen's 4×6 at 0.08 configuration with seeds 7 and 123 |
 | `ingredients-4x6-*` (15 runs) | [Ingredient test across seeds](#ingredient-test-across-seeds): control, A, C, A + C and B′, seeds 1–3 |
+| `lambda-4x6-*` (9 runs) | [TD(λ) across seeds](#tdλ-across-seeds): Jaśkowski's λ = 0.5, a longer horizon and an annealed λ, on A + C, seeds 1–3 |
 | [`long-8x6`](long-8x6/NOTES.md) | [The long run](#the-long-run): 8×6 at 0.02 with A + C, on 8 threads to 1.5M games, then search |
 | [`search-long-8x6`](search-long-8x6/NOTES.md) | [Faster search](#faster-search): exact and pruned search at depths 3–6 on the long run's 1.5M network |
 
@@ -266,6 +267,50 @@ The ≥16384 and moves columns are averages over the three seeds.
 - **The two ingredients are much stronger together than apart.** Alone, each gives a small gain that isn't consistent across seeds (A +4.0k, C +7.1k). Together they give +21.6k, about twice the sum. A likely mechanism: late-game starts supply the rare late-game experience, and downgrading lets it train weights shared across tile scales, so each synthetic game teaches every scale at once.
 - **B′ is erratic** (−11k, +14k, +10k). Restricting the scale term to downgraded boards removed B's early damage, but the few heavily shared scale weights still make late-game learning noisy. It's left out.
 - The earlier single-seed results fit this picture. A's +9.7k with seed 42 was above anything seen across these three seeds (−3.6k to +8.0k), so that test happened to land on a favourable seed. C's +5.2k sits within its range.
+
+## TD(λ) across seeds
+
+Jaśkowski (2018) trained with delayed TD(λ): each afterstate's update waits a few moves, then moves towards a blend of the real rewards over the next h moves and the value estimate after them. It's meant to carry information back faster than TD(0)'s one-move lookahead, which suits this project's sample-efficiency goal. This test asks whether it helps here, and whether two variants improve on his setting.
+
+- **The arms:**
+  - Jaśkowski's setting: λ = 0.5 with horizon 3.
+  - A longer horizon: λ = 0.75 with horizon 6, to carry information further back.
+  - Annealed: λ = 0.75 with horizon 6, falling linearly to TD(0) over the session. The idea was to get the fast early learning from long returns and the low noise of TD(0) at the end.
+- **The setup:** the A + C recipe from the [ingredient test](#ingredient-test-across-seeds) (the 4×6 at temporal coherence rate 0.08, downgrading and late-game starts), trained from scratch to 300k games on 8 threads with seeds 1–3, and evaluated on 1,000 seeded greedy games. The TD(0) control is that test's A + C arm, which has exactly these settings, so it wasn't retrained.
+- **The implementation** keeps the last h afterstates in a ring buffer and updates the oldest once the buffer is full. Whatever is left in the buffer is updated at game end. With horizon 1 it gives bit-identical weights to TD(0), which a test checks.
+
+| Arm | Seed 1 | Seed 2 | Seed 3 | Mean of seeds ± sd | vs TD(0) (paired by seed) | ≥16384 | Moves |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **TD(0)** | **186,413** | **186,809** | **187,498** | **186,906 ± 549** | — | **31.2%** | 1.59B |
+| Jaśkowski: λ = 0.5, horizon 3 | 154,002 | 155,942 | 157,229 | 155,724 ± 1,624 | −31,182 ± 1,105 | 12.4% | 1.47B |
+| Longer horizon: λ = 0.75, horizon 6 | 127,291 | 126,810 | 124,120 | 126,074 ± 1,709 | −60,832 ± 2,247 | 0.9% | 1.17B |
+| Annealed: λ = 0.75 → 0, horizon 6 | 153,274 | 158,236 | 153,674 | 155,061 ± 2,757 | −31,845 ± 2,855 | 11.6% | 1.33B |
+
+The ≥16384 and moves columns are averages over the three seeds.
+
+![TD(λ) test, seed 2](figures/td-lambda-seed2.png)
+
+The training average score at points during training is shown below: the mean of the three seeds over the 10,000 games up to each point. Training games include the late-game starts, so these aren't comparable to the evaluations, only to each other.
+
+| Games | TD(0) | Jaśkowski | Longer horizon | Annealed (λ at that point) |
+|---:|---:|---:|---:|---:|
+| 10k | 36,509 | **40,566** | 32,024 | 32,836 (0.73) |
+| 30k | 78,973 | **84,464** | 60,792 | 63,041 (0.68) |
+| 50k | 104,078 | **107,025** | 66,747 | 70,119 (0.63) |
+| 100k | **131,725** | 127,686 | 94,325 | 102,703 (0.50) |
+| 200k | **162,232** | 146,829 | 122,094 | 140,895 (0.25) |
+| 300k | **187,380** | 156,207 | 126,411 | 154,851 (0) |
+
+- **TD(λ) hurts at this learning rate and budget, in every variant and on every seed.** Jaśkowski's setting costs 17%, and its three seeds land within 2.2k of each other (−30.3k to −32.4k). The gap isn't explained by the fewer moves played: shorter games are a symptom of weaker play, and TD(0) was already ahead at that point.
+- **Jaśkowski's setting learns faster at first, then falls behind.** On all three seeds it's 3.7–7.6k ahead at 10k and 30k games, about level at 70k, and behind from 100k onwards, with the gap still widening at 300k. The early lead is what TD(λ) is meant to give: while the values are poor, real rewards are a better target than the value estimate. Later the estimates are good, and each extra step of real play mostly adds the randomness of another tile spawn. Two likely ways that noise hurts:
+  - At base rate 0.08 the noise goes straight into the weights.
+  - It makes errors cancel more, so temporal coherence shrinks the rates sooner.
+- **A longer horizon is worse at every stage.** Both horizon-6 arms stall at 60–70k between about 20k and 70k games, before 8192 is reached, while TD(0) climbs 25k over the same stretch. The longer-horizon arm almost never reaches 16384 (0.9%).
+- **Annealing recovers half the gap, but stops there.** It ends level with Jaśkowski's setting. Even over the last 100k games, with λ down from 0.25 to 0, it gains 14.0k against TD(0)'s 25.1k, so the damage outlasts λ itself. A likely cause: temporal coherence's error sums accumulate over the whole run, so a long noisy phase leaves the rates low after the noise has gone.
+- **This doesn't contradict Jaśkowski.** He trained for 10¹⁰ moves, about 6× this test's budget, and his settings differed from this project's high-rate recipe. It does mean λ isn't free sample efficiency here. Possible follow-ups:
+  - λ = 0.5 for only the first 50–70k games, where it leads.
+  - TD(λ) at lower base rates (0.02–0.04), to test the noise explanation.
+  - Resetting the temporal coherence sums when λ is switched off.
 
 ## The long run
 

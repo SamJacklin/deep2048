@@ -1,0 +1,339 @@
+Training 4x6 n-tuple network (67,108,864 weights) to 300,000 games, lr 0.08, temporal coherence, TD(λ=0.5) over 3 moves, 8 threads after 10,000 games
+  games     1,000  moves      0.8M  avg score    13130  max   59800  ≥2048  11.2%  ≥4096   0.2%  ≥8192   0.0%  | 1174.7 games/s
+  games     2,000  moves      2.1M  avg score    24335  max   73176  ≥2048  47.5%  ≥4096   3.6%  ≥8192   0.0%  |  868.9 games/s
+  games     3,000  moves      3.7M  avg score    31267  max  110368  ≥2048  69.2%  ≥4096  11.7%  ≥8192   0.1%  |  726.7 games/s
+  games     4,000  moves      5.4M  avg score    37437  max  112620  ≥2048  80.9%  ≥4096  22.1%  ≥8192   0.4%  |  621.5 games/s
+  games     5,000  moves      7.3M  avg score    41090  max  144788  ≥2048  83.9%  ≥4096  28.7%  ≥8192   0.2%  |  549.8 games/s
+  games     6,000  moves      9.3M  avg score    44369  max  132572  ≥2048  85.6%  ≥4096  37.9%  ≥8192   0.7%  |  583.4 games/s
+  games     7,000  moves     11.4M  avg score    49717  max  132956  ≥2048  90.0%  ≥4096  47.4%  ≥8192   1.6%  |  521.8 games/s
+  games     8,000  moves     13.7M  avg score    51969  max  150064  ≥2048  89.0%  ≥4096  50.4%  ≥8192   2.7%  |  517.5 games/s
+  games     9,000  moves     16.0M  avg score    54905  max  146648  ≥2048  90.6%  ≥4096  56.5%  ≥8192   3.6%  |  475.7 games/s
+  games    10,000  moves     18.4M  avg score    56708  max  150324  ≥2048  93.3%  ≥4096  57.5%  ≥8192   4.5%  |  501.3 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (10,000 games)
+  games    11,000  moves     20.9M  avg score    59592  max  167764  ≥2048  93.5%  ≥4096  65.0%  ≥8192   4.6%  | 1272.2 games/s
+  games    12,000  moves     23.5M  avg score    61451  max  152604  ≥2048  93.4%  ≥4096  65.4%  ≥8192   6.1%  | 1215.9 games/s
+  games    13,000  moves     26.1M  avg score    62747  max  177084  ≥2048  93.5%  ≥4096  66.3%  ≥8192   7.0%  | 1313.3 games/s
+  games    14,000  moves     28.8M  avg score    64064  max  168580  ≥2048  94.8%  ≥4096  67.2%  ≥8192   8.6%  | 1230.3 games/s
+  games    15,000  moves     31.5M  avg score    67331  max  169836  ≥2048  95.7%  ≥4096  69.4%  ≥8192  12.0%  | 1186.0 games/s
+  games    16,000  moves     34.4M  avg score    69601  max  176184  ≥2048  96.0%  ≥4096  73.9%  ≥8192  12.5%  | 1060.1 games/s
+  games    17,000  moves     37.3M  avg score    69278  max  168260  ≥2048  94.7%  ≥4096  71.9%  ≥8192  13.8%  | 1139.8 games/s
+  games    18,000  moves     40.2M  avg score    70205  max  172144  ≥2048  95.3%  ≥4096  74.2%  ≥8192  13.7%  | 1109.1 games/s
+  games    19,000  moves     43.1M  avg score    72727  max  175392  ≥2048  95.3%  ≥4096  74.6%  ≥8192  15.4%  | 1005.9 games/s
+  games    20,000  moves     46.2M  avg score    75125  max  175584  ≥2048  95.8%  ≥4096  79.6%  ≥8192  18.8%  | 1231.7 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (20,000 games)
+  games    21,000  moves     49.2M  avg score    76301  max  171496  ≥2048  94.7%  ≥4096  78.9%  ≥8192  20.9%  |  992.9 games/s
+  games    22,000  moves     52.4M  avg score    77745  max  173748  ≥2048  95.7%  ≥4096  77.6%  ≥8192  22.2%  | 1088.9 games/s
+  games    23,000  moves     55.6M  avg score    79220  max  174708  ≥2048  95.4%  ≥4096  76.9%  ≥8192  24.3%  | 1129.5 games/s
+  games    24,000  moves     58.8M  avg score    81145  max  178120  ≥2048  96.6%  ≥4096  79.4%  ≥8192  27.0%  |  949.9 games/s
+  games    25,000  moves     62.1M  avg score    82605  max  174624  ≥2048  96.9%  ≥4096  80.2%  ≥8192  28.0%  |  972.9 games/s
+  games    26,000  moves     65.5M  avg score    86041  max  190996  ≥2048  96.8%  ≥4096  81.9%  ≥8192  31.5%  | 1005.3 games/s
+  games    27,000  moves     69.0M  avg score    87901  max  178372  ≥2048  97.4%  ≥4096  84.9%  ≥8192  31.8%  |  961.9 games/s
+  games    28,000  moves     72.5M  avg score    91413  max  233196  ≥2048  98.1%  ≥4096  85.3%  ≥8192  35.8%  |  974.7 games/s
+  games    29,000  moves     76.2M  avg score    89880  max  246068  ≥2048  96.3%  ≥4096  81.0%  ≥8192  36.4%  |  942.1 games/s
+  games    30,000  moves     79.8M  avg score    91346  max  199352  ≥2048  97.1%  ≥4096  85.4%  ≥8192  36.5%  | 1105.0 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (30,000 games)
+  games    31,000  moves     83.4M  avg score    93552  max  177296  ≥2048  96.2%  ≥4096  83.2%  ≥8192  39.9%  |  902.5 games/s
+  games    32,000  moves     87.1M  avg score    93059  max  197504  ≥2048  97.6%  ≥4096  84.7%  ≥8192  37.8%  |  879.1 games/s
+  games    33,000  moves     90.8M  avg score    94780  max  194640  ≥2048  97.8%  ≥4096  85.3%  ≥8192  41.4%  |  898.7 games/s
+  games    34,000  moves     94.6M  avg score    96681  max  269368  ≥2048  97.2%  ≥4096  84.9%  ≥8192  42.4%  |  863.2 games/s
+  games    35,000  moves     98.5M  avg score   100094  max  177100  ≥2048  98.1%  ≥4096  86.3%  ≥8192  45.4%  |  745.5 games/s
+  games    36,000  moves    102.4M  avg score    97674  max  281380  ≥2048  97.1%  ≥4096  84.6%  ≥8192  45.3%  |  816.2 games/s
+  games    37,000  moves    106.2M  avg score    97296  max  210712  ≥2048  97.8%  ≥4096  85.5%  ≥8192  42.3%  |  865.1 games/s
+  games    38,000  moves    110.1M  avg score   100932  max  277812  ≥2048  97.8%  ≥4096  87.5%  ≥8192  45.0%  |  789.2 games/s
+  games    39,000  moves    114.1M  avg score   102639  max  290368  ≥2048  98.6%  ≥4096  88.1%  ≥8192  47.6%  |  801.1 games/s
+  games    40,000  moves    118.1M  avg score   101227  max  284556  ≥2048  97.4%  ≥4096  87.5%  ≥8192  46.4%  |  860.2 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (40,000 games)
+  games    41,000  moves    122.1M  avg score   104141  max  288404  ≥2048  98.4%  ≥4096  87.4%  ≥8192  48.1%  |  739.4 games/s
+  games    42,000  moves    126.1M  avg score   101084  max  271316  ≥2048  95.9%  ≥4096  86.7%  ≥8192  46.7%  |  904.0 games/s
+  games    43,000  moves    130.2M  avg score   106022  max  269548  ≥2048  98.2%  ≥4096  87.2%  ≥8192  50.2%  |  700.8 games/s
+  games    44,000  moves    134.3M  avg score   105365  max  270356  ≥2048  97.2%  ≥4096  86.7%  ≥8192  50.9%  |  733.9 games/s
+  games    45,000  moves    138.4M  avg score   106052  max  277172  ≥2048  98.1%  ≥4096  87.7%  ≥8192  49.9%  |  766.1 games/s
+  games    46,000  moves    142.6M  avg score   108571  max  266740  ≥2048  97.9%  ≥4096  90.5%  ≥8192  52.9%  |  785.4 games/s
+  games    47,000  moves    146.8M  avg score   109689  max  281640  ≥2048  97.8%  ≥4096  87.3%  ≥8192  53.6%  |  835.1 games/s
+  games    48,000  moves    151.0M  avg score   107492  max  291212  ≥2048  96.4%  ≥4096  87.3%  ≥8192  52.2%  |  828.0 games/s
+  games    49,000  moves    155.1M  avg score   107933  max  261980  ≥2048  97.9%  ≥4096  87.4%  ≥8192  51.4%  |  738.3 games/s
+  games    50,000  moves    159.4M  avg score   111081  max  268328  ≥2048  98.1%  ≥4096  88.5%  ≥8192  55.7%  |  817.9 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (50,000 games)
+  games    51,000  moves    163.7M  avg score   112194  max  290044  ≥2048  98.4%  ≥4096  89.6%  ≥8192  54.8%  |  802.0 games/s
+  games    52,000  moves    168.1M  avg score   114173  max  283984  ≥2048  98.0%  ≥4096  88.5%  ≥8192  58.7%  |  818.8 games/s
+  games    53,000  moves    172.5M  avg score   113660  max  289548  ≥2048  98.6%  ≥4096  89.1%  ≥8192  55.5%  |  765.2 games/s
+  games    54,000  moves    177.0M  avg score   114502  max  190800  ≥2048  98.9%  ≥4096  89.4%  ≥8192  59.5%  |  818.9 games/s
+  games    55,000  moves    181.3M  avg score   114246  max  281368  ≥2048  98.2%  ≥4096  89.2%  ≥8192  57.6%  |  666.6 games/s
+  games    56,000  moves    185.7M  avg score   114058  max  287736  ≥2048  98.7%  ≥4096  90.7%  ≥8192  56.9%  |  701.8 games/s
+  games    57,000  moves    190.1M  avg score   115145  max  281604  ≥2048  98.4%  ≥4096  89.9%  ≥8192  58.8%  |  781.1 games/s
+  games    58,000  moves    194.6M  avg score   118023  max  304724  ≥2048  97.8%  ≥4096  91.2%  ≥8192  60.7%  |  677.7 games/s
+  games    59,000  moves    199.2M  avg score   118458  max  295328  ≥2048  98.3%  ≥4096  90.7%  ≥8192  60.5%  |  655.3 games/s
+  games    60,000  moves    203.6M  avg score   114841  max  288592  ≥2048  97.6%  ≥4096  89.0%  ≥8192  59.0%  |  711.7 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (60,000 games)
+  games    61,000  moves    208.1M  avg score   117572  max  282768  ≥2048  98.2%  ≥4096  89.6%  ≥8192  61.9%  |  737.7 games/s
+  games    62,000  moves    212.5M  avg score   116301  max  288252  ≥2048  98.1%  ≥4096  89.5%  ≥8192  60.4%  |  844.1 games/s
+  games    63,000  moves    217.1M  avg score   120869  max  268832  ≥2048  99.0%  ≥4096  91.8%  ≥8192  64.6%  |  739.7 games/s
+  games    64,000  moves    221.7M  avg score   120219  max  276720  ≥2048  97.8%  ≥4096  91.7%  ≥8192  62.8%  |  691.7 games/s
+  games    65,000  moves    226.3M  avg score   119121  max  286396  ≥2048  98.4%  ≥4096  91.2%  ≥8192  62.0%  |  687.4 games/s
+  games    66,000  moves    230.9M  avg score   118268  max  284360  ≥2048  98.7%  ≥4096  91.9%  ≥8192  61.1%  |  719.2 games/s
+  games    67,000  moves    235.5M  avg score   120045  max  289592  ≥2048  98.8%  ≥4096  91.5%  ≥8192  63.5%  |  681.9 games/s
+  games    68,000  moves    240.0M  avg score   119536  max  278464  ≥2048  98.4%  ≥4096  91.8%  ≥8192  62.7%  |  742.3 games/s
+  games    69,000  moves    244.5M  avg score   117785  max  281484  ≥2048  98.4%  ≥4096  90.3%  ≥8192  62.2%  |  726.0 games/s
+  games    70,000  moves    249.2M  avg score   123766  max  289820  ≥2048  99.3%  ≥4096  92.5%  ≥8192  66.3%  |  710.8 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (70,000 games)
+  games    71,000  moves    253.7M  avg score   117541  max  288640  ≥2048  97.7%  ≥4096  89.3%  ≥8192  61.9%  |  688.9 games/s
+  games    72,000  moves    258.3M  avg score   121831  max  285684  ≥2048  98.8%  ≥4096  91.4%  ≥8192  64.5%  |  705.5 games/s
+  games    73,000  moves    263.0M  avg score   121560  max  290048  ≥2048  98.6%  ≥4096  91.9%  ≥8192  66.0%  |  614.4 games/s
+  games    74,000  moves    267.6M  avg score   120934  max  295924  ≥2048  98.1%  ≥4096  91.8%  ≥8192  63.8%  |  629.3 games/s
+  games    75,000  moves    272.2M  avg score   121917  max  278996  ≥2048  98.8%  ≥4096  92.4%  ≥8192  65.8%  |  672.2 games/s
+  games    76,000  moves    276.8M  avg score   121682  max  287992  ≥2048  98.0%  ≥4096  91.3%  ≥8192  66.1%  |  641.6 games/s
+  games    77,000  moves    281.5M  avg score   123189  max  280936  ≥2048  98.5%  ≥4096  92.0%  ≥8192  67.0%  |  837.6 games/s
+  games    78,000  moves    286.2M  avg score   124824  max  281184  ≥2048  98.7%  ≥4096  93.3%  ≥8192  67.2%  |  631.5 games/s
+  games    79,000  moves    290.9M  avg score   124528  max  280688  ≥2048  99.0%  ≥4096  93.3%  ≥8192  68.1%  |  665.3 games/s
+  games    80,000  moves    295.7M  avg score   124782  max  281320  ≥2048  98.1%  ≥4096  92.4%  ≥8192  68.1%  |  594.4 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (80,000 games)
+  games    81,000  moves    300.4M  avg score   124228  max  270824  ≥2048  99.3%  ≥4096  92.8%  ≥8192  67.9%  |  662.1 games/s
+  games    82,000  moves    305.1M  avg score   126903  max  288620  ≥2048  98.4%  ≥4096  92.5%  ≥8192  70.8%  |  692.2 games/s
+  games    83,000  moves    309.8M  avg score   124337  max  288752  ≥2048  98.3%  ≥4096  93.8%  ≥8192  67.6%  |  668.0 games/s
+  games    84,000  moves    314.6M  avg score   126846  max  290740  ≥2048  98.9%  ≥4096  93.8%  ≥8192  70.1%  |  753.6 games/s
+  games    85,000  moves    319.2M  avg score   123837  max  284572  ≥2048  98.2%  ≥4096  91.8%  ≥8192  68.5%  |  724.5 games/s
+  games    86,000  moves    323.9M  avg score   124672  max  289472  ≥2048  98.6%  ≥4096  91.7%  ≥8192  66.8%  |  713.3 games/s
+  games    87,000  moves    328.8M  avg score   126303  max  286004  ≥2048  98.7%  ≥4096  91.4%  ≥8192  67.8%  |  742.6 games/s
+  games    88,000  moves    333.6M  avg score   127348  max  285008  ≥2048  98.9%  ≥4096  93.0%  ≥8192  70.4%  |  695.4 games/s
+  games    89,000  moves    338.4M  avg score   127481  max  329528  ≥2048  98.6%  ≥4096  93.9%  ≥8192  69.8%  |  718.5 games/s
+  games    90,000  moves    343.2M  avg score   126533  max  279476  ≥2048  98.4%  ≥4096  93.0%  ≥8192  69.3%  |  709.8 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (90,000 games)
+  games    91,000  moves    348.0M  avg score   126454  max  280032  ≥2048  99.1%  ≥4096  92.7%  ≥8192  69.7%  |  612.9 games/s
+  games    92,000  moves    352.7M  avg score   125804  max  278408  ≥2048  98.0%  ≥4096  92.9%  ≥8192  68.8%  |  675.3 games/s
+  games    93,000  moves    357.5M  avg score   127260  max  280948  ≥2048  98.9%  ≥4096  93.4%  ≥8192  70.6%  |  670.7 games/s
+  games    94,000  moves    362.4M  avg score   128547  max  290164  ≥2048  98.2%  ≥4096  93.4%  ≥8192  71.6%  |  670.6 games/s
+  games    95,000  moves    367.1M  avg score   126033  max  268604  ≥2048  98.3%  ≥4096  91.2%  ≥8192  70.1%  |  679.3 games/s
+  games    96,000  moves    372.0M  avg score   129367  max  280596  ≥2048  99.1%  ≥4096  92.6%  ≥8192  72.8%  |  730.0 games/s
+  games    97,000  moves    376.8M  avg score   127974  max  280976  ≥2048  99.1%  ≥4096  94.3%  ≥8192  70.9%  |  647.6 games/s
+  games    98,000  moves    381.6M  avg score   128049  max  287812  ≥2048  98.4%  ≥4096  92.9%  ≥8192  72.6%  |  654.1 games/s
+  games    99,000  moves    386.5M  avg score   130733  max  288760  ≥2048  98.6%  ≥4096  93.5%  ≥8192  72.2%  |  598.8 games/s
+  games   100,000  moves    391.4M  avg score   128784  max  281020  ≥2048  98.1%  ≥4096  93.1%  ≥8192  71.8%  |  654.8 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (100,000 games)
+  games   101,000  moves    396.3M  avg score   129790  max  281192  ≥2048  98.7%  ≥4096  93.3%  ≥8192  73.1%  |  636.6 games/s
+  games   102,000  moves    401.1M  avg score   129286  max  288748  ≥2048  98.6%  ≥4096  93.0%  ≥8192  71.9%  |  690.1 games/s
+  games   103,000  moves    406.1M  avg score   129413  max  281048  ≥2048  99.0%  ≥4096  94.0%  ≥8192  72.3%  |  643.3 games/s
+  games   104,000  moves    411.0M  avg score   129466  max  279336  ≥2048  98.5%  ≥4096  93.9%  ≥8192  70.1%  |  687.0 games/s
+  games   105,000  moves    415.8M  avg score   128894  max  280524  ≥2048  98.9%  ≥4096  93.9%  ≥8192  71.8%  |  548.5 games/s
+  games   106,000  moves    420.8M  avg score   132179  max  288004  ≥2048  98.4%  ≥4096  94.9%  ≥8192  74.0%  |  657.4 games/s
+  games   107,000  moves    425.8M  avg score   130242  max  284800  ≥2048  99.3%  ≥4096  94.2%  ≥8192  72.3%  |  668.5 games/s
+  games   108,000  moves    430.7M  avg score   133671  max  301364  ≥2048  99.4%  ≥4096  95.1%  ≥8192  75.0%  |  637.8 games/s
+  games   109,000  moves    435.7M  avg score   129921  max  284748  ≥2048  98.4%  ≥4096  92.5%  ≥8192  73.3%  |  699.6 games/s
+  games   110,000  moves    440.7M  avg score   130669  max  284900  ≥2048  98.5%  ≥4096  93.9%  ≥8192  72.7%  |  678.6 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (110,000 games)
+  games   111,000  moves    445.6M  avg score   132513  max  286396  ≥2048  99.3%  ≥4096  94.5%  ≥8192  74.0%  |  633.4 games/s
+  games   112,000  moves    450.5M  avg score   130554  max  298824  ≥2048  99.4%  ≥4096  94.6%  ≥8192  73.3%  |  723.7 games/s
+  games   113,000  moves    455.5M  avg score   131835  max  288600  ≥2048  98.9%  ≥4096  93.7%  ≥8192  75.3%  |  672.6 games/s
+  games   114,000  moves    460.5M  avg score   133113  max  286204  ≥2048  99.2%  ≥4096  94.6%  ≥8192  74.1%  |  693.7 games/s
+  games   115,000  moves    465.4M  avg score   131585  max  288132  ≥2048  99.2%  ≥4096  94.2%  ≥8192  72.4%  |  622.7 games/s
+  games   116,000  moves    470.4M  avg score   132819  max  286704  ≥2048  98.7%  ≥4096  94.2%  ≥8192  73.2%  |  592.4 games/s
+  games   117,000  moves    475.4M  avg score   135298  max  322792  ≥2048  99.0%  ≥4096  94.9%  ≥8192  76.3%  |  669.6 games/s
+  games   118,000  moves    480.5M  avg score   134496  max  336876  ≥2048  98.9%  ≥4096  94.2%  ≥8192  76.1%  |  601.2 games/s
+  games   119,000  moves    485.5M  avg score   132944  max  288800  ≥2048  98.8%  ≥4096  93.3%  ≥8192  74.1%  |  669.4 games/s
+  games   120,000  moves    490.5M  avg score   134506  max  320460  ≥2048  99.2%  ≥4096  94.2%  ≥8192  75.4%  |  713.1 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (120,000 games)
+  games   121,000  moves    495.4M  avg score   132919  max  289940  ≥2048  99.4%  ≥4096  93.4%  ≥8192  74.7%  |  689.1 games/s
+  games   122,000  moves    500.3M  avg score   130911  max  289760  ≥2048  98.5%  ≥4096  92.9%  ≥8192  72.0%  |  602.5 games/s
+  games   123,000  moves    505.4M  avg score   132954  max  287892  ≥2048  99.1%  ≥4096  94.6%  ≥8192  74.8%  |  702.8 games/s
+  games   124,000  moves    510.5M  avg score   137259  max  329528  ≥2048  99.1%  ≥4096  95.6%  ≥8192  78.5%  |  582.8 games/s
+  games   125,000  moves    515.5M  avg score   134510  max  290652  ≥2048  98.4%  ≥4096  94.6%  ≥8192  75.1%  |  583.0 games/s
+  games   126,000  moves    520.6M  avg score   132660  max  290036  ≥2048  98.7%  ≥4096  93.7%  ≥8192  73.7%  |  630.4 games/s
+  games   127,000  moves    525.6M  avg score   136110  max  290496  ≥2048  98.8%  ≥4096  95.3%  ≥8192  74.7%  |  721.7 games/s
+  games   128,000  moves    530.6M  avg score   134973  max  288800  ≥2048  99.0%  ≥4096  94.5%  ≥8192  75.3%  |  606.8 games/s
+  games   129,000  moves    535.7M  avg score   137677  max  322912  ≥2048  99.2%  ≥4096  96.2%  ≥8192  77.8%  |  595.7 games/s
+  games   130,000  moves    540.8M  avg score   136738  max  333124  ≥2048  98.9%  ≥4096  94.8%  ≥8192  75.8%  |  670.3 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (130,000 games)
+  games   131,000  moves    546.0M  avg score   138717  max  290488  ≥2048  99.1%  ≥4096  95.1%  ≥8192  78.5%  |  649.5 games/s
+  games   132,000  moves    551.0M  avg score   133966  max  322300  ≥2048  99.0%  ≥4096  93.6%  ≥8192  73.5%  |  660.1 games/s
+  games   133,000  moves    556.2M  avg score   137985  max  288688  ≥2048  99.1%  ≥4096  96.1%  ≥8192  76.2%  |  603.2 games/s
+  games   134,000  moves    561.2M  avg score   134738  max  290208  ≥2048  98.5%  ≥4096  93.5%  ≥8192  75.0%  |  674.7 games/s
+  games   135,000  moves    566.2M  avg score   136712  max  288104  ≥2048  99.4%  ≥4096  94.6%  ≥8192  76.1%  |  615.2 games/s
+  games   136,000  moves    571.5M  avg score   140384  max  328992  ≥2048  99.3%  ≥4096  95.8%  ≥8192  77.9%  |  607.7 games/s
+  games   137,000  moves    576.7M  avg score   140425  max  340892  ≥2048  98.6%  ≥4096  95.2%  ≥8192  78.1%  |  616.2 games/s
+  games   138,000  moves    581.9M  avg score   137811  max  290520  ≥2048  98.9%  ≥4096  95.0%  ≥8192  76.5%  |  601.4 games/s
+  games   139,000  moves    587.1M  avg score   138181  max  337792  ≥2048  98.8%  ≥4096  95.2%  ≥8192  78.1%  |  665.4 games/s
+  games   140,000  moves    592.2M  avg score   138177  max  342788  ≥2048  98.4%  ≥4096  95.0%  ≥8192  76.7%  |  672.3 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (140,000 games)
+  games   141,000  moves    597.4M  avg score   139840  max  289956  ≥2048  99.4%  ≥4096  94.9%  ≥8192  76.4%  |  646.7 games/s
+  games   142,000  moves    602.6M  avg score   138584  max  331220  ≥2048  99.0%  ≥4096  94.2%  ≥8192  77.0%  |  639.2 games/s
+  games   143,000  moves    607.8M  avg score   140581  max  328936  ≥2048  99.0%  ≥4096  94.7%  ≥8192  79.3%  |  545.9 games/s
+  games   144,000  moves    612.9M  avg score   136633  max  290876  ≥2048  98.7%  ≥4096  95.8%  ≥8192  75.1%  |  710.3 games/s
+  games   145,000  moves    618.0M  avg score   137586  max  361536  ≥2048  98.6%  ≥4096  94.1%  ≥8192  76.3%  |  609.3 games/s
+  games   146,000  moves    623.2M  avg score   138410  max  365784  ≥2048  99.0%  ≥4096  94.3%  ≥8192  75.5%  |  655.6 games/s
+  games   147,000  moves    628.5M  avg score   140969  max  288840  ≥2048  99.0%  ≥4096  94.5%  ≥8192  77.1%  |  602.8 games/s
+  games   148,000  moves    633.8M  avg score   141958  max  340868  ≥2048  98.9%  ≥4096  95.6%  ≥8192  78.7%  |  570.9 games/s
+  games   149,000  moves    639.2M  avg score   141716  max  341972  ≥2048  99.1%  ≥4096  95.2%  ≥8192  80.0%  |  644.3 games/s
+  games   150,000  moves    644.4M  avg score   140568  max  336888  ≥2048  98.9%  ≥4096  95.0%  ≥8192  77.1%  |  638.5 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (150,000 games)
+  games   151,000  moves    649.6M  avg score   140168  max  287984  ≥2048  98.4%  ≥4096  93.9%  ≥8192  77.3%  |  587.8 games/s
+  games   152,000  moves    654.9M  avg score   141554  max  340900  ≥2048  99.5%  ≥4096  95.2%  ≥8192  77.1%  |  609.3 games/s
+  games   153,000  moves    660.2M  avg score   142041  max  289552  ≥2048  99.0%  ≥4096  96.0%  ≥8192  79.3%  |  703.9 games/s
+  games   154,000  moves    665.5M  avg score   144212  max  290356  ≥2048  99.3%  ≥4096  95.6%  ≥8192  80.0%  |  626.5 games/s
+  games   155,000  moves    670.7M  avg score   139042  max  354200  ≥2048  98.9%  ≥4096  94.2%  ≥8192  73.7%  |  653.2 games/s
+  games   156,000  moves    675.9M  avg score   141475  max  332228  ≥2048  99.0%  ≥4096  94.8%  ≥8192  79.3%  |  629.5 games/s
+  games   157,000  moves    681.1M  avg score   139119  max  338316  ≥2048  99.0%  ≥4096  94.6%  ≥8192  76.5%  |  618.7 games/s
+  games   158,000  moves    686.5M  avg score   143914  max  290296  ≥2048  99.5%  ≥4096  95.7%  ≥8192  78.5%  |  590.6 games/s
+  games   159,000  moves    691.8M  avg score   141921  max  337992  ≥2048  98.8%  ≥4096  94.6%  ≥8192  78.3%  |  712.0 games/s
+  games   160,000  moves    697.1M  avg score   142153  max  331552  ≥2048  99.0%  ≥4096  95.1%  ≥8192  78.2%  |  689.9 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (160,000 games)
+  games   161,000  moves    702.4M  avg score   142497  max  358452  ≥2048  99.6%  ≥4096  96.0%  ≥8192  78.9%  |  628.2 games/s
+  games   162,000  moves    707.8M  avg score   143306  max  352336  ≥2048  99.3%  ≥4096  94.7%  ≥8192  77.7%  |  621.5 games/s
+  games   163,000  moves    713.2M  avg score   146086  max  340348  ≥2048  98.5%  ≥4096  96.4%  ≥8192  80.5%  |  604.5 games/s
+  games   164,000  moves    718.5M  avg score   144605  max  373148  ≥2048  98.9%  ≥4096  95.1%  ≥8192  78.8%  |  669.0 games/s
+  games   165,000  moves    723.7M  avg score   141452  max  336620  ≥2048  99.4%  ≥4096  96.0%  ≥8192  76.2%  |  611.0 games/s
+  games   166,000  moves    729.1M  avg score   142792  max  332968  ≥2048  99.4%  ≥4096  96.3%  ≥8192  78.4%  |  591.5 games/s
+  games   167,000  moves    734.5M  avg score   146829  max  361300  ≥2048  99.4%  ≥4096  95.7%  ≥8192  80.5%  |  677.6 games/s
+  games   168,000  moves    739.8M  avg score   143907  max  362700  ≥2048  98.6%  ≥4096  95.0%  ≥8192  79.1%  |  599.0 games/s
+  games   169,000  moves    745.1M  avg score   142243  max  329276  ≥2048  98.5%  ≥4096  93.8%  ≥8192  77.0%  |  594.7 games/s
+  games   170,000  moves    750.4M  avg score   143770  max  353384  ≥2048  99.2%  ≥4096  95.7%  ≥8192  79.4%  |  624.4 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (170,000 games)
+  games   171,000  moves    755.9M  avg score   146593  max  342832  ≥2048  99.5%  ≥4096  96.8%  ≥8192  80.0%  |  616.3 games/s
+  games   172,000  moves    761.2M  avg score   143976  max  354320  ≥2048  98.8%  ≥4096  95.8%  ≥8192  78.8%  |  652.2 games/s
+  games   173,000  moves    766.5M  avg score   144982  max  336472  ≥2048  99.4%  ≥4096  96.8%  ≥8192  78.8%  |  647.1 games/s
+  games   174,000  moves    772.0M  avg score   146291  max  357268  ≥2048  99.1%  ≥4096  95.9%  ≥8192  81.2%  |  567.9 games/s
+  games   175,000  moves    777.3M  avg score   143695  max  338724  ≥2048  98.9%  ≥4096  95.3%  ≥8192  78.6%  |  598.3 games/s
+  games   176,000  moves    782.8M  avg score   146231  max  372472  ≥2048  99.6%  ≥4096  94.1%  ≥8192  78.6%  |  543.7 games/s
+  games   177,000  moves    788.2M  avg score   147162  max  342048  ≥2048  98.9%  ≥4096  95.5%  ≥8192  80.3%  |  637.8 games/s
+  games   178,000  moves    793.7M  avg score   146996  max  340472  ≥2048  99.1%  ≥4096  94.9%  ≥8192  80.3%  |  625.0 games/s
+  games   179,000  moves    799.2M  avg score   146077  max  330572  ≥2048  99.1%  ≥4096  95.3%  ≥8192  79.5%  |  631.7 games/s
+  games   180,000  moves    804.6M  avg score   146507  max  353492  ≥2048  99.3%  ≥4096  95.3%  ≥8192  80.7%  |  587.8 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (180,000 games)
+  games   181,000  moves    810.1M  avg score   147916  max  339224  ≥2048  98.1%  ≥4096  95.1%  ≥8192  79.9%  |  593.4 games/s
+  games   182,000  moves    815.5M  avg score   149248  max  354148  ≥2048  99.2%  ≥4096  95.0%  ≥8192  79.1%  |  578.2 games/s
+  games   183,000  moves    821.0M  avg score   148727  max  343272  ≥2048  99.4%  ≥4096  95.4%  ≥8192  79.9%  |  564.1 games/s
+  games   184,000  moves    826.6M  avg score   152350  max  342540  ≥2048  99.7%  ≥4096  96.6%  ≥8192  83.6%  |  603.1 games/s
+  games   185,000  moves    831.9M  avg score   142876  max  332540  ≥2048  98.5%  ≥4096  94.3%  ≥8192  77.7%  |  620.8 games/s
+  games   186,000  moves    837.5M  avg score   150019  max  369640  ≥2048  99.3%  ≥4096  96.6%  ≥8192  80.7%  |  534.3 games/s
+  games   187,000  moves    843.1M  avg score   149757  max  333164  ≥2048  98.9%  ≥4096  95.4%  ≥8192  80.7%  |  578.6 games/s
+  games   188,000  moves    848.6M  avg score   147658  max  340700  ≥2048  98.4%  ≥4096  94.7%  ≥8192  80.0%  |  629.3 games/s
+  games   189,000  moves    854.1M  avg score   145808  max  334016  ≥2048  99.3%  ≥4096  95.0%  ≥8192  78.0%  |  568.0 games/s
+  games   190,000  moves    859.6M  avg score   147701  max  356012  ≥2048  99.1%  ≥4096  95.6%  ≥8192  80.0%  |  638.2 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (190,000 games)
+  games   191,000  moves    865.2M  avg score   150509  max  365176  ≥2048  99.5%  ≥4096  96.5%  ≥8192  82.1%  |  592.2 games/s
+  games   192,000  moves    870.7M  avg score   148880  max  355916  ≥2048  99.7%  ≥4096  95.8%  ≥8192  81.0%  |  582.5 games/s
+  games   193,000  moves    876.1M  avg score   146602  max  341984  ≥2048  99.6%  ≥4096  95.6%  ≥8192  80.0%  |  614.0 games/s
+  games   194,000  moves    881.7M  avg score   152559  max  360864  ≥2048  99.2%  ≥4096  95.6%  ≥8192  80.6%  |  618.3 games/s
+  games   195,000  moves    887.2M  avg score   149138  max  334008  ≥2048  99.3%  ≥4096  97.0%  ≥8192  81.1%  |  567.4 games/s
+  games   196,000  moves    892.7M  avg score   148109  max  340536  ≥2048  99.1%  ≥4096  96.9%  ≥8192  78.5%  |  590.4 games/s
+  games   197,000  moves    898.2M  avg score   148433  max  334608  ≥2048  99.0%  ≥4096  94.6%  ≥8192  80.3%  |  622.6 games/s
+  games   198,000  moves    903.8M  avg score   150738  max  343224  ≥2048  98.9%  ≥4096  94.7%  ≥8192  80.5%  |  548.9 games/s
+  games   199,000  moves    909.2M  avg score   147267  max  363144  ≥2048  99.4%  ≥4096  95.6%  ≥8192  78.1%  |  574.9 games/s
+  games   200,000  moves    914.7M  avg score   149398  max  364696  ≥2048  99.4%  ≥4096  95.8%  ≥8192  79.2%  |  542.4 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (200,000 games)
+  games   201,000  moves    920.3M  avg score   151267  max  380792  ≥2048  99.0%  ≥4096  96.5%  ≥8192  82.0%  |  604.4 games/s
+  games   202,000  moves    925.9M  avg score   150462  max  342576  ≥2048  99.3%  ≥4096  95.4%  ≥8192  80.7%  |  607.6 games/s
+  games   203,000  moves    931.3M  avg score   148156  max  357976  ≥2048  99.2%  ≥4096  95.2%  ≥8192  79.5%  |  590.8 games/s
+  games   204,000  moves    936.9M  avg score   149138  max  337032  ≥2048  99.0%  ≥4096  96.5%  ≥8192  81.6%  |  602.2 games/s
+  games   205,000  moves    942.3M  avg score   147186  max  382824  ≥2048  99.1%  ≥4096  95.9%  ≥8192  79.3%  |  638.8 games/s
+  games   206,000  moves    947.7M  avg score   148141  max  358168  ≥2048  98.9%  ≥4096  95.1%  ≥8192  80.3%  |  606.4 games/s
+  games   207,000  moves    953.3M  avg score   151932  max  356548  ≥2048  98.9%  ≥4096  97.1%  ≥8192  80.9%  |  571.2 games/s
+  games   208,000  moves    958.8M  avg score   148627  max  371880  ≥2048  98.9%  ≥4096  95.2%  ≥8192  80.7%  |  598.4 games/s
+  games   209,000  moves    964.2M  avg score   145884  max  357200  ≥2048  99.5%  ≥4096  95.4%  ≥8192  78.6%  |  571.2 games/s
+  games   210,000  moves    969.7M  avg score   147413  max  355108  ≥2048  98.5%  ≥4096  95.5%  ≥8192  78.6%  |  582.6 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (210,000 games)
+  games   211,000  moves    975.3M  avg score   152072  max  360924  ≥2048  98.7%  ≥4096  95.2%  ≥8192  80.4%  |  608.6 games/s
+  games   212,000  moves    981.0M  avg score   154188  max  376768  ≥2048  99.3%  ≥4096  96.4%  ≥8192  81.8%  |  552.5 games/s
+  games   213,000  moves    986.5M  avg score   147628  max  365584  ≥2048  98.3%  ≥4096  95.8%  ≥8192  79.7%  |  646.3 games/s
+  games   214,000  moves    992.0M  avg score   148469  max  337920  ≥2048  99.1%  ≥4096  95.9%  ≥8192  79.0%  |  606.3 games/s
+  games   215,000  moves    997.6M  avg score   154601  max  361088  ≥2048  98.9%  ≥4096  96.0%  ≥8192  83.2%  |  492.0 games/s
+  games   216,000  moves   1003.2M  avg score   151670  max  358348  ≥2048  99.4%  ≥4096  95.8%  ≥8192  82.5%  |  542.9 games/s
+  games   217,000  moves   1008.9M  avg score   150386  max  354204  ≥2048  99.4%  ≥4096  96.5%  ≥8192  80.0%  |  534.5 games/s
+  games   218,000  moves   1014.4M  avg score   152312  max  357804  ≥2048  99.2%  ≥4096  95.9%  ≥8192  83.5%  |  619.4 games/s
+  games   219,000  moves   1019.9M  avg score   149609  max  357488  ≥2048  99.1%  ≥4096  95.9%  ≥8192  80.6%  |  607.6 games/s
+  games   220,000  moves   1025.5M  avg score   151051  max  353912  ≥2048  99.3%  ≥4096  97.3%  ≥8192  82.7%  |  531.8 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (220,000 games)
+  games   221,000  moves   1031.0M  avg score   149784  max  362560  ≥2048  99.1%  ≥4096  95.8%  ≥8192  81.5%  |  617.3 games/s
+  games   222,000  moves   1036.6M  avg score   153329  max  364888  ≥2048  99.6%  ≥4096  96.0%  ≥8192  83.1%  |  552.6 games/s
+  games   223,000  moves   1042.1M  avg score   145065  max  358456  ≥2048  99.0%  ≥4096  94.8%  ≥8192  79.8%  |  614.2 games/s
+  games   224,000  moves   1047.6M  avg score   152215  max  376300  ≥2048  98.6%  ≥4096  96.8%  ≥8192  80.6%  |  562.1 games/s
+  games   225,000  moves   1053.1M  avg score   149657  max  371640  ≥2048  99.4%  ≥4096  95.5%  ≥8192  82.2%  |  636.7 games/s
+  games   226,000  moves   1058.7M  avg score   154101  max  376404  ≥2048  99.5%  ≥4096  96.2%  ≥8192  82.6%  |  644.1 games/s
+  games   227,000  moves   1064.4M  avg score   153751  max  357316  ≥2048  99.5%  ≥4096  96.3%  ≥8192  82.8%  |  544.0 games/s
+  games   228,000  moves   1070.1M  avg score   153273  max  357216  ≥2048  99.4%  ≥4096  96.6%  ≥8192  83.3%  |  641.1 games/s
+  games   229,000  moves   1075.7M  avg score   153897  max  364608  ≥2048  99.1%  ≥4096  95.5%  ≥8192  82.7%  |  547.3 games/s
+  games   230,000  moves   1081.3M  avg score   152530  max  360640  ≥2048  99.5%  ≥4096  96.0%  ≥8192  82.8%  |  564.0 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (230,000 games)
+  games   231,000  moves   1087.0M  avg score   155975  max  355892  ≥2048  98.6%  ≥4096  95.7%  ≥8192  83.6%  |  594.0 games/s
+  games   232,000  moves   1092.8M  avg score   154502  max  357192  ≥2048  99.1%  ≥4096  96.4%  ≥8192  83.2%  |  523.0 games/s
+  games   233,000  moves   1098.2M  avg score   148601  max  364804  ≥2048  99.2%  ≥4096  95.9%  ≥8192  79.2%  |  670.1 games/s
+  games   234,000  moves   1103.7M  avg score   151478  max  362888  ≥2048  99.5%  ≥4096  95.6%  ≥8192  82.9%  |  672.0 games/s
+  games   235,000  moves   1109.4M  avg score   156614  max  365196  ≥2048  99.4%  ≥4096  96.2%  ≥8192  85.0%  |  618.9 games/s
+  games   236,000  moves   1115.0M  avg score   149189  max  358928  ≥2048  99.0%  ≥4096  95.1%  ≥8192  79.0%  |  536.0 games/s
+  games   237,000  moves   1120.5M  avg score   150911  max  360824  ≥2048  98.6%  ≥4096  95.0%  ≥8192  78.2%  |  602.3 games/s
+  games   238,000  moves   1126.1M  avg score   152389  max  384936  ≥2048  99.1%  ≥4096  95.5%  ≥8192  82.1%  |  639.2 games/s
+  games   239,000  moves   1131.7M  avg score   150804  max  361060  ≥2048  99.0%  ≥4096  95.8%  ≥8192  80.0%  |  647.8 games/s
+  games   240,000  moves   1137.5M  avg score   157527  max  366452  ≥2048  99.5%  ≥4096  96.5%  ≥8192  85.3%  |  484.5 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (240,000 games)
+  games   241,000  moves   1143.2M  avg score   155367  max  357952  ≥2048  99.4%  ≥4096  96.1%  ≥8192  83.2%  |  610.0 games/s
+  games   242,000  moves   1148.9M  avg score   155592  max  365780  ≥2048  99.3%  ≥4096  96.1%  ≥8192  83.0%  |  611.2 games/s
+  games   243,000  moves   1154.5M  avg score   154542  max  362576  ≥2048  99.0%  ≥4096  96.4%  ≥8192  81.7%  |  594.8 games/s
+  games   244,000  moves   1160.2M  avg score   155192  max  341572  ≥2048  99.1%  ≥4096  96.0%  ≥8192  83.6%  |  541.8 games/s
+  games   245,000  moves   1165.8M  avg score   152267  max  364376  ≥2048  99.3%  ≥4096  94.9%  ≥8192  82.2%  |  608.3 games/s
+  games   246,000  moves   1171.4M  avg score   152226  max  333720  ≥2048  99.0%  ≥4096  96.1%  ≥8192  82.1%  |  566.5 games/s
+  games   247,000  moves   1177.3M  avg score   155574  max  364812  ≥2048  99.5%  ≥4096  96.9%  ≥8192  81.2%  |  541.7 games/s
+  games   248,000  moves   1182.9M  avg score   153988  max  371336  ≥2048  99.0%  ≥4096  97.4%  ≥8192  81.6%  |  550.2 games/s
+  games   249,000  moves   1188.6M  avg score   152737  max  362108  ≥2048  99.5%  ≥4096  96.9%  ≥8192  82.1%  |  593.1 games/s
+  games   250,000  moves   1194.2M  avg score   154169  max  357836  ≥2048  98.0%  ≥4096  95.7%  ≥8192  81.1%  |  565.8 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (250,000 games)
+  games   251,000  moves   1199.9M  avg score   152786  max  382212  ≥2048  98.8%  ≥4096  95.3%  ≥8192  82.9%  |  599.3 games/s
+  games   252,000  moves   1205.5M  avg score   152084  max  363032  ≥2048  99.7%  ≥4096  96.7%  ≥8192  80.6%  |  578.0 games/s
+  games   253,000  moves   1211.0M  avg score   151916  max  358072  ≥2048  99.2%  ≥4096  95.5%  ≥8192  79.8%  |  517.6 games/s
+  games   254,000  moves   1216.7M  avg score   154527  max  365264  ≥2048  98.9%  ≥4096  95.5%  ≥8192  81.8%  |  585.5 games/s
+  games   255,000  moves   1222.4M  avg score   153286  max  338476  ≥2048  99.2%  ≥4096  95.8%  ≥8192  81.0%  |  561.5 games/s
+  games   256,000  moves   1228.0M  avg score   152887  max  367308  ≥2048  99.2%  ≥4096  96.4%  ≥8192  80.4%  |  563.9 games/s
+  games   257,000  moves   1233.6M  avg score   154521  max  343108  ≥2048  98.9%  ≥4096  95.5%  ≥8192  81.0%  |  592.2 games/s
+  games   258,000  moves   1239.3M  avg score   155167  max  366220  ≥2048  98.9%  ≥4096  96.1%  ≥8192  81.6%  |  550.7 games/s
+  games   259,000  moves   1245.0M  avg score   153244  max  342916  ≥2048  99.4%  ≥4096  95.5%  ≥8192  81.4%  |  560.3 games/s
+  games   260,000  moves   1250.4M  avg score   147387  max  371636  ≥2048  98.6%  ≥4096  93.8%  ≥8192  79.5%  |  605.8 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (260,000 games)
+  games   261,000  moves   1256.1M  avg score   156281  max  358136  ≥2048  99.3%  ≥4096  96.0%  ≥8192  83.2%  |  557.2 games/s
+  games   262,000  moves   1261.8M  avg score   153900  max  385976  ≥2048  99.1%  ≥4096  95.9%  ≥8192  82.7%  |  535.0 games/s
+  games   263,000  moves   1267.5M  avg score   156313  max  383348  ≥2048  99.2%  ≥4096  97.2%  ≥8192  84.4%  |  502.9 games/s
+  games   264,000  moves   1273.2M  avg score   154695  max  364800  ≥2048  98.7%  ≥4096  95.5%  ≥8192  80.6%  |  571.2 games/s
+  games   265,000  moves   1278.9M  avg score   156260  max  380812  ≥2048  98.9%  ≥4096  95.9%  ≥8192  83.8%  |  508.2 games/s
+  games   266,000  moves   1284.7M  avg score   157936  max  377732  ≥2048  99.3%  ≥4096  96.7%  ≥8192  82.4%  |  508.5 games/s
+  games   267,000  moves   1290.3M  avg score   149590  max  366632  ≥2048  98.7%  ≥4096  95.2%  ≥8192  78.2%  |  529.1 games/s
+  games   268,000  moves   1295.9M  avg score   154496  max  366920  ≥2048  99.2%  ≥4096  96.7%  ≥8192  82.2%  |  602.7 games/s
+  games   269,000  moves   1301.7M  avg score   158774  max  363196  ≥2048  98.5%  ≥4096  95.3%  ≥8192  83.4%  |  505.0 games/s
+  games   270,000  moves   1307.5M  avg score   158225  max  362720  ≥2048  99.6%  ≥4096  97.6%  ≥8192  85.0%  |  563.7 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (270,000 games)
+  games   271,000  moves   1313.3M  avg score   157113  max  382704  ≥2048  99.5%  ≥4096  96.9%  ≥8192  84.3%  |  615.6 games/s
+  games   272,000  moves   1318.9M  avg score   153397  max  366900  ≥2048  98.6%  ≥4096  95.4%  ≥8192  82.7%  |  545.9 games/s
+  games   273,000  moves   1324.5M  avg score   151851  max  360524  ≥2048  98.7%  ≥4096  94.1%  ≥8192  80.1%  |  599.7 games/s
+  games   274,000  moves   1330.2M  avg score   157664  max  362424  ≥2048  99.2%  ≥4096  96.5%  ≥8192  82.4%  |  601.2 games/s
+  games   275,000  moves   1335.9M  avg score   154793  max  361364  ≥2048  98.8%  ≥4096  95.9%  ≥8192  83.3%  |  556.5 games/s
+  games   276,000  moves   1341.6M  avg score   153613  max  362744  ≥2048  98.9%  ≥4096  96.7%  ≥8192  81.8%  |  577.2 games/s
+  games   277,000  moves   1347.4M  avg score   157984  max  360720  ≥2048  98.4%  ≥4096  96.0%  ≥8192  83.4%  |  550.0 games/s
+  games   278,000  moves   1353.1M  avg score   158573  max  382988  ≥2048  99.5%  ≥4096  97.5%  ≥8192  84.1%  |  599.8 games/s
+  games   279,000  moves   1358.9M  avg score   157440  max  376416  ≥2048  98.5%  ≥4096  95.3%  ≥8192  80.8%  |  550.7 games/s
+  games   280,000  moves   1364.6M  avg score   153745  max  382692  ≥2048  99.0%  ≥4096  94.7%  ≥8192  81.3%  |  558.5 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (280,000 games)
+  games   281,000  moves   1370.4M  avg score   156498  max  362608  ≥2048  99.1%  ≥4096  95.6%  ≥8192  83.1%  |  595.4 games/s
+  games   282,000  moves   1376.1M  avg score   155006  max  361664  ≥2048  98.9%  ≥4096  96.2%  ≥8192  83.6%  |  575.6 games/s
+  games   283,000  moves   1381.9M  avg score   156193  max  363132  ≥2048  99.1%  ≥4096  96.4%  ≥8192  83.7%  |  582.1 games/s
+  games   284,000  moves   1387.8M  avg score   161322  max  361524  ≥2048  99.1%  ≥4096  96.3%  ≥8192  86.5%  |  528.1 games/s
+  games   285,000  moves   1393.7M  avg score   161270  max  387268  ≥2048  98.8%  ≥4096  96.8%  ≥8192  82.9%  |  578.2 games/s
+  games   286,000  moves   1399.4M  avg score   154863  max  354488  ≥2048  98.8%  ≥4096  95.6%  ≥8192  81.8%  |  578.1 games/s
+  games   287,000  moves   1405.2M  avg score   157276  max  365476  ≥2048  99.5%  ≥4096  96.4%  ≥8192  83.4%  |  552.4 games/s
+  games   288,000  moves   1411.0M  avg score   158465  max  362464  ≥2048  98.9%  ≥4096  96.3%  ≥8192  84.1%  |  531.1 games/s
+  games   289,000  moves   1416.8M  avg score   160231  max  364904  ≥2048  98.9%  ≥4096  96.2%  ≥8192  84.7%  |  556.3 games/s
+  games   290,000  moves   1422.5M  avg score   156122  max  367112  ≥2048  99.5%  ≥4096  96.4%  ≥8192  83.3%  |  508.8 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (290,000 games)
+  games   291,000  moves   1428.3M  avg score   157615  max  367300  ≥2048  98.9%  ≥4096  96.4%  ≥8192  81.9%  |  592.7 games/s
+  games   292,000  moves   1434.0M  avg score   156601  max  365880  ≥2048  99.2%  ≥4096  96.3%  ≥8192  82.3%  |  547.4 games/s
+  games   293,000  moves   1439.7M  avg score   156743  max  358076  ≥2048  99.5%  ≥4096  95.7%  ≥8192  82.8%  |  537.8 games/s
+  games   294,000  moves   1445.5M  avg score   161226  max  372876  ≥2048  99.0%  ≥4096  96.1%  ≥8192  84.6%  |  548.2 games/s
+  games   295,000  moves   1451.3M  avg score   160940  max  360712  ≥2048  99.0%  ≥4096  97.2%  ≥8192  84.7%  |  460.4 games/s
+  games   296,000  moves   1457.0M  avg score   154109  max  380336  ≥2048  99.1%  ≥4096  95.4%  ≥8192  78.8%  |  497.6 games/s
+  games   297,000  moves   1462.7M  avg score   156628  max  382544  ≥2048  99.1%  ≥4096  95.6%  ≥8192  82.9%  |  513.8 games/s
+  games   298,000  moves   1468.6M  avg score   160087  max  365052  ≥2048  99.3%  ≥4096  95.8%  ≥8192  82.4%  |  484.2 games/s
+  games   299,000  moves   1474.4M  avg score   158677  max  377752  ≥2048  99.5%  ≥4096  96.8%  ≥8192  85.6%  |  541.5 games/s
+  games   300,000  moves   1480.2M  avg score   156987  max  366476  ≥2048  99.3%  ≥4096  96.0%  ≥8192  82.2%  |  532.8 games/s
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/games_300000.npz (300,000 games)
+  saved checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz (300,000 games)
+
+Training complete
+{
+  "games_played": 300000,
+  "checkpoint_path": "checkpoints/ntuple/lambda-4x6-jaskowski-s1/latest.npz",
+  "interrupted": false
+}
