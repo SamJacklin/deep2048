@@ -1,6 +1,6 @@
 # TD(λ) test: Jaśkowski's setting, seed 3
 
-Part of the multi-seed TD(λ) test in [experiments/README.md](../README.md#tdλ-across-seeds). It's the 4×6 network with temporal coherence at base rate 0.08, downgrading and late-game starts (A + C), trained from scratch to 300,000 games on 8 threads (the first 10,000 single-threaded) with seed 3, using delayed TD(λ): λ = 0.5 with horizon 3, as in Jaśkowski (2018). Evaluated greedily on the usual 1,000 seeded games at 300k.
+Part of the multi-seed TD(λ) test in [experiments/README.md](../README.md#tdλ-across-seeds). It's the 4×6 network with temporal coherence at base rate 0.08, downgrading and late-game starts (A + C), trained from scratch to 300,000 games on 8 threads (the first 10,000 single-threaded) with seed 3, using delayed TD(λ): λ = 0.5 with horizon 3, close to Jaśkowski (2018). His h = 3 sums four errors, which is horizon 4 here. Evaluated greedily on the usual 1,000 seeded games at 300k.
 
 **Result:** 157,229 average, with 16384 reached in 12.7% of games. That's −30,269 against the TD(0) control on the same seed ([`ingredients-4x6-downgrade-late-starts-s3`](../ingredients-4x6-downgrade-late-starts-s3/NOTES.md)).
 

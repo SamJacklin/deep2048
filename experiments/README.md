@@ -273,7 +273,7 @@ The ≥16384 and moves columns are averages over the three seeds.
 Jaśkowski (2018) trained with delayed TD(λ): each afterstate's update waits a few moves, then moves towards a blend of the real rewards over the next h moves and the value estimate after them. It's meant to carry information back faster than TD(0)'s one-move lookahead, which suits this project's sample-efficiency goal. This test asks whether it helps here, and whether two variants improve on his setting.
 
 - **The arms:**
-  - Jaśkowski's setting: λ = 0.5 with horizon 3.
+  - Close to Jaśkowski's setting: λ = 0.5 with horizon 3. His update sums h + 1 errors, so his h = 3 is horizon 4 here, and this arm is one step shorter.
   - A longer horizon: λ = 0.75 with horizon 6, to carry information further back.
   - Annealed: λ = 0.75 with horizon 6, falling linearly to TD(0) over the session. The idea was to get the fast early learning from long returns and the low noise of TD(0) at the end.
 - **The setup:** the A + C recipe from the [ingredient test](#ingredient-test-across-seeds) (the 4×6 at temporal coherence rate 0.08, downgrading and late-game starts), trained from scratch to 300k games on 8 threads with seeds 1–3, and evaluated on 1,000 seeded greedy games. The TD(0) control is that test's A + C arm, which has exactly these settings, so it wasn't retrained.
@@ -301,16 +301,44 @@ The training average score at points during training is shown below: the mean of
 | 200k | **162,232** | 146,829 | 122,094 | 140,895 (0.25) |
 | 300k | **187,380** | 156,207 | 126,411 | 154,851 (0) |
 
-- **TD(λ) hurts at this learning rate and budget, in every variant and on every seed.** Jaśkowski's setting costs 17%, and its three seeds land within 2.2k of each other (−30.3k to −32.4k). The gap isn't explained by the fewer moves played: shorter games are a symptom of weaker play, and TD(0) was already ahead at that point.
-- **Jaśkowski's setting learns faster at first, then falls behind.** On all three seeds it's 3.7–7.6k ahead at 10k and 30k games, about level at 70k, and behind from 100k onwards, with the gap still widening at 300k. The early lead is what TD(λ) is meant to give: while the values are poor, real rewards are a better target than the value estimate. Later the estimates are good, and each extra step of real play mostly adds the randomness of another tile spawn. Two likely ways that noise hurts:
+- **TD(λ) hurts at this learning rate and budget, in every variant and on every seed.** The Jaśkowski arm costs 17%, and its three seeds land within 2.2k of each other (−30.3k to −32.4k). The gap isn't explained by the fewer moves played: shorter games are a symptom of weaker play, and TD(0) was already ahead at that point.
+- **The Jaśkowski arm learns faster at first, then falls behind.** On all three seeds it's 3.7–7.6k ahead at 10k and 30k games, about level at 70k, and behind from 100k onwards, with the gap still widening at 300k. The early lead is what TD(λ) is meant to give: while the values are poor, real rewards are a better target than the value estimate. Later the estimates are good, and each extra step of real play mostly adds the randomness of another tile spawn. Two likely ways that noise hurts:
   - At base rate 0.08 the noise goes straight into the weights.
   - It makes errors cancel more, so temporal coherence shrinks the rates sooner.
 - **A longer horizon is worse at every stage.** Both horizon-6 arms stall at 60–70k between about 20k and 70k games, before 8192 is reached, while TD(0) climbs 25k over the same stretch. The longer-horizon arm almost never reaches 16384 (0.9%).
-- **Annealing recovers half the gap, but stops there.** It ends level with Jaśkowski's setting. Even over the last 100k games, with λ down from 0.25 to 0, it gains 14.0k against TD(0)'s 25.1k, so the damage outlasts λ itself. A likely cause: temporal coherence's error sums accumulate over the whole run, so a long noisy phase leaves the rates low after the noise has gone.
-- **This doesn't contradict Jaśkowski.** He trained for 10¹⁰ moves, about 6× this test's budget, and his settings differed from this project's high-rate recipe. It does mean λ isn't free sample efficiency here. Possible follow-ups:
-  - λ = 0.5 for only the first 50–70k games, where it leads.
-  - TD(λ) at lower base rates (0.02–0.04), to test the noise explanation.
-  - Resetting the temporal coherence sums when λ is switched off.
+- **Annealing recovers half the gap, but stops there.** It ends level with the Jaśkowski arm. Even over the last 100k games, with λ down from 0.25 to 0, it gains 14.0k against TD(0)'s 25.1k, so the damage outlasts λ itself. A likely cause: temporal coherence's error sums accumulate over the whole run, so a long noisy phase leaves the rates low after the noise has gone.
+- **How this compares with Jaśkowski.** There's no published result to contradict: he chose λ = 0.5 from "informal preliminary experiments" and reports no λ = 0 comparison. The likeliest reason λ fails here is the learning rate. The training budget is less likely, and the horizon doesn't explain it.
+  - **Learning rate.** His rate is divided by the number of weights read, and he calls 1.0 "the maximum sensible value", the rate that cancels the whole error in one step. On the 4×6 that's 1/32 ≈ 0.031 per weight. This project's 0.08 can move a value by up to 2.56× its error before temporal coherence slows it, so a noisier target gets amplified.
+  - **Training budget.** He trained for 10¹⁰ moves, about 6× this test. But the gap here widened with training, from −4k at 100k games to −31k at 300k, so a longer run would more likely widen it further.
+  - **Horizon.** His exact setting, one step longer than this arm, would probably do no better, since the longer horizon did worse here.
+- **For the [final training run](#final-training-run), TD(λ) is dropped.** Its only gain is a head start in the first ~70k games, which is minutes of a multi-day run. TD(λ) at lower base rates (0.02–0.04) would test the rate explanation, but it's a low priority.
+
+## Final training run
+
+The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
+
+- **The machine:**
+  - AMD Ryzen 7 9850X3D (8 cores, 16 threads), 32 GB of DDR5-6000, Windows.
+  - Expect roughly the speed of the Macs used here. The 8×6 did 1.5M games in about 2 hours on 8 threads, so 3 days is in the region of 50M games: tens of millions, not Guei's 200M.
+  - Memory isn't a constraint. The 8×6 with temporal coherence sums takes a few GB, and a 2-stage version would still fit.
+- **What the short tests settle, and what they don't:**
+  - **These carry over:**
+    - training throughput and correctness (threading, determinism);
+    - the evaluation method, including that single seeds vary by about ±2%;
+    - choices that held up at 1.5M games: the 8×6 network, an aggressive temporal coherence rate early on, and downgrading with late-game starts. The 1.5M-game run built on them reached about 300k greedy.
+  - **These don't:**
+    - learning-rate tuning, since 0.08 won at 200k games but a long run will need lower rates or a schedule later;
+    - anything whose benefit is early speed, which is why TD(λ) is dropped;
+    - how much late-game starts help once natural games reach 16384 far more often.
+- **Decisions that only matter at scale**, to be tested by branching from a mature checkpoint (the 1.5M-game 8×6) for about 500k games per arm, not by training from scratch:
+  1. The learning-rate schedule: keep temporal coherence throughout, reset its sums periodically, or use a constant rate then temporal coherence (Guei's best on the 8×6).
+  2. Multi-stage networks, with separate weights for the late game.
+  3. Optimistic initialisation, which only paid off after 12M+ games for Guei.
+  4. Thread scaling on the target machine: 8 against 16 threads, before committing days to it.
+- **Running on Windows:**
+  - Use WSL2, since the scripts are bash and use `pgrep`, and keep the repo on the Linux filesystem, not `/mnt/c`.
+  - Raise WSL's memory cap in `.wslconfig`.
+  - Disable sleep and pause Windows Update restarts for the run. Checkpoints every 10k games and resume support limit the cost of an interruption to minutes.
 
 ## The long run
 
@@ -405,6 +433,8 @@ Where things stand, as of these runs:
 - **The [long run](#the-long-run)** reached 300k greedy and 365k at 3-ply after 1.5M games. That's more sample-efficient than any n-tuple result in [RELATED_WORK.md](RELATED_WORK.md), and it was still improving at about +20–25k per doubling of games.
 - **[Faster search](#faster-search)** made evaluation cheap, but deeper search added only 3%.
 - **The TD(λ) test** (on `feat/ntuple-td-lambda`) found that every variant hurts at this rate and budget. Jaśkowski's λ = 0.5 cost 17% on all three seeds.
+
+Open directions for improving the n-tuple agent further, roughly in order of expected payoff. The [final training run](#final-training-run) section sets the priorities for decisions that only matter at scale.
 
 So the gap to the state of the art is the network's late game: 32768 is reached in under 12% of games, and the state of the art needs it in most. The aim now is to settle what goes into a much longer run. In order:
 
