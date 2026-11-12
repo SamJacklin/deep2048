@@ -16,12 +16,12 @@ Published 2048 agents, for placing this project's results. All use the standard 
 | nneonneo/xificurk: hand-tuned heuristic expectimax, adaptive depth 4–8 | | | mean 432,557 | none | 2,000 games (Yeh's rerun) |
 | Stochastic MuZero, Antonoglou et al. 2022 | | | ≈510,000 *second-hand* | about 10¹¹ states | |
 
-**Where this project stands** (1,000 games each): 299,894 greedy and 365,404 at 3-ply, from the [long run](README.md#the-long-run). It's an 8×6 network trained for 1.5M games (1.4×10¹⁰ moves) in 2 hours on 8 threads.
-- **Greedy:** above every result here except Jaśkowski's full method (92% of it) and Guei's (73%).
-- **3-ply:** above Yeh and Jaśkowski's TC-only network, and 65% of the state of the art.
-- **Best search:** 376,221 with [pruned search](README.md#faster-search) at nominal depth 6, at about 0.4 ms per move on one thread. Pruned search isn't N-ply, so its fair comparison is by time per move: Jaśkowski's 609k used 1 s per move, about 2,500× as much.
+**Where this project stands** (1,000 games each): 320,042 greedy and 402,208 at 3-ply, from the [TC-reset decision arm](README.md#decision-arms). It's the [long run](README.md#the-long-run)'s 8×6 network trained on to 2M games (1.9×10¹⁰ moves), with its temporal coherence sums reset at 1.5M games, in under 3 hours of training on 8 threads.
+- **Greedy:** above every result here except Jaśkowski's full method (99% of it) and Guei's (78%).
+- **3-ply:** above Yeh and Jaśkowski's TC-only network, level with Matsuzaki's CNN (407k, after 240 GPU-hours), and 71% of the state of the art.
+- **Best search:** 376,221 with [pruned search](README.md#faster-search) at nominal depth 6 on the long run's 1.5M network, at about 0.4 ms per move on one thread. Pruned search isn't N-ply, so its fair comparison is by time per move: Jaśkowski's 609k used 1 s per move, about 2,500× as much.
 - **Sample efficiency:** at 1M games (8.8×10⁹ moves) it scores 285k greedy, where Guei reports n-tuple networks under 240k after 10¹⁰ moves, and Jaśkowski's TC-only network scores 249k.
-- **The weakness is now 32768.** At 3-ply, 16384 is reached in 91% of games, level with Yeh, but 32768 in only 8.5%.
+- **The weakness is still 32768,** though the reset doubled its rate. At 3-ply, 16384 is reached in 95% of games, but 32768 in 20%.
 
 ## Guei et al.: what the state of the art leaves open
 

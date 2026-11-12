@@ -1,0 +1,74 @@
+{
+  "name": "decision-8x6-tc-reset",
+  "sessions": [
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "decision-8x6-tc-reset",
+        "--resume",
+        "checkpoints/ntuple/long-8x6/games_1500000.npz",
+        "--reset-coherence",
+        "--games",
+        "2000000",
+        "--snapshot-at",
+        "1750000",
+        "2000000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.2,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "THREADS": 8,
+        "THREADS_AFTER": 10000,
+        "TRAINING_GAMES": 2000000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 10000,
+        "SNAPSHOT_AT": [
+          1750000,
+          2000000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/decision-8x6-tc-reset",
+        "OUTPUT_DIR": "experiments/decision-8x6-tc-reset"
+      },
+      "resumed_from": "checkpoints/ntuple/long-8x6/games_1500000.npz",
+      "environment": {
+        "git_commit": "cf2e59913e574b64dfebb2cba9a58eb0c3e778ca",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-12T14:15:23.857510Z",
+      "started_with": {
+        "games_played": 1500000,
+        "moves_played": 13860894829
+      },
+      "finished_at": "2026-11-12T14:59:25.516420Z",
+      "finished_with": {
+        "games_played": 2000000,
+        "moves_played": 19128016850
+      },
+      "interrupted": false
+    }
+  ]
+}

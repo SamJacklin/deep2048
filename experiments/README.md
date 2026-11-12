@@ -41,6 +41,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | `lambda-4x6-*` (9 runs) | [TD(λ) across seeds](#tdλ-across-seeds): Jaśkowski's λ = 0.5, a longer horizon and an annealed λ, on A + C, seeds 1–3 |
 | [`long-8x6`](long-8x6/NOTES.md) | [The long run](#the-long-run): 8×6 at 0.02 with A + C, on 8 threads to 1.5M games, then search |
 | [`search-long-8x6`](search-long-8x6/NOTES.md) | [Faster search](#faster-search): exact and pruned search at depths 3–6 on the long run's 1.5M network |
+| `decision-8x6-*` (4 runs) | [Decision arms](#decision-arms): control, TC reset, constant rate and a larger late-game share, each 1.5M → 2M games from the long run |
 
 ## Learning at equal experience
 
@@ -400,6 +401,61 @@ Two changes make search on the 8×6 cheap enough to use routinely, and a third m
 - **Pruned results aren't N-ply results.** At cutoff 0.1, most branches stop well short of the nominal depth. So "depth 6" here isn't comparable with Guei's 6-ply, and pruned results should be reported with their time per move. For comparison with papers, use exact depths: 3-ply takes 13 minutes per 1,000 games, and 4-ply should take 2–3 hours.
 - **The bitboard caps tiles at 32768.** Two 32768s don't merge there, though they do on the Python engine. Whole-game play stops with an error if a board ever holds two, so a result can't silently differ from the Python engine. None of these games did.
 
+## Decision arms
+
+The [long run](#the-long-run) was still improving at 1.5M games, but the [final training run](#final-training-run) will last tens of millions. These arms test the decisions that only matter at that scale, by branching from the long run's 1.5M-game network rather than training from scratch.
+
+- **The setup:**
+  - Each arm resumes the 1.5M-game network and trains a further 500k games with the long run's settings (8×6, temporal coherence at 0.02, downgrading and late-game starts, 8 threads), changing one thing.
+  - Each is evaluated on the usual 1,000 seeded games, greedily at 1.75M and 2M games and at exact depth 3 at 2M, and compared game for game with the control.
+  - `scripts/run_decision_arms.sh` runs them, about 4.5 hours on the M4.
+- **The arms:**
+  - **Control:** unchanged.
+  - **TC reset:** the temporal coherence sums start from zero (`--reset-coherence`), so every weight learns at the full rate again until its errors start cancelling. That's the closest a branch can get to the temporal coherence phase that 2048-rl ran after its constant-rate stage, which took its training average from about 276k to about 370k.
+  - **Constant rate:** temporal coherence off, at 0.0016 per weight. That's 2048-rl's and Guei's constant rate of 0.1 per board, spread over 64 weights.
+  - **Late-game share:** half of all games start from late-game positions instead of a fifth.
+    - The plan was to start games from doubled first-16384 positions instead, to give the 32768 stage experience.
+    - That's impossible here. The doubled boards hold a 32768, so a game could need two 32768s merged, which the bitboard can't do, and `upgrade()` leaves such boards alone.
+    - The smoke test caught it: the arm made no late-game starts at all. Training now refuses that setting.
+
+| Arm | Greedy at 2M | vs control | Exact depth 3 at 2M | vs control | ≥16384 at depth 3 | ≥32768 at depth 3 |
+|---|---:|---:|---:|---:|---:|---:|
+| Control | 302,227 ± 7,318 | — | 368,795 | — | 90.9% | 9.6% |
+| **TC reset** | **320,042** | **+17,814 ± 10,300** | **402,208 ± 6,763** | **+33,414 ± 9,224** | **94.6%** | **20.1%** |
+| Constant rate | 236,003 | −66,225 ± 10,383 | 356,872 | −11,923 ± 8,876 | 88.2% | 10.1% |
+| Late-game share | 297,475 | −4,752 ± 10,569 | 356,813 | −11,981 ± 8,304 | 88.7% | 7.0% |
+
+At 1.75M games the greedy differences were +10,704 ± 10,813 (reset), −67,100 ± 10,193 (constant) and −4,561 ± 10,557 (late share). Against the 1.5M network it started from, the control gained +2,334 ± 10,462 greedy and +3,391 ± 8,401 at depth 3.
+
+![Decision arms](figures/decision-arms.png)
+
+- **Temporal coherence has stalled by 1.5M games, and resetting it breaks the stall.**
+  - The control gained nothing measurable in 500k games, against +14.7k from 1M to 1.5M.
+  - The reset arm dropped about 25k for the first 50k games, as every weight took full-size steps again, was back level by 150k, and then climbed past the control.
+  - It's the best agent yet: 320k greedy, and 402k at 3-ply. That's the first 3-ply result over 400k here, level with Matsuzaki's 407k (a CNN after 240 GPU-hours).
+  - It doubled the 32768 rate at depth 3, to 20.1%, which is the weakness the [faster search](#faster-search) results pointed to.
+  - Its training average was levelling off by 2M games, about +1k per 50k, so the gain may need repeating. Round 2, below, tests that.
+- **Switching a trained network to a constant rate is harmful.**
+  - The training average fell to 194k within 50k games and recovered only to about 233k, while the control held 300k.
+  - Temporal coherence had shrunk most weights' steps far below 0.0016, and a constant rate never shrinks back.
+  - Search hides most of the damage: −12k at depth 3 against −66k greedy, with the same 32768 rate. That suggests the early and middle game suffered most.
+  - Guei's schedule uses a constant rate from the start, with optimistic initialisation. A branch can't test that.
+- **More late-game experience doesn't help while the rates are settled.** The late-share arm stayed about 10k behind the control in training, ended within noise greedy and 12k behind at depth 3, with a lower 32768 rate. The bottleneck was the learning rates, not a shortage of late-game games.
+- **Two quick checks alongside:**
+  - **Snapshot averaging.** Averaging the long run's 1M and 1.5M weights gave −1.5k ± 10.6k greedy and +6.5k ± 8.3k at depth 3. That's within noise, and close to 2048-rl's +7k at depth 2.
+  - **Temporal coherence's cost.** On the 1.5M network, training runs at 1.8–1.9M moves/s with temporal coherence and 3.4M without, a 1.8× cost, as in 2048-rl. Storing each weight next to its two sums, as 2048-rl does, would cut the memory accesses per update from three to one.
+
+### Round 2: do resets keep paying?
+
+Branching from the TC-reset arm at 2M games, for another 500k each (`ROUND=2 scripts/run_decision_arms.sh`):
+- **Continue:** no reset, so the first reset's cycle carries on.
+- **Reset again:** a second full reset.
+- **Gentle reset:** the sums scaled by 0.1 (`--coherence-scale 0.1`).
+  - A weight's rate is the ratio of its two sums, so scaling both keeps every rate as it was. New errors then count ten times as much, so rates rise again wherever errors start agreeing.
+  - It's meant to keep a reset's gain without the dip. Halving the sums would barely change anything after 500k games of history.
+
+Results to follow.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
@@ -420,15 +476,15 @@ The end goal is a single multi-day training run that produces the final model. T
     - how much late-game starts help once natural games reach 16384 far more often.
 - **Where the final model's gap is.** The [long run](#the-long-run) and [faster search](#faster-search) show it's the late game: 16384 is reached in 90% of depth-3 games, but 32768 in under 12%, and the state of the art needs it in most. Deeper search added only 3%, so the decisions below target late-game training.
 - **Decisions that only matter at scale**, to be tested by branching from a mature checkpoint (the 1.5M-game 8×6) for about 500k games per arm, not by training from scratch:
-  1. **The learning-rate schedule:** keep temporal coherence throughout, reset its sums periodically, or use a constant rate then temporal coherence (Guei's best on the 8×6).
-     - The TD(λ) test adds a reason to check: its annealed arm kept learning at half speed after λ had gone, which fits temporal coherence's sums holding rates low long after a noisy phase.
-     - For a constant rate, about 0.002 matches Guei's 0.1 spread over the 8×6's 64 weights.
-  2. **Late-game starts from 32768 positions** (`NTUPLE_LATE_START_TILE=16384`). Starts now double the position where a game first makes 8192, so they hold a 16384. Natural games now reach 16384 in 73% of greedy games, so doubling those positions gives the missing 32768-stage experience. It's a single setting.
-  3. **Multi-stage networks,** with separate weights for the late game. They work against downgrading's sharing across scales, and double the memory, so they're worth testing only if decision 2 leaves much of the 32768 gap.
-  4. **Optimistic initialisation,** which only paid off after 12M+ games for Guei.
+  1. **The learning-rate schedule. Settled by the [decision arms](#decision-arms): temporal coherence with its sums reset.**
+     - Temporal coherence stalls by 1.5M games, and one reset gave +18k greedy and +33k at depth 3, and doubled the 32768 rate.
+     - Switching to a constant rate cost 22% greedy. Guei's schedule, with a constant rate from the start and optimism, would need its own run from scratch.
+     - Still open: how often to reset, and whether a gentler reset avoids the dip. [Round 2](#round-2-do-resets-keep-paying) tests both.
+  2. **More late-game experience. Answered: it doesn't help.** Starts from 32768 positions turned out to be impossible in the bitboard, and a larger share of the starts that are possible cost 12k at depth 3. Late-game starts stay at a fifth of games, from 8192.
+  3. **Multi-stage networks,** with separate weights for the late game. They work against downgrading's sharing across scales, and double the memory, so they're worth testing only if resets leave most of the 32768 gap.
+  4. **Optimistic initialisation,** which only paid off after 12M+ games for Guei. It's designed for a constant-rate schedule, so it matters less now that temporal coherence with resets is the plan.
   5. **Thread scaling on the target machine:** 8 against 16 threads, before committing days to it.
-
-  The arms can share one control: temporal coherence as is, with late-game starts at 8192. Evaluate each arm every 250k games greedily and at exact depth 3. With [faster search](#faster-search) that's about 15 minutes per snapshot.
+- **Training speed:** temporal coherence costs 1.8× in moves per second. Since it stays for the whole run, storing each weight next to its sums is worth building first: it cuts the memory accesses per update from three to one.
 - **Evaluating the final model:** 1,000 seeded games at exact 3-ply and 4-ply, for comparison with the papers, and with pruned search (depth 6 at cutoff 0.1, or deeper) as the strongest agent, reported with its time per move.
 - **Running on Windows:**
   - Use WSL2, since the scripts are bash and use `pgrep`, and keep the repo on the Linux filesystem, not `/mnt/c`.
@@ -438,20 +494,18 @@ The end goal is a single multi-day training run that produces the final model. T
 ## Next experiments
 
 Where things stand, as of these runs:
-- **The [long run](#the-long-run)** reached 300k greedy and 365k at 3-ply after 1.5M games. That's more sample-efficient than any n-tuple result in [RELATED_WORK.md](RELATED_WORK.md), and it was still improving at about +20–25k per doubling of games.
+- **The [long run](#the-long-run)** reached 300k greedy and 365k at 3-ply after 1.5M games. That's more sample-efficient than any n-tuple result in [RELATED_WORK.md](RELATED_WORK.md).
 - **[Faster search](#faster-search)** made evaluation cheap, but deeper search added only 3%.
 - **[TD(λ)](#tdλ-across-seeds)** hurts at this rate and budget in every variant, and is dropped.
+- **The [decision arms](#decision-arms)** found that temporal coherence stalls by 1.5M games, and that resetting its sums breaks the stall: 320k greedy, 402k at 3-ply, and 32768 in 20% of depth-3 games, after 2M games. A constant rate and more late-game starts both hurt.
 
 The [final training run](#final-training-run) sets the decisions. In order:
 
-1. **The decision arms on the M4,** each branching from the 1.5M-game 8×6 for 500k games. That's about 45 minutes of training per arm, plus evaluations:
-   - the control (temporal coherence as is, late-game starts at 8192);
-   - temporal coherence sums reset at the branch point;
-   - a constant rate of about 0.002;
-   - late-game starts at 16384.
-2. **Multi-stage networks,** only if late-game starts at 16384 leave most of the 32768 gap.
-3. **On the Ryzen:** check 8 against 16 threads and the real speed, then decide on optimistic initialisation, which can't be tested in a short arm.
-4. **The final training run** with what survives, evaluated as its section describes.
+1. **[Round 2](#round-2-do-resets-keep-paying)** (running): continue, reset again, or reset gently, from the reset arm at 2M games. It sets how often the final run resets, and how.
+2. **Faster temporal coherence:** store each weight next to its two sums, then measure the speed-up on the M4.
+3. **Multi-stage networks,** only if resets leave most of the 32768 gap.
+4. **On the Ryzen:** check 8 against 16 threads and the real speed.
+5. **The final training run:** temporal coherence from scratch with resets on the schedule round 2 settles, evaluated as its section describes.
 
 Left out for now:
 - **TD(λ) at lower base rates** (0.02–0.04). It would test the rate explanation in [TD(λ) across seeds](#tdλ-across-seeds), but it can't help the final run.
