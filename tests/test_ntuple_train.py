@@ -109,9 +109,16 @@ def test_temporal_coherence_traces_are_checkpointed_and_resumed(tmp_path) -> Non
 
     # Resetting keeps the weights but starts the sums from zero, so one more game leaves far smaller sums
     reset_settings = settings.model_copy(update={"CHECKPOINT_DIR": str(tmp_path / "reset")})
-    reset = train(resume_from=first.checkpoint_path, total_games=201, settings=reset_settings, reset_coherence=True)
+    reset = train(resume_from=first.checkpoint_path, total_games=201, settings=reset_settings, coherence_scale=0.0)
     reset_traces = load_traces(reset.checkpoint_path)
     assert reset_traces is not None and 0 < reset_traces.abs_errors.sum() < first_errors / 10
+
+    # Scaling keeps that share of the history, plus what the extra game adds
+    scale_settings = settings.model_copy(update={"CHECKPOINT_DIR": str(tmp_path / "scaled")})
+    scaled = train(resume_from=first.checkpoint_path, total_games=201, settings=scale_settings, coherence_scale=0.5)
+    scaled_traces = load_traces(scaled.checkpoint_path)
+    resumed_errors = resumed.abs_errors.sum()
+    assert scaled_traces is not None and 0.5 * resumed_errors < scaled_traces.abs_errors.sum() < 0.6 * resumed_errors
 
 
 def test_train_builds_the_configured_network(tmp_path) -> None:

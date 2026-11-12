@@ -257,12 +257,13 @@ def train(
     total_games: int | None = None,
     snapshot_at: list[int] | None = None,
     settings: NTupleSettings | None = None,
-    reset_coherence: bool = False,
+    coherence_scale: float | None = None,
 ) -> TrainingSummary:
     """Train until total_games have been played, including any in the resumed checkpoint.
 
-    reset_coherence starts the temporal coherence sums from zero instead of the checkpoint's, which
-    gives every weight back its full rate.
+    coherence_scale multiplies the resumed temporal coherence sums. 0 resets them, giving every weight back
+    its full rate. A fraction keeps each weight's rate for now but lets new errors move it sooner, since
+    a rate depends on the ratio of the two sums.
 
     The network is also saved as games_<n>.npz at each game count in snapshot_at, and each call is
     recorded as a session in the run's manifest. Ctrl-C saves and stops. Refuses to start if another
@@ -270,10 +271,10 @@ def train(
     """
     settings = settings or get_ntuple_settings()
     with run_lock(Path(settings.OUTPUT_DIR)):
-        return _train(resume_from, total_games, snapshot_at, settings, reset_coherence)
+        return _train(resume_from, total_games, snapshot_at, settings, coherence_scale)
 
 
-def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at: list[int] | None, settings: NTupleSettings, reset_coherence: bool) -> TrainingSummary:
+def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at: list[int] | None, settings: NTupleSettings, coherence_scale: float | None) -> TrainingSummary:
     total_games = settings.TRAINING_GAMES if total_games is None else total_games
     snapshots = sorted(set(settings.SNAPSHOT_AT if snapshot_at is None else snapshot_at))
     checkpoint_dir = Path(settings.CHECKPOINT_DIR)
@@ -282,9 +283,11 @@ def _train(resume_from: str | Path | None, total_games: int | None, snapshot_at:
     history_path = output_dir / HISTORY_NAME
 
     network, progress = _load_or_create(resume_from, settings)
-    traces = _load_or_create_traces(None if reset_coherence else resume_from, network, settings)
-    if reset_coherence and traces is not None:
-        print("Temporal coherence sums reset: every weight starts back at the full rate")
+    traces = _load_or_create_traces(resume_from, network, settings)
+    if coherence_scale is not None and traces is not None:
+        traces.errors[:] *= coherence_scale
+        traces.abs_errors[:] *= coherence_scale
+        print("Temporal coherence sums reset: every weight starts back at the full rate" if coherence_scale == 0 else f"Temporal coherence sums scaled by {coherence_scale}")
     start_games = progress.games_played
     if resume_from is None:
         history_path.unlink(missing_ok=True)

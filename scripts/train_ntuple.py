@@ -50,10 +50,19 @@ def main() -> None:
         metavar="GAMES",
         help="Also save the network as games_<n>.npz at each of these game counts",
     )
-    parser.add_argument(
+    coherence = parser.add_mutually_exclusive_group()
+    coherence.add_argument(
         "--reset-coherence",
-        action="store_true",
+        dest="coherence_scale",
+        action="store_const",
+        const=0.0,
         help="Start the temporal coherence sums from zero instead of the resumed checkpoint's, restoring every weight's full rate",
+    )
+    coherence.add_argument(
+        "--coherence-scale",
+        type=float,
+        metavar="FACTOR",
+        help="Multiply the resumed temporal coherence sums by FACTOR: rates stay as they were but adapt to new errors sooner",
     )
     args = parser.parse_args()
 
@@ -62,7 +71,7 @@ def main() -> None:
         run_dirs = {"OUTPUT_DIR": str(EXPERIMENTS_DIR / args.run), "CHECKPOINT_DIR": str(Path(settings.CHECKPOINT_DIR) / args.run)}
         settings = settings.model_copy(update=run_dirs)
 
-    summary = train(resume_from=args.resume, total_games=args.games, snapshot_at=args.snapshot_at, settings=settings, reset_coherence=args.reset_coherence)
+    summary = train(resume_from=args.resume, total_games=args.games, snapshot_at=args.snapshot_at, settings=settings, coherence_scale=args.coherence_scale)
 
     print("\nTraining stopped" if summary.interrupted else "\nTraining complete")
     print(summary.model_dump_json(indent=2))
