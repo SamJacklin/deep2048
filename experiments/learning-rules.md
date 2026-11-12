@@ -68,8 +68,12 @@ Guei (2022) trained for 100M games per network, with optimistic initialisation (
 
 ## Open questions for this project
 
-1. **Does TC stall over long training here?** This project's TC runs were still improving at 1.5M games. The [long run](README.md#the-long-run) (1.5M games on the 8×6) doesn't stall either: its greedy score gained +14.7k ± 10.7k from 1M to 1.5M games, close to the +17.5k from 500k to 1M. Guei's stall came after tens of millions of games, so periodic TC resets are still worth testing before a run that long.
-2. **Constant rate, then TC:** worth testing only for much longer training (tens of millions of games), where Guei found it best on the 8×6.
+1. **Does TC stall over long training here? Yes, by 1.5M games, and resetting its sums breaks the stall.**
+   - The [long run](README.md#the-long-run) still gained +14.7k ± 10.7k greedy from 1M to 1.5M games.
+   - In the [decision arms](README.md#decision-arms), 500k more games added nothing measurable (+2.3k ± 10.5k).
+   - The same 500k games after resetting the TC sums added +17.8k ± 10.3k greedy over that control and +33.4k ± 9.2k at depth 3, and doubled the 32768 rate.
+   - This fits Guei's explanation that TC converges before it finds late-game strategies. Resets give every weight its full rate back, and the open question is how often to do it.
+2. **Constant rate, then TC:** switching an already TC-trained network to a constant rate (0.0016 per weight) cost 22% greedy, because TC had shrunk most rates far below it. Guei's version, a constant rate from the start with optimistic initialisation, would need a run from scratch, and with resets working it's a low priority.
 3. **Does TD(λ) help at lower rates?** At base rate 0.08 it only helps for the first ~70k games, so it's dropped from the [final training run](README.md#final-training-run). Using λ only early isn't worth testing for that run, since the head start is minutes of a multi-day run. TD(λ) against TD(0) at base rates 0.02–0.04 would test the rate explanation above, but it's a low priority.
 4. **How TC interacts with the scale-sharing ingredients.** All the ingredient tests used TC. Late-game starts in particular change which weights see coherent errors.
 
