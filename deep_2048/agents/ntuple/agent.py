@@ -25,6 +25,8 @@ class NTupleAgent(Agent):
         details = [f"{name} network"] if name not in (None, DEFAULT_NETWORK) else []
         if self.network.downgrade_tile is not None:
             details.append(f"downgraded from {self.network.downgrade_tile}")
+        if self.network.stage_tile is not None:
+            details.append(f"second stage from {self.network.stage_tile}")
         if self.network.scale_feature:
             details.append("scale term when downgraded" if self.network.scale_when_downgraded else "scale term")
         extras = "".join(f", {detail}" for detail in details)

@@ -30,6 +30,9 @@ class NTupleSettings(Settings):
     DOWNGRADE_TILE: int | None = None
     SCALE_FEATURE: bool = False
     SCALE_WHEN_DOWNGRADED: bool = False
+    # A second copy of the weights for boards whose real largest tile is STAGE_TILE or more, so the late
+    # game learns values of its own (scripts/add_stage.py starts it as a copy of a trained network)
+    STAGE_TILE: int | None = None
     # Threads playing and learning in parallel without locks: faster, but not bit-reproducible.
     # The first THREADS_AFTER games are single-threaded, since a fresh network collides often.
     THREADS: int = 1

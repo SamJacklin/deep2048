@@ -380,13 +380,21 @@ def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) ->
         raise ValueError(f"DOWNGRADE_TILE must be a power of two, not {settings.DOWNGRADE_TILE}")
     if settings.SCALE_WHEN_DOWNGRADED and not (settings.SCALE_FEATURE and settings.DOWNGRADE_TILE):
         raise ValueError("SCALE_WHEN_DOWNGRADED needs SCALE_FEATURE and DOWNGRADE_TILE")
-    features = {"downgrade_tile": settings.DOWNGRADE_TILE, "scale_feature": settings.SCALE_FEATURE, "scale_when_downgraded": settings.SCALE_WHEN_DOWNGRADED}
+    if settings.STAGE_TILE is not None and settings.STAGE_TILE & (settings.STAGE_TILE - 1):
+        raise ValueError(f"STAGE_TILE must be a power of two, not {settings.STAGE_TILE}")
+    features = {
+        "downgrade_tile": settings.DOWNGRADE_TILE,
+        "scale_feature": settings.SCALE_FEATURE,
+        "scale_when_downgraded": settings.SCALE_WHEN_DOWNGRADED,
+        "stage_tile": settings.STAGE_TILE,
+    }
     if resume_from is None:
         network = NTupleNetwork(
             NETWORKS[settings.NETWORK],
             downgrade_tile=settings.DOWNGRADE_TILE,
             scale_feature=settings.SCALE_FEATURE,
             scale_when_downgraded=settings.SCALE_WHEN_DOWNGRADED,
+            stage_tile=settings.STAGE_TILE,
         )
         return network, CheckpointMetadata(games_played=0, moves_played=0, **learning)
 

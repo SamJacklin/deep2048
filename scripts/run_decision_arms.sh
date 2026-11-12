@@ -25,6 +25,9 @@
 # Round 4, from the long run's 1.5M-game network moved to downgrading from 32768 by scripts/split_downgrade.py
 # (its temporal coherence sums start from zero), compared with round 1's tc-reset (the same start and reset):
 #   split-32768    the 16384 stage gets weights of its own, warm-started from the shared ones
+# Round 5, from the long run's 1.5M-game network given a second stage by scripts/add_stage.py (its temporal
+# coherence sums start from zero), compared with round 1's tc-reset (the same start and reset):
+#   two-stage      boards with a 16384 or more read their own copy of the weights, starting identical
 # Arms train one after another, since each uses most of the machine. Rerunning resumes an interrupted
 # arm from its own latest checkpoint and skips finished ones (evaluations come from the cache).
 # Each snapshot is evaluated greedily, and the final one also at exact depth 3, on EVAL_GAMES seeded games.
@@ -36,7 +39,8 @@ case ${ROUND:-1} in
     2) BASE=checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision2-8x6 ARMS=(continue reset-again gentle-reset) ;;
     3) BASE=checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision3-8x6 ARMS=(optimism-1000 optimism-5000) REFERENCE=decision2-8x6-continue ;;
     4) BASE=checkpoints/ntuple/split-8x6/games_1500000.npz FULL_GAMES=2000000 PREFIX=decision4-8x6 ARMS=(split-32768) REFERENCE=decision-8x6-tc-reset ;;
-    *) echo "ROUND must be 1, 2, 3 or 4" >&2 && exit 1 ;;
+    5) BASE=checkpoints/ntuple/two-stage-8x6/games_1500000.npz FULL_GAMES=2000000 PREFIX=decision5-8x6 ARMS=(two-stage) REFERENCE=decision-8x6-tc-reset ;;
+    *) echo "ROUND must be 1 to 5" >&2 && exit 1 ;;
 esac
 GAMES=${GAMES:-$FULL_GAMES}
 EVAL_GAMES=${EVAL_GAMES:-1000}
@@ -52,6 +56,7 @@ arm_settings() {
         constant) echo NTUPLE_TEMPORAL_COHERENCE=false NTUPLE_LEARNING_RATE=0.0016 ;;
         late-share) echo NTUPLE_LATE_START_FRACTION=0.5 ;;
         split-32768) echo NTUPLE_DOWNGRADE_TILE=32768 ;;
+        two-stage) echo NTUPLE_STAGE_TILE=16384 ;;
     esac
 }
 # Applied only when an arm branches from BASE, never when it resumes from its own checkpoint
