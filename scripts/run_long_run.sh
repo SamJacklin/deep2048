@@ -6,10 +6,12 @@
 #   caffeinate -i scripts/run_long_run.sh                     # 8×6, TC 0.02, A + C, 8 threads, 1.5M games
 #   GAMES=3000 EVAL_GAMES=20 NTUPLE_THREADS_AFTER=1000 scripts/run_long_run.sh   # smoke test, as a smoke-* run
 #   RUN=long-8x6-dg32768 DOWNGRADE_TILE=32768 EVAL_EVERY=250000 caffeinate -i scripts/run_long_run.sh
+#   RUN=long-8x6-redundant NETWORK=8x6-redundant LEARNING_RATE=0.0107 caffeinate -i scripts/run_long_run.sh
 #
 # Rerunning the same command after an interruption resumes from the last checkpoint. Ingredients
 # default to downgrading and late-game starts (the ingredient test's best, A + C); switch them with
-# DOWNGRADE=0/1 and LATE_STARTS=0/1, the downgrading threshold with DOWNGRADE_TILE, and the run name with RUN.
+# DOWNGRADE=0/1 and LATE_STARTS=0/1, the downgrading threshold with DOWNGRADE_TILE, the network with NETWORK
+# (with LEARNING_RATE, the base rate), and the run name with RUN.
 # With EVAL_EVERY, a snapshot is also saved every that many games and evaluated greedily while training
 # goes on; the ones that aren't usual snapshots are deleted once evaluated, to save disk space.
 set -euo pipefail
@@ -58,7 +60,7 @@ if pgrep -f -- "--run $RUN --" > /dev/null; then
     exit 1
 fi
 
-export NTUPLE_NETWORK=8x6 NTUPLE_LEARNING_RATE=0.02 NTUPLE_TEMPORAL_COHERENCE=true NTUPLE_THREADS=${THREADS:-8}
+export NTUPLE_NETWORK=${NETWORK:-8x6} NTUPLE_LEARNING_RATE=${LEARNING_RATE:-0.02} NTUPLE_TEMPORAL_COHERENCE=true NTUPLE_THREADS=${THREADS:-8}
 if [ "$DOWNGRADE" = 1 ]; then
     export NTUPLE_DOWNGRADE_TILE=$DOWNGRADE_TILE
 fi
