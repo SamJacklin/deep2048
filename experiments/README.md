@@ -889,6 +889,62 @@ The shares are of the weights read by every legal move from a position.
 
 **What this points to.** By the plan's decision rule, a large, systematic value error at 16384 points to stage 3: a small residual that reads the real, undowngraded board, gated on at 16384, can learn the correction the shared weights can't hold. Unlike the second stages of rounds 5–12, it keeps the shared base, and with it what the 8192 stage teaches the 16384 stage. Its yardstick should be greedy conversion from the held-out test split's first-16384 positions, with depth 3 and full games after. Each result needs two more training seeds before it's relied on.
 
+### Stage 3: correcting the late-game values
+
+The question: does a position-dependent correction to the late game's values improve play, or only the values? The base, round 1's TC-reset network at 2M games, stays frozen throughout: its weights, its temporal coherence sums and its downgrading.
+
+**The arms** (`deep_2048/agents/ntuple/residual.py`, `scripts/late_residual.py`, results in [`late-residual`](late-residual/)):
+- **baseline:** the base, unchanged.
+- **late-constant:** a constant added to every afterstate whose real largest tile is 16384 or more.
+  - It was fitted on the corpus's train split only: the gap between 8 greedy rollouts' return and the base's value, over 1,000 late afterstates greedy play chose.
+  - It came out at **−106,513 ± 2,230**, larger than stage 1's 77–94k. That bias averaged over every legal move, and the move greedy play chooses is the one most likely to be overvalued.
+- **residual:** the constant plus four 5-tuples (two rows with the cell below their end, two 2×2 squares with a cell below), read from the real tile exponents in all 8 symmetries.
+  - That's 32 reads per board and 4.2M weights, starting at zero.
+  - It's trained by TD(0) on the combined value (0 at the end of a game), from the train split's 606 genuine first-16384 positions, at a fixed rate shared over its 32 reads.
+
+**How the correction is applied.**
+- **The gate** is decided by the real afterstate being valued, inside the network's value function, so greedy play, training and expectimax all apply it alike.
+- **Storage:** corrected checkpoints store only the correction, with the base checkpoint's path and SHA-256, and refuse a base that has changed.
+- **Testing:** tests check that a zero correction plays exactly as the base, that the gate and residual read the real board, and that training changes only the residual.
+
+**The yardstick.** The test split's 196 first-16384 positions, which neither fitting nor training saw:
+- 32 greedy and 8 depth-3 continuations each, with the same spawns for every arm, so differences are paired by position.
+- How often each arm's greedy move differs from the base's, on 26,890 late test-split boards and on 332 boundary boards. Boundary boards were found by replaying the test games: some move makes the game's first 16384, so moves differ in whether their afterstate is past the gate.
+- 1,000 full greedy games.
+
+| Arm | Greedy conversion | vs baseline | Score added, greedy | vs baseline | Depth-3 conversion | Score added, depth 3 |
+|---|---:|---:|---:|---:|---:|---:|
+| Baseline | 10.7% | — | 160,638 | — | 19.5% | 203,057 |
+| Constant | 10.7% | ±0 | 160,638 | ±0 | 15.1% (−4.5pp ± 2.4) | 183,015 (−20.0k ± 5.0k) |
+| Residual, 0.1 per board, its own games | 0.0% | −10.7pp ± 0.8 | 41,614 | −119.0k ± 2.0k | 0.0% | 43,236 |
+| Residual, 0.1 per board, the base's games | 0.0% | −10.7pp ± 0.8 | 56,659 | −104.0k ± 2.1k | | |
+| Residual, 0.01 per board, its own games | 0.6% | −10.1pp ± 0.8 | 115,566 | −45.1k ± 2.3k | | |
+| Residual, 0.01 per board, the base's games | 0.3% | −10.4pp ± 0.7 | 111,242 | −49.4k ± 2.2k | | |
+
+| Arm | Estimate of the score to come at a first 16384 ÷ its own greedy play's | Late moves changed | Boundary moves changed | Makes the 16384 at the boundary | Full greedy games (1,000) |
+|---|---:|---:|---:|---:|---:|
+| Baseline | 1.48 | — | — | 61% | 320,042 (32768 in 8.5%) |
+| Constant | 0.82 | 0% | 61% | 0% | 322,270, +2.2k ± 6.1k (9.9%) |
+| Residual, 0.1, its own games | 1.56 | 38% | 61% | 0% | 226,815, −93.2k ± 5.6k (0.0%) |
+| Residual, 0.1, the base's games | 2.29 | 32% | 61% | 0% | |
+| Residual, 0.01, its own games | 1.05 | 23% | 61% | 0% | |
+| Residual, 0.01, the base's games | 1.16 | 20% | 61% | 0% | |
+
+Every residual was trained for 20,000 late games. "Its own games" means the corrected network chose the moves of the games it learned from. "The base's games" means the base did, so the residual's errors couldn't steer what it learned from. The full-game column was run only for the first residual, since the others had already failed the conversion screen.
+
+- **Fixing the average bias doesn't improve decisions.**
+  - **Within the late game,** the constant changes no greedy move, since every move's afterstate shifts alike, and full games are level with the baseline.
+  - **At the boundary,** it never merges into a 16384 at the first chance. That only delays the merge: full games still reach 16384 in 77%, as the baseline does.
+  - **With search, it costs 4.5 points of conversion.** The end of a game is worth 0, but the corrected values of weak late positions are negative, so search starts preferring lines that end the game.
+  - **The bias isn't uniform:** fitted on the whole late game, the constant overcorrects at the first 16384 (0.82).
+- **A learned residual makes the values more accurate and the play much worse.**
+  - **Calibration:** at 0.01 per board, the estimate at the first 16384 comes to within 5–16% of the truth.
+  - **Play:** conversion falls to under 1%, and greedy play adds 45–49k less. The residual changes a fifth to two-fifths of late moves.
+  - **At 0.1 per board,** training on the residual's own games slid steadily, from 104k score added in the first 1,000 games to 43k by 20,000, and full games lost 93k. A residual without the constant underneath slid the same way, from 101k to 43k ([`late-residual-alone`](late-residual/late-residual-alone/)).
+  - **Training on the base's games** doesn't avoid the damage, so the cause isn't the residual steering its own training. It's the correction itself.
+- **Why:** stage 1 found the late game's moves are near-ties that the base ranks well, with no measurable single-move errors. A residual trained on 20,000 games is far less precise than the base, trained on 2M games with 134M weights. Different moves' afterstates read different residual weights, so its noise lands unevenly across moves, and that unevenness is larger than the gaps between them. More accurate values on average don't help if they rank the moves worse.
+- **So a learned correction, in this form and at this scale, doesn't improve decisions,** and the late game's large overestimate is mostly a level shift that greedy play ignores. A residual could only help once its errors between moves are smaller than those gaps, which would take far more training. The 32768 gap is better approached through what changes the ranking of moves: search, which adds 8 points of conversion from the same positions, or better relative values. Stages 4 and 5 test those.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
