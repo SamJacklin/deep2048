@@ -47,7 +47,7 @@
 #   rate-0.005     the base rate cut from 0.02 to 0.005 with the sums kept, the cut that lifted Yeh's and Guei's plateaus
 # Round 12, from round 10's two-stage network at 2M games, compared with round 2's continue (one stage at 2.5M):
 #   two-stage-reset  its temporal coherence sums reset, the finish that lifted one stage in round 1
-# Round 14 carries round 12's two-stage network on from 2.5M to 2.75M games with no further reset, to find where
+# Round 12B carries round 12's two-stage network on from 2.5M to 2.75M games with no further reset, to find where
 # it levels off. Its only reference is round 12 itself, so the summary pairs 2.625M and 2.75M with round 12's
 # 2.25M and 2.5M; the 50k training windows are the trend to read.
 # Arms train one after another, since each uses most of the machine. Rerunning resumes an interrupted
@@ -87,8 +87,8 @@ case ${ROUND:-1} in
         ;;
     11) BASE=checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision11-8x6 ARMS=(rate-0.005) REFERENCE=decision2-8x6-continue ;;
     12) BASE=checkpoints/ntuple/decision10-8x6-two-stage-kept-sums/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision12-8x6 ARMS=(two-stage-reset) REFERENCE=decision2-8x6-continue ;;
-    14) BASE=checkpoints/ntuple/decision12-8x6-two-stage-reset/games_2500000.npz FULL_GAMES=2750000 PREFIX=decision14-8x6 ARMS=(two-stage-continued) REFERENCE=decision12-8x6-two-stage-reset ;;
-    *) echo "ROUND must be 1 to 12 or 14" >&2 && exit 1 ;;
+    12B) BASE=checkpoints/ntuple/decision12-8x6-two-stage-reset/games_2500000.npz FULL_GAMES=2750000 PREFIX=decision12b-8x6 ARMS=(two-stage-continued) REFERENCE=decision12-8x6-two-stage-reset ;;
+    *) echo "ROUND must be 1 to 12 or 12B" >&2 && exit 1 ;;
 esac
 GAMES=${GAMES:-$FULL_GAMES}
 EVAL_GAMES=${EVAL_GAMES:-1000}
