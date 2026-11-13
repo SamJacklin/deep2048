@@ -817,14 +817,75 @@ The shares are of the weights read by every legal move from a position.
 
 - **The source policy doesn't matter;** from the same positions and spawns, depth-3 search adds 40k ± 3.5k and converts 18–19% against greedy play's 11%.
 - **The network values a first 16384 like a first 8192:** accurate at the first 8192, 50% too high at the first 16384, with nearly the same estimate. Every first-16384 board is changed by downgrading.
-- **Through the 16384 and 32768 stages, afterstate values are 77k to 94k too high** against greedy play's returns from them.
-- **The shared weights are pulled both ways.** Weights trained only by 16384-stage boards have net errors pushing them down (Σ error / Σ |error| = −0.035), those trained only by earlier boards up (+0.026), and shared ones fall in between in order of their earlier-stage share. The 8192 stage, which every game passes through, wins.
+- **Through the 16384 and 32768 stages, afterstate values are 77k to 94k too high** against greedy play's returns from them. Each legal move's afterstate in the action test is compared with the average of its 64 greedy rollouts:
 
-**Action ranking: no measurable single-move mistakes.**
+| Largest tile | Empty cells | Afterstates | Mean predicted | Mean greedy return | Bias | Mean absolute error | Network's top move is the rollouts' top move |
+|---:|---|---:|---:|---:|---:|---:|---:|
+| 16,384 | 0–3 | 526 | 166,402 | 89,052 | +77,351 | 82,051 | 46% |
+| 16,384 | 4–7 | 304 | 180,096 | 101,631 | +78,464 | 83,005 | 44% |
+| 32,768 | 0–3 | 32 | 146,946 | 52,686 | +94,260 | 94,842 | 67% |
+| 32,768 | 4–7 | 18 | 162,055 | 73,560 | +88,495 | 88,495 | 60% |
 
-- **Single moves:** greedy play's and depth-3 search's choices were clearly worse (by more than 2 standard errors) than another move in 0–8% of positions. That's about the false-positive rate with up to three alternatives each. The cross-validated loss was within noise of zero in every group.
-- **Sharing and familiarity:** split by how shared and how familiar a position's weights are, the error rates show no pattern (0–6% everywhere).
+  The last column is only a rough guide: the rollouts' top move is itself noisy when moves are close, which they mostly are (see action ranking below).
+- **The shared weights are pulled both ways.** Among the 1.2M weights with at least 20 counted updates, grouped by the share of their updates that came from boards below 16384, the net direction of their accumulated errors (Σ error / Σ |error|, negative meaning their values are pushed down):
+
+| Updates from boards below 16384 | Weights | Net error direction | Median coherence | Median counted updates |
+|---|---:|---:|---:|---:|
+| None (16384 stage only) | 138,596 | −0.035 | 0.045 | 39 |
+| Under 10% | 21,128 | −0.008 | 0.024 | 33 |
+| 10–40% | 359,674 | +0.002 | 0.015 | 86 |
+| 40–60% | 327,145 | +0.006 | 0.014 | 156 |
+| 60–90% | 236,068 | +0.012 | 0.015 | 157 |
+| Over 90% | 77,183 | +0.015 | 0.016 | 269 |
+| All (earlier stages only) | 40,366 | +0.026 | 0.038 | 49 |
+
+  The 16384 stage pushes its weights down and the earlier stages push theirs up, with shared weights in between in order of their share. The 8192 stage, which every game passes through, wins. The shared weights' lower coherence fits errors that cancel, but it's confounded with their larger number of updates.
+
+**Action ranking: no measurable single-move mistakes.** Each decider's choice is judged against every legal move's average score to come under each continuation. "Clearly worse" means some move beats it by more than 2 standard errors of their paired difference. "Score lost" picks the best move on half the rollouts and measures its gain over the choice on the other half, both ways round, so it isn't inflated by noise. Negative means the choice did better than the move the data picked.
+
+| Positions from | Group | Decider | Judged by | Positions | Not the best on average | Clearly worse | Score lost |
+|---|---|---|---|---:|---:|---:|---:|
+| Greedy games | Random | Greedy play | Greedy, 64 rollouts | 60 | 63% | 7% | 1,549 ± 2,904 |
+| Greedy games | Random | Greedy play | Depth 3, 8 rollouts | 60 | 62% | 3% | −13,220 ± 8,696 |
+| Greedy games | Random | Depth-3 search | Greedy, 64 rollouts | 60 | 60% | 8% | 1,891 ± 2,969 |
+| Greedy games | Random | Depth-3 search | Depth 3, 8 rollouts | 60 | 63% | 3% | −12,424 ± 8,480 |
+| Greedy games | Close call | Greedy play | Greedy, 64 rollouts | 60 | 60% | 2% | −2,789 ± 2,065 |
+| Greedy games | Close call | Greedy play | Depth 3, 8 rollouts | 60 | 80% | 7% | 2,169 ± 9,443 |
+| Greedy games | Close call | Depth-3 search | Greedy, 64 rollouts | 60 | 70% | 7% | −1,521 ± 2,548 |
+| Greedy games | Close call | Depth-3 search | Depth 3, 8 rollouts | 60 | 73% | 5% | −2,286 ± 9,373 |
+| Depth-3 games | Random | Greedy play | Greedy, 64 rollouts | 60 | 37% | 0% | −3,178 ± 1,617 |
+| Depth-3 games | Random | Greedy play | Depth 3, 8 rollouts | 60 | 57% | 7% | −2,638 ± 9,083 |
+| Depth-3 games | Random | Depth-3 search | Greedy, 64 rollouts | 60 | 40% | 0% | −2,701 ± 1,544 |
+| Depth-3 games | Random | Depth-3 search | Depth 3, 8 rollouts | 60 | 57% | 3% | −3,523 ± 8,653 |
+| Depth-3 games | Close call | Greedy play | Greedy, 64 rollouts | 60 | 55% | 2% | −2,096 ± 1,950 |
+| Depth-3 games | Close call | Greedy play | Depth 3, 8 rollouts | 60 | 72% | 2% | −1,621 ± 8,379 |
+| Depth-3 games | Close call | Depth-3 search | Greedy, 64 rollouts | 60 | 50% | 3% | −1,935 ± 2,242 |
+| Depth-3 games | Close call | Depth-3 search | Depth 3, 8 rollouts | 60 | 72% | 2% | −1,447 ± 8,269 |
+
+- **Single moves:** the choices were clearly worse than another move in 0–8% of positions. That's about the false-positive rate with up to three alternatives each. The score lost was within noise of zero in every group. "Not the best on average" is high only because most moves are near-ties, so the rollouts' best move is a coin toss.
+- **Sharing and familiarity:** each position is scored by the share of its weights' updates that came from boards below 16384 (sharing), and the share of its reads whose weights training updates less than once per 1,000 games (unfamiliar). Split by both, the error rates show no pattern:
+
+| Positions | Count | Mean sharing | Mean unfamiliar | Greedy play, judged by greedy: clearly worse | Score lost | Depth-3 search, judged by depth 3: clearly worse | Score lost |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Sharing: lowest third | 80 | 34.5% | 17.3% | 1% | −1,807 ± 1,572 | 2% | −5,966 ± 7,154 |
+| Sharing: middle third | 81 | 44.7% | 14.7% | 2% | −730 ± 2,160 | 6% | −5,080 ± 6,909 |
+| Sharing: highest third | 79 | 54.4% | 14.1% | 4% | −2,368 ± 1,998 | 1% | −3,697 ± 8,610 |
+| Unfamiliar: lowest third | 87 | 45.3% | 8.9% | 0% | −1,807 ± 1,543 | 2% | −3,796 ± 6,876 |
+| Unfamiliar: middle third | 75 | 45.9% | 15.0% | 5% | −338 ± 2,382 | 5% | −4,881 ± 8,697 |
+| Unfamiliar: highest third | 78 | 42.2% | 22.9% | 3% | −2,670 ± 1,860 | 3% | −6,212 ± 7,253 |
+| More shared, more familiar | 67 | 51.8% | 10.7% | 3% | −1,189 ± 2,238 | 3% | −2,447 ± 7,639 |
+| More shared, less familiar | 53 | 51.7% | 19.1% | 4% | −2,785 ± 2,529 | 4% | −4,794 ± 11,385 |
+| Less shared, more familiar | 60 | 38.1% | 10.2% | 3% | −285 ± 2,386 | 3% | −6,430 ± 8,608 |
+| Less shared, less familiar | 60 | 36.4% | 22.4% | 0% | −2,441 ± 1,688 | 3% | −6,285 ± 7,709 |
 - **What the test can and can't detect:** it detects single-move losses of a few thousand points. The 40k that search adds over the rest of the game is spread over thousands of moves, a few points each, far below it. **So the overestimate is mostly the same for every move, and decisions go wrong only by small amounts that add up.** Action ranking can't separate aliasing from experience at this resolution, and the conversion test can: about 2.5k precision on 500 positions in 3 minutes greedy.
+
+**Where this differs from the plan.**
+- **Corpus:** 500 first-16384 positions from each policy (1,000 in all) rather than 2,000 from depth 3 alone, to see whether the training policy reaches different positions from the evaluation policy.
+- **Action quality** is measured by rolling out every legal move, rather than against a depth-4 search's choice. A rollout measures what a choice actually costs, and a search's disagreement doesn't.
+- **Greedy and depth-3 continuations are reported separately throughout,** since the network was trained on greedy play's returns.
+- **Hard positions** are those where greedy play's top two moves are closest, not also those with few empty cells.
+- **Calibration** isn't split by whether downgrading is active, since every 16384-stage board is downgraded, or by structural features.
+- **Added:** coverage of the weights positions read, split by progress after the first 16384 and by stage of training, and action-ranking errors split by how shared and how familiar a position's weights are.
 
 **What this points to.** By the plan's decision rule, a large, systematic value error at 16384 points to stage 3: a small residual that reads the real, undowngraded board, gated on at 16384, can learn the correction the shared weights can't hold. Unlike the second stages of rounds 5–12, it keeps the shared base, and with it what the 8192 stage teaches the 16384 stage. Its yardstick should be greedy conversion from the held-out test split's first-16384 positions, with depth 3 and full games after. Each result needs two more training seeds before it's relied on.
 
