@@ -104,12 +104,16 @@ class TrainingSession(BaseModel):
     command: list[str]
     settings: dict[str, Any]
     resumed_from: str | None
+    # Checkpoints are overwritten and deleted, so the hash pins down exactly which network a branch started from
+    resumed_from_sha256: str | None = None
     environment: Environment
     started_at: datetime
     started_with: dict[str, int]
     finished_at: datetime | None = None
     finished_with: dict[str, int] | None = None
     interrupted: bool | None = None
+    # CPU time across all of the process's threads, for comparing training cost beyond games and wall time
+    cpu_seconds: float | None = None
 
 
 class RunManifest(BaseModel):

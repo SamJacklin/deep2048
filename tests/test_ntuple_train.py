@@ -63,6 +63,8 @@ def test_train_checkpoints_and_resumes(tmp_path) -> None:
     assert first_session.resumed_from is None and second_session.resumed_from == str(first.checkpoint_path)
     assert first_session.finished_with == second_session.started_with == {"games_played": 200, "moves_played": metadata.moves_played}
     assert second_session.settings["TRAINING_GAMES"] == 300 and second_session.interrupted is False
+    assert first_session.resumed_from_sha256 is None and len(second_session.resumed_from_sha256 or "") == 64
+    assert first_session.cpu_seconds and second_session.cpu_seconds and second_session.cpu_seconds > 0
 
 
 def test_train_saves_snapshots_and_starts_a_fresh_history(tmp_path) -> None:

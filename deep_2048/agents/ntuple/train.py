@@ -33,6 +33,7 @@ from numba import njit
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
 from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, LambdaReturn, LateStarts, TrainingHistoryRow, TrainingSummary
 from deep_2048.agents.ntuple.network import NETWORKS, CoherenceTraces, NTupleNetwork, TupleLayout, evaluate, load_traces, network_name, update, update_coherent
+from deep_2048.bench import file_sha256
 from deep_2048.experiments import Environment, RunManifest, TrainingSession, command_line, now, run_lock
 from deep_2048.game import bitboard as bb
 
@@ -319,10 +320,12 @@ def _train(
         command=command_line(),
         settings=settings.model_dump(mode="json") | {"TRAINING_GAMES": total_games, "SNAPSHOT_AT": snapshots},
         resumed_from=None if resume_from is None else str(resume_from),
+        resumed_from_sha256=None if resume_from is None else file_sha256(Path(resume_from)),
         environment=Environment.capture(),
         started_at=now(),
         started_with=_counts(progress),
     )
+    cpu_start = time.process_time()
     manifest.sessions.append(session)
     manifest.save(output_dir)
 
@@ -379,6 +382,7 @@ def _train(
 
     _save_checkpoint(network, checkpoint_path, progress, traces)
     session.finished_at, session.finished_with, session.interrupted = now(), _counts(progress), interrupted
+    session.cpu_seconds = time.process_time() - cpu_start
     manifest.save(output_dir)
     return TrainingSummary(games_played=progress.games_played, checkpoint_path=checkpoint_path, interrupted=interrupted)
 
