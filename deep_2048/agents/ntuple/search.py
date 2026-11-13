@@ -87,6 +87,10 @@ def play_seeded(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff: fl
 
     Given np.random.default_rng(seed), it's the same game the benchmark runner plays on the Python engine
     with the agent's act(), including ties going to the first action, without that engine's per-move overhead.
+
+    The bitboard caps tiles at 32768, so it can't merge two of them as Game2048 can. A game that comes to hold
+    two ends there instead, reported with a max tile of 65536 ("would have made 65536") and its score so far,
+    a lower bound. So the >=65536 rate counts the games the cap cut short.
     """
     # The runner resets Game2048 after creating it, so the seed's first board is dealt and thrown away
     bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
@@ -105,7 +109,7 @@ def play_seeded(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff: fl
         score += reward
         board = bb.spawn_tile_seeded(board, rng)
         if has_two_top_tiles(board):
-            raise ValueError("Two 32768 tiles: the bitboard can't merge them but Game2048 can, so this game would differ from the Python engine")
+            return score, 1 << (bb.MAX_EXPONENT + 1)
 
 
 @njit
