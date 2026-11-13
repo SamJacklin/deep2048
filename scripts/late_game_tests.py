@@ -70,7 +70,7 @@ def legal_moves(board: np.uint64) -> list[tuple[int, np.uint64, int]]:
     for action in range(bb.NUM_ACTIONS):
         afterstate, reward = bb.move(board, action)
         if afterstate != board:
-            moves.append((action, afterstate, reward))
+            moves.append((action, np.uint64(afterstate), reward))
     return moves
 
 
