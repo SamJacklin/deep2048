@@ -585,6 +585,38 @@ At 2.25M games the greedy differences were −80,571 ± 10,417 (0.999) and −50
 - **Why:** after millions of updates, a well-trained weight's errors are mostly noise, so its rate had shrunk to nearly nothing. Measured over its last N errors instead, noise looks like a rate of about 1/√N: about 3% of the base rate at 0.999 and 1% at 0.9999, far more than it had. Every settled weight starts taking noisy steps, like the constant-rate arm in round 1, and unlike a reset the rates never settle back.
 - **So the rate a trained network needs is lower than any short memory gives.** A slower decay (0.99999 or beyond) would come closer to plain temporal coherence, but there's no sign here of a gain to find on the way. Forgetting is dropped.
 
+### Rounds 8 and 9: a second stage, chosen by the board a move is made from
+
+Round 5's second stage valued each afterstate in the stage of its own largest tile, so the move that made the first 16384 was judged by stage 2 against stage 1's values for the board's other moves, and the agent learned to avoid making it. Here every move of a decision is valued, and learned, in the stage of the board it's made from, as 2048-rl's player switches networks only once the board holds a 16384.
+- **Round 8:** the same start and reset as round 5, the long run's 1.5M network given a second stage, trained to 2M games against round 1's TC reset (`ROUND=8 scripts/run_decision_arms.sh`).
+- **Round 9:** round 8 carried on to 2.5M, against round 2's continue, the reset arm carried on over the same games (`ROUND=9`).
+
+| Arm | Games | Greedy | vs one stage | Exact depth 3 | vs one stage | ≥16384 at depth 3 | ≥32768 at depth 3 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| One stage (TC reset) | 2M | 320,042 | — | 402,208 | — | 94.6% | 20.1% |
+| Round 5's two stages | 2M | 257,579 | −62,463 ± 10,573 | 327,421 | −74,787 ± 9,116 | 75.5% | 5.1% |
+| [Round 8](decision8-8x6-two-stage-by-state/NOTES.md)'s two stages | 2M | 287,985 | −32,057 ± 10,423 | 367,599 | −34,609 ± 8,644 | 93.1% | 8.2% |
+| One stage (continue) | 2.5M | 314,202 | — | 397,229 | — | 93.5% | 18.1% |
+| [Round 9](decision9-8x6-two-stage-by-state/NOTES.md)'s two stages | 2.5M | 302,656 | −11,546 ± 10,755 | 374,308 | −22,921 ± 8,699 | 93.0% | 9.7% |
+
+At 1.75M games round 8 was −59,191 ± 9,927 greedy against the reset arm, and at 2.25M round 9 was −27,483 ± 10,902 against continue.
+
+![Round 8 against the TC reset](figures/decision-arms-round8.png)
+![Round 9 against continue](figures/decision-arms-round9.png)
+
+- **The fix works where it should.**
+  - The 16384 rate no longer falls: it recovered from 58% at 1.55M to 72% by 2.5M in training, and to 93% at depth 3, level with one stage.
+  - Against round 5, the fix gained 30k greedy and 40k at depth 3.
+- **Two stages are still behind one after 1M games.**
+  - Greedy, the gap closed from −59k at 1.75M to −11.5k at 2.5M, now near the edge of noise. The training average levelled off at about 300k by 2.4M, while one stage held about 315k.
+  - At depth 3 it's still 23k behind, and it makes a 32768 in half as many games (9.7% against 18.1%).
+- **The likely cost is the reset, doubled.**
+  - Both stages restarted at full rate, and each weight now gets only the updates for its own stage, so the noisy phase lasts longer. The late-game stage, which is updated least, is noisiest of all.
+  - That fits a slow recovery that hits the 32768 step hardest.
+- **So a second stage hasn't paid for itself within 1M games of a full reset.**
+  - The fair next test splits without resetting: the long run's 1.5M network given a second stage with its sums kept (`scripts/add_stage.py --keep-coherence`), against round 1's control.
+  - 2048-rl's second stage needed tens of millions of games, so a split may also need far more training than a branch test gives.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
