@@ -40,6 +40,9 @@
 #   two-stage-forget    the same with temporal coherence forgetting at DECAY, if DECAY is set
 # Round 9 carries round 8's two-stage-by-state on from 2M to 2.5M games, compared with round 2's continue (the
 # one-stage TC reset carried on over the same games), to see which reaches the higher level once both have recovered
+# Round 10, from the long run's 1.5M-game network given a second stage with its temporal coherence sums kept
+# (scripts/add_stage.py --keep-coherence), compared with round 1's control (the same start, one stage, no reset):
+#   two-stage-kept-sums  a second stage without the reset that rounds 5, 8 and 9 all made
 # Arms train one after another, since each uses most of the machine. Rerunning resumes an interrupted
 # arm from its own latest checkpoint and skips finished ones (evaluations come from the cache).
 # Each snapshot is evaluated greedily, and the final one also at exact depth 3, on EVAL_GAMES seeded games.
@@ -69,7 +72,13 @@ case ${ROUND:-1} in
         fi
         ;;
     9) BASE=checkpoints/ntuple/decision8-8x6-two-stage-by-state/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision9-8x6 ARMS=(two-stage-by-state) REFERENCE=decision2-8x6-continue ;;
-    *) echo "ROUND must be 1 to 9" >&2 && exit 1 ;;
+    10)
+        BASE=checkpoints/ntuple/two-stage-kept-8x6/games_1500000.npz FULL_GAMES=2000000 PREFIX=decision10-8x6 ARMS=(two-stage-kept-sums) REFERENCE=decision-8x6-control
+        if [ ! -f "$BASE" ]; then
+            uv run python scripts/add_stage.py checkpoints/ntuple/long-8x6/games_1500000.npz "$BASE" --keep-coherence
+        fi
+        ;;
+    *) echo "ROUND must be 1 to 10" >&2 && exit 1 ;;
 esac
 GAMES=${GAMES:-$FULL_GAMES}
 EVAL_GAMES=${EVAL_GAMES:-1000}
@@ -89,7 +98,7 @@ arm_settings() {
         forget-*) echo NTUPLE_TC_DECAY="${1#forget-}" ;;
         one-stage) echo NTUPLE_TC_DECAY="$DECAY" ;;
         two-stage-kept) echo NTUPLE_TC_DECAY="$DECAY" NTUPLE_STAGE_TILE=16384 ;;
-        two-stage-by-state) echo NTUPLE_STAGE_TILE=16384 ;;
+        two-stage-by-state | two-stage-kept-sums) echo NTUPLE_STAGE_TILE=16384 ;;
         two-stage-forget) echo NTUPLE_STAGE_TILE=16384 NTUPLE_TC_DECAY="$DECAY" ;;
     esac
 }
