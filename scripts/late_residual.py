@@ -99,7 +99,7 @@ def fit_constant(base_path: str, positions: int, rollouts: int) -> None:
 # ---------------------------------------------------------------- the residual
 
 
-def train(base_path: str, games: int, board_step: float, batch: int, name: str, resume: bool, constant: float | None) -> None:
+def train(base_path: str, games: int, board_step: float, batch: int, name: str, resume: bool, constant: float | None, follow_base: bool) -> None:
     """Train the residual on greedy games from the train split's first-16384 positions, a batch at a time.
 
     The residual sits on top of a fixed constant, by default the fitted one, so it learns how positions differ from
@@ -118,13 +118,15 @@ def train(base_path: str, games: int, board_step: float, batch: int, name: str, 
         history_path.write_text("games,moves,score_added,rate_32768,mean_abs_td_error,games_per_second\n")
     rng = np.random.default_rng(corrected.correction.residual_games)
     threads = os.cpu_count() or 1
-    print(f"Training {name} from {corrected.correction.residual_games:,} to {games:,} games from {starts.size} first-16384 positions, rate {rate:.5f} per weight ({board_step} per board)")
+    corrected.correction.notes = "games played by the base network's choices" if follow_base else "games played by the corrected network's choices"
+    print(f"Training {name} ({corrected.correction.notes}) from {corrected.correction.residual_games:,} to {games:,} games from {starts.size} first-16384 positions, rate {rate:.5f} per weight ({board_step} per board)")
     while corrected.correction.residual_games < games:
         n = min(batch, games - corrected.correction.residual_games)
         chosen = rng.choice(starts, n)
         start = time.perf_counter()
         seeds = rng.integers(0, 2**31, threads)
-        parts = list(POOL.map(lambda k: train_residual(corrected.weights, corrected.layout, np.array_split(chosen, threads)[k], rate, int(seeds[k])), range(threads)))
+        shares = np.array_split(chosen, threads)
+        parts = list(POOL.map(lambda k: train_residual(corrected.weights, corrected.layout, shares[k], rate, int(seeds[k]), follow_base), range(threads)))
         scores, tops, moves, errors = (np.concatenate(field) for field in zip(*parts))
         seconds = time.perf_counter() - start
         corrected.correction.residual_games += n
@@ -141,13 +143,15 @@ def train(base_path: str, games: int, board_step: float, batch: int, name: str, 
 # ---------------------------------------------------------------- evaluation
 
 
-def evaluate_arm(base_path: str, arm: str) -> None:
+def evaluate_arm(base_path: str, arm: str, greedy_only: bool = False) -> None:
     network = load(arm_path(arm, base_path))
     weights, layout = network.weights, network.layout
     base = network.base if isinstance(network, CorrectedNetwork) else network
     rows = [r for r in read_rows(CORPUS) if r["kind"] == "first-16384" and r["split"] == "test"]
     results = {}
     for name, (depth, n) in CONTINUATIONS.items():
+        if greedy_only and depth > 1:
+            continue
         jobs = [(p, j) for p in range(len(rows)) for j in range(n)]
         outcome = list(POOL.map(lambda job: play_from(weights, layout, board_of(rows[job[0]]), depth, 0.0, np.random.default_rng([seed_of(rows[job[0]]), job[1]])), jobs))
         results[f"{name}_scores"] = np.array([s for s, _ in outcome]).reshape(len(rows), n)
@@ -206,6 +210,8 @@ def report() -> None:
     print("|---|---|---:|---:|---:|---:|")
     for arm, d in arms.items():
         for name in CONTINUATIONS:
+            if f"{name}_tiles" not in d:
+                continue
             made = (d[f"{name}_tiles"] >= 32768).mean(axis=1)
             added = d[f"{name}_scores"].mean(axis=1)
             base_made = (reference[f"{name}_tiles"] >= 32768).mean(axis=1)
@@ -234,15 +240,17 @@ def main() -> None:
     parser.add_argument("--batch", type=int, default=1000, help="train: games per batch (default: 1,000)")
     parser.add_argument("--name", default="late-residual", help="train: the run's name (default: late-residual)")
     parser.add_argument("--resume", action="store_true", help="train: carry on from the run's latest checkpoint")
+    parser.add_argument("--follow-base", action="store_true", help="train: play training games by the base network's choices, not the corrected network's")
+    parser.add_argument("--greedy-only", action="store_true", help="evaluate: skip the depth-3 continuations, for screening")
     parser.add_argument("--constant", type=float, help="train: the fixed constant under the residual (default: the fitted one; 0 for none)")
     args = parser.parse_args()
     if args.step == "fit-constant":
         fit_constant(args.base, args.positions, args.rollouts)
     elif args.step == "train":
-        train(args.base, args.games, args.board_step, args.batch, args.name, args.resume, args.constant)
+        train(args.base, args.games, args.board_step, args.batch, args.name, args.resume, args.constant, args.follow_base)
     elif args.step == "evaluate":
         for arm in args.arms:
-            evaluate_arm(args.base, arm)
+            evaluate_arm(args.base, arm, args.greedy_only)
             print(f"Evaluated {arm}")
         report()
     else:

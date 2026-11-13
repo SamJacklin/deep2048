@@ -95,3 +95,13 @@ def test_a_corrected_checkpoint_round_trips_and_guards_its_base(base_path, tmp_p
     base.save(base_path, metadata)
     with pytest.raises(ValueError, match="has changed"):
         CorrectedNetwork.load(path)
+
+
+def test_following_the_base_plays_the_base_games_while_the_residual_learns(base_path) -> None:
+    corrected = CorrectedNetwork.from_base(base_path, constant=-1000, residual=True)
+    late = np.array([board_of([16384, 2, 4, 0], [2, 0, 0, 0], [0] * 4, [0] * 4)] * 2, dtype=np.uint64)
+    first = train_residual(corrected.weights, corrected.layout, late, 0.01, 5, True)
+    assert corrected.residual_weights.any() and corrected.base_unchanged()
+    # The same seed replays the same games however much the residual has learned
+    second = train_residual(corrected.weights, corrected.layout, late, 0.01, 5, True)
+    assert np.array_equal(first[0], second[0]) and np.array_equal(first[2], second[2])

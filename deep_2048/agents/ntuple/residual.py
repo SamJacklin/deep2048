@@ -116,15 +116,20 @@ def correction_label(metadata: CorrectionMetadata) -> str:
 
 
 @njit(inline="always")
-def _greedy_move(weights: np.ndarray, layout: ResidualLayout, board: np.uint64) -> tuple[np.uint64, int, float]:
-    """Return the best move's afterstate, reward and reward + corrected value (-inf if no move is legal)."""
+def _greedy_move(weights: np.ndarray, layout: ResidualLayout, board: np.uint64, follow_base: bool) -> tuple[np.uint64, int, float]:
+    """Return the best move's afterstate, reward and reward + corrected value (-inf if no move is legal).
+
+    With follow_base, the move is the one the base network alone would choose, still valued with the correction.
+    """
     best, best_reward, best_value = board, 0, -np.inf
     for action in range(bb.NUM_ACTIONS):
         afterstate, reward = bb.move(board, action)
         if afterstate != board:
-            value = reward + evaluate(weights, layout, afterstate, board)
+            value = reward + (evaluate(weights, layout.base, afterstate, board) if follow_base else evaluate(weights, layout, afterstate, board))
             if value > best_value:
                 best, best_reward, best_value = afterstate, reward, value
+    if follow_base and best_value > -np.inf:
+        best_value = best_reward + evaluate(weights, layout, best, board)
     return best, best_reward, best_value
 
 
@@ -139,8 +144,11 @@ def _update_residual(weights: np.ndarray, layout: ResidualLayout, afterstate: np
 
 
 @njit(nogil=True)
-def train_residual(weights: np.ndarray, layout: ResidualLayout, starts: np.ndarray, rate: float, seed: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def train_residual(weights: np.ndarray, layout: ResidualLayout, starts: np.ndarray, rate: float, seed: int, follow_base: bool = False) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Play a greedy game on from each start with the corrected value, learning the residual by TD(0) as it goes.
+
+    With follow_base, the games are played by the base network's own choices instead, so the residual learns to
+    correct the values of the base's play without its own errors steering the games it learns from.
 
     Each afterstate's combined value moves towards the next move's reward plus combined afterstate value, or 0 when
     the game ends. Only residual weights change, and only for gated afterstates: the base and the constant are frozen.
@@ -160,7 +168,7 @@ def train_residual(weights: np.ndarray, layout: ResidualLayout, starts: np.ndarr
         n = 0
         total_error = 0.0
         while True:
-            afterstate, reward, value = _greedy_move(weights, layout, board)
+            afterstate, reward, value = _greedy_move(weights, layout, board, follow_base)
             game_over = value == -np.inf
             if n > 0:
                 target = 0.0 if game_over else value
