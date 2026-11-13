@@ -18,6 +18,7 @@ from deep_2048.game import bitboard as bb
 
 FIRST_8192, FIRST_16384, SAMPLE = 0, 1, 2
 SAMPLE_EVERY = 50
+LATE_EXPONENT = 14
 
 
 @njit
@@ -116,8 +117,10 @@ def count_updates(weights: np.ndarray, layout: TupleLayout, starts: np.ndarray, 
     """Play a greedy game from each start (0 for a fresh board), as training plays them, without learning.
 
     Adds one to `counts` for every weight each chosen afterstate reads, which is the weight updates training makes on
-    those games. Threads may share `counts`: a lost increment when two collide is rare and only undercounts. Returns
-    where each fresh game first made an 8192 (0 if it didn't), for building late starts as training does.
+    those games: to row 0 if the board the move is made from has no tile of 2**LATE_EXPONENT (16384) or larger, else
+    to row 1. With downgrading, row 0's share of a weight's updates is how much of its training it shares with
+    earlier-stage boards. Threads may share `counts`: a lost increment when two collide is rare and only undercounts.
+    Returns where each fresh game first made an 8192 (0 if it didn't), for building late starts as training does.
     """
     np.random.seed(seed)
     harvested = np.zeros(starts.size, dtype=np.uint64)
@@ -133,8 +136,9 @@ def count_updates(weights: np.ndarray, layout: TupleLayout, starts: np.ndarray, 
                         best, best_value = afterstate, value
             if best == board:
                 break
+            stage = 1 if bb.max_exponent(board) >= LATE_EXPONENT else 0
             for i in weight_indices(layout, best, board):
-                counts[i] += 1
+                counts[stage, i] += 1
             board = bb.spawn_tile(best)
             if starts[g] == np.uint64(0) and harvested[g] == np.uint64(0) and bb.max_exponent(board) >= 13:
                 harvested[g] = board

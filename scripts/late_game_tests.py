@@ -48,6 +48,7 @@ POLICY_SEEDS = {"greedy": 1, "depth3": 2}
 # Continuation policies: name -> search depth
 CONTINUATIONS = {"greedy": 1, "depth3": 3}
 VISIT_BINS = (0, 1, 10, 100)  # weight updates per 1,000 training games
+PROGRESSION_BINS = ((0, 250), (250, 500), (500, 1000), (1000, 2000), (2000, 10**6))
 POOL = ThreadPoolExecutor(max_workers=os.cpu_count())
 
 
@@ -78,8 +79,8 @@ def legal_moves(board: np.uint64) -> list[tuple[int, np.uint64, int]]:
 
 
 def count_training_updates(network: NTupleNetwork, games: int) -> tuple[np.ndarray, int]:
-    """Count each weight's updates over `games` fresh greedy games plus a quarter as many late starts, as training plays."""
-    counts = np.zeros(network.weights.size, dtype=np.int32)
+    """Count each weight's updates, split by stage, over `games` fresh greedy games plus a quarter as many late starts."""
+    counts = np.zeros((2, network.weights.size), dtype=np.int32)
     chunks = np.array_split(np.zeros(games, dtype=np.uint64), os.cpu_count() or 1)
     harvested = list(POOL.map(lambda k: count_updates(network.weights, network.layout, chunks[k], 100 + k, counts), range(len(chunks))))
     pool = upgrade_all(np.concatenate(harvested)[np.concatenate(harvested) != 0])
@@ -89,33 +90,53 @@ def count_training_updates(network: NTupleNetwork, games: int) -> tuple[np.ndarr
     return counts, games + games // 4
 
 
-def coverage_of(boards: list[np.uint64], network: NTupleNetwork, per_thousand: np.ndarray, never: np.ndarray, coherence: np.ndarray) -> dict:
+def load_counts(network: NTupleNetwork, games: int) -> tuple[np.ndarray, int]:
+    """Return the update counts (row 0 from boards below 16384, row 1 from the rest) and the games they cover."""
+    if COUNTS.exists():
+        saved = np.load(COUNTS)
+        if saved["counts"].ndim == 2:
+            return saved["counts"], int(saved["games"])
+    COUNTS.parent.mkdir(parents=True, exist_ok=True)
+    counts, total = count_training_updates(network, games)
+    np.savez(COUNTS, counts=counts, games=total)
+    return counts, total
+
+
+def read_features(boards: list[np.uint64], network: NTupleNetwork, counts: np.ndarray, total: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Return, for the weights each board's legal moves read: their indices, updates per 1,000 training games, the
+    share of those updates made from boards below 16384 (NaN if none), and the board each read came from."""
+    reads = [(k, weight_indices(network.layout, afterstate, board)) for k, board in enumerate(boards) for _, afterstate, _ in legal_moves(board)]
+    indices = np.concatenate([r for _, r in reads])
+    owner = np.concatenate([np.full(r.size, k) for k, r in reads])
+    early, late = counts[0, indices].astype(float), counts[1, indices].astype(float)
+    with np.errstate(invalid="ignore"):
+        shared = early / (early + late)
+    return indices, (early + late) * (1000 / total), shared, owner
+
+
+def coverage_of(boards: list[np.uint64], network: NTupleNetwork, counts: np.ndarray, total: int, never: np.ndarray, coherence: np.ndarray) -> dict:
     """Shares of the reads made by the boards' legal moves, by how often training updates the weight read."""
-    reads = [weight_indices(network.layout, afterstate, board) for board in boards for _, afterstate, _ in legal_moves(board)]
-    indices = np.concatenate(reads)
-    visits = per_thousand[indices]
+    indices, visits, shared, _ = read_features(boards, network, counts, total)
     shares = {"none seen": float(np.mean(visits == 0)), "<1": float(np.mean((visits > 0) & (visits < 1)))}
     for low, high in zip(VISIT_BINS[1:], VISIT_BINS[2:]):
         shares[f"{low}-{high}"] = float(np.mean((visits >= low) & (visits < high)))
     shares[f"≥{VISIT_BINS[-1]}"] = float(np.mean(visits >= VISIT_BINS[-1]))
     return {"positions": len(boards), "reads": int(indices.size), **shares,
-            "never updated in training": float(np.mean(never[indices])), "median coherence": float(np.median(coherence[indices]))}
+            "never updated in training": float(np.mean(never[indices])), "median coherence": float(np.median(coherence[indices])),
+            "updates from boards below 16384": float(np.nanmean(shared))}
 
 
 def coverage(network: NTupleNetwork, checkpoint: Path, games: int) -> None:
-    COUNTS.parent.mkdir(parents=True, exist_ok=True)
-    if COUNTS.exists():
-        saved = np.load(COUNTS)
-        counts, total = saved["counts"], int(saved["games"])
-    else:
-        counts, total = count_training_updates(network, games)
-        np.savez(COUNTS, counts=counts, games=total)
-    per_thousand = counts * (1000 / total)
+    counts, total = load_counts(network, games)
     traces = load_traces(checkpoint)
     never = traces.abs_errors == 0
     coherence = np.where(traces.abs_errors > 0, np.abs(traces.errors) / np.where(traces.abs_errors > 0, traces.abs_errors, 1), 1.0)
 
     rng = np.random.default_rng(0)
+
+    def pick(boards: list[np.uint64]) -> list[np.uint64]:
+        return [boards[i] for i in rng.choice(len(boards), min(1000, len(boards)), replace=False)]
+
     groups: dict[str, list[np.uint64]] = {}
     positions = read_rows(CORPUS / "positions.csv")
     for policy in POLICY_SEEDS:
@@ -128,9 +149,16 @@ def coverage(network: NTupleNetwork, checkpoint: Path, games: int) -> None:
         for tile in (1024, 2048, 4096, 8192, 16384, 32768):
             chosen = [board_of(r) for r in samples if r["policy"] == policy and int(r["max_tile"]) == tile]
             if chosen:
-                picks = rng.choice(len(chosen), min(1000, len(chosen)), replace=False)
-                groups[f"largest tile {tile}, {policy} games"] = [chosen[i] for i in picks]
-    results = {"counting games": total, "groups": {name: coverage_of(boards, network, per_thousand, never, coherence) for name, boards in groups.items()}}
+                groups[f"largest tile {tile}, {policy} games"] = pick(chosen)
+    # Boards whose largest tile is 16384, by moves since their game's first 16384 and by whether it went on to a 32768
+    first_move = {(r["policy"], r["seed"]): int(r["move"]) for r in positions if r["kind"] == "first-16384"}
+    for outcome, made in (("went on to a 32768", True), ("ended without one", False)):
+        for low, high in PROGRESSION_BINS:
+            chosen = [board_of(r) for r in samples if int(r["max_tile"]) == 16384 and (int(r["game_max_tile"]) >= 32768) == made
+                      and low <= int(r["move"]) - first_move.get((r["policy"], r["seed"]), 10**9) < high]
+            if chosen:
+                groups[f"16384, {low}-{high} moves after the first, {outcome}"] = pick(chosen)
+    results = {"counting games": total, "groups": {name: coverage_of(boards, network, counts, total, never, coherence) for name, boards in groups.items()}}
     (OUTPUT / "coverage.json").write_text(json.dumps(results, indent=2) + "\n")
 
 
@@ -245,15 +273,36 @@ def report_conversion() -> None:
             print(f"| {policy} games | {name} | {chosen.sum()} | {made:.1%} | {mean_interval(added)} | {estimate} | {ratio} |")
 
 
-def report_actions() -> None:
+def ranking_errors(totals: np.ndarray, choice: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Per position: whether the chosen move isn't the best on average, whether some move beats it by more than 2
+    standard errors of the paired difference, and the score it loses, cross-validated: the best move is picked on half
+    the rollouts and its gain measured on the other half, both ways round. `totals` is [position, move, rollout]."""
+    n = totals.shape[2]
+    halves = (np.arange(n) % 2 == 0, np.arange(n) % 2 == 1)
+    not_best, clear, loss = np.zeros(len(totals), bool), np.zeros(len(totals), bool), np.zeros(len(totals))
+    for p, values in enumerate(totals):
+        legal = ~np.isnan(values[:, 0])
+        mine = values[choice[p]]
+        not_best[p] = int(np.argmax(np.where(legal, values.mean(axis=1), -np.inf))) != choice[p]
+        differences = values[legal] - mine
+        se = differences.std(axis=1, ddof=1) / np.sqrt(n)
+        clear[p] = np.any(differences.mean(axis=1) > 2 * np.where(se > 0, se, np.inf))
+        for pick, judge in (halves, halves[::-1]):
+            best = int(np.argmax(np.where(legal, values[:, pick].mean(axis=1), -np.inf)))
+            loss[p] += np.mean(values[best, judge] - mine[judge]) / 2
+    return not_best, clear, loss
+
+
+def report_actions(network: NTupleNetwork) -> None:
     path = OUTPUT / "actions.npz"
     if not path.exists():
         return
     d = np.load(path)
     returns, rewards, predicted = d["returns"], d["rewards"], d["predicted"]
     totals = rewards[:, :, None, None] + returns  # each move's score to come, per continuation and rollout
-    greedy_choice = np.nanargmax(rewards + predicted, axis=1)
-    deciders = {"greedy play": greedy_choice, "depth-3 search": d["depth3_choice"]}
+    rollouts = [int(np.sum(~np.isnan(returns[0, int(np.nanargmax(rewards[0])), c]))) for c in range(len(d["continuations"]))]
+    deciders = {"greedy play": np.nanargmax(rewards + predicted, axis=1), "depth-3 search": d["depth3_choice"]}
+    errors = {(decider, c): ranking_errors(totals[:, :, c, : rollouts[c]], choice) for decider, choice in deciders.items() for c in range(len(rollouts))}
 
     print("\n### Action ranking: each legal move followed by each continuation, rollouts sharing spawns\n")
     print("| Positions from | Group | Decider | Judged by | Positions | Not the best on average | Clearly worse (> 2 SE) | Score lost: cross-validated mean |")
@@ -261,30 +310,39 @@ def report_actions() -> None:
     for policy in POLICY_SEEDS:
         for group in ("random", "close call"):
             chosen = (d["policy"] == policy) & (d["group"] == group)
-            for decider, choice in deciders.items():
-                for c, name in enumerate(d["continuations"]):
-                    rows = np.flatnonzero(chosen)
-                    n = int(np.sum(~np.isnan(totals[rows[0], np.nanargmax(rewards[rows[0]]), c])))
-                    not_best = clear = 0
-                    losses = []
-                    for p in rows:
-                        values = totals[p, :, c, :n]
-                        legal = ~np.isnan(values[:, 0])
-                        mine = values[choice[p]]
-                        means = np.where(legal, np.nanmean(values, axis=1), -np.inf)
-                        not_best += int(np.argmax(means) != choice[p])
-                        differences = values[legal] - mine
-                        se = differences.std(axis=1, ddof=1) / np.sqrt(n)
-                        clear += int(np.any(differences.mean(axis=1) > 2 * np.where(se > 0, se, np.inf)))
-                        # Pick the best on half the rollouts and measure what it gains on the other half, both ways
-                        halves = (np.arange(n) % 2 == 0, np.arange(n) % 2 == 1)
-                        loss = 0.0
-                        for pick, judge in (halves, halves[::-1]):
-                            best = int(np.argmax(np.where(legal, np.nanmean(values[:, pick], axis=1), -np.inf)))
-                            loss += np.mean(values[best, judge] - mine[judge]) / 2
-                        losses.append(loss)
-                    k = len(rows)
-                    print(f"| {policy} games | {group} | {decider} | {name}, {n} rollouts | {k} | {not_best / k:.0%} | {clear / k:.0%} | {mean_interval(np.array(losses))} |")
+            for (decider, c), (not_best, clear, loss) in errors.items():
+                name = f"{d['continuations'][c]}, {rollouts[c]} rollouts"
+                print(f"| {policy} games | {group} | {decider} | {name} | {chosen.sum()} | {not_best[chosen].mean():.0%} | "
+                      f"{clear[chosen].mean():.0%} | {mean_interval(loss[chosen])} |")
+
+    if COUNTS.exists() and np.load(COUNTS)["counts"].ndim == 2:
+        counts, total = load_counts(network, 0)
+        boards = [np.uint64(b) for b in d["board"]]
+        _, visits, shared, owner = read_features(boards, network, counts, total)
+        sharing = np.array([np.nanmean(shared[owner == k]) for k in range(len(boards))])
+        unfamiliar = np.array([np.mean(visits[owner == k] < 1) for k in range(len(boards))])
+        primary = [("greedy play", 0), ("depth-3 search", 1)]
+        print("\n### Action-ranking errors by how shared and how familiar a position's weights are\n")
+        print("Sharing: the share of the updates to the weights a position's moves read that came from boards below 16384. "
+              "Unfamiliar: the share of those reads whose weights training updates less than once per 1,000 games.\n")
+        print("| Positions | Count | Mean sharing | Mean unfamiliar | Greedy play, judged by greedy: clearly worse | score lost | "
+              "Depth-3 search, judged by depth 3: clearly worse | score lost |")
+        print("|---|---:|---:|---:|---:|---:|---:|---:|")
+        split = {"sharing": sharing, "unfamiliar": unfamiliar}
+        rows = []
+        for label, values in split.items():
+            low, high = np.percentile(values, [100 / 3, 200 / 3])
+            rows += [(f"{label}: lowest third", values <= low), (f"{label}: middle third", (values > low) & (values <= high)), (f"{label}: highest third", values > high)]
+        median_sharing, median_unfamiliar = np.median(sharing), np.median(unfamiliar)
+        for s_label, s_mask in (("more shared", sharing > median_sharing), ("less shared", sharing <= median_sharing)):
+            for u_label, u_mask in (("more familiar", unfamiliar <= median_unfamiliar), ("less familiar", unfamiliar > median_unfamiliar)):
+                rows.append((f"{s_label}, {u_label}", s_mask & u_mask))
+        for label, mask in rows:
+            cells = []
+            for key in primary:
+                _, clear, loss = errors[key]
+                cells += [f"{clear[mask].mean():.0%}", mean_interval(loss[mask]) if mask.sum() > 1 else ""]
+            print(f"| {label} | {mask.sum()} | {sharing[mask].mean():.1%} | {unfamiliar[mask].mean():.1%} | " + " | ".join(cells) + " |")
 
     print("\n### Calibration: the network's afterstate values against greedy play's returns from them\n")
     print("| Largest tile | Empty cells | Afterstates | Mean predicted | Mean greedy return | Bias | Mean absolute error | Network ranks the best move first |")
@@ -324,7 +382,7 @@ def main() -> None:
         actions(network, args.positions, {"greedy": args.greedy_rollouts, "depth3": args.depth3_rollouts})
     report_coverage()
     report_conversion()
-    report_actions()
+    report_actions(network)
 
 
 if __name__ == "__main__":

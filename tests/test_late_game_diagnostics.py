@@ -54,9 +54,27 @@ def test_margin_is_the_best_values_lead() -> None:
 def test_update_counts_cover_every_read_of_every_move() -> None:
     network = trained_looking_network(4)
     reads_per_board = len(SMALL_TUPLES) * 8
-    counts = np.zeros(network.weights.size, dtype=np.int32)
+    counts = np.zeros((2, network.weights.size), dtype=np.int32)
     count_updates(network.weights, network.layout, np.zeros(3, dtype=np.uint64), 11, counts)
     assert counts.sum() > 0 and counts.sum() % reads_per_board == 0
     again = np.zeros_like(counts)
     count_updates(network.weights, network.layout, np.zeros(3, dtype=np.uint64), 11, again)
     assert np.array_equal(counts, again)
+    # Moves made from a board holding a 16384 count in the late row
+    late = np.zeros_like(counts)
+    start = bb.from_array(np.array([[16384, 2, 0, 0], [0] * 4, [0] * 4, [0] * 4]))
+    count_updates(network.weights, network.layout, np.array([start], dtype=np.uint64), 12, late)
+    assert late[1].sum() > 0 and late[0].sum() == 0
+
+
+def test_ranking_errors_find_a_clearly_worse_choice_and_its_cost() -> None:
+    from scripts.late_game_tests import ranking_errors
+
+    rng = np.random.default_rng(0)
+    shared = rng.normal(0, 1000, size=(1, 1, 16))  # spawns shared across moves
+    totals = np.concatenate([shared + 100 + rng.normal(0, 1, (1, 1, 16)), shared + rng.normal(0, 1, (1, 1, 16)),
+                             np.full((1, 2, 16), np.nan)], axis=1)
+    not_best, clear, loss = ranking_errors(totals, np.array([1]))
+    assert not_best[0] and clear[0] and abs(loss[0] - 100) < 2
+    not_best, clear, loss = ranking_errors(totals, np.array([0]))
+    assert not not_best[0] and not clear[0] and abs(loss[0]) < 1e-9
