@@ -64,6 +64,10 @@ class CorrectedNetwork:
         self.tuples, self.downgrade_tile, self.stage_tile = base.tuples, base.downgrade_tile, base.stage_tile
         self.scale_feature, self.scale_when_downgraded = base.scale_feature, base.scale_when_downgraded
 
+    def variant(self, scale: float = 1.0, gate_on_state: bool = False, clamp: bool = False) -> ResidualLayout:
+        """A layout over the same weights that applies the correction differently, for testing without retraining."""
+        return self.layout._replace(scale=scale, gate_on_state=gate_on_state, clamp=clamp)
+
     @property
     def residual_weights(self) -> np.ndarray:
         return self.weights[self.base.weights.size : -1]
@@ -134,9 +138,9 @@ def _greedy_move(weights: np.ndarray, layout: ResidualLayout, board: np.uint64, 
 
 
 @njit(inline="always")
-def _update_residual(weights: np.ndarray, layout: ResidualLayout, afterstate: np.uint64, delta: float) -> None:
+def _update_residual(weights: np.ndarray, layout: ResidualLayout, afterstate: np.uint64, state: np.uint64, delta: float) -> None:
     """Add delta to every residual weight the afterstate reads, if it's past the gate. Nothing else changes."""
-    if bb.max_exponent(afterstate) < layout.gate_exponent:
+    if bb.max_exponent(state if layout.gate_on_state else afterstate) < layout.gate_exponent:
         return
     for symmetric_board in bb.symmetries(afterstate):
         for t in range(len(layout.residual.offsets)):
@@ -164,6 +168,7 @@ def train_residual(weights: np.ndarray, layout: ResidualLayout, starts: np.ndarr
     for g in range(starts.size):
         board = starts[g]
         previous = np.uint64(0)
+        previous_state = np.uint64(0)
         score = 0
         n = 0
         total_error = 0.0
@@ -172,13 +177,13 @@ def train_residual(weights: np.ndarray, layout: ResidualLayout, starts: np.ndarr
             game_over = value == -np.inf
             if n > 0:
                 target = 0.0 if game_over else value
-                error = target - evaluate(weights, layout, previous, previous)
+                error = target - evaluate(weights, layout, previous, previous_state)
                 total_error += abs(error)
-                _update_residual(weights, layout, previous, rate * error)
+                _update_residual(weights, layout, previous, previous_state, rate * error)
             if game_over:
                 break
             score += reward
-            previous = afterstate
+            previous, previous_state = afterstate, board
             n += 1
             board = bb.spawn_tile(afterstate)
             if has_two_top_tiles(board):

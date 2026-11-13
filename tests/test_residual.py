@@ -3,9 +3,10 @@ import pytest
 
 from deep_2048.agents.ntuple import NTupleAgent, NTupleNetwork
 from deep_2048.agents.ntuple.models import CheckpointMetadata
-from deep_2048.agents.ntuple.network import evaluate
+from deep_2048.agents.ntuple.network import evaluate, weight_indices
 from deep_2048.agents.ntuple.residual import CorrectedNetwork, train_residual
 from deep_2048.agents.ntuple.search import action_values, play_seeded
+from deep_2048.bench import file_sha256
 from deep_2048.game import bitboard as bb
 
 from tests.helpers import SMALL_TUPLES, random_boards
@@ -105,3 +106,68 @@ def test_following_the_base_plays_the_base_games_while_the_residual_learns(base_
     # The same seed replays the same games however much the residual has learned
     second = train_residual(corrected.weights, corrected.layout, late, 0.01, 5, True)
     assert np.array_equal(first[0], second[0]) and np.array_equal(first[2], second[2])
+
+
+def exponents_board(rows: list[list[int]]) -> np.uint64:
+    board = np.uint64(0)
+    for i, exponent in enumerate(e for row in rows for e in row):
+        board |= np.uint64(exponent) << np.uint64(4 * i)
+    return board
+
+
+# Holds a 16384, and every legal move leads to game over whatever spawns
+ONE_MOVE_LEFT = exponents_board([[11, 0, 5, 10], [3, 4, 13, 3], [13, 12, 3, 8], [5, 7, 14, 12]])
+
+
+def test_the_last_update_moves_the_combined_value_towards_zero(base_path) -> None:
+    corrected = CorrectedNetwork.from_base(base_path, constant=-500, residual=True)
+    corrected.residual_weights[:] = np.random.default_rng(3).normal(scale=20, size=corrected.residual_weights.shape)
+    layout, weights = corrected.layout, corrected.weights
+    moves = [(np.uint64(a), r) for a, r in (bb.move(ONE_MOVE_LEFT, action) for action in range(bb.NUM_ACTIONS)) if a != ONE_MOVE_LEFT]
+    chosen = max(moves, key=lambda m: m[1] + evaluate(weights, layout, m[0], ONE_MOVE_LEFT))[0]
+    before = evaluate(weights, layout, chosen, ONE_MOVE_LEFT)
+    base_before = evaluate(corrected.base.weights, corrected.base.layout, chosen, ONE_MOVE_LEFT)
+    counts = np.unique(weight_indices(corrected.layout.residual, chosen, chosen), return_counts=True)[1]
+    rate = 1e-4
+    _, _, moves_played, _ = train_residual(weights, layout, np.array([ONE_MOVE_LEFT], dtype=np.uint64), rate, 0)
+    assert moves_played[0] == 1
+    # One update, towards a target of 0, with the error measured on the combined value (base + constant + residual)
+    after = evaluate(weights, layout, chosen, ONE_MOVE_LEFT)
+    assert after - before == pytest.approx(rate * (0 - before) * np.sum(counts**2), rel=1e-4)
+    assert evaluate(corrected.base.weights, corrected.base.layout, chosen, ONE_MOVE_LEFT) == base_before
+
+
+def test_training_leaves_the_base_checkpoint_and_its_coherence_sums_alone(base_path) -> None:
+    before = file_sha256(base_path)
+    corrected = CorrectedNetwork.from_base(base_path, constant=-1000, residual=True)
+    late = np.array([board_of([16384, 2, 4, 0], [2, 0, 0, 0], [0] * 4, [0] * 4)] * 4, dtype=np.uint64)
+    train_residual(corrected.weights, corrected.layout, late, 0.01, 1)
+    assert corrected.base_unchanged() and file_sha256(base_path) == before
+    assert not hasattr(corrected, "traces") and not hasattr(corrected.base, "traces")
+
+
+def test_a_reloaded_correction_predicts_identically(base_path, tmp_path) -> None:
+    corrected = CorrectedNetwork.from_base(base_path, constant=-30_000, residual=True)
+    corrected.residual_weights[:] = np.random.default_rng(4).normal(scale=100, size=corrected.residual_weights.shape)
+    corrected.save(tmp_path / "c.npz")
+    loaded = CorrectedNetwork.load(tmp_path / "c.npz")
+    for board in random_boards(300, seed=8):
+        packed = bb.from_array(board)
+        for options in ({}, {"scale": 0.25}, {"gate_on_state": True}, {"clamp": True}):
+            assert evaluate(loaded.weights, loaded.variant(**options), packed, packed) == evaluate(corrected.weights, corrected.variant(**options), packed, packed)
+
+
+def test_strength_gate_and_clamp_options(base_path) -> None:
+    corrected = CorrectedNetwork.from_base(base_path, constant=-90_000, residual=True)
+    base = corrected.base
+    late = board_of([16384, 2048, 2, 0], [0] * 4, [0] * 4, [0] * 4)
+    plain = evaluate(base.weights, base.layout, late, late)
+    assert evaluate(corrected.weights, corrected.variant(scale=0.0), late, late) == plain
+    assert evaluate(corrected.weights, corrected.variant(scale=0.5), late, late) == pytest.approx(plain - 45_000)
+    assert evaluate(corrected.weights, corrected.variant(clamp=True), late, late) == max(plain - 90_000, 0.0)
+    # Merging two 8192s: gated by its afterstate, but not by the board the move is made from
+    before_merge = board_of([8192, 8192, 2, 0], [0] * 4, [0] * 4, [0] * 4)
+    merged = np.uint64(bb.move(before_merge, 3)[0])  # right
+    assert bb.max_exponent(merged) == 14
+    assert evaluate(corrected.weights, corrected.layout, merged, before_merge) == pytest.approx(evaluate(base.weights, base.layout, merged, before_merge) - 90_000)
+    assert evaluate(corrected.weights, corrected.variant(gate_on_state=True), merged, before_merge) == evaluate(base.weights, base.layout, merged, before_merge)

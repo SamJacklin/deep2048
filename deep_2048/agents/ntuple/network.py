@@ -227,15 +227,20 @@ def _stage_offset_overload(layout, board):  # type: ignore[no-untyped-def]
 class ResidualLayout(NamedTuple):
     """A frozen network's layout plus a late-game correction, for weights holding the network's then the correction's.
 
-    Once the real afterstate's largest tile reaches 2**gate_exponent, its value adds weights[constant_index] and the
-    residual tuples' weights, which read the real board's tile exponents: no downgrading, unlike the base. The gate is
-    decided by the afterstate being valued, wherever it's valued: greedy play, training or search.
+    Once the real afterstate's largest tile reaches 2**gate_exponent, its value adds `scale` times the correction:
+    weights[constant_index] plus the residual tuples' weights, which read the real board's tile exponents (no
+    downgrading, unlike the base). The gate is decided by the afterstate being valued, wherever it's valued (greedy
+    play, training or search), or with `gate_on_state` by the board the move is made from, so every move of a
+    decision is judged alike. With `clamp`, a corrected value below 0 counts as 0, as the end of a game does.
     """
 
     base: TupleLayout
     residual: TupleLayout  # offsets already past the base's weights
     gate_exponent: int
     constant_index: int
+    scale: float = 1.0
+    gate_on_state: bool = False
+    clamp: bool = False
 
 
 @njit(inline="always")
@@ -266,8 +271,10 @@ def _corrected_value(weights: np.ndarray, layout: ResidualLayout, board: np.uint
     """The base's value, plus the constant and residual past the gate. A call rather than inlined, which numba's
     inliner mishandles when one function values several boards."""
     total = _tuple_value(weights, layout.base, board, state)
-    if bb.max_exponent(board) >= layout.gate_exponent:
-        total += weights[layout.constant_index] + _residual_value(weights, layout.residual, board)
+    if bb.max_exponent(state if layout.gate_on_state else board) >= layout.gate_exponent:
+        total += layout.scale * (weights[layout.constant_index] + _residual_value(weights, layout.residual, board))
+        if layout.clamp and total < 0.0:
+            total = 0.0
     return total
 
 
