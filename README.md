@@ -1,8 +1,8 @@
 # Ryzen long runs: instructions
 
-These are instructions for a Claude agent on the Ryzen machine (AMD Ryzen 7 9850X3D, 32 GB RAM, Windows). Follow them exactly and in order.
+These are instructions for a Claude agent on the Ryzen machine (AMD Ryzen 7 9850X3D, 8 cores / 16 threads, 32 GB RAM, Windows). Follow them exactly and in order.
 - **Don't** change code, open pull requests, or merge branches.
-- **If a step fails,** record what happened in the results file (step 8), carry on where it's safe, and push what you have at the end.
+- **If a step fails,** record what happened in the results file (step 10), carry on where it's safe, and push what you have at the end.
 
 ## What this is
 
@@ -15,29 +15,68 @@ Two long training runs of the 2048 n-tuple agent, from scratch to 10,000,000 gam
 
 - **While training:** each run evaluates itself greedily every 250k games, on 1,000 seeded games.
 - **At the end:** exact depth-3 evaluations at the kept points: 1.5M, 5M and 10M for `recipe`, and 5M, 9M and 10M for `optimism`.
-- **The scripts are on branch `feat/fast-tc`:** `scripts/run_ryzen_arms.sh` and `scripts/summarise_runs.py`.
+- **The scripts are on branch `feat/fast-tc`:** `scripts/run_ryzen_arms.sh`, `scripts/benchmark_speed.sh` and `scripts/summarise_runs.py`.
 
 The runs take a long time, probably 1–3 days with both running together. The scripts resume where they stopped if interrupted.
 
-## 0. Before starting (the human operator does these)
+## Part A: Windows setup
 
-- WSL2 with Ubuntu is installed on Windows (`wsl --install -d Ubuntu` in an administrator PowerShell, then reboot).
-- The machine is plugged in, and Windows Update restarts are paused for a week (Settings → Windows Update → Pause updates).
-- GitHub authentication works inside WSL for pushing to `SamJacklin/deep2048`. Either `gh auth login` with the GitHub CLI, or an SSH key added to GitHub.
+Run these in Windows, in **PowerShell as administrator**. A human may need to approve prompts and do the reboot.
 
-**Everything below runs inside the WSL Ubuntu shell, not PowerShell.**
+### A1. Install WSL2 with Ubuntu
 
-## 1. Stop Windows from sleeping
-
-Run from WSL (these call Windows' `powercfg`):
-
-```bash
-powercfg.exe /change standby-timeout-ac 0
-powercfg.exe /change hibernate-timeout-ac 0
-powercfg.exe /change monitor-timeout-ac 30
+```powershell
+wsl --install -d Ubuntu-24.04
 ```
 
-## 2. Install tools
+- **Reboot** if asked.
+- **Create the Linux user:** when Ubuntu first starts, create a username and password. Ubuntu can be opened from the Start menu, or by running `wsl` in PowerShell.
+- **If WSL is already installed,** check it's version 2 with `wsl -l -v`. If it shows version 1, run `wsl --set-version Ubuntu-24.04 2`.
+
+### A2. Give WSL enough memory and every CPU
+
+WSL limits itself to half the machine's memory by default. Create or replace `%UserProfile%\.wslconfig`:
+
+```powershell
+@"
+[wsl2]
+memory=28GB
+processors=16
+swap=8GB
+"@ | Set-Content -Path "$env:UserProfile\.wslconfig"
+wsl --shutdown
+```
+
+Then reopen Ubuntu. Inside it, `nproc` should print 16, and `free -g` should show about 27 GB total.
+
+### A3. Keep the machine awake
+
+```powershell
+powercfg /change standby-timeout-ac 0
+powercfg /change hibernate-timeout-ac 0
+powercfg /change monitor-timeout-ac 30
+```
+
+- **Pause Windows Update for a week:** Settings → Windows Update → Pause updates.
+- **Keep the machine plugged in.**
+
+### A4. GitHub access from WSL (for pushing results at the end)
+
+Run inside **Ubuntu**:
+
+```bash
+sudo apt-get update && sudo apt-get install -y gh
+gh auth login      # choose GitHub.com, HTTPS, and log in with a browser or token
+gh auth setup-git
+```
+
+A human may need to complete the login. Check it worked: `gh auth status` should show the account logged in.
+
+**Everything below runs inside the Ubuntu (WSL) shell, not PowerShell.**
+
+## Part B: Get the code and check it works
+
+### B1. Install tools
 
 ```bash
 sudo apt-get update && sudo apt-get install -y git build-essential procps
@@ -46,7 +85,7 @@ source "$HOME/.local/bin/env"
 uv --version
 ```
 
-## 3. Get the code
+### B2. Get the code
 
 Clone into the Linux filesystem (your home directory), **not** under `/mnt/c`, which is much slower:
 
@@ -55,14 +94,14 @@ cd ~
 git clone https://github.com/SamJacklin/deep2048.git
 cd ~/deep2048
 git checkout feat/fast-tc
-git log --oneline -1    # expect: 2b03241 feat: add the Ryzen's long from-scratch runs and a results summary
+git log --oneline -1    # expect: aa522aa feat: add a speed benchmark for comparing machines
 uv sync
 uv run pytest -q        # expect: 85 passed
 ```
 
-If the commit at the top of `feat/fast-tc` is newer than `2b03241`, use it. Record the hash you used.
+If the commit at the top of `feat/fast-tc` is newer than `aa522aa`, use it. Record the hash you used.
 
-## 4. Record the machine
+### B3. Record the machine
 
 Save this output for the results file:
 
@@ -72,25 +111,59 @@ free -g | head -2
 nproc
 ```
 
-## 5. Thread check (about 10–15 minutes)
+### B4. Smoke test both arms (about 10 minutes)
 
-Measure training speed on 8 against 16 threads. Each command trains a fresh network for 30,000 games:
+These are short versions of the real runs, 40,000 games each, to check everything works end to end on this machine:
 
 ```bash
 cd ~/deep2048
-for threads in 8 16; do
-  NTUPLE_NETWORK=8x6 NTUPLE_LEARNING_RATE=0.02 NTUPLE_TEMPORAL_COHERENCE=true NTUPLE_DOWNGRADE_TILE=16384 \
-  NTUPLE_THREADS=$threads NTUPLE_THREADS_AFTER=0 \
-  uv run python scripts/train_ntuple.py --run smoke-threads-$threads --games 30000 > /tmp/threads-$threads.log 2>&1
-  echo "== $threads threads"; grep -E "^\s+games\s+30,000" /tmp/threads-$threads.log
-done
+TOTAL=40000 EVAL_EVERY=10000 EVAL_GAMES=20 THREADS=8 NTUPLE_THREADS_AFTER=2000 scripts/run_ryzen_arms.sh recipe   2>&1 | tail -8
+TOTAL=40000 EVAL_EVERY=10000 EVAL_GAMES=20 THREADS=8 NTUPLE_THREADS_AFTER=2000 scripts/run_ryzen_arms.sh optimism 2>&1 | tail -8
+grep -h "sums reset" experiments/smoke-ryzen-recipe/train.log
+grep -h "never-updated" experiments/smoke-ryzen-optimism/train.log
 ```
 
-- **Record** each "games/s" figure at 30,000 games, and the 20,000 row too (`grep "games    20,000"`).
-- **Then delete the test runs:** `rm -rf checkpoints/ntuple/smoke-threads-* experiments/smoke-threads-*`
-- **The thread count for the runs:** both arms run together with **8 threads each**, using all 16 hardware threads, whatever the check shows. The check is only for the record.
+**Expected:**
+- Each arm prints greedy evaluation lines (`N-tuple TD (10,000 games …`), three depth-3 lines, and finally `smoke-ryzen-recipe finished` or `smoke-ryzen-optimism finished`.
+- The recipe log contains `Temporal coherence sums reset: every weight starts back at the full rate`.
+- The optimism log contains `134,217,728 never-updated weights (100.0%) set to 5000`.
+- Smoke-test scores are tiny and noisy; that's fine.
 
-## 6. Start both runs
+If anything is missing or errors, record it and stop: don't start the long runs.
+
+Then delete the smoke runs:
+
+```bash
+rm -rf checkpoints/ntuple/smoke-ryzen-* experiments/smoke-ryzen-*
+```
+
+### B5. Speed benchmark (about 10 minutes)
+
+**Nothing else may be running.** Run:
+
+```bash
+cd ~/deep2048
+scripts/benchmark_speed.sh 2>&1 | grep -v VIRTUAL_ENV | tee /tmp/benchmark.txt
+```
+
+It trains from scratch on 1, 8 and 16 threads and times two evaluations. The same script on the development machine, an Apple M4 MacBook (10 cores: 4 performance and 6 efficiency, 16 GB), gave:
+
+| Benchmark | Apple M4 (development machine) |
+|---|---:|
+| Training, 1 thread, 20,000 games | 0.53M moves/s (0.49M on a second run) |
+| Training, 8 threads, 40,000 games | 2.33M moves/s (2.37M on a second run) |
+| Training, 10 threads (M4 maximum), 40,000 games | 2.58M moves/s |
+| Greedy evaluation, 1,000 games, all CPUs | 4 s, average score **71,753** |
+| Depth-3 evaluation, 100 games, all CPUs | 57 s, average score **155,098** |
+
+- **Speed:** record the Ryzen's numbers next to these, including 16 threads.
+- **The two average scores are a check:** single-threaded training is fully seeded, so the Ryzen should reproduce 71,753 and 155,098 exactly. If they differ slightly, the CPUs round some arithmetic differently. Record it, but it isn't a problem.
+
+Both long runs use 8 threads each, so the two of them together use all 16 hardware threads. Keep that setting whatever the benchmark shows.
+
+## Part C: The long runs
+
+### C1. Start both runs
 
 Start them detached, so they keep running if this session ends:
 
@@ -101,14 +174,14 @@ THREADS=8 setsid nohup scripts/run_ryzen_arms.sh optimism > ryzen-optimism.log 2
 sleep 60; tail -3 experiments/ryzen-recipe/train.log experiments/ryzen-optimism/train.log
 ```
 
-Both train logs should show progress lines (`games … avg score …`).
+Both train logs should show progress lines (`games … avg score …`). Record the start time.
 
 **What to expect along the way:**
 - **`optimism` scores much lower than `recipe` for millions of games.** That's normal: optimistic weights take a long time to settle. Don't stop it.
 - **`recipe` drops briefly just after 1.5M games,** when its TC sums are reset.
 - **Disk:** each run keeps three 1.5 GB snapshots, plus one checkpoint while training.
 
-## 7. Monitor until both finish
+### C2. Monitor until both finish
 
 Check every hour or so:
 
@@ -120,10 +193,12 @@ pgrep -fl run_ryzen_arms || echo "no run is active"
 ```
 
 - **Done:** a run is finished when its log (`ryzen-recipe.log` or `ryzen-optimism.log`) ends with `ryzen-recipe finished` or `ryzen-optimism finished`.
-- **If the machine restarted, or a run died without that line:** rerun exactly the same command from step 6 for that arm. It resumes from its last checkpoint and repeats any missing evaluations. A run that already finished just reports so.
-- **Record** any interruptions, with times, for the results file.
+- **If the machine restarted, or a run died without that line:** rerun exactly the same command from C1 for that arm. It resumes from its last checkpoint and repeats any missing evaluations. A run that already finished just reports so.
+- **Record** any interruptions, with times.
 
-## 8. Write the results
+## Part D: Results
+
+### D1. Write the results
 
 When both runs have finished:
 
@@ -138,16 +213,17 @@ cp ryzen-optimism.log experiments/ryzen-optimism/run.log
 ```
 
 Create `experiments/ryzen-RESULTS.md` containing:
-1. **The machine:** CPU, RAM, cores (step 4).
-2. **The commit:** the hash used (step 3).
-3. **The thread check:** games/s for 8 and 16 threads (step 5).
-4. **Timings:** start and end times of each run, and any interruptions or problems.
-5. **Results:** the tables from `/tmp/ryzen-tables.md`, pasted unchanged.
-6. **Charts:** links to `figures/ryzen-arms.png`, `ryzen-recipe/training_progress.png` and `ryzen-optimism/training_progress.png`.
+1. **The machine:** CPU, RAM, cores (B3).
+2. **The commit:** the hash used (B2).
+3. **The smoke test:** what it printed and whether it passed (B4).
+4. **The benchmark:** the Ryzen's numbers from `/tmp/benchmark.txt` beside the M4's table (B5), including whether the two scores matched.
+5. **Timings:** start and end times of each run, and any interruptions or problems.
+6. **Results:** the tables from `/tmp/ryzen-tables.md`, pasted unchanged.
+7. **Charts:** links to `figures/ryzen-arms.png`, `ryzen-recipe/training_progress.png` and `ryzen-optimism/training_progress.png`.
 
 Don't interpret the results; the tables are what's needed.
 
-## 9. Push the results
+### D2. Push the results
 
 ```bash
 cd ~/deep2048
@@ -159,3 +235,5 @@ git push -u origin results/ryzen-long-runs
 ```
 
 Confirm the push succeeded, and report the branch name and the last commit hash. Leave the checkpoints under `checkpoints/ntuple/ryzen-*` on the machine; they're needed for follow-up work.
+
+**If the long runs can't be started or finished,** still push what you have: the results file with the smoke test and benchmark. Use the same branch name.
