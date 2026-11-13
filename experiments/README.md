@@ -46,6 +46,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | `decision3-8x6-*` (2 runs) | [Decision arms, round 3](#round-3-optimism-for-never-updated-weights): optimism at 1,000 and 5,000 for never-updated weights, each 2M → 2.5M games from round 1's TC reset |
 | [`long-8x6-dg32768`](long-8x6-dg32768/NOTES.md) | [Downgrading from 32768](#downgrading-from-32768-instead-of-16384): the long run from scratch, sharing only the 32768 stage, with evaluations every 250k games |
 | [`decision5-8x6-two-stage`](decision5-8x6-two-stage/NOTES.md) | [Decision arms, round 5](#round-5-a-second-stage): a second stage from 16384, copied from the long run's 1.5M network, 1.5M → 2M games |
+| `decision6-8x6-*` (2 runs) | [Decision arms, round 6](#round-6-temporal-coherence-with-forgetting): temporal coherence forgetting at 0.999 and 0.9999, each 2M → 2.5M games from round 1's TC reset |
 
 ## Learning at equal experience
 
@@ -563,6 +564,26 @@ A second stage gives boards with a 16384 or more their own copy of the weights, 
   - The stages start identical, but once they learn apart, especially at full rate after the reset, the move into the next stage is judged on a different scale from its alternatives.
   - 2048-rl's player switches networks only once the board holds a 16384, which avoids this.
 - **The fix:** choose the stage by the board a move is made from, so every move of a decision is valued, and learned, in one stage (`feat/stage-by-state`, round 8 in the arms script).
+
+### Round 6: temporal coherence with forgetting
+
+Temporal coherence sums each weight's errors over its whole history, so once they've cancelled out over millions of updates its rate stays near zero for good, even if it later has something new to learn. A reset undoes that once (round 1) but doesn't repeat (round 2). Forgetting is the continuous version: each update first shrinks the weight's two sums by a factor just below 1 (`NTUPLE_TC_DECAY`), so its rate follows its recent errors instead of all of them.
+- **The arms:** decays of 0.999 (memory of about 1,000 updates) and 0.9999 (about 10,000), from round 1's TC reset at 2M games, for another 500k games (`ROUND=6 scripts/run_decision_arms.sh`).
+- **The control:** round 2's continue, the same start without forgetting.
+
+| Arm | Greedy at 2.5M | vs continue | Exact depth 3 at 2.5M | vs continue | ≥16384 at depth 3 | ≥32768 at depth 3 |
+|---|---:|---:|---:|---:|---:|---:|
+| Continue | 314,202 | — | 397,229 | — | 93.5% | 18.1% |
+| Forgetting at 0.999 | 238,499 | −75,702 ± 10,294 | 356,838 | −40,392 ± 9,456 | 87.2% | 11.6% |
+| Forgetting at 0.9999 | 274,051 | −40,151 ± 10,704 | 380,698 | −16,531 ± 9,583 | 92.1% | 14.0% |
+
+At 2.25M games the greedy differences were −80,571 ± 10,417 (0.999) and −50,058 ± 11,055 (0.9999).
+
+![Round 6 against continue](figures/decision-arms-round6.png)
+
+- **Forgetting hurts, and faster forgetting hurts more.** Both arms dropped within the first 50k games and then stayed flat, the 0.999 arm about 75k below continue in training and the 0.9999 arm about 35k.
+- **Why:** after millions of updates, a well-trained weight's errors are mostly noise, so its rate had shrunk to nearly nothing. Measured over its last N errors instead, noise looks like a rate of about 1/√N: about 3% of the base rate at 0.999 and 1% at 0.9999, far more than it had. Every settled weight starts taking noisy steps, like the constant-rate arm in round 1, and unlike a reset the rates never settle back.
+- **So the rate a trained network needs is lower than any short memory gives.** A slower decay (0.99999 or beyond) would come closer to plain temporal coherence, but there's no sign here of a gain to find on the way. Forgetting is dropped.
 
 ## Final training run
 
