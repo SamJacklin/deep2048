@@ -48,6 +48,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | [`decision5-8x6-two-stage`](decision5-8x6-two-stage/NOTES.md) | [Decision arms, round 5](#round-5-a-second-stage): a second stage from 16384, copied from the long run's 1.5M network, 1.5M → 2M games |
 | `decision6-8x6-*` (2 runs) | [Decision arms, round 6](#round-6-temporal-coherence-with-forgetting): temporal coherence forgetting at 0.999 and 0.9999, each 2M → 2.5M games from round 1's TC reset |
 | [`decision8-8x6-two-stage-by-state`](decision8-8x6-two-stage-by-state/NOTES.md), [`decision9-8x6-two-stage-by-state`](decision9-8x6-two-stage-by-state/NOTES.md) | [Rounds 8 and 9](#rounds-8-and-9-a-second-stage-chosen-by-the-board-a-move-is-made-from): the second stage chosen by the board a move is made from, 1.5M → 2M → 2.5M games |
+| [`decision10-8x6-two-stage-kept-sums`](decision10-8x6-two-stage-kept-sums/NOTES.md) | [Round 10](#round-10-a-second-stage-without-the-reset): a second stage with the coherence sums kept, 1.5M → 2M games |
 
 ## Learning at equal experience
 
@@ -618,6 +619,27 @@ At 1.75M games round 8 was −59,191 ± 9,927 greedy against the reset arm, and 
   - The fair next test splits without resetting: the long run's 1.5M network given a second stage with its sums kept (`scripts/add_stage.py --keep-coherence`), against round 1's control.
   - 2048-rl's second stage needed tens of millions of games, so a split may also need far more training than a branch test gives.
 
+### Round 10: a second stage without the reset
+
+Rounds 5, 8 and 9 all reset the temporal coherence sums at the split, so the reset's shock could explain their deficit. Here the long run's 1.5M network gets a second stage with its sums kept (`scripts/add_stage.py --keep-coherence`), stage chosen by the board a move is made from, trained to 2M games against round 1's control: the same start, one stage, no reset (`ROUND=10 scripts/run_decision_arms.sh`, [`decision10-8x6-two-stage-kept-sums`](decision10-8x6-two-stage-kept-sums/NOTES.md)).
+
+| Arm | Greedy at 1.75M | Greedy at 2M | vs control at 2M | Exact depth 3 at 2M | vs control | ≥16384 at depth 3 | ≥32768 at depth 3 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Control (one stage) | 300,341 | 302,227 | — | 368,795 | — | 90.9% | 9.6% |
+| Two stages, sums kept | 282,349 | 286,492 | −15,735 ± 10,098 | 350,274 | −18,521 ± 8,044 | 91.8% | 6.8% |
+
+![Round 10 against the control](figures/decision-arms-round10.png)
+
+- **A second stage loses even without the reset.**
+  - It started level (the copy plays identically).
+  - It drifted down for the first 200k games, its training average falling from about 291k to 279k while the control held about 301k, then stayed about 20k behind.
+  - It ends significantly worse both greedy and at depth 3, with a lower 32768 rate.
+- **The likely reason is specific to downgrading during training: sharing works in both directions.**
+  - With one table, every update from a 16384-stage board also trains the weights the 8192 stage reads, since the downgraded board looks like an 8192 board. In long games that's a large share of all moves.
+  - Splitting cuts that link, so stage 1 learns only from boards below 16384, and its play towards the first 16384 slowly loses what the late game had been teaching it.
+  - Guei's, Yeh's and 2048-rl's stages don't share across scales in training, so splitting costs them nothing.
+- **So with downgrading in training, a second stage needs far more training than these tests give, or a design that keeps feeding late-game experience back into stage 1.** It's left out of the final run for now.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
@@ -674,7 +696,7 @@ Where things stand, as of these runs:
 
 The best agent so far is still round 1's [TC reset](#decision-arms): 320k greedy and 402k at 3-ply after 2M games. The [final training run](#final-training-run) sets the decisions. In order:
 
-1. **A second stage without the reset.** The long run's 1.5M network split with its sums kept (`scripts/add_stage.py --keep-coherence`), against round 1's control. That isolates the second stage from the reset shock that rounds 8 and 9 paid twice.
+1. **A lower learning rate** (round 11): the base rate cut from 0.02 to 0.005 on the plateaued network. The rate was chosen on a 200k-game screen for early speed, and is above what Jaśkowski calls the maximum sensible step per board.
 2. **Faster temporal coherence:** store each weight next to its two sums, then measure the speed-up on the M4.
 3. **Engine support for 65536,** before any run whose agent reaches 32768 often. The bitboard can't merge two 32768s, and evaluations stop with an error when two meet.
 4. **On the Ryzen:** check 8 against 16 threads and the real speed.
