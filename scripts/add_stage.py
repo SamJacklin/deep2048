@@ -41,7 +41,7 @@ def add_stage(network: NTupleNetwork, stage_tile: int) -> NTupleNetwork:
 def add_stage_to_traces(traces: CoherenceTraces, network: NTupleNetwork) -> CoherenceTraces:
     """Return the temporal coherence sums laid out for the network with a second stage, copied from the first."""
     tables = sum(16 ** len(t) for t in network.tuples)
-    return CoherenceTraces(*(np.concatenate([sums[:tables], sums[:tables], sums[tables:]]) for sums in (traces.errors, traces.abs_errors)))
+    return CoherenceTraces.from_arrays(*(np.concatenate([sums[:tables], sums[:tables], sums[tables:]]) for sums in (traces.errors, traces.abs_errors)))
 
 
 def main() -> None:

@@ -196,3 +196,14 @@ def test_coherence_sums_decay_before_each_update() -> None:
     assert sums(1.0, [1.0, -1.0]) == (0.0, 2.0)  # no decay: the errors cancel for good
     assert sums(0.5, [1.0, -1.0]) == (-0.5, 1.5)
     assert sums(0.5, [1.0, 1.0, 1.0]) == (1.75, 1.75)
+
+
+def test_coherence_sums_keep_registering_small_errors_once_large() -> None:
+    from deep_2048.agents.ntuple.network import _update_coherent_weight
+
+    weights = np.zeros(1, dtype=np.float32)
+    traces = CoherenceTraces.from_arrays(np.zeros(1), np.full(1, 3e11))  # as large as the long run's biggest sum
+    assert traces.abs_errors.dtype == np.float64
+    _update_coherent_weight(weights, traces, 0, 0.0, 111.0)  # the long run's median error size
+    assert traces.abs_errors[0] == 3e11 + 111.0
+    assert np.float32(3e11) + np.float32(111.0) == np.float32(3e11)  # what float32 sums lost

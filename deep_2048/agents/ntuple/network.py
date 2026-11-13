@@ -255,7 +255,13 @@ def update(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: np
 
 
 class CoherenceTraces(NamedTuple):
-    """Running sums of each weight's errors and their sizes, for temporal coherence learning. A NamedTuple so numba can use it."""
+    """Running sums of each weight's errors and their sizes, for temporal coherence learning. A NamedTuple so numba can use it.
+
+    Built by zeros() or from_arrays(), the sums are float64 and each weight's two sit side by side in one array:
+    - float32 sums of a much-used weight grow so large that a typical error rounds to nothing when added,
+      freezing its rate (25,000 of the long run's weights had reached that by 1.5M games);
+    - side by side, an update reads both sums from one cache line instead of two.
+    """
 
     errors: np.ndarray
     abs_errors: np.ndarray
@@ -265,7 +271,14 @@ class CoherenceTraces(NamedTuple):
 
     @classmethod
     def zeros(cls, n_weights: int) -> "CoherenceTraces":
-        return cls(np.zeros(n_weights, dtype=np.float32), np.zeros(n_weights, dtype=np.float32))
+        return cls.from_arrays(np.zeros(n_weights), np.zeros(n_weights))
+
+    @classmethod
+    def from_arrays(cls, errors: np.ndarray, abs_errors: np.ndarray, decay: float = 1.0) -> "CoherenceTraces":
+        """Return traces holding these sums as float64, side by side per weight."""
+        sums = np.empty((len(errors), 2))
+        sums[:, 0], sums[:, 1] = errors, abs_errors
+        return cls(sums[:, 0], sums[:, 1], decay)
 
 
 @njit(inline="always")
@@ -340,7 +353,8 @@ class NTupleNetwork:
         features = json.dumps(self.features)
         arrays: dict[str, Any] = {"weights": self.weights, "tuples": json.dumps(self.tuples), "features": features, "metadata": metadata.model_dump_json()}
         if traces is not None:
-            arrays |= {"coherence_errors": traces.errors, "coherence_abs_errors": traces.abs_errors}
+            # Stored as float32 to keep checkpoints small: rounding a sum once costs nothing, only accumulating in float32 does
+            arrays |= {"coherence_errors": traces.errors.astype(np.float32), "coherence_abs_errors": traces.abs_errors.astype(np.float32)}
         # Write then rename so a Ctrl-C mid-save can't leave a broken checkpoint
         tmp = path.with_name(path.name + ".tmp")
         with open(tmp, "wb") as f:
@@ -364,4 +378,4 @@ def load_traces(path: str | Path) -> CoherenceTraces | None:
     with np.load(path) as data:
         if "coherence_errors" not in data:
             return None
-        return CoherenceTraces(data["coherence_errors"], data["coherence_abs_errors"])
+        return CoherenceTraces.from_arrays(data["coherence_errors"], data["coherence_abs_errors"])
