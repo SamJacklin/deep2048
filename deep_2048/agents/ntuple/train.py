@@ -322,6 +322,8 @@ def _train(
     bb.seed(settings.SEED + progress.games_played)
     schedule = f" decaying to {settings.LEARNING_RATE_END}" if settings.LEARNING_RATE_END is not None else ""
     coherence = ", temporal coherence" if settings.TEMPORAL_COHERENCE else ""
+    if settings.TEMPORAL_COHERENCE and settings.TC_DECAY < 1:
+        coherence += f" decaying by {settings.TC_DECAY}"
     if settings.LAMBDA > 0:
         schedule_end = f" to {settings.LAMBDA_END}" if settings.LAMBDA_END is not None else ""
         coherence += f", TD(λ={settings.LAMBDA}{schedule_end}) over {settings.LAMBDA_HORIZON} moves"
@@ -411,8 +413,11 @@ def _load_or_create_traces(resume_from: str | Path | None, network: NTupleNetwor
     """Return the coherence traces to train with: None if temporal coherence is off, else resumed or fresh."""
     if not settings.TEMPORAL_COHERENCE:
         return None
+    if not 0 < settings.TC_DECAY <= 1:
+        raise ValueError(f"TC_DECAY must be in (0, 1], not {settings.TC_DECAY}")
     resumed = load_traces(resume_from) if resume_from is not None else None
-    return resumed if resumed is not None else CoherenceTraces.zeros(network.weights.size)
+    traces = resumed if resumed is not None else CoherenceTraces.zeros(network.weights.size)
+    return traces._replace(decay=settings.TC_DECAY)
 
 
 def learning_rate_at(settings: NTupleSettings, start_games: int, total_games: int, games_played: int) -> float:

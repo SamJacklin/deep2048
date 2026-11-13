@@ -255,6 +255,9 @@ class CoherenceTraces(NamedTuple):
 
     errors: np.ndarray
     abs_errors: np.ndarray
+    # Each update first shrinks the weight's sums by this factor, so its rate follows its recent errors rather than
+    # its whole history (1 keeps everything, as in Beal & Smith)
+    decay: float = 1.0
 
     @classmethod
     def zeros(cls, n_weights: int) -> "CoherenceTraces":
@@ -283,8 +286,8 @@ def update_coherent(weights: np.ndarray, traces: CoherenceTraces, layout: TupleL
 def _update_coherent_weight(weights: np.ndarray, traces: CoherenceTraces, i: int, learning_rate: float, error: float) -> None:
     coherence = abs(traces.errors[i]) / traces.abs_errors[i] if traces.abs_errors[i] > 0 else 1.0
     weights[i] += learning_rate * coherence * error
-    traces.errors[i] += error
-    traces.abs_errors[i] += abs(error)
+    traces.errors[i] = traces.decay * traces.errors[i] + error
+    traces.abs_errors[i] = traces.decay * traces.abs_errors[i] + abs(error)
 
 
 class NTupleNetwork:

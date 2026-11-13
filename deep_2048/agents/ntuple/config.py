@@ -14,6 +14,9 @@ class NTupleSettings(Settings):
     LEARNING_RATE_END: float | None = None
     # Scale each weight's rate by how consistently its errors point the same way
     TEMPORAL_COHERENCE: bool = False
+    # With temporal coherence, shrink each weight's error sums by this factor before every update, so a weight whose
+    # errors have cancelled out over its history can speed up again once they start agreeing (1 never forgets)
+    TC_DECAY: float = 1.0
     # TD(λ): if LAMBDA > 0, each afterstate learns LAMBDA_HORIZON moves later towards its λ-return.
     # If LAMBDA_END is set, λ moves linearly from LAMBDA to it over each training session.
     LAMBDA: float = 0.0

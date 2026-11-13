@@ -181,3 +181,18 @@ def test_save_and_load_coherence_traces(tmp_path) -> None:
     assert loaded is not None
     np.testing.assert_array_equal(loaded.errors, traces.errors)
     np.testing.assert_array_equal(loaded.abs_errors, traces.abs_errors)
+
+
+def test_coherence_sums_decay_before_each_update() -> None:
+    from deep_2048.agents.ntuple.network import _update_coherent_weight
+
+    def sums(decay: float, errors: list[float]) -> tuple[float, float]:
+        weights = np.zeros(1, dtype=np.float32)
+        traces = CoherenceTraces(np.zeros(1, dtype=np.float32), np.zeros(1, dtype=np.float32), decay)
+        for error in errors:
+            _update_coherent_weight(weights, traces, 0, 0.1, error)
+        return float(traces.errors[0]), float(traces.abs_errors[0])
+
+    assert sums(1.0, [1.0, -1.0]) == (0.0, 2.0)  # no decay: the errors cancel for good
+    assert sums(0.5, [1.0, -1.0]) == (-0.5, 1.5)
+    assert sums(0.5, [1.0, 1.0, 1.0]) == (1.75, 1.75)

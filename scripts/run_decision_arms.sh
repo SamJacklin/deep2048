@@ -28,6 +28,12 @@
 # Round 5, from the long run's 1.5M-game network given a second stage by scripts/add_stage.py (its temporal
 # coherence sums start from zero), compared with round 1's tc-reset (the same start and reset):
 #   two-stage      boards with a 16384 or more read their own copy of the weights, starting identical
+# Round 6, from round 1's tc-reset at 2M games, compared with round 2's continue (the same start, no change):
+#   forget-0.999   temporal coherence's sums shrink by 0.999 before every update, so rates follow about the last 1,000 errors
+#   forget-0.9999  the same at 0.9999, about the last 10,000
+# Round 7, with DECAY set to round 6's winner, from that arm at 2.5M games, both arms keeping its decay and sums:
+#   one-stage      carried on as it is (the reference)
+#   two-stage-kept given a second stage from 16384 by scripts/add_stage.py --keep-coherence, starting identical
 # Arms train one after another, since each uses most of the machine. Rerunning resumes an interrupted
 # arm from its own latest checkpoint and skips finished ones (evaluations come from the cache).
 # Each snapshot is evaluated greedily, and the final one also at exact depth 3, on EVAL_GAMES seeded games.
@@ -40,7 +46,16 @@ case ${ROUND:-1} in
     3) BASE=checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision3-8x6 ARMS=(optimism-1000 optimism-5000) REFERENCE=decision2-8x6-continue ;;
     4) BASE=checkpoints/ntuple/split-8x6/games_1500000.npz FULL_GAMES=2000000 PREFIX=decision4-8x6 ARMS=(split-32768) REFERENCE=decision-8x6-tc-reset ;;
     5) BASE=checkpoints/ntuple/two-stage-8x6/games_1500000.npz FULL_GAMES=2000000 PREFIX=decision5-8x6 ARMS=(two-stage) REFERENCE=decision-8x6-tc-reset ;;
-    *) echo "ROUND must be 1 to 5" >&2 && exit 1 ;;
+    6) BASE=checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision6-8x6 ARMS=(forget-0.999 forget-0.9999) REFERENCE=decision2-8x6-continue ;;
+    7)
+        DECAY=${DECAY:?set DECAY to the winning decay from round 6, e.g. DECAY=0.999}
+        BASE=checkpoints/ntuple/decision6-8x6-forget-$DECAY/games_2500000.npz STAGED_BASE=checkpoints/ntuple/two-stage-forget-$DECAY/games_2500000.npz
+        FULL_GAMES=3000000 PREFIX=decision7-8x6 ARMS=(one-stage two-stage-kept)
+        if [ ! -f "$STAGED_BASE" ]; then
+            uv run python scripts/add_stage.py "$BASE" "$STAGED_BASE" --keep-coherence
+        fi
+        ;;
+    *) echo "ROUND must be 1 to 7" >&2 && exit 1 ;;
 esac
 GAMES=${GAMES:-$FULL_GAMES}
 EVAL_GAMES=${EVAL_GAMES:-1000}
@@ -57,6 +72,9 @@ arm_settings() {
         late-share) echo NTUPLE_LATE_START_FRACTION=0.5 ;;
         split-32768) echo NTUPLE_DOWNGRADE_TILE=32768 ;;
         two-stage) echo NTUPLE_STAGE_TILE=16384 ;;
+        forget-*) echo NTUPLE_TC_DECAY="${1#forget-}" ;;
+        one-stage) echo NTUPLE_TC_DECAY="$DECAY" ;;
+        two-stage-kept) echo NTUPLE_TC_DECAY="$DECAY" NTUPLE_STAGE_TILE=16384 ;;
     esac
 }
 # Applied only when an arm branches from BASE, never when it resumes from its own checkpoint
@@ -86,7 +104,11 @@ for arm in "${ARMS[@]}"; do
             start=(--resume "$checkpoints/latest.npz")
         else
             # shellcheck disable=SC2207  # the flags are deliberately split into separate arguments
-            start=(--resume "$BASE" $(arm_flags "$arm"))
+            arm_base=$BASE
+            if [ "$arm" = two-stage-kept ]; then
+                arm_base=$STAGED_BASE
+            fi
+            start=(--resume "$arm_base" $(arm_flags "$arm"))
         fi
         echo "Training $run from ${start[1]}"
         # shellcheck disable=SC2046  # the arm's settings are deliberately split into separate variables
