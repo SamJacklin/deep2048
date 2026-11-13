@@ -45,6 +45,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | `decision2-8x6-*` (3 runs) | [Decision arms, round 2](#round-2-do-resets-keep-paying): continue, reset again and a gentle reset, each 2M → 2.5M games from round 1's TC reset |
 | `decision3-8x6-*` (2 runs) | [Decision arms, round 3](#round-3-optimism-for-never-updated-weights): optimism at 1,000 and 5,000 for never-updated weights, each 2M → 2.5M games from round 1's TC reset |
 | [`long-8x6-dg32768`](long-8x6-dg32768/NOTES.md) | [Downgrading from 32768](#downgrading-from-32768-instead-of-16384): the long run from scratch, sharing only the 32768 stage, with evaluations every 250k games |
+| [`decision5-8x6-two-stage`](decision5-8x6-two-stage/NOTES.md) | [Decision arms, round 5](#round-5-a-second-stage): a second stage from 16384, copied from the long run's 1.5M network, 1.5M → 2M games |
 
 ## Learning at equal experience
 
@@ -540,6 +541,28 @@ Round 3 found that downgrading from 16384 leaves more than half the network unus
 - **So the threshold is the wrong lever.** Inside one network, it's the only signal that a board is in the 16384 stage, so it can't separate the stages without losing what sharing provides.
   - A second stage chosen by the whole board, starting as an exact copy and still reading boards downgraded from 16384, can separate them without that loss.
   - [Round 5](#next-experiments) tests that.
+
+### Round 5: a second stage
+
+A second stage gives boards with a 16384 or more their own copy of the weights, so the late game can learn values of its own instead of sharing the 8192 stage's. Unlike moving the downgrading threshold, it keeps reading boards downgraded from 16384, so the borrowing that makes 32768s possible survives.
+- **The start:** `scripts/add_stage.py` copies the long run's 1.5M network into both stages, and the copy plays all 1,000 evaluation games identically to the original.
+- **The test:** trained with reset sums to 2M games (`ROUND=5 scripts/run_decision_arms.sh`), against round 1's TC reset, which made the same reset from the same network with one stage ([`decision5-8x6-two-stage`](decision5-8x6-two-stage/NOTES.md)).
+
+| Arm | Greedy at 1.75M | Greedy at 2M | vs TC reset at 2M | Exact depth 3 at 2M | vs TC reset | ≥16384 at depth 3 | ≥32768 at depth 3 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| TC reset (one stage) | 311,045 | 320,042 | — | 402,208 | — | 94.6% | 20.1% |
+| Two stages | 247,666 | 257,579 | −62,463 ± 10,573 | 327,421 | −74,787 ± 9,116 | 75.5% | 5.1% |
+
+![Round 5 against round 1's TC reset](figures/decision-arms-round5.png)
+
+- **It got much worse, and the reason is visible in the 16384 rate.**
+  - Greedy, it fell from 73% at the split to 52% by 2M games, while the reset arm held 75–77%.
+  - Stage 2 only plays once a 16384 exists, so a falling 16384 rate means stage 1 had become *less willing to make one*.
+- **The cause is a flaw in how the stage was chosen.**
+  - Each afterstate was read in the stage of its own largest tile. On a board whose largest tile is 8192, the move that merges two 8192s makes a 16384, so it was valued by stage 2 while the board's other moves were valued by stage 1.
+  - The stages start identical, but once they learn apart, especially at full rate after the reset, the move into the next stage is judged on a different scale from its alternatives.
+  - 2048-rl's player switches networks only once the board holds a 16384, which avoids this.
+- **The fix:** choose the stage by the board a move is made from, so every move of a decision is valued, and learned, in one stage (`feat/stage-by-state`, round 8 in the arms script).
 
 ## Final training run
 
