@@ -1,0 +1,14 @@
+{
+  "zero correction": {
+    "greedy values, 2,000 dev boards": true,
+    "depth-3 values, 300 late dev boards": true,
+    "1,000 greedy games, identical scores and tiles": true,
+    "50 depth-3 games, identical scores and tiles": true
+  },
+  "trained residual at strength 0": {
+    "greedy values, 2,000 dev boards": true,
+    "depth-3 values, 300 late dev boards": true,
+    "1,000 greedy games, identical scores and tiles": true,
+    "50 depth-3 games, identical scores and tiles": true
+  }
+}
