@@ -43,6 +43,10 @@
 # Round 10, from the long run's 1.5M-game network given a second stage with its temporal coherence sums kept
 # (scripts/add_stage.py --keep-coherence), compared with round 1's control (the same start, one stage, no reset):
 #   two-stage-kept-sums  a second stage without the reset that rounds 5, 8 and 9 all made
+# Round 11, from round 1's tc-reset at 2M games, compared with round 2's continue (the same start, no change):
+#   rate-0.005     the base rate cut from 0.02 to 0.005 with the sums kept, the cut that lifted Yeh's and Guei's plateaus
+# Round 12, from round 10's two-stage network at 2M games, compared with round 2's continue (one stage at 2.5M):
+#   two-stage-reset  its temporal coherence sums reset, the finish that lifted one stage in round 1
 # Arms train one after another, since each uses most of the machine. Rerunning resumes an interrupted
 # arm from its own latest checkpoint and skips finished ones (evaluations come from the cache).
 # Each snapshot is evaluated greedily, and the final one also at exact depth 3, on EVAL_GAMES seeded games.
@@ -78,7 +82,9 @@ case ${ROUND:-1} in
             uv run python scripts/add_stage.py checkpoints/ntuple/long-8x6/games_1500000.npz "$BASE" --keep-coherence
         fi
         ;;
-    *) echo "ROUND must be 1 to 10" >&2 && exit 1 ;;
+    11) BASE=checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision11-8x6 ARMS=(rate-0.005) REFERENCE=decision2-8x6-continue ;;
+    12) BASE=checkpoints/ntuple/decision10-8x6-two-stage-kept-sums/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision12-8x6 ARMS=(two-stage-reset) REFERENCE=decision2-8x6-continue ;;
+    *) echo "ROUND must be 1 to 12" >&2 && exit 1 ;;
 esac
 GAMES=${GAMES:-$FULL_GAMES}
 EVAL_GAMES=${EVAL_GAMES:-1000}
@@ -98,14 +104,15 @@ arm_settings() {
         forget-*) echo NTUPLE_TC_DECAY="${1#forget-}" ;;
         one-stage) echo NTUPLE_TC_DECAY="$DECAY" ;;
         two-stage-kept) echo NTUPLE_TC_DECAY="$DECAY" NTUPLE_STAGE_TILE=16384 ;;
-        two-stage-by-state | two-stage-kept-sums) echo NTUPLE_STAGE_TILE=16384 ;;
+        two-stage-by-state | two-stage-kept-sums | two-stage-reset) echo NTUPLE_STAGE_TILE=16384 ;;
+        rate-*) echo NTUPLE_LEARNING_RATE="${1#rate-}" ;;
         two-stage-forget) echo NTUPLE_STAGE_TILE=16384 NTUPLE_TC_DECAY="$DECAY" ;;
     esac
 }
 # Applied only when an arm branches from BASE, never when it resumes from its own checkpoint
 arm_flags() {
     case $1 in
-        tc-reset | reset-again) echo --reset-coherence ;;
+        tc-reset | reset-again | two-stage-reset) echo --reset-coherence ;;
         gentle-reset) echo --coherence-scale 0.1 ;;
         optimism-*) echo --optimistic-unvisited "${1#optimism-}" ;;
     esac
