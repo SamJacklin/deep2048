@@ -47,6 +47,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | [`long-8x6-dg32768`](long-8x6-dg32768/NOTES.md) | [Downgrading from 32768](#downgrading-from-32768-instead-of-16384): the long run from scratch, sharing only the 32768 stage, with evaluations every 250k games |
 | [`decision5-8x6-two-stage`](decision5-8x6-two-stage/NOTES.md) | [Decision arms, round 5](#round-5-a-second-stage): a second stage from 16384, copied from the long run's 1.5M network, 1.5M → 2M games |
 | `decision6-8x6-*` (2 runs) | [Decision arms, round 6](#round-6-temporal-coherence-with-forgetting): temporal coherence forgetting at 0.999 and 0.9999, each 2M → 2.5M games from round 1's TC reset |
+| [`decision8-8x6-two-stage-by-state`](decision8-8x6-two-stage-by-state/NOTES.md), [`decision9-8x6-two-stage-by-state`](decision9-8x6-two-stage-by-state/NOTES.md) | [Rounds 8 and 9](#rounds-8-and-9-a-second-stage-chosen-by-the-board-a-move-is-made-from): the second stage chosen by the board a move is made from, 1.5M → 2M → 2.5M games |
 
 ## Learning at equal experience
 
@@ -643,10 +644,15 @@ The end goal is a single multi-day training run that produces the final model. T
      - [Round 2](#round-2-do-resets-keep-paying) found the reset is a one-off: a second full reset 500k games later hurt at depth 3, and a gentle reset was neutral. So the final run resets once, at the first stall.
      - The next plateau, at about 315k, needs something other than learning rates. [Round 3](#round-3-optimism-for-never-updated-weights) found that optimism for the never-updated weights doesn't help either: most of them are patterns downgrading makes unreachable.
   2. **More late-game experience. Answered: it doesn't help.** Starts from 32768 positions turned out to be impossible in the bitboard, and a larger share of the starts that are possible cost 12k at depth 3. Late-game starts stay at a fifth of games, from 8192.
-  3. **Multi-stage networks,** with separate weights for the late game. They work against downgrading's sharing across scales, and double the memory, so they're worth testing only if resets leave most of the 32768 gap.
+  3. **Separate late-game weights. Tested three ways, none better yet.**
+     - [Downgrading from 32768](#downgrading-from-32768-instead-of-16384) gave the 16384 stage its own weights inside one network. That stage played better, but the network never learned to make a 32768.
+     - A second stage chosen by the afterstate ([round 5](#round-5-a-second-stage)) misjudged the move into it.
+     - Chosen by the board a move is made from ([rounds 8 and 9](#rounds-8-and-9-a-second-stage-chosen-by-the-board-a-move-is-made-from)), it closed to −11.5k greedy at 2.5M games but stayed 23k behind one stage at depth 3.
+     - Still open: a split without the reset (sums kept), and whether a second stage needs far more training than a branch test gives.
   4. **Optimistic initialisation,** which only paid off after 12M+ games for Guei. Adding it to a trained network did nothing (round 3), so it's worth trying only from scratch, and only once the downgrading threshold is settled.
   5. **Thread scaling on the target machine:** 8 against 16 threads, before committing days to it.
 - **Training speed:** temporal coherence costs 1.8× in moves per second. Since it stays for the whole run, storing each weight next to its sums is worth building first: it cuts the memory accesses per update from three to one.
+- **Rejected for the final run:** a constant rate after temporal coherence, a larger late-game share, optimism added to a trained network, downgrading from 32768, and [temporal coherence forgetting](#round-6-temporal-coherence-with-forgetting), which hurt at both decays tried.
 - **Evaluating the final model:** 1,000 seeded games at exact 3-ply and 4-ply, for comparison with the papers, and with pruned search (depth 6 at cutoff 0.1, or deeper) as the strongest agent, reported with its time per move.
 - **Running on Windows:**
   - Use WSL2, since the scripts are bash and use `pgrep`, and keep the repo on the Linux filesystem, not `/mnt/c`.
@@ -662,15 +668,17 @@ Where things stand, as of these runs:
 - **The [decision arms](#decision-arms)** found that temporal coherence stalls by 1.5M games, and that resetting its sums breaks the stall: 320k greedy, 402k at 3-ply, and 32768 in 20% of depth-3 games, after 2M games. A constant rate and more late-game starts both hurt.
 - **[Round 2](#round-2-do-resets-keep-paying)** found the reset works once: neither a second full reset nor a gentle one restarted progress from about 315k.
 - **[Round 3](#round-3-optimism-for-never-updated-weights)** found that optimism for never-updated weights doesn't help, and that most of those weights are unreachable because of downgrading from 16384.
+- **[Downgrading from 32768](#downgrading-from-32768-instead-of-16384)** improved the 16384 stage, but without sharing the network never learned to make a 32768.
+- **[Round 6](#round-6-temporal-coherence-with-forgetting)** found that temporal coherence forgetting hurts.
+- **[Rounds 5, 8 and 9](#rounds-8-and-9-a-second-stage-chosen-by-the-board-a-move-is-made-from)** found that a second stage needs choosing by the board a move is made from. Even then, after a full reset, it was still behind one stage at 2.5M games.
 
-The [final training run](#final-training-run) sets the decisions. In order:
+The best agent so far is still round 1's [TC reset](#decision-arms): 320k greedy and 402k at 3-ply after 2M games. The [final training run](#final-training-run) sets the decisions. In order:
 
-1. **A second stage** (round 5, running): the long run's 1.5M network given a second copy of its weights for boards with a 16384 or more (`scripts/add_stage.py`). It plays identically at the split, and is trained with reset sums to 2M games, against round 1's TC reset. [Downgrading from 32768](#downgrading-from-32768-instead-of-16384) showed the 16384 stage gains from its own weights but can't do without sharing, and a second stage keeps both.
-2. **Temporal coherence with forgetting** (round 6): each weight's error sums shrink slightly before every update, so its rate follows its recent errors and frozen weights can speed up again. From round 1's TC reset at 2M, at decays of 0.999 and 0.9999, against round 2's continue.
+1. **A second stage without the reset.** The long run's 1.5M network split with its sums kept (`scripts/add_stage.py --keep-coherence`), against round 1's control. That isolates the second stage from the reset shock that rounds 8 and 9 paid twice.
 2. **Faster temporal coherence:** store each weight next to its two sums, then measure the speed-up on the M4.
-3. **Multi-stage networks,** only if resets leave most of the 32768 gap.
+3. **Engine support for 65536,** before any run whose agent reaches 32768 often. The bitboard can't merge two 32768s, and evaluations stop with an error when two meet.
 4. **On the Ryzen:** check 8 against 16 threads and the real speed.
-5. **The final training run:** temporal coherence from scratch with resets on the schedule round 2 settles, evaluated as its section describes.
+5. **The final training run:** temporal coherence from scratch, downgrading from 16384, one reset at the first stall, and a second stage if item 1 shows it pays, evaluated as its section describes.
 
 Left out for now:
 - **TD(λ) at lower base rates** (0.02–0.04). It would test the rate explanation in [TD(λ) across seeds](#tdλ-across-seeds), but it can't help the final run.
