@@ -70,6 +70,14 @@ def test_depth_two_matches_reference_expectimax() -> None:
             assert np.isnan(values[action]) if expected is None else np.isclose(values[action], expected, rtol=1e-9)
 
 
+def test_exact_search_is_unchanged_by_the_transposition_table() -> None:
+    network = random_network(5)
+    for board in sparse_boards(20, seed=6):
+        packed = bb.from_array(board)
+        reused = action_values(network.weights, network.layout, packed, 3)
+        assert np.array_equal(reused, action_values(network.weights, network.layout, packed, 3, reuse=False), equal_nan=True)
+
+
 def test_finished_game_has_no_moves() -> None:
     network = random_network(4)
     stuck = np.array([[2, 4, 2, 4], [4, 2, 4, 2], [2, 4, 2, 4], [4, 2, 4, 2]])

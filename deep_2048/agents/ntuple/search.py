@@ -24,7 +24,8 @@ class Transpositions(NamedTuple):
 
     Each entry is stamped with the search that wrote it, so a new search starts empty without clearing
     the table. With a cutoff, a value reached by a likelier path is reused for less likely ones, which is
-    approximate but deterministic, so act() and play() still agree.
+    approximate but deterministic, so act() and play() still agree. With `reuse` off, nothing is looked up,
+    which gives the exact pruned search to measure that approximation against.
     """
 
     boards: np.ndarray
@@ -32,12 +33,13 @@ class Transpositions(NamedTuple):
     values: np.ndarray
     searches: np.ndarray
     current: np.ndarray  # one element: the search being run
+    reuse: bool
 
 
 @njit
-def new_transpositions() -> Transpositions:
+def new_transpositions(reuse: bool = True) -> Transpositions:
     size = 1 << _TABLE_BITS
-    return Transpositions(np.zeros(size, np.uint64), np.zeros(size, np.int64), np.zeros(size), np.zeros(size, np.int64), np.zeros(1, np.int64))
+    return Transpositions(np.zeros(size, np.uint64), np.zeros(size, np.int64), np.zeros(size), np.zeros(size, np.int64), np.zeros(1, np.int64), reuse)
 
 
 @njit
@@ -64,7 +66,7 @@ def _afterstate_value(weights: np.ndarray, layout: TupleLayout, afterstate: np.u
 
     slot = (afterstate * _HASH_MULTIPLIER + np.uint64(depth)) >> np.uint64(64 - _TABLE_BITS)
     search = table.current[0]
-    if table.searches[slot] == search and table.boards[slot] == afterstate and table.depths[slot] == depth:
+    if table.reuse and table.searches[slot] == search and table.boards[slot] == afterstate and table.depths[slot] == depth:
         return table.values[slot]
 
     n_empty = bb.count_empty(afterstate)
@@ -124,12 +126,13 @@ def has_two_top_tiles(board: np.uint64) -> bool:
 
 
 @njit
-def action_values(weights: np.ndarray, layout: TupleLayout, board: np.uint64, depth: int, cutoff: float = 0.0) -> np.ndarray:
+def action_values(weights: np.ndarray, layout: TupleLayout, board: np.uint64, depth: int, cutoff: float = 0.0, reuse: bool = True) -> np.ndarray:
     """Return each action's value searching `depth` moves ahead, or NaN if it doesn't change the board.
 
     Spawn branches less likely than `cutoff` from the root stop at the network's value instead (0 searches everything).
+    `reuse` off turns off the transposition table, for measuring what it changes.
     """
-    return _search(weights, layout, board, depth, cutoff, new_transpositions())
+    return _search(weights, layout, board, depth, cutoff, new_transpositions(reuse))
 
 
 @njit
