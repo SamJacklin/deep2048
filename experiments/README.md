@@ -712,6 +712,26 @@ At 2.25M the greedy difference was −1,496 ± 11,032.
 - **The new tuples start at zero and at the full rate,** while the 6-tuples' rates have mostly shrunk. So the new tuples absorb the error the 6-tuples were still correcting, and they add nothing the 6-tuples didn't already see.
 - **The published gain likely comes from faster early learning,** when coarse features carry play while the 6-tuples are still sparse. The fair test is training from scratch, a long run better suited to the Ryzen. Training is also about 20% slower in games per second.
 
+### Redundant tuples from scratch
+
+The same network trained from zero with the long run's recipe, against the long run game for game (`RUN=long-8x6-redundant NETWORK=8x6-redundant LEARNING_RATE=0.0107 scripts/run_long_run.sh`, [`long-8x6-redundant`](long-8x6-redundant/NOTES.md)). It was stopped at 264k games, when it had stopped reaching 16384.
+
+| Games | Training average, redundant | Training average, long run | Greedy, redundant | Greedy, long run | Paired difference | ≥16384 greedy, redundant / long run |
+|---:|---:|---:|---:|---:|---:|---:|
+| 50k | 102,958 | 81,073 | | | | |
+| 100k | 146,311 | 145,753 | 150,471 | 167,785 | −17,314 ± 5,583 | 1.2% / 20.6% |
+| 150k | 148,505 | 187,105 | | | | |
+| 200k | 145,333 | 216,265 | | | | |
+| 250k | 140,451 | 235,124 | 137,947 | 244,076 | −106,130 ± 7,334 | 0.0% / 55.3% |
+
+![Redundant tuples from scratch against the long run](figures/redundant-from-scratch.png)
+
+- **It learned the early game faster, then hit a wall at 16384.** It led by 22k over the first 50k games and reached 8192 more often (86% against 68% of training games from 50k to 100k), but its 16384 rate never rose above 1%, and its average slowly fell from 148k.
+- **The small tuples took over the board's value.** At 250k games, its 6-tuple weights averaged 16.9 in size, against 43.1 in the long run, while its 3-tuple weights averaged about 2,900. Played with only its 6-tuples, the network averaged 3,818 and never reached 4096.
+  - The small tuples are read on nearly every move, so they absorbed the error first and left the 6-tuples little to learn.
+  - 3- and 4-cell patterns can't represent the large-tile arrangements needed to build a second 8192, and the 6-tuples that could never learned them.
+- **So redundant encoding is shelved.** It loses whether added to a trained network or trained from scratch. Jaśkowski's gain came under a different schedule and without downgrading. A rescue (dropping the 3-tuples, or a lower rate for the small tuples) would need another long run for a technique worth about +52k under his conditions.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
