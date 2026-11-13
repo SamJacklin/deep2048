@@ -38,6 +38,8 @@
 # valued in one stage (round 5 valued a move that made the first 16384 in stage 2 and the others in stage 1):
 #   two-stage-by-state  as round 5's two-stage
 #   two-stage-forget    the same with temporal coherence forgetting at DECAY, if DECAY is set
+# Round 9 carries round 8's two-stage-by-state on from 2M to 2.5M games, compared with round 2's continue (the
+# one-stage TC reset carried on over the same games), to see which reaches the higher level once both have recovered
 # Arms train one after another, since each uses most of the machine. Rerunning resumes an interrupted
 # arm from its own latest checkpoint and skips finished ones (evaluations come from the cache).
 # Each snapshot is evaluated greedily, and the final one also at exact depth 3, on EVAL_GAMES seeded games.
@@ -66,7 +68,8 @@ case ${ROUND:-1} in
             ARMS+=(two-stage-forget)
         fi
         ;;
-    *) echo "ROUND must be 1 to 8" >&2 && exit 1 ;;
+    9) BASE=checkpoints/ntuple/decision8-8x6-two-stage-by-state/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision9-8x6 ARMS=(two-stage-by-state) REFERENCE=decision2-8x6-continue ;;
+    *) echo "ROUND must be 1 to 9" >&2 && exit 1 ;;
 esac
 GAMES=${GAMES:-$FULL_GAMES}
 EVAL_GAMES=${EVAL_GAMES:-1000}
