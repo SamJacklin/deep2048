@@ -97,7 +97,7 @@ def test_coherent_update_matches_reference() -> None:
 
     for board in random_boards(100, seed=6):
         error = float(rng.normal())
-        update_coherent(network.weights, traces, network.layout, bb.from_array(board), 0.1, error)
+        update_coherent(network.weights, traces, network.layout, bb.from_array(board), bb.from_array(board), 0.1, error)
         for i in reference_indices(network, board):
             coherence = abs(errors[i]) / abs_errors[i] if abs_errors[i] > 0 else 1.0
             weights[i] += 0.1 * coherence * error

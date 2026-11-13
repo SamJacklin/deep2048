@@ -41,3 +41,16 @@ def test_kept_coherence_sums_are_copied_into_the_second_stage() -> None:
     tables = single.weights.size
     assert staged.errors.size == 2 * tables
     assert (staged.errors[:tables] == traces.errors).all() and (staged.abs_errors[tables:] == traces.abs_errors).all()
+
+
+def test_a_move_into_the_next_stage_is_valued_in_the_current_one() -> None:
+    from deep_2048.agents.ntuple.network import evaluate
+
+    network = NTupleNetwork(SMALL_TUPLES, downgrade_tile=1024, stage_tile=256)
+    tables = sum(16 ** len(t) for t in SMALL_TUPLES)
+    network.weights[tables:] = 1.0  # only the second stage is non-zero
+    state = bb.from_array(np.array([[128, 128, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]))
+    afterstate = np.uint64(bb.move(state, 2)[0])  # left: the 128s merge into a 256
+    assert bb.max_exponent(afterstate) == 8
+    assert evaluate(network.weights, network.layout, afterstate, state) == 0.0  # read in the 128 board's stage
+    assert evaluate(network.weights, network.layout, afterstate, afterstate) == len(SMALL_TUPLES) * bb.NUM_SYMMETRIES

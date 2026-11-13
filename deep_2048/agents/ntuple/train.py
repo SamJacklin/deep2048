@@ -41,19 +41,25 @@ HISTORY_NAME = "training_history.csv"
 
 
 @njit
-def _learn(weights: np.ndarray, traces: CoherenceTraces | None, layout: TupleLayout, afterstate: np.uint64, target: float, learning_rate: float) -> None:
-    """Move the afterstate's value towards target, scaling each weight's step by its coherence if there are traces."""
-    error = target - evaluate(weights, layout, afterstate)
+def _learn(weights: np.ndarray, traces: CoherenceTraces | None, layout: TupleLayout, afterstate: np.uint64, state: np.uint64, target: float, learning_rate: float) -> None:
+    """Move the afterstate's value towards target, scaling each weight's step by its coherence if there are traces.
+
+    The value is read and learned in the stage of `state`, the board the move was made from, as when it was chosen.
+    """
+    error = target - evaluate(weights, layout, afterstate, state)
     # numba compiles a separate version for traces=None with this branch removed, keeping the constant-rate path as fast as before
     if traces is None:
-        update(weights, layout, afterstate, learning_rate * error)
+        update(weights, layout, afterstate, state, learning_rate * error)
     else:
-        update_coherent(weights, traces, layout, afterstate, learning_rate, error)
+        update_coherent(weights, traces, layout, afterstate, state, learning_rate, error)
 
 
 @njit(inline="always")
 def _best_move(weights: np.ndarray, layout: TupleLayout, board: np.uint64) -> tuple[np.uint64, int, float]:
-    """Return the afterstate, reward and reward + value of the best move, with a value of -inf if none are legal."""
+    """Return the afterstate, reward and reward + value of the best move, with a value of -inf if none are legal.
+
+    Every move is valued in the stage of `board`, so a move that reaches the next stage isn't judged on another scale.
+    """
     best_afterstate = board
     best_reward = 0
     best_value = -np.inf
@@ -61,7 +67,7 @@ def _best_move(weights: np.ndarray, layout: TupleLayout, board: np.uint64) -> tu
         afterstate, reward = bb.move(board, action)
         if afterstate == board:
             continue
-        value = reward + evaluate(weights, layout, afterstate)
+        value = reward + evaluate(weights, layout, afterstate, board)
         if value > best_value:
             best_afterstate, best_reward, best_value = afterstate, reward, value
     return best_afterstate, best_reward, best_value
@@ -88,17 +94,18 @@ def play_game(
     score = 0
     moves = 0
     previous_afterstate = np.uint64(0)
+    previous_state = np.uint64(0)
 
     while True:
         best_afterstate, best_reward, best_value = _best_move(weights, layout, board)
         game_over = best_value == -np.inf
         if learn and moves > 0:
-            _learn(weights, traces, layout, previous_afterstate, 0.0 if game_over else best_value, learning_rate)
+            _learn(weights, traces, layout, previous_afterstate, previous_state, 0.0 if game_over else best_value, learning_rate)
 
         if game_over:
             return score, bb.max_exponent(board), moves, harvested
 
-        previous_afterstate = best_afterstate
+        previous_afterstate, previous_state = best_afterstate, board
         score += best_reward
         moves += 1
         board = bb.spawn_tile(best_afterstate)
@@ -145,6 +152,7 @@ def play_game_lambda(
     horizon = td_lambda.horizon
     size = horizon + 1
     afterstates = np.zeros(size, np.uint64)
+    states = np.zeros(size, np.uint64)
     rewards = np.zeros(size)
     values = np.zeros(size)
     oldest = 0
@@ -160,18 +168,18 @@ def play_game_lambda(
         if best_value == -np.inf:
             while learn and pending > 0:
                 target = lambda_return(rewards, values, oldest, pending - 1, True, td_lambda.lam, horizon)
-                _learn(weights, traces, layout, afterstates[oldest], target, learning_rate)
+                _learn(weights, traces, layout, afterstates[oldest], states[oldest], target, learning_rate)
                 oldest = (oldest + 1) % size
                 pending -= 1
             return score, bb.max_exponent(board), moves, harvested
 
         newest = (oldest + pending) % size
-        afterstates[newest], rewards[newest], values[newest] = best_afterstate, best_reward, best_value - best_reward
+        afterstates[newest], states[newest], rewards[newest], values[newest] = best_afterstate, board, best_reward, best_value - best_reward
         pending += 1
         if pending == size:
             if learn:
                 target = lambda_return(rewards, values, oldest, horizon, False, td_lambda.lam, horizon)
-                _learn(weights, traces, layout, afterstates[oldest], target, learning_rate)
+                _learn(weights, traces, layout, afterstates[oldest], states[oldest], target, learning_rate)
             oldest = (oldest + 1) % size
             pending -= 1
 

@@ -47,19 +47,20 @@ def _state_value(weights: np.ndarray, layout: TupleLayout, board: np.uint64, dep
     for action in range(bb.NUM_ACTIONS):
         afterstate, reward = bb.move(board, action)
         if afterstate != board:
-            best = max(best, reward + _afterstate_value(weights, layout, afterstate, depth - 1, probability, cutoff, table))
+            best = max(best, reward + _afterstate_value(weights, layout, afterstate, board, depth - 1, probability, cutoff, table))
     return best if best > -np.inf else 0.0
 
 
 # Inlined so its mutual recursion with _state_value becomes self-recursion, which numba can compile
 @njit(inline="always")
-def _afterstate_value(weights: np.ndarray, layout: TupleLayout, afterstate: np.uint64, depth: int, probability: float, cutoff: float, table: Transpositions) -> float:
+def _afterstate_value(weights: np.ndarray, layout: TupleLayout, afterstate: np.uint64, state: np.uint64, depth: int, probability: float, cutoff: float, table: Transpositions) -> float:
     """Return the network's value at the horizon, otherwise the expected value over every tile that could spawn.
 
     `probability` is the chance of reaching this afterstate from the root, and below `cutoff` it counts as the horizon.
     """
     if depth == 0 or probability < cutoff:
-        return evaluate(weights, layout, afterstate)
+        # At the horizon the network values it in the stage of `state`, the board the move was made from
+        return evaluate(weights, layout, afterstate, state)
 
     slot = (afterstate * _HASH_MULTIPLIER + np.uint64(depth)) >> np.uint64(64 - _TABLE_BITS)
     search = table.current[0]
@@ -134,5 +135,5 @@ def _search(weights: np.ndarray, layout: TupleLayout, board: np.uint64, depth: i
     for action in range(bb.NUM_ACTIONS):
         afterstate, reward = bb.move(board, action)
         if afterstate != board:
-            values[action] = reward + _afterstate_value(weights, layout, afterstate, depth - 1, 1.0, cutoff, table)
+            values[action] = reward + _afterstate_value(weights, layout, afterstate, board, depth - 1, 1.0, cutoff, table)
     return values

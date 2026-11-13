@@ -221,10 +221,10 @@ def _stage_offset_overload(layout, board):  # type: ignore[no-untyped-def]
 
 
 @njit(inline="always")
-def evaluate(weights: np.ndarray, layout: TupleLayout, board: np.uint64) -> float:
+def evaluate(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: np.uint64) -> float:
     """Sum the weights each tuple reads from each symmetry of the board, plus the scale weight if any."""
     tuple_board = _tuple_board(layout, board)
-    stage = _stage_offset(layout, board)
+    stage = _stage_offset(layout, state)
     boards = bb.symmetries(tuple_board)
     total = 0.0
     for t in range(len(layout.offsets)):
@@ -237,10 +237,10 @@ def evaluate(weights: np.ndarray, layout: TupleLayout, board: np.uint64) -> floa
 
 
 @njit(inline="always")
-def update(weights: np.ndarray, layout: TupleLayout, board: np.uint64, delta: float) -> None:
+def update(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: np.uint64, delta: float) -> None:
     """Add delta to every weight read for this board."""
     tuple_board = _tuple_board(layout, board)
-    stage = _stage_offset(layout, board)
+    stage = _stage_offset(layout, state)
     boards = bb.symmetries(tuple_board)
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
@@ -265,14 +265,14 @@ class CoherenceTraces(NamedTuple):
 
 
 @njit(inline="always")
-def update_coherent(weights: np.ndarray, traces: CoherenceTraces, layout: TupleLayout, board: np.uint64, learning_rate: float, error: float) -> None:
+def update_coherent(weights: np.ndarray, traces: CoherenceTraces, layout: TupleLayout, board: np.uint64, state: np.uint64, learning_rate: float, error: float) -> None:
     """Move each weight read for this board by learning_rate * coherence * error.
 
     A weight's coherence is |sum of its errors| / sum of their sizes: near 1 while its errors keep
     pointing the same way, and near 0 once they cancel out. A weight with no history learns at the full rate.
     """
     tuple_board = _tuple_board(layout, board)
-    stage = _stage_offset(layout, board)
+    stage = _stage_offset(layout, state)
     boards = bb.symmetries(tuple_board)
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
@@ -322,11 +322,12 @@ class NTupleNetwork:
     def n_features(self) -> int:
         return len(self.tuples) * bb.NUM_SYMMETRIES
 
-    def value(self, board: np.uint64) -> float:
-        return float(evaluate(self.weights, self.layout, np.uint64(board)))
+    def value(self, board: np.uint64, state: np.uint64 | None = None) -> float:
+        """The afterstate's value, read in the stage of `state`, the board the move was made from (default: the board itself)."""
+        return float(evaluate(self.weights, self.layout, np.uint64(board), np.uint64(board if state is None else state)))
 
     def update(self, board: np.uint64, delta: float) -> None:
-        update(self.weights, self.layout, np.uint64(board), delta)
+        update(self.weights, self.layout, np.uint64(board), np.uint64(board), delta)
 
     def save(self, path: str | Path, metadata: CheckpointMetadata, traces: CoherenceTraces | None = None) -> None:
         """Save the network, plus its temporal coherence traces if it's being trained with them."""

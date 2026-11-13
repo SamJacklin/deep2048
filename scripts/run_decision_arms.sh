@@ -34,6 +34,10 @@
 # Round 7, with DECAY set to round 6's winner, from that arm at 2.5M games, both arms keeping its decay and sums:
 #   one-stage      carried on as it is (the reference)
 #   two-stage-kept given a second stage from 16384 by scripts/add_stage.py --keep-coherence, starting identical
+# Round 8 repeats round 5 with the stage chosen by the board a move is made from, so every move of a decision is
+# valued in one stage (round 5 valued a move that made the first 16384 in stage 2 and the others in stage 1):
+#   two-stage-by-state  as round 5's two-stage
+#   two-stage-forget    the same with temporal coherence forgetting at DECAY, if DECAY is set
 # Arms train one after another, since each uses most of the machine. Rerunning resumes an interrupted
 # arm from its own latest checkpoint and skips finished ones (evaluations come from the cache).
 # Each snapshot is evaluated greedily, and the final one also at exact depth 3, on EVAL_GAMES seeded games.
@@ -55,7 +59,14 @@ case ${ROUND:-1} in
             uv run python scripts/add_stage.py "$BASE" "$STAGED_BASE" --keep-coherence
         fi
         ;;
-    *) echo "ROUND must be 1 to 7" >&2 && exit 1 ;;
+    8)
+        BASE=checkpoints/ntuple/two-stage-8x6/games_1500000.npz FULL_GAMES=2000000 PREFIX=decision8-8x6 REFERENCE=decision-8x6-tc-reset
+        ARMS=(two-stage-by-state)
+        if [ -n "${DECAY:-}" ]; then
+            ARMS+=(two-stage-forget)
+        fi
+        ;;
+    *) echo "ROUND must be 1 to 8" >&2 && exit 1 ;;
 esac
 GAMES=${GAMES:-$FULL_GAMES}
 EVAL_GAMES=${EVAL_GAMES:-1000}
@@ -75,6 +86,8 @@ arm_settings() {
         forget-*) echo NTUPLE_TC_DECAY="${1#forget-}" ;;
         one-stage) echo NTUPLE_TC_DECAY="$DECAY" ;;
         two-stage-kept) echo NTUPLE_TC_DECAY="$DECAY" NTUPLE_STAGE_TILE=16384 ;;
+        two-stage-by-state) echo NTUPLE_STAGE_TILE=16384 ;;
+        two-stage-forget) echo NTUPLE_STAGE_TILE=16384 NTUPLE_TC_DECAY="$DECAY" ;;
     esac
 }
 # Applied only when an arm branches from BASE, never when it resumes from its own checkpoint
@@ -143,7 +156,7 @@ def evaluations(run: str) -> list[dict]:
 control = evaluations(reference)
 runs = dict.fromkeys([reference, *(f"{prefix}-{arm}" for arm in arms)])
 print(f"\nReference: {reference}")
-print(f"\n{'Run':<34}{'Evaluation':<34}{'Score':>10}{'vs reference':>20}{'≥32768':>9}")
+print(f"\n{'Run':<42}{'Evaluation':<34}{'Score':>10}{'vs reference':>20}{'≥32768':>9}")
 for run in runs:
     for record, baseline in zip(evaluations(run), control):
         scores, tiles = np.array(record["result"]["scores"]), np.array(record["result"]["max_tiles"])
@@ -152,5 +165,5 @@ for run in runs:
         label = record["key"]["label"]
         what = label[label.index("(") + 1 : label.index(" games")] + " games" + (" + depth 3" if "depth=3" in label else ", greedy")
         paired = f"{difference.mean():+,.0f} ± {interval:,.0f}" if run != reference else "—"
-        print(f"{run:<34}{what:<34}{scores.mean():>10,.0f}{paired:>20}{(tiles >= 32768).mean() * 100:>8.1f}%")
+        print(f"{run:<42}{what:<34}{scores.mean():>10,.0f}{paired:>20}{(tiles >= 32768).mean() * 100:>8.1f}%")
 EOF
