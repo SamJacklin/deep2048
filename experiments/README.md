@@ -732,6 +732,45 @@ The same network trained from zero with the long run's recipe, against the long 
   - 3- and 4-cell patterns can't represent the large-tile arrangements needed to build a second 8192, and the 6-tuples that could never learned them.
 - **So redundant encoding is shelved.** It loses whether added to a trained network or trained from scratch. Jaśkowski's gain came under a different schedule and without downgrading. A rescue (dropping the 3-tuples, or a lower rate for the small tuples) would need another long run for a technique worth about +52k under his conditions.
 
+## Late-game diagnostics
+
+The decision arms leave a clear pattern: the network learns everything up to 16384 efficiently, then converts a first 16384 into a 32768 in only about 21% of depth-3 games (20.1% against 94.6% reaching 16384, for round 1's TC reset at 2M). The next stages diagnose why before spending more training: whether the late game's positions aren't seen, are learned wrongly, or can't be told apart. Each stage is built on its own branch, and each result that depends on training needs two more seeds before it's relied on.
+
+### Stage 0: protocol checks
+
+No training. The pieces later stages measure with:
+- **Manifests:** each training session now records the SHA-256 of the checkpoint it resumed from and its CPU time. Evaluations already recorded their checkpoint's hash and seeds.
+- **`scripts/compare_runs.py`:** compares runs' evaluations with a reference game for game, with paired bootstrap 95% intervals for the average, the 16384 and 32768 rates, and the 16384→32768 conversion.
+- **`scripts/update_gain.py`:** how far one temporal coherence update really moves a board's value, by stage of the game.
+- **`scripts/check_search_cache.py`:** what the search's transposition table changes when unlikely spawns are pruned.
+- **Tests** of the 32768 limit: 16384s merge into it, 32768s don't merge (seeded games end there), and downgrading halves it.
+
+**The effective gain of an update.** A board reads 64 weights, and an update with error δ moves its value by δ × lr × Σ cᵢmᵢ², over its distinct weights i read mᵢ times, with coherence cᵢ. With every weight at full rate and no repeats, that's 1.28 at lr 0.02. Measured on the afterstates of 20 greedy games per network:
+
+| Network | 1024 | 4096 | 8192 | 16384 (downgraded) | 32768 |
+|---|---:|---:|---:|---:|---:|
+| Long run, 500k games | 0.016 (54%) | 0.014 (61%) | 0.012 (68%) | 0.011 (69%) | |
+| Long run, 1.5M (stalled) | 0.009 (80%) | 0.007 (84%) | 0.006 (87%) | 0.006 (86%) | |
+| TC reset, 2M (the best network) | 0.006 (88%) | 0.005 (90%) | 0.005 (91%) | 0.005 (91%) | 0.012 (73%) |
+
+Each cell is the median gain ΔV/δ for boards with that largest tile, with the share of the weights they read whose coherence is below 1% in brackets. No 32768 boards came up in the long run's greedy games.
+
+- **Temporal coherence has frozen the whole network, not just the late game.** By 1.5M games a board's value moves by about 0.5% of the nominal step, at every stage alike. The 32768 boards are the least frozen, but only slightly.
+- **The reset's restored rates are used up within 500k games.** Its 2M network is as frozen as the stalled 1.5M one was.
+- **Repeats don't matter.** Repeated weights only add to the gain on near-empty opening boards; from 32 up, the repeat factor is 1.00 to 1.04.
+- **So the late game isn't learning at a lower rate than the rest; it gets fewer updates.** A weight's coherence falls as roughly one over the square root of its updates once its errors are noise, so the rarely seen late-game weights have the most to gain from a rate that keeps adapting. Stage 1 checks whether their values are actually wrong.
+
+**The search cache.** On 200 positions from the 2M network's greedy games, half with an 8192 or larger:
+
+| Depth | Cutoff | Chosen move changes | Largest change in the chosen move's value | ms per position, with the table | without |
+|---:|---:|---:|---:|---:|---:|
+| 3 | 0 | 0 | 0 (exact, as a test checks) | 0.4 | 0.5 |
+| 4 | 0.05 | 0 | 3.4×10⁻⁴ of its value | 0.6 | 1.0 |
+| 5 | 0.1 | 0 | 0 | 0.3 | 0.4 |
+| 6 | 0.1 | 0 | 0 | 0.4 | 0.4 |
+
+The table's approximation under pruning is negligible: it never changed a move.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
