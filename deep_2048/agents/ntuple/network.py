@@ -26,7 +26,7 @@ TUPLES: tuple[tuple[int, ...], ...] = (
 # Weights in the scale table: counts of five tile sizes, each capped at 3, in 2 bits each
 SCALE_WEIGHTS = 1 << 10
 
-NetworkName = Literal["2x4-2x6", "4x6", "8x6"]
+NetworkName = Literal["2x4-2x6", "4x6", "8x6", "8x6-redundant"]
 DEFAULT_NETWORK: NetworkName = "2x4-2x6"
 
 # Layouts as given in Guei's thesis (arXiv 2212.11087): 4x6 is Yeh et al.'s (2016), also Jaśkowski's 42-33
@@ -45,6 +45,10 @@ NETWORKS: dict[NetworkName, tuple[tuple[int, ...], ...]] = {
         (0, 1, 4, 8, 9, 10),
     ),
 }
+# Jaśkowski's (2018) redundant encoding: small tuples read alongside the large ones (straight 4s, 2x2 squares and
+# straight 3s), which generalise across positions the large tuples see rarely. They add about 340k weights.
+REDUNDANT_TUPLES: tuple[tuple[int, ...], ...] = ((0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 4, 5), (1, 2, 5, 6), (5, 6, 9, 10), (0, 1, 2), (4, 5, 6))
+NETWORKS["8x6-redundant"] = NETWORKS["8x6"] + REDUNDANT_TUPLES
 assert set(NETWORKS) == set(get_args(NetworkName))
 
 
