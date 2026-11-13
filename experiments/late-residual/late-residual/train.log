@@ -1,0 +1,22 @@
+Training late-residual from 0 to 20,000 games from 606 first-16384 positions, rate 0.00313 per weight (0.1 per board)
+   1,000 games: score added   103,874, 32768 in   1.6%, mean |TD error|      988, 224 games/s
+   2,000 games: score added    91,425, 32768 in   0.4%, mean |TD error|    1,123, 346 games/s
+   3,000 games: score added    84,306, 32768 in   0.3%, mean |TD error|    1,181, 446 games/s
+   4,000 games: score added    77,072, 32768 in   0.1%, mean |TD error|    1,239, 492 games/s
+   5,000 games: score added    73,066, 32768 in   0.2%, mean |TD error|    1,279, 501 games/s
+   6,000 games: score added    72,094, 32768 in   0.2%, mean |TD error|    1,312, 508 games/s
+   7,000 games: score added    67,838, 32768 in   0.2%, mean |TD error|    1,322, 513 games/s
+   8,000 games: score added    64,144, 32768 in   0.0%, mean |TD error|    1,403, 578 games/s
+   9,000 games: score added    61,733, 32768 in   0.1%, mean |TD error|    1,442, 606 games/s
+  10,000 games: score added    59,237, 32768 in   0.0%, mean |TD error|    1,459, 613 games/s
+  11,000 games: score added    59,865, 32768 in   0.0%, mean |TD error|    1,447, 649 games/s
+  12,000 games: score added    56,946, 32768 in   0.0%, mean |TD error|    1,498, 650 games/s
+  13,000 games: score added    53,777, 32768 in   0.1%, mean |TD error|    1,529, 651 games/s
+  14,000 games: score added    51,571, 32768 in   0.0%, mean |TD error|    1,533, 645 games/s
+  15,000 games: score added    48,267, 32768 in   0.0%, mean |TD error|    1,609, 738 games/s
+  16,000 games: score added    48,122, 32768 in   0.0%, mean |TD error|    1,604, 730 games/s
+  17,000 games: score added    45,579, 32768 in   0.0%, mean |TD error|    1,611, 822 games/s
+  18,000 games: score added    45,198, 32768 in   0.0%, mean |TD error|    1,671, 782 games/s
+  19,000 games: score added    42,067, 32768 in   0.0%, mean |TD error|    1,697, 922 games/s
+  20,000 games: score added    42,966, 32768 in   0.0%, mean |TD error|    1,685, 774 games/s
+train exited with 0
