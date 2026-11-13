@@ -44,6 +44,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | `decision-8x6-*` (4 runs) | [Decision arms](#decision-arms): control, TC reset, constant rate and a larger late-game share, each 1.5M → 2M games from the long run |
 | `decision2-8x6-*` (3 runs) | [Decision arms, round 2](#round-2-do-resets-keep-paying): continue, reset again and a gentle reset, each 2M → 2.5M games from round 1's TC reset |
 | `decision3-8x6-*` (2 runs) | [Decision arms, round 3](#round-3-optimism-for-never-updated-weights): optimism at 1,000 and 5,000 for never-updated weights, each 2M → 2.5M games from round 1's TC reset |
+| [`long-8x6-dg32768`](long-8x6-dg32768/NOTES.md) | [Downgrading from 32768](#downgrading-from-32768-instead-of-16384): the long run from scratch, sharing only the 32768 stage, with evaluations every 250k games |
 
 ## Learning at equal experience
 
@@ -508,6 +509,38 @@ At 2.25M games the greedy differences were −4,339 ± 10,900 (1,000) and −9,9
   - Sharing paid off early, when 16384 was rare (it was most of A + C's +13%).
   - With 75% of games now reaching 16384, it may be the ceiling. The [32768 downgrading test](#next-experiments) checks this by giving the 16384 stage its own weights.
 
+### Downgrading from 32768 instead of 16384
+
+Round 3 found that downgrading from 16384 leaves more than half the network unused, and that one set of weights serves both the 8192 and 16384 stages, whose true values differ. This run tests whether giving the 16384 stage its own weights lifts the ceiling: the long run's setup from scratch, downgrading only boards that hold a 32768 ([`long-8x6-dg32768`](long-8x6-dg32768/NOTES.md), `DOWNGRADE_TILE=32768 EVAL_EVERY=250000 scripts/run_long_run.sh`).
+
+| Games | Greedy | vs the long run (paired) | ≥16384 (long run) | ≥32768 (long run) |
+|---:|---:|---:|---:|---:|
+| 100k | 153,246 | −14,538 ± 6,587 | 12.9% (20.6%) | 0.0% (0.2%) |
+| 250k | 212,947 | −31,129 ± 9,274 | 44.4% (55.3%) | 0.0% (1.9%) |
+| 500k | 250,784 | −16,920 ± 9,662 | 62.1% (61.5%) | 0.0% (4.2%) |
+| 750k | 255,880 | | 65.8% | 0.0% |
+| 1M | 274,755 | −10,476 ± 9,250 | **73.7% (68.0%)** | 0.0% (4.4%) |
+| 1.25M | 270,381 | | 71.2% | 0.0% |
+| 1.5M | 273,643 | −26,250 ± 9,475 | 70.3% (73.2%) | 0.0% (6.4%) |
+| 1.5M, depth 2 | 322,962 | −20,198 ± 7,995 | 87.0% (85.8%) | 0.2% (7.2%) |
+| 1.5M, depth 3 | 346,617 | −18,786 ± 6,752 | 93.1% (90.7%) | 0.7% (8.5%) |
+
+![Downgrading from 32768 against the long run](figures/downgrade-32768.png)
+
+- **Its own weights make the 16384 stage better.** After trailing early without the long run's head start, it reached 16384 in more games from 500k on, 5.7 points more at 1M.
+- **But it never learns to make a 32768.** Not one greedy game in any evaluation, and none in training, where the long run already reached 32768 in 4% of games by 500k. It plateaus at about 270–275k from 1M games.
+- **Why:** making a 32768 means building a second 16384 next to the first.
+  - Downgrading from 16384 reads that board like building a second 8192 next to a 16384, which the network has practised millions of times.
+  - With the 16384 stage separate, the step starts from nothing. In a crowded late game, nothing doesn't get far enough to learn.
+- **Moving the threshold on a trained network doesn't work either.**
+  - `scripts/split_downgrade.py` moves the long run's 1.5M network to downgrading from 32768, and gives each untrained 16384 pattern the weight of the same pattern halved above its own gap.
+  - Played greedily, it scored 258,967, −40,927 ± 4,581 against the original. It reached 16384 just as often (73.2%) but 32768 never.
+  - Downgrading depends on the whole board: when any cell holds a 16384, every pattern reads its big tiles halved, including those that don't contain the 16384. No per-pattern copy can reproduce that.
+  - It wasn't trained further (round 4 in the arms script is left unused).
+- **So the threshold is the wrong lever.** Inside one network, it's the only signal that a board is in the 16384 stage, so it can't separate the stages without losing what sharing provides.
+  - A second stage chosen by the whole board, starting as an exact copy and still reading boards downgraded from 16384, can separate them without that loss.
+  - [Round 5](#next-experiments) tests that.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
@@ -556,9 +589,8 @@ Where things stand, as of these runs:
 
 The [final training run](#final-training-run) sets the decisions. In order:
 
-1. **Downgrading from 32768 instead of 16384** (running): the long run from scratch with `DOWNGRADE_TILE=32768`, so the 16384 stage gets its own weights, using capacity that sits idle now.
-   - Greedy evaluations every 250k games (`EVAL_EVERY=250000 scripts/run_long_run.sh`), compared with the long run at each point.
-   - It's expected to trail early, since sharing at 16384 was most of A + C's early gain. The question is whether it keeps climbing past the long run's stall at about 1.5M games.
+1. **A second stage** (round 5, running): the long run's 1.5M network given a second copy of its weights for boards with a 16384 or more (`scripts/add_stage.py`). It plays identically at the split, and is trained with reset sums to 2M games, against round 1's TC reset. [Downgrading from 32768](#downgrading-from-32768-instead-of-16384) showed the 16384 stage gains from its own weights but can't do without sharing, and a second stage keeps both.
+2. **Temporal coherence with forgetting** (round 6): each weight's error sums shrink slightly before every update, so its rate follows its recent errors and frozen weights can speed up again. From round 1's TC reset at 2M, at decays of 0.999 and 0.9999, against round 2's continue.
 2. **Faster temporal coherence:** store each weight next to its two sums, then measure the speed-up on the M4.
 3. **Multi-stage networks,** only if resets leave most of the 32768 gap.
 4. **On the Ryzen:** check 8 against 16 threads and the real speed.
