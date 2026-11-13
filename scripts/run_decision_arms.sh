@@ -50,6 +50,10 @@
 # Round 12B carries round 12's two-stage network on from 2.5M to 2.75M games with no further reset, to find where
 # it levels off. Its only reference is round 12 itself, so the summary pairs 2.625M and 2.75M with round 12's
 # 2.25M and 2.5M; the 50k training windows are the trend to read.
+# Round 13, from round 1's tc-reset at 2M games given Jaśkowski's redundant small tuples (scripts/add_tuples.py),
+# compared with round 2's continue:
+#   redundant      the 8x6 plus seven small tuples, at a base rate of 0.0107 so the step per board matches 0.02 on
+#                  the 8x6 alone (120 reads against 64)
 # Arms train one after another, since each uses most of the machine. Rerunning resumes an interrupted
 # arm from its own latest checkpoint and skips finished ones (evaluations come from the cache).
 # Each snapshot is evaluated greedily, and the final one also at exact depth 3, on EVAL_GAMES seeded games.
@@ -88,7 +92,13 @@ case ${ROUND:-1} in
     11) BASE=checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision11-8x6 ARMS=(rate-0.005) REFERENCE=decision2-8x6-continue ;;
     12) BASE=checkpoints/ntuple/decision10-8x6-two-stage-kept-sums/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision12-8x6 ARMS=(two-stage-reset) REFERENCE=decision2-8x6-continue ;;
     12B) BASE=checkpoints/ntuple/decision12-8x6-two-stage-reset/games_2500000.npz FULL_GAMES=2750000 PREFIX=decision12b-8x6 ARMS=(two-stage-continued) REFERENCE=decision12-8x6-two-stage-reset ;;
-    *) echo "ROUND must be 1 to 12 or 12B" >&2 && exit 1 ;;
+    13)
+        BASE=checkpoints/ntuple/redundant-8x6/games_2000000.npz FULL_GAMES=2500000 PREFIX=decision13-8x6 ARMS=(redundant) REFERENCE=decision2-8x6-continue
+        if [ ! -f "$BASE" ]; then
+            uv run python scripts/add_tuples.py checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz "$BASE"
+        fi
+        ;;
+    *) echo "ROUND must be 1 to 13 or 12B" >&2 && exit 1 ;;
 esac
 GAMES=${GAMES:-$FULL_GAMES}
 EVAL_GAMES=${EVAL_GAMES:-1000}
@@ -110,6 +120,7 @@ arm_settings() {
         two-stage-kept) echo NTUPLE_TC_DECAY="$DECAY" NTUPLE_STAGE_TILE=16384 ;;
         two-stage-by-state | two-stage-kept-sums | two-stage-reset | two-stage-continued) echo NTUPLE_STAGE_TILE=16384 ;;
         rate-*) echo NTUPLE_LEARNING_RATE="${1#rate-}" ;;
+        redundant) echo NTUPLE_NETWORK=8x6-redundant NTUPLE_LEARNING_RATE=0.0107 ;;
         two-stage-forget) echo NTUPLE_STAGE_TILE=16384 NTUPLE_TC_DECAY="$DECAY" ;;
     esac
 }
