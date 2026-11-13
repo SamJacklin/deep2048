@@ -97,6 +97,14 @@ def play_seeded(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff: fl
     # The runner resets Game2048 after creating it, so the seed's first board is dealt and thrown away
     bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
     board = bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    return play_from(weights, layout, board, depth, cutoff, rng)
+
+
+@njit(nogil=True)
+def play_from(weights: np.ndarray, layout: TupleLayout, start: np.uint64, depth: int, cutoff: float, rng: np.random.Generator) -> tuple[int, int]:
+    """Play on from `start` to the end, as play_seeded does, and return (score gained, max tile)."""
+    # A board passed from Python arrives as an int64, which numba would merge with the uint64 boards below as a float
+    board = np.uint64(start)
     score = 0
     table = new_transpositions()
     while True:
