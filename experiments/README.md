@@ -678,6 +678,23 @@ At 2.25M the greedy difference was −67,326 ± 10,272.
   - That fits the explanation in round 10: with downgrading in training, a second stage cuts the late game's experience off from the 8192 stage's weights.
   - A second stage stays out of the final run.
 
+### Round 12B: round 12 carried on to find its plateau
+
+Round 12's training average was still climbing at 2.5M (about +2k to +5k per 50k games), so its network was trained a further 250k games with nothing changed and no further reset (`ROUND=12B`, [`decision12b-8x6-two-stage-continued`](decision12b-8x6-two-stage-continued/NOTES.md)). Each evaluation is compared with round 12's at 2.5M.
+
+| Network | Greedy | vs round 12 | Exact depth 3 | vs round 12 | ≥16384 at depth 3 | ≥32768 at depth 3 |
+|---|---:|---:|---:|---:|---:|---:|
+| Round 12 at 2.5M | 296,640 | — | 375,427 | — | 92.2% | 12.1% |
+| Round 12B at 2.625M | 296,292 | — | | | | |
+| Round 12B at 2.75M | 293,255 | −3,385 ± 11,129 | 383,826 | +8,399 ± 8,508 | 94.3% | 12.4% |
+
+The runner's summary pairs the 2.625M snapshot with round 12's halfway point (2.25M), so it shows a misleading +44,760 there.
+
+![Round 12B after round 12](figures/decision-arms-round12b.png)
+
+- **The two-stage network has plateaued.** The training average crept from about 286k to 295k, but greedy play didn't move, and depth 3 gained only a borderline 8k.
+- **It levelled off about 20k below one stage at 2.5M** (314,202 greedy, 397,229 at depth 3), with half as many 32768s at depth 3, after 250k more games. This closes the two-stage line.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
