@@ -119,7 +119,8 @@ def train(base_path: str, games: int, board_step: float, batch: int, name: str, 
     rng = np.random.default_rng(corrected.correction.residual_games)
     threads = os.cpu_count() or 1
     corrected.correction.notes = "games played by the base network's choices" if follow_base else "games played by the corrected network's choices"
-    print(f"Training {name} ({corrected.correction.notes}) from {corrected.correction.residual_games:,} to {games:,} games from {starts.size} first-16384 positions, rate {rate:.5f} per weight ({board_step} per board)")
+    print(f"Training {name} ({corrected.correction.notes}) from {corrected.correction.residual_games:,} to {games:,} games "
+          f"from {starts.size} first-16384 positions, rate {rate:.5f} per weight ({board_step} per board)")
     while corrected.correction.residual_games < games:
         n = min(batch, games - corrected.correction.residual_games)
         chosen = rng.choice(starts, n)
