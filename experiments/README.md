@@ -47,6 +47,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | [`long-8x6-dg32768`](long-8x6-dg32768/NOTES.md) | [Downgrading from 32768](#downgrading-from-32768-instead-of-16384): the long run from scratch, sharing only the 32768 stage, with evaluations every 250k games |
 | [`decision5-8x6-two-stage`](decision5-8x6-two-stage/NOTES.md) | [Decision arms, round 5](#round-5-a-second-stage): a second stage from 16384, copied from the long run's 1.5M network, 1.5M → 2M games |
 | `decision6-8x6-*` (2 runs) | [Decision arms, round 6](#round-6-temporal-coherence-with-forgetting): temporal coherence forgetting at 0.999 and 0.9999, each 2M → 2.5M games from round 1's TC reset |
+| [`decision11-8x6-rate-0.005`](decision11-8x6-rate-0.005/NOTES.md), [`decision12-8x6-two-stage-reset`](decision12-8x6-two-stage-reset/NOTES.md) | [Round 11](#round-11-a-learning-rate-cut): the rate cut to 0.005; [round 12](#round-12-a-reset-for-the-two-stage-network): round 10's two-stage network with a reset. Both 2M → 2.5M games |
 | [`decision8-8x6-two-stage-by-state`](decision8-8x6-two-stage-by-state/NOTES.md), [`decision9-8x6-two-stage-by-state`](decision9-8x6-two-stage-by-state/NOTES.md) | [Rounds 8 and 9](#rounds-8-and-9-a-second-stage-chosen-by-the-board-a-move-is-made-from): the second stage chosen by the board a move is made from, 1.5M → 2M → 2.5M games |
 | [`decision10-8x6-two-stage-kept-sums`](decision10-8x6-two-stage-kept-sums/NOTES.md) | [Round 10](#round-10-a-second-stage-without-the-reset): a second stage with the coherence sums kept, 1.5M → 2M games |
 
@@ -639,6 +640,43 @@ Rounds 5, 8 and 9 all reset the temporal coherence sums at the split, so the res
   - Splitting cuts that link, so stage 1 learns only from boards below 16384, and its play towards the first 16384 slowly loses what the late game had been teaching it.
   - Guei's, Yeh's and 2048-rl's stages don't share across scales in training, so splitting costs them nothing.
 - **So with downgrading in training, a second stage needs far more training than these tests give, or a design that keeps feeding late-game experience back into stage 1.** It's left out of the final run for now.
+
+### Round 11: a learning-rate cut
+
+The base rate of 0.02 was chosen on a 200k-game screen for early speed. That's 1.28 per board, above what Jaśkowski calls the maximum sensible step of 1.0, and far above the rates Guei and Yeh used. Both found that cutting the rate of a plateaued network gave a step up. Here the reset network at 2M games carries on at 0.005 with its sums kept, against round 2's continue at 0.02 (`ROUND=11 scripts/run_decision_arms.sh`, [`decision11-8x6-rate-0.005`](decision11-8x6-rate-0.005/NOTES.md)).
+
+| Arm | Greedy at 2.25M | Greedy at 2.5M | vs continue | Exact depth 3 at 2.5M | vs continue | ≥32768 at depth 3 |
+|---|---:|---:|---:|---:|---:|---:|
+| Continue (0.02) | 318,858 | 314,202 | — | 397,229 | — | 18.1% |
+| Rate cut (0.005) | 319,704 | **325,195** | +10,993 ± 11,126 | 397,459 | +229 ± 9,088 | 17.2% |
+
+At 2.25M the greedy difference was +846 ± 10,718. In training the cut led continue by +4k to +7k in every 50k-game window, levelling off at about 322k from 2.3M games.
+
+![Round 11 against continue](figures/decision-arms-round11.png)
+
+- **The cut gives a small, steady greedy gain and nothing with search.**
+  - Greedy, 325k is the best of any network so far, though the paired gain only just misses significance.
+  - At depth 3 and in the 32768 rate it's level with continue.
+- **So the lower rate removes noise from the weights, but doesn't teach the network anything new about the late game.** It isn't the large hidden gain Guei found in fixed-rate networks: those weren't settled, while ours already were, by temporal coherence.
+- **For the final run,** a lower rate in the last stretch is a cheap polish for greedy play. It won't lift the plateau.
+
+### Round 12: a reset for the two-stage network
+
+Round 10's two-stage network, at about 280k when it stopped, never had the temporal coherence reset that gave one stage its jump. Here it gets one at 2M games, against round 2's continue (`ROUND=12`, [`decision12-8x6-two-stage-reset`](decision12-8x6-two-stage-reset/NOTES.md)).
+
+| Arm | Greedy at 2.25M | Greedy at 2.5M | vs continue | Exact depth 3 at 2.5M | vs continue | ≥16384 at depth 3 | ≥32768 at depth 3 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Continue (one stage) | 318,858 | 314,202 | — | 397,229 | — | 93.5% | 18.1% |
+| Two stages + reset | 251,531 | 296,640 | −17,561 ± 10,917 | 375,427 | −21,803 ± 8,899 | 92.2% | 12.1% |
+
+At 2.25M the greedy difference was −67,326 ± 10,272.
+
+![Round 12 against continue](figures/decision-arms-round12.png)
+
+- **The reset gave no jump.** The training average fell to about 244k, stuck at about 255k for 200k games, then climbed to about 286k by 2.5M, little above the 279k it started from.
+- **So two stages are behind one in every version tried:** reset at the split (round 9), no reset (round 10), and reset later (round 12).
+  - That fits the explanation in round 10: with downgrading in training, a second stage cuts the late game's experience off from the 8192 stage's weights.
+  - A second stage stays out of the final run.
 
 ## Final training run
 
