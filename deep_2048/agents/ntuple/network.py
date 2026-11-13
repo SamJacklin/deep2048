@@ -224,8 +224,66 @@ def _stage_offset_overload(layout, board):  # type: ignore[no-untyped-def]
     return stage_offset
 
 
+class ResidualLayout(NamedTuple):
+    """A frozen network's layout plus a late-game correction, for weights holding the network's then the correction's.
+
+    Once the real afterstate's largest tile reaches 2**gate_exponent, its value adds weights[constant_index] and the
+    residual tuples' weights, which read the real board's tile exponents: no downgrading, unlike the base. The gate is
+    decided by the afterstate being valued, wherever it's valued: greedy play, training or search.
+    """
+
+    base: TupleLayout
+    residual: TupleLayout  # offsets already past the base's weights
+    gate_exponent: int
+    constant_index: int
+
+
 @njit(inline="always")
 def evaluate(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: np.uint64) -> float:
+    """The afterstate's value: the network's sum of weights, plus the late-game correction for a ResidualLayout."""
+    return _value(weights, layout, board, state)
+
+
+def _value(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: np.uint64) -> float:
+    """Dispatch evaluate() on the layout's type. Numba only."""
+    raise NotImplementedError
+
+
+def _is_residual(layout_type: types.Type) -> bool:
+    return isinstance(layout_type, types.BaseNamedTuple) and "residual" in layout_type.fields
+
+
+@overload(_value, inline="always")
+def _value_overload(weights, layout, board, state):  # type: ignore[no-untyped-def]
+    if not _is_residual(layout):
+        return lambda weights, layout, board, state: _tuple_value(weights, layout, board, state)
+
+    return lambda weights, layout, board, state: _corrected_value(weights, layout, board, state)
+
+
+@njit
+def _corrected_value(weights: np.ndarray, layout: ResidualLayout, board: np.uint64, state: np.uint64) -> float:
+    """The base's value, plus the constant and residual past the gate. A call rather than inlined, which numba's
+    inliner mishandles when one function values several boards."""
+    total = _tuple_value(weights, layout.base, board, state)
+    if bb.max_exponent(board) >= layout.gate_exponent:
+        total += weights[layout.constant_index] + _residual_value(weights, layout.residual, board)
+    return total
+
+
+@njit
+def _residual_value(weights: np.ndarray, layout: TupleLayout, board: np.uint64) -> float:
+    """Sum the residual tuples' weights over the real board's symmetries. A separate call, so numba doesn't inline the
+    same loop twice into one function."""
+    total = 0.0
+    for symmetric_board in bb.symmetries(board):
+        for t in range(len(layout.offsets)):
+            total += weights[_weight_index(layout, t, symmetric_board)]
+    return total
+
+
+@njit(inline="always")
+def _tuple_value(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: np.uint64) -> float:
     """Sum the weights each tuple reads from each symmetry of the board, plus the scale weight if any."""
     tuple_board = _tuple_board(layout, board)
     stage = _stage_offset(layout, state)

@@ -140,7 +140,8 @@ def action_values(weights: np.ndarray, layout: TupleLayout, board: np.uint64, de
     Spawn branches less likely than `cutoff` from the root stop at the network's value instead (0 searches everything).
     `reuse` off turns off the transposition table, for measuring what it changes.
     """
-    return _search(weights, layout, board, depth, cutoff, new_transpositions(reuse))
+    # A board passed from Python arrives as an int64, which numba would merge with uint64 boards as a float
+    return _search(weights, layout, np.uint64(board), depth, cutoff, new_transpositions(reuse))
 
 
 @njit

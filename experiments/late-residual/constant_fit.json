@@ -1,0 +1,8 @@
+{
+  "constant": -106513.22517734914,
+  "interval": 2230.2220569907713,
+  "positions": 1000,
+  "rollouts": 8,
+  "mean_predicted": 198025.82267734915,
+  "mean_return": 91512.5975
+}
