@@ -10,7 +10,8 @@
       "10-100": 0.12890458422174841,
       "\u2265100": 0.782795842217484,
       "never updated in training": 0.0002731876332622601,
-      "median coherence": 0.0028130271485545927
+      "median coherence": 0.0028130271485545927,
+      "updates from boards below 16384": 0.5889314836189201
     },
     "first-16384, greedy games": {
       "positions": 500,
@@ -21,7 +22,8 @@
       "10-100": 0.1282406777354382,
       "\u2265100": 0.7828916031573218,
       "never updated in training": 0.00025517147523135546,
-      "median coherence": 0.002724923541613534
+      "median coherence": 0.002724923541613534,
+      "updates from boards below 16384": 0.5925724159482599
     },
     "first-8192, depth3 games": {
       "positions": 546,
@@ -32,7 +34,8 @@
       "10-100": 0.14250278189910978,
       "\u2265100": 0.7445907517309595,
       "never updated in training": 0.0003554648862512364,
-      "median coherence": 0.003078849757160665
+      "median coherence": 0.003078849757160665,
+      "updates from boards below 16384": 0.5791576275872978
     },
     "first-16384, depth3 games": {
       "positions": 500,
@@ -43,7 +46,8 @@
       "10-100": 0.13313957339692634,
       "\u2265100": 0.7702123078961314,
       "never updated in training": 0.0002566905140434552,
-      "median coherence": 0.0029215790174072567
+      "median coherence": 0.0029215790174072567,
+      "updates from boards below 16384": 0.5859784919269853
     },
     "late starts: doubled first-8192, greedy games": {
       "positions": 629,
@@ -54,7 +58,8 @@
       "10-100": 0.12890458422174841,
       "\u2265100": 0.782795842217484,
       "never updated in training": 0.0002731876332622601,
-      "median coherence": 0.0028130271485545927
+      "median coherence": 0.0028130271485545927,
+      "updates from boards below 16384": 0.5889314836189201
     },
     "largest tile 1024, greedy games": {
       "positions": 1000,
@@ -65,7 +70,8 @@
       "10-100": 0.04612760270118177,
       "\u2265100": 0.7199502321328081,
       "never updated in training": 0.022945097073719754,
-      "median coherence": 0.005216134352309733
+      "median coherence": 0.005216134352309733,
+      "updates from boards below 16384": 0.6483285533834366
     },
     "largest tile 2048, greedy games": {
       "positions": 1000,
@@ -76,7 +82,8 @@
       "10-100": 0.058234667504889634,
       "\u2265100": 0.7119481698798547,
       "never updated in training": 0.012656293657446215,
-      "median coherence": 0.00534197974939468
+      "median coherence": 0.00534197974939468,
+      "updates from boards below 16384": 0.6707480512113009
     },
     "largest tile 4096, greedy games": {
       "positions": 1000,
@@ -87,7 +94,8 @@
       "10-100": 0.05926364142538976,
       "\u2265100": 0.7182497564031181,
       "never updated in training": 0.009935272828507796,
-      "median coherence": 0.0045499277540164244
+      "median coherence": 0.0045499277540164244,
+      "updates from boards below 16384": 0.6483324983221221
     },
     "largest tile 8192, greedy games": {
       "positions": 1000,
@@ -98,7 +106,8 @@
       "10-100": 0.05947309813348416,
       "\u2265100": 0.7179634473981901,
       "never updated in training": 0.008267639988687783,
-      "median coherence": 0.003968612142594645
+      "median coherence": 0.003968612142594645,
+      "updates from boards below 16384": 0.46455652674978437
     },
     "largest tile 16384, greedy games": {
       "positions": 1000,
@@ -109,7 +118,8 @@
       "10-100": 0.06143755268333802,
       "\u2265100": 0.7093987075021073,
       "never updated in training": 0.00753371733633043,
-      "median coherence": 0.0038631581456430577
+      "median coherence": 0.0038631581456430577,
+      "updates from boards below 16384": 0.43038814159139005
     },
     "largest tile 32768, greedy games": {
       "positions": 1000,
@@ -120,7 +130,8 @@
       "10-100": 0.1271065927077445,
       "\u2265100": 0.5729667184850198,
       "never updated in training": 0.019537874505370267,
-      "median coherence": 0.009143252431011243
+      "median coherence": 0.009143252431011243,
+      "updates from boards below 16384": 0.3699765518001087
     },
     "largest tile 1024, depth3 games": {
       "positions": 1000,
@@ -131,7 +142,8 @@
       "10-100": 0.04953874860491071,
       "\u2265100": 0.7202061244419643,
       "never updated in training": 0.022282191685267856,
-      "median coherence": 0.005230297681202219
+      "median coherence": 0.005230297681202219,
+      "updates from boards below 16384": 0.6560581788105166
     },
     "largest tile 2048, depth3 games": {
       "positions": 1000,
@@ -142,7 +154,8 @@
       "10-100": 0.052469997209042704,
       "\u2265100": 0.7188328565447949,
       "never updated in training": 0.012729381802958415,
-      "median coherence": 0.005159294641456067
+      "median coherence": 0.005159294641456067,
+      "updates from boards below 16384": 0.6799471812616363
     },
     "largest tile 4096, depth3 games": {
       "positions": 1000,
@@ -153,7 +166,8 @@
       "10-100": 0.054019225410977985,
       "\u2265100": 0.7254370994706046,
       "never updated in training": 0.009747666480913903,
-      "median coherence": 0.004560053525738115
+      "median coherence": 0.004560053525738115,
+      "updates from boards below 16384": 0.657786026657724
     },
     "largest tile 8192, depth3 games": {
       "positions": 1000,
@@ -164,7 +178,8 @@
       "10-100": 0.06280577299412916,
       "\u2265100": 0.7135562272854348,
       "never updated in training": 0.007390970086664803,
-      "median coherence": 0.003957713721429496
+      "median coherence": 0.003957713721429496,
+      "updates from boards below 16384": 0.46197199523764043
     },
     "largest tile 16384, depth3 games": {
       "positions": 1000,
@@ -175,7 +190,8 @@
       "10-100": 0.06514815596846847,
       "\u2265100": 0.7014182150900901,
       "never updated in training": 0.007205447635135135,
-      "median coherence": 0.0037907224787771666
+      "median coherence": 0.0037907224787771666,
+      "updates from boards below 16384": 0.4191374964924988
     },
     "largest tile 32768, depth3 games": {
       "positions": 1000,
@@ -186,7 +202,128 @@
       "10-100": 0.13502585592011412,
       "\u2265100": 0.5460235378031384,
       "never updated in training": 0.020729315263908702,
-      "median coherence": 0.010367427462280228
+      "median coherence": 0.010367427462280228,
+      "updates from boards below 16384": 0.37615608113517984
+    },
+    "16384, 0-250 moves after the first, went on to a 32768": {
+      "positions": 665,
+      "reads": 155456,
+      "none seen": 0.06536254631535611,
+      "<1": 0.03137222107863318,
+      "1-10": 0.0793407780979827,
+      "10-100": 0.10979955743104158,
+      "\u2265100": 0.7141248970769865,
+      "never updated in training": 0.004110487855084397,
+      "median coherence": 0.005524240336492801,
+      "updates from boards below 16384": 0.5498361470063025
+    },
+    "16384, 250-500 moves after the first, went on to a 32768": {
+      "positions": 665,
+      "reads": 152704,
+      "none seen": 0.10897553436714166,
+      "<1": 0.03791649203688181,
+      "1-10": 0.07750943000838223,
+      "10-100": 0.06018178960603521,
+      "\u2265100": 0.7154167539815591,
+      "never updated in training": 0.009698501676445934,
+      "median coherence": 0.0048935330830970816,
+      "updates from boards below 16384": 0.5476241960839773
+    },
+    "16384, 500-1000 moves after the first, went on to a 32768": {
+      "positions": 1000,
+      "reads": 229312,
+      "none seen": 0.10733411247557913,
+      "<1": 0.03969264582751884,
+      "1-10": 0.07652892129500419,
+      "10-100": 0.06378209600893106,
+      "\u2265100": 0.7126622243929668,
+      "never updated in training": 0.00980323751046609,
+      "median coherence": 0.00409722352226506,
+      "updates from boards below 16384": 0.5407810494718454
+    },
+    "16384, 1000-2000 moves after the first, went on to a 32768": {
+      "positions": 1000,
+      "reads": 227968,
+      "none seen": 0.10672989191465469,
+      "<1": 0.039343241156653566,
+      "1-10": 0.07553691746209995,
+      "10-100": 0.05240209152161707,
+      "\u2265100": 0.7259878579449748,
+      "never updated in training": 0.007544918585064571,
+      "median coherence": 0.004209263174043047,
+      "updates from boards below 16384": 0.5047028287569839
+    },
+    "16384, 2000-1000000 moves after the first, went on to a 32768": {
+      "positions": 1000,
+      "reads": 225472,
+      "none seen": 0.10190622338915697,
+      "<1": 0.045140860062446775,
+      "1-10": 0.0828883409026398,
+      "10-100": 0.06126703093954017,
+      "\u2265100": 0.7087975447062163,
+      "never updated in training": 0.005437482259437979,
+      "median coherence": 0.003359296145227105,
+      "updates from boards below 16384": 0.36774122779952545
+    },
+    "16384, 0-250 moves after the first, ended without one": {
+      "positions": 1000,
+      "reads": 232960,
+      "none seen": 0.06627747252747253,
+      "<1": 0.030734890109890108,
+      "1-10": 0.078567135989011,
+      "10-100": 0.10976991758241758,
+      "\u2265100": 0.7146505837912088,
+      "never updated in training": 0.00443853021978022,
+      "median coherence": 0.00560230193027626,
+      "updates from boards below 16384": 0.5471899121248923
+    },
+    "16384, 250-500 moves after the first, ended without one": {
+      "positions": 1000,
+      "reads": 231936,
+      "none seen": 0.1078573399558499,
+      "<1": 0.03750603614790287,
+      "1-10": 0.07581401766004416,
+      "10-100": 0.06193950055187638,
+      "\u2265100": 0.7168831056843267,
+      "never updated in training": 0.009623344370860928,
+      "median coherence": 0.004907245539008625,
+      "updates from boards below 16384": 0.5468034067709506
+    },
+    "16384, 500-1000 moves after the first, ended without one": {
+      "positions": 1000,
+      "reads": 228480,
+      "none seen": 0.1085609243697479,
+      "<1": 0.04001225490196078,
+      "1-10": 0.07832633053221288,
+      "10-100": 0.0647671568627451,
+      "\u2265100": 0.7083333333333334,
+      "never updated in training": 0.010044642857142858,
+      "median coherence": 0.004164390350043759,
+      "updates from boards below 16384": 0.5415197628492124
+    },
+    "16384, 1000-2000 moves after the first, ended without one": {
+      "positions": 1000,
+      "reads": 227264,
+      "none seen": 0.107491727682343,
+      "<1": 0.039302309208673614,
+      "1-10": 0.07579731061672768,
+      "10-100": 0.057417804843706,
+      "\u2265100": 0.7199908476485497,
+      "never updated in training": 0.008078710222472543,
+      "median coherence": 0.004282985368112707,
+      "updates from boards below 16384": 0.5045012659432526
+    },
+    "16384, 2000-1000000 moves after the first, ended without one": {
+      "positions": 1000,
+      "reads": 225792,
+      "none seen": 0.10721371882086168,
+      "<1": 0.04470043225623583,
+      "1-10": 0.08370535714285714,
+      "10-100": 0.061596513605442174,
+      "\u2265100": 0.7027839781746031,
+      "never updated in training": 0.005500637755102041,
+      "median coherence": 0.0035350792039309763,
+      "updates from boards below 16384": 0.3791938254130829
     }
   }
 }

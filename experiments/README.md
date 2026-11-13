@@ -771,6 +771,63 @@ Each cell is the median gain ΔV/δ for boards with that largest tile, with the 
 
 The table's approximation under pruning is negligible: it never changed a move.
 
+### Stage 1: where the late game goes wrong
+
+No training. Everything uses round 1's TC-reset network at 2M games.
+
+- **The corpus** ([`late-game-corpus`](late-game-corpus/)): `scripts/late_game_corpus.py` played 666 greedy games and 547 depth-3 games until each policy had 500 that made a 16384, recording each game's first-8192 and first-16384 boards and every 50th board.
+  - Seeds start at 1,000,000 (greedy) and 2,000,000 (depth 3), clear of the 0–999 evaluation seeds.
+  - Positions are split into train, dev and test sets by source game (60/20/20). Later training may use only the train set.
+- **The tests** (`scripts/late_game_tests.py`, results in [`late-game-diagnostics`](late-game-diagnostics/)):
+  - **coverage:** how often training updates the weights positions read, counted over 2,500 games played as training plays them. The counts are split by whether the board moved from holds a 16384.
+  - **conversion:** 8 greedy and 8 depth-3 continuations from every first-16384 position, sharing spawns.
+  - **actions:** 240 late positions (largest tile 16384 or more; half at random, half where greedy play's top two moves are closest). Every legal move is followed by 64 greedy and 8 depth-3 rollouts, with spawns shared across moves.
+
+**Coverage: the 16384 stage isn't short of experience.**
+
+| Positions | Weights not updated in 2,500 games | Updated ≥100 times per 1k games | Their updates from boards below 16384 |
+|---|---:|---:|---:|
+| First 8192 (greedy / depth-3 games) | 1.1% / 1.5% | 78% / 75% | 59% / 58% |
+| First 16384 (greedy / depth-3 games) | 1.1% / 1.1% | 78% / 77% | 59% / 59% |
+| Largest tile 4096 | 11% | 72% | 65% |
+| Largest tile 16384 | 11% | 71% | 42–43% |
+| Largest tile 32768 | 15–16% | 55–57% | 37% |
+| 16384, 0–250 moves after the first (went on to a 32768 / didn't) | 6.5% / 6.6% | 71% / 72% | 55% / 55% |
+| 16384, 2,000+ moves after the first (went on to a 32768 / didn't) | 10.2% / 10.7% | 71% / 70% | 37% / 38% |
+
+The shares are of the weights read by every legal move from a position.
+
+- **16384-stage positions read weights as well trained as the early game's.** Coverage doesn't thin as the stage goes on, and it's the same in games that go on to a 32768 as in games that don't. Only the 32768 stage reads noticeably rarer weights.
+- **Greedy and depth-3 play reach equivalent positions.** Their coverage matches, they reach a first 16384 after the same score (210k) and number of moves (7,466), and those positions convert equally well (below).
+- **Downgrading makes the 16384 stage reuse the 8192 stage's weights.** A first-16384 board (a 16384 plus small tiles) reads exactly the weights a first-8192 board does. Training's late starts are doubled first-8192 boards, which downgrading halves straight back.
+
+**Conversion and values: the network can't tell a first 16384 from a first 8192.**
+
+| From first-16384 positions of | Continued by | Makes 32768 | Score added |
+|---|---|---:|---:|
+| Greedy games | Greedy | 10.8% | 161,673 ± 2,505 |
+| Greedy games | Depth 3 | 18.3% | 201,273 ± 2,777 |
+| Depth-3 games | Greedy | 11.3% | 162,193 ± 2,452 |
+| Depth-3 games | Depth 3 | 19.3% | 202,388 ± 2,644 |
+
+| Position | Network's estimate of the score to come | Actually scored afterwards, greedy | Estimate ÷ actual |
+|---|---:|---:|---:|
+| First 8192 | 237,458 | 228,236 ± 8,288 | 1.04 |
+| First 16384 | 237,275 | 156,567 ± 6,591 | 1.52 |
+
+- **The source policy doesn't matter;** from the same positions and spawns, depth-3 search adds 40k ± 3.5k and converts 18–19% against greedy play's 11%.
+- **The network values a first 16384 like a first 8192:** accurate at the first 8192, 50% too high at the first 16384, with nearly the same estimate. Every first-16384 board is changed by downgrading.
+- **Through the 16384 and 32768 stages, afterstate values are 77k to 94k too high** against greedy play's returns from them.
+- **The shared weights are pulled both ways.** Weights trained only by 16384-stage boards have net errors pushing them down (Σ error / Σ |error| = −0.035), those trained only by earlier boards up (+0.026), and shared ones fall in between in order of their earlier-stage share. The 8192 stage, which every game passes through, wins.
+
+**Action ranking: no measurable single-move mistakes.**
+
+- **Single moves:** greedy play's and depth-3 search's choices were clearly worse (by more than 2 standard errors) than another move in 0–8% of positions. That's about the false-positive rate with up to three alternatives each. The cross-validated loss was within noise of zero in every group.
+- **Sharing and familiarity:** split by how shared and how familiar a position's weights are, the error rates show no pattern (0–6% everywhere).
+- **What the test can and can't detect:** it detects single-move losses of a few thousand points. The 40k that search adds over the rest of the game is spread over thousands of moves, a few points each, far below it. **So the overestimate is mostly the same for every move, and decisions go wrong only by small amounts that add up.** Action ranking can't separate aliasing from experience at this resolution, and the conversion test can: about 2.5k precision on 500 positions in 3 minutes greedy.
+
+**What this points to.** By the plan's decision rule, a large, systematic value error at 16384 points to stage 3: a small residual that reads the real, undowngraded board, gated on at 16384, can learn the correction the shared weights can't hold. Unlike the second stages of rounds 5–12, it keeps the shared base, and with it what the 8192 stage teaches the 16384 stage. Its yardstick should be greedy conversion from the held-out test split's first-16384 positions, with depth 3 and full games after. Each result needs two more training seeds before it's relied on.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
