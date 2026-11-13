@@ -1,0 +1,2 @@
+checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz (2,000,000 games)
+sha256 8f117f2b449ddba0c48e8a1d71b1afe4720b7b8d5c168b88ac9fbfe8b0dde513
