@@ -240,6 +240,24 @@ def evaluate(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: 
     return total
 
 
+@njit
+def weight_indices(layout: TupleLayout, board: np.uint64, state: np.uint64) -> np.ndarray:
+    """Return the index of every weight evaluate() reads for this board, repeats included, as an update touches them."""
+    tuple_board = _tuple_board(layout, board)
+    stage = _stage_offset(layout, state)
+    boards = bb.symmetries(tuple_board)
+    scale = _scale_index(layout, board, tuple_board)
+    indices = np.empty(len(layout.offsets) * len(boards) + (scale >= 0), dtype=np.int64)
+    k = 0
+    for t in range(len(layout.offsets)):
+        for symmetric_board in boards:
+            indices[k] = stage + _weight_index(layout, t, symmetric_board)
+            k += 1
+    if scale >= 0:
+        indices[k] = scale
+    return indices
+
+
 @njit(inline="always")
 def update(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: np.uint64, delta: float) -> None:
     """Add delta to every weight read for this board."""
