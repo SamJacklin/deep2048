@@ -695,6 +695,23 @@ The runner's summary pairs the 2.625M snapshot with round 12's halfway point (2.
 - **The two-stage network has plateaued.** The training average crept from about 286k to 295k, but greedy play didn't move, and depth 3 gained only a borderline 8k.
 - **It levelled off about 20k below one stage at 2.5M** (314,202 greedy, 397,229 at depth 3), with half as many 32768s at depth 3, after 250k more games. This closes the two-stage line.
 
+### Round 13: redundant small tuples
+
+Jaśkowski's redundant encoding adds small tuples alongside the large ones: they repeat what the 6-tuples already see, but at a coarser grain, so each weight is shared by many more boards. He reported about +52k greedy from it. Here the seven tuples (two rows and three squares as 4-tuples, and two 3-tuples) are added at zero to the TC-reset network at 2M games, then trained on 500k games against round 2's continue (`ROUND=13`, [`decision13-8x6-redundant`](decision13-8x6-redundant/NOTES.md)). The base rate drops to 0.0107, so a board's total step over its 120 lookups matches the 8x6 network's 64 at 0.02.
+
+| Arm | Greedy at 2.25M | Greedy at 2.5M | vs continue | Exact depth 3 at 2.5M | vs continue | ≥16384 at depth 3 | ≥32768 at depth 3 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Continue | 318,858 | 314,202 | — | 397,229 | — | 93.5% | 18.1% |
+| Redundant tuples | 317,362 | 300,308 | −13,893 ± 11,099 | 390,113 | −7,116 ± 9,619 | 92.2% | 17.7% |
+
+At 2.25M the greedy difference was −1,496 ± 11,032.
+
+![Round 13 against continue](figures/decision-arms-round13.png)
+
+- **Added to a trained network, redundant tuples don't help.** The training average dipped to about 308k, recovered to about 312k by 2.1M, then stayed 3k to 7k behind continue. Greedy at 2.5M is significantly worse, and depth 3 is level within noise.
+- **The new tuples start at zero and at the full rate,** while the 6-tuples' rates have mostly shrunk. So the new tuples absorb the error the 6-tuples were still correcting, and they add nothing the 6-tuples didn't already see.
+- **The published gain likely comes from faster early learning,** when coarse features carry play while the 6-tuples are still sparse. The fair test is training from scratch, a long run better suited to the Ryzen. Training is also about 20% slower in games per second.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
