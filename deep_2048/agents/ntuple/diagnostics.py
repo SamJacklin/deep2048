@@ -143,3 +143,29 @@ def count_updates(weights: np.ndarray, layout: TupleLayout, starts: np.ndarray, 
             if starts[g] == np.uint64(0) and harvested[g] == np.uint64(0) and bb.max_exponent(board) >= 13:
                 harvested[g] = board
     return harvested
+
+
+@njit(nogil=True)
+def boundary_boards(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff: float, rng: np.random.Generator) -> np.ndarray:
+    """Replay a seeded game as record_game does and return every board, before the game's first 16384, from which some
+    legal move makes one: the decisions where moves differ in whether their afterstate holds a 16384."""
+    bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    board = bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    found = List.empty_list(types.uint64)
+    table = new_transpositions()
+    while bb.max_exponent(board) < LATE_EXPONENT:
+        for action in range(bb.NUM_ACTIONS):
+            afterstate, _ = bb.move(board, action)
+            if bb.max_exponent(afterstate) >= LATE_EXPONENT:
+                found.append(board)
+                break
+        values = _search(weights, layout, board, depth, cutoff, table)
+        best = -1
+        for action in range(bb.NUM_ACTIONS):
+            if not np.isnan(values[action]) and (best < 0 or values[action] > values[best]):
+                best = action
+        if best < 0:
+            break
+        board, _ = bb.move(board, best)
+        board = bb.spawn_tile_seeded(board, rng)
+    return np.asarray(found) if len(found) > 0 else np.zeros(0, dtype=np.uint64)

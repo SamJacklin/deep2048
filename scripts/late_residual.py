@@ -32,7 +32,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from deep_2048.agents.ntuple import NTupleNetwork
-from deep_2048.agents.ntuple.diagnostics import greedy_values, rollout
+from deep_2048.agents.ntuple.diagnostics import boundary_boards, greedy_values, rollout
 from deep_2048.agents.ntuple.network import evaluate
 from deep_2048.agents.ntuple.residual import RESIDUAL_TUPLES, CorrectedNetwork, is_corrected_checkpoint, train_residual
 from deep_2048.agents.ntuple.search import play_from
@@ -99,10 +99,17 @@ def fit_constant(base_path: str, positions: int, rollouts: int) -> None:
 # ---------------------------------------------------------------- the residual
 
 
-def train(base_path: str, games: int, board_step: float, batch: int, name: str, resume: bool) -> None:
-    """Train the residual on greedy games from the train split's first-16384 positions, a batch at a time."""
+def train(base_path: str, games: int, board_step: float, batch: int, name: str, resume: bool, constant: float | None) -> None:
+    """Train the residual on greedy games from the train split's first-16384 positions, a batch at a time.
+
+    The residual sits on top of a fixed constant, by default the fitted one, so it learns how positions differ from
+    the average correction. Without it, every late value starts about 100k too high, and correcting only the moves
+    greedy play makes leaves the untried ones looking better, which drags play down (the late-residual-alone run).
+    """
+    if constant is None:
+        constant = round(json.loads((OUTPUT / "constant_fit.json").read_text())["constant"])
     checkpoint = CHECKPOINTS / name / "latest.npz"
-    corrected = CorrectedNetwork.load(checkpoint) if resume and checkpoint.exists() else CorrectedNetwork.from_base(base_path, residual=True)
+    corrected = CorrectedNetwork.load(checkpoint) if resume and checkpoint.exists() else CorrectedNetwork.from_base(base_path, constant=constant, residual=True)
     rate = board_step / (len(RESIDUAL_TUPLES) * bb.NUM_SYMMETRIES)
     starts = np.array([board_of(r) for r in read_rows(CORPUS) if r["kind"] == "first-16384" and r["split"] == "train"], dtype=np.uint64)
     history_path = OUTPUT / name / "training_history.csv"
@@ -149,9 +156,9 @@ def evaluate_arm(base_path: str, arm: str) -> None:
 
     # Where the arm's greedy choice differs from the base's
     samples = [r for r in read_rows(SAMPLES) if r["split"] == "test"]
+    samples = [r for r in samples if not bb.is_game_over(board_of(r))]
     late = [board_of(r) for r in samples if int(r["max_tile"]) >= 16384]
-    boundary = [board_of(r) for r in samples if int(r["max_tile"]) == 8192 and any(
-        bb.max_exponent(np.uint64(bb.move(board_of(r), a)[0])) >= 14 for a in range(bb.NUM_ACTIONS))]
+    boundary = list(test_boundary_boards(base))
     for label, boards in (("late", late), ("boundary", boundary)):
         mine = np.array([np.nanargmax(greedy_values(weights, layout, b)) for b in boards])
         theirs = np.array([np.nanargmax(greedy_values(base.weights, base.layout, b)) for b in boards])
@@ -160,6 +167,21 @@ def evaluate_arm(base_path: str, arm: str) -> None:
             results["boundary_merges"] = np.array([bb.max_exponent(np.uint64(bb.move(b, int(a))[0])) >= 14 for b, a in zip(boards, mine)])
     OUTPUT.mkdir(parents=True, exist_ok=True)
     np.savez(OUTPUT / f"{arm}.npz", **results)
+
+
+def test_boundary_boards(base: NTupleNetwork) -> np.ndarray:
+    """Every board in the test split's corpus games from which a move makes the game's first 16384, replayed with the
+    base network (the games are seeded, so they replay exactly) and cached."""
+    path = Path("output/late-residual/boundary.npy")
+    if path.exists():
+        return np.load(path)
+    games = sorted({(r["policy"], int(r["seed"])) for r in read_rows(CORPUS) if r["split"] == "test"})
+    depths = {"greedy": 1, "depth3": 3}
+    found = list(POOL.map(lambda game: boundary_boards(base.weights, base.layout, depths[game[0]], 0.0, np.random.default_rng(game[1])), games))
+    boards = np.concatenate(found).astype(np.uint64)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    np.save(path, boards)
+    return boards
 
 
 def paired(values: np.ndarray, reference: np.ndarray) -> str:
@@ -212,11 +234,12 @@ def main() -> None:
     parser.add_argument("--batch", type=int, default=1000, help="train: games per batch (default: 1,000)")
     parser.add_argument("--name", default="late-residual", help="train: the run's name (default: late-residual)")
     parser.add_argument("--resume", action="store_true", help="train: carry on from the run's latest checkpoint")
+    parser.add_argument("--constant", type=float, help="train: the fixed constant under the residual (default: the fitted one; 0 for none)")
     args = parser.parse_args()
     if args.step == "fit-constant":
         fit_constant(args.base, args.positions, args.rollouts)
     elif args.step == "train":
-        train(args.base, args.games, args.board_step, args.batch, args.name, args.resume)
+        train(args.base, args.games, args.board_step, args.batch, args.name, args.resume, args.constant)
     elif args.step == "evaluate":
         for arm in args.arms:
             evaluate_arm(args.base, arm)

@@ -1,0 +1,22 @@
+Training late-residual from 0 to 20,000 games from 606 first-16384 positions, rate 0.00313 per weight (0.1 per board)
+   1,000 games: score added   101,128, 32768 in   0.9%, mean |TD error|    1,064, 276 games/s
+   2,000 games: score added    91,619, 32768 in   0.4%, mean |TD error|    1,205, 594 games/s
+   3,000 games: score added    81,379, 32768 in   0.0%, mean |TD error|    1,308, 670 games/s
+   4,000 games: score added    77,030, 32768 in   0.1%, mean |TD error|    1,347, 699 games/s
+   5,000 games: score added    71,883, 32768 in   0.0%, mean |TD error|    1,444, 628 games/s
+   6,000 games: score added    67,805, 32768 in   0.0%, mean |TD error|    1,500, 638 games/s
+   7,000 games: score added    65,112, 32768 in   0.0%, mean |TD error|    1,542, 727 games/s
+   8,000 games: score added    61,951, 32768 in   0.1%, mean |TD error|    1,593, 837 games/s
+   9,000 games: score added    60,653, 32768 in   0.1%, mean |TD error|    1,609, 789 games/s
+  10,000 games: score added    58,549, 32768 in   0.0%, mean |TD error|    1,628, 833 games/s
+  11,000 games: score added    55,980, 32768 in   0.0%, mean |TD error|    1,667, 860 games/s
+  12,000 games: score added    52,134, 32768 in   0.0%, mean |TD error|    1,732, 966 games/s
+  13,000 games: score added    51,263, 32768 in   0.0%, mean |TD error|    1,735, 910 games/s
+  14,000 games: score added    49,849, 32768 in   0.0%, mean |TD error|    1,749, 889 games/s
+  15,000 games: score added    48,531, 32768 in   0.0%, mean |TD error|    1,750, 1,011 games/s
+  16,000 games: score added    47,763, 32768 in   0.0%, mean |TD error|    1,779, 1,045 games/s
+  17,000 games: score added    45,052, 32768 in   0.0%, mean |TD error|    1,844, 1,107 games/s
+  18,000 games: score added    44,282, 32768 in   0.0%, mean |TD error|    1,845, 1,086 games/s
+  19,000 games: score added    43,946, 32768 in   0.0%, mean |TD error|    1,826, 1,023 games/s
+  20,000 games: score added    42,704, 32768 in   0.0%, mean |TD error|    1,812, 1,129 games/s
+train exited with 0
