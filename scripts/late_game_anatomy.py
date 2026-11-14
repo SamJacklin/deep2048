@@ -24,6 +24,7 @@ SMOKE=1 shrinks everything for a quick end-to-end check.
 import argparse
 import csv
 import json
+import math
 import os
 import platform
 import resource
@@ -246,9 +247,32 @@ def position_effect(tiles: np.ndarray, scores: np.ndarray, reps: int = 200) -> d
     rng = np.random.default_rng(0)
     boot = [(beta_binomial_fit(made[i], n)[1], score_share(scores[i])) for i in (rng.integers(0, len(made), len(made)) for _ in range(reps))]
     lo, hi = np.percentile(boot, [2.5, 97.5], axis=0)
-    return {"positions": len(made), "continuations each": n, "makes 32768": float(made.sum() / made.size), "beta-binomial mean": mu,
+    # made counts successes per position, so the rate divides by every continuation, not by positions
+    return {"positions": len(made), "continuations each": n, "makes 32768": float(made.sum() / (made.size * n)), "beta-binomial mean": mu,
             "rho (32768)": rho, "rho 95%": [float(lo[0]), float(hi[0])], "SD of true conversion across positions": float(np.sqrt(mu * (1 - mu) * rho)),
-            "mean score added": float(scores.mean()), "between-position share of score variance": score_share(scores), "share 95%": [float(lo[1]), float(hi[1])]}
+            "SD of true conversion, 95% upper bound": float(np.sqrt(mu * (1 - mu) * hi[0])),
+            "mean score added": float(scores.mean()), "between-position share of score variance": score_share(scores), "share 95%": [float(lo[1]), float(hi[1])],
+            "overdispersion": overdispersion(made, n)}
+
+
+def overdispersion(made: np.ndarray, n: int, sims: int = 10_000) -> dict:
+    """A binomial check independent of the beta-binomial fit: if every position had the same conversion p (the pooled rate),
+    each position's successes would be Binomial(n, p). Compares the observed variance of the counts with that, by simulating
+    the counts under it, and with a bootstrap over positions for the dispersion ratio. Also the distribution of counts."""
+    p = made.sum() / (made.size * n)
+    expected = n * p * (1 - p)
+    observed = float(made.var(ddof=1))
+    rng = np.random.default_rng(3)
+    simulated = rng.binomial(n, p, size=(sims, made.size)).var(axis=1, ddof=1)
+    boot = np.array([made[rng.integers(0, made.size, made.size)].var(ddof=1) for _ in range(2000)]) / expected
+    lo, hi = np.percentile(boot, [2.5, 97.5])
+    pmf = np.exp([math.lgamma(n + 1) - math.lgamma(k + 1) - math.lgamma(n - k + 1) + k * math.log(p) + (n - k) * math.log(1 - p) for k in range(n + 1)])
+    return {"pooled rate": float(p), "observed variance": observed, "binomial variance": float(expected), "dispersion ratio": observed / expected,
+            "dispersion ratio 95% (bootstrap)": [float(lo), float(hi)],
+            "simulated ratio 95% if no position effect": [float(np.percentile(simulated, 2.5) / expected), float(np.percentile(simulated, 97.5) / expected)],
+            "simulated p (variance at least the observed)": float((np.sum(simulated >= observed) + 1) / (sims + 1)),
+            "rho by moments": (observed / expected - 1) / (n - 1), "rho by moments, 95% upper bound": max((hi - 1) / (n - 1), 0.0),
+            "counts": np.bincount(made, minlength=n + 1).tolist(), "binomial counts": (pmf * made.size).tolist()}
 
 
 def ridge_logistic(x: np.ndarray, k: np.ndarray, n: int, lam: float) -> np.ndarray:
@@ -313,18 +337,69 @@ def p1_report() -> None:
     depth3 = load_chunks("p1-depth3")
     if depth3:
         effects["depth 3"] = position_effect(depth3["tiles"], depth3["scores"])
-    lines.append("| Policy | Positions × continuations | Makes 32768 | rho (32768) [95%] | SD of true conversion | Mean score added | Between-position share of score variance [95%] |")
+    lines.append("| Policy | Positions × continuations | Makes 32768 | rho (32768) [95%] | SD of true conversion (95% upper bound) | Mean score added | "
+                 "Between-position share of score variance [95%] |")
     lines.append("|---|---:|---:|---:|---:|---:|---:|")
     for name, e in effects.items():
-        lines.append(f"| {name} | {e['positions']:,} × {e['continuations each']} | {e['makes 32768']:.1%} | {e['rho (32768)']:.3f} [{e['rho 95%'][0]:.3f}, {e['rho 95%'][1]:.3f}] | "
-                     f"{e['SD of true conversion across positions']:.1%} | {e['mean score added']:,.0f} | {e['between-position share of score variance']:.1%} "
-                     f"[{e['share 95%'][0]:.1%}, {e['share 95%'][1]:.1%}] |")
+        lines.append(f"| {name} | {e['positions']:,} × {e['continuations each']} | {e['makes 32768']:.2%} | {e['rho (32768)']:.3f} [{e['rho 95%'][0]:.3f}, {e['rho 95%'][1]:.3f}] | "
+                     f"{e['SD of true conversion across positions']:.2%} (≤ {e['SD of true conversion, 95% upper bound']:.2%}) | {e['mean score added']:,.0f} | "
+                     f"{e['between-position share of score variance']:.1%} [{e['share 95%'][0]:.1%}, {e['share 95%'][1]:.1%}] |")
+    lines.append("\nrho and the SD of true conversion come from a beta-binomial fit; the upper bound uses the top of rho's bootstrap interval. "
+                 "A single beta distribution describes the bulk of positions, so a small subgroup of unusual positions could move it very little.")
+    r_line = None
     if depth3:
         greedy_rate = dict(zip(greedy["seeds"].tolist(), (greedy["tiles"] >= 32768).mean(axis=1)))
         d = (depth3["tiles"] >= 32768).mean(axis=1)
         g = np.array([greedy_rate[s] for s in depth3["seeds"].tolist()])
+        rng = np.random.default_rng(4)
+        boot_r = [np.corrcoef(g[i], d[i])[0, 1] for i in (rng.integers(0, len(d), len(d)) for _ in range(2000))]
+        r, (r_lo, r_hi) = np.corrcoef(g, d)[0, 1], np.percentile(boot_r, [2.5, 97.5])
+        # the share of a per-position rate's variance that's real (not binomial noise), at rho's upper bound, caps the observable r
+        reliability = {k: e["continuations each"] * e["rho 95%"][1] / (1 + (e["continuations each"] - 1) * e["rho 95%"][1]) for k, e in effects.items()}
+        r_max = float(np.sqrt(reliability["greedy"] * reliability["depth 3"]))
+        r_line = (r, r_lo, r_hi, r_max)
         lines.append(f"\nOn the depth-3 subset's {len(d):,} positions, greedy makes 32768 in {g.mean():.1%} and depth 3 in {d.mean():.1%}; "
-                     f"the per-position rates correlate at r = {np.corrcoef(g, d)[0, 1]:.2f} (both noisy, so this understates the true correlation).")
+                     f"the per-position rates correlate at r = {r:.2f} [95%: {r_lo:.2f}, {r_hi:.2f}, resampling positions]. Depth 3 has only "
+                     f"{depth3['tiles'].shape[1]} continuations per position, and with so little between-position variance both per-position rates are "
+                     f"mostly binomial noise: even if the true rates were perfectly correlated, the expected observed r would be at most about {r_max:.2f} "
+                     "(using the upper bounds of rho). So a near-zero r isn't evidence that the two are unrelated.")
+
+    lines.append("\n### Binomial overdispersion check\n")
+    lines.append("Independent of the beta-binomial fit: if every position had the same conversion (the pooled rate), each position's count of "
+                 "continuations making 32768 would be binomial. The observed variance of the counts is compared with the binomial variance; "
+                 "the simulated range is the 95% range of that ratio over 10,000 simulations with no position effect, and p is the share of "
+                 "simulations whose variance is at least the observed one. rho by moments is (ratio − 1) / (continuations − 1).\n")
+    lines.append("| Policy | Pooled rate | Observed variance | Binomial variance | Ratio [95% bootstrap] | Simulated 95% range, no effect | p | rho by moments (95% upper bound) |")
+    lines.append("|---|---:|---:|---:|---:|---:|---:|---:|")
+    for name, e in effects.items():
+        o = e["overdispersion"]
+        lines.append(f"| {name} | {o['pooled rate']:.2%} | {o['observed variance']:.3f} | {o['binomial variance']:.3f} | {o['dispersion ratio']:.3f} "
+                     f"[{o['dispersion ratio 95% (bootstrap)'][0]:.3f}, {o['dispersion ratio 95% (bootstrap)'][1]:.3f}] | "
+                     f"{o['simulated ratio 95% if no position effect'][0]:.3f}–{o['simulated ratio 95% if no position effect'][1]:.3f} | "
+                     f"{o['simulated p (variance at least the observed)']:.3f} | {o['rho by moments']:.4f} (≤ {o['rho by moments, 95% upper bound']:.4f}) |")
+    for name, e in effects.items():
+        o = e["overdispersion"]
+        observed, expected = np.array(o["counts"]), np.array(o["binomial counts"])
+        top = int(np.flatnonzero(expected[::-1].cumsum()[::-1] >= 5).max()) + 1  # counts from here on are pooled: under 5 expected
+        lines.append(f"\nDistribution of positions by continuations making 32768, {name} ({e['continuations each']} each):\n")
+        lines.append("| Continuations making 32768 | Positions observed | Expected if binomial |")
+        lines.append("|---:|---:|---:|")
+        for k in range(min(top, len(observed))):
+            lines.append(f"| {k} | {observed[k]:,} | {expected[k]:,.1f} |")
+        if top < len(observed):
+            lines.append(f"| {top}+ | {observed[top:].sum():,} | {expected[top:].sum():,.1f} |")
+    agreement = []
+    for name, e in effects.items():
+        o = e["overdispersion"]
+        bb_detects, od_detects = e["rho 95%"][0] > 1e-4, o["simulated p (variance at least the observed)"] < 0.05
+        upper_gap = abs(o["rho by moments, 95% upper bound"] - e["rho 95%"][1])
+        agree = bb_detects == od_detects
+        agreement.append((name, agree))
+        lines.append(f"\n**{name}:** the beta-binomial interval {'excludes' if bb_detects else 'includes'} zero and the overdispersion check "
+                     f"{'detects' if od_detects else 'does not detect'} extra variance (p = {o['simulated p (variance at least the observed)']:.3f}); "
+                     f"upper bounds on rho: {e['rho 95%'][1]:.4f} (beta-binomial) and {o['rho by moments, 95% upper bound']:.4f} (moments)."
+                     + ("" if agree else " **The two checks disagree: look at this before drawing a conclusion.**")
+                     + (f" The upper bounds differ by {upper_gap:.4f}." if upper_gap > 0.005 else ""))
 
     lines.append("\n## 6.2 Predictive board features\n")
     lines.append("Out-of-fold predictions from L2-penalised logistic regression on all features, 5 folds grouped by source game, "
@@ -337,16 +412,24 @@ def p1_report() -> None:
     lines.append("| Model | Penalty | Brier | Log loss | Brier skill vs constant | SD of predictions |")
     lines.append("|---|---:|---:|---:|---:|---:|")
     lines.append(f"| Constant | — | {base_brier:.5f} | {base_ll:.5f} | 0 | 0 |")
-    predictions = {}
+    predictions, fits = {}, {}
     for lam in (0.1, 1.0, 10.0, 100.0):
         p = out_of_fold(x, made, n, greedy["seeds"], lam)
         predictions[lam] = p
-        brier, ll = scores_of(p, made, n)
+        fits[lam] = scores_of(p, made, n)
+        brier, ll = fits[lam]
         lines.append(f"| All features | {lam:g} | {brier:.5f} | {ll:.5f} | {1 - brier / base_brier:+.2%} | {p.std():.2%} |")
     p = predictions[1.0]
-    true_sd = effects["greedy"]["SD of true conversion across positions"]
-    lines.append(f"\nAt penalty 1, the predictions' spread is {p.std():.2%} against an estimated {true_sd:.2%} spread in true conversion: "
-                 f"the features capture roughly {min(p.var() / max(true_sd**2, 1e-12), 9.99):.0%} of the between-position variance.\n")
+    best_lam = min(fits, key=lambda lam: fits[lam][0])
+    improves = [lam for lam, (brier, ll) in fits.items() if brier < base_brier and ll < base_ll]
+    features_help = bool(improves)
+    if improves:
+        lines.append(f"\nOut of fold, penalties {', '.join(f'{lam:g}' for lam in improves)} improve on the constant predictor by both scores; "
+                     f"the best Brier skill is {1 - fits[best_lam][0] / base_brier:+.3%} (penalty {best_lam:g}).\n")
+    else:
+        lines.append(f"\nOut of fold, no penalty improves on the constant predictor: the best Brier score is {fits[best_lam][0]:.5f} (penalty {best_lam:g}) "
+                     f"against {base_brier:.5f}, and the best log loss {min(ll for _, ll in fits.values()):.5f} against {base_ll:.5f}. "
+                     "So these features don't predict which positions convert better than giving every position the pooled rate.\n")
     lines.append("Calibration (penalty 1), by tenths of predicted conversion:\n")
     lines.append("| Tenth | Predicted | Observed |")
     lines.append("|---:|---:|---:|")
@@ -380,11 +463,42 @@ def p1_report() -> None:
     lines.append("|---|---:|---:|---:|")
     lines.append(f"| Predicted best 10% | {best.sum():,} | {rates[best].mean():.1%} | {added[best].mean():,.0f} |")
     lines.append(f"| Predicted worst 10% | {worst.sum():,} | {rates[worst].mean():.1%} | {added[worst].mean():,.0f} |")
-    lines.append(f"\nDifference in conversion: {rates[best].mean() - rates[worst].mean():+.1%} [{lo:+.1%}, {hi:+.1%}].\n")
+    gap = f"{100 * (rates[best].mean() - rates[worst].mean()):+.1f} percentage points [95%: {100 * lo:+.1f}, {100 * hi:+.1f}]"
+    lines.append(f"\nDifference in conversion, best minus worst: {gap}.\n")
     lines.append("| Feature | Best 10% | Worst 10% | All |")
     lines.append("|---|---:|---:|---:|")
     for i, name in enumerate(FEATURES):
         lines.append(f"| {name} | {x[best, i].mean():.2f} | {x[worst, i].mean():.2f} | {x[:, i].mean():.2f} |")
+    lines.append("\nThis table shows which boards the fitted model ranks highest and lowest. "
+                 + ("Since the model doesn't beat the constant predictor out of fold, these differences aren't evidence that any feature affects conversion."
+                    if not features_help else "Individual features' differences here describe the fitted model, not established effects."))
+
+    lines.append("\n## 6.4 Summary\n")
+    e, o = effects["greedy"], effects["greedy"]["overdispersion"]
+    lines.append(f"- **Greedy, {e['positions']:,} positions × {e['continuations each']}:** conversion is {e['makes 32768']:.2%}. There is "
+                 f"{'detectable' if e['rho 95%'][0] > 1e-4 else 'little detectable'} variation in conversion among these entry positions, "
+                 "all genuine first-16384 boards from greedy play of the 2M network (stage 6's dev pool): "
+                 f"rho = {e['rho (32768)']:.4f} [{e['rho 95%'][0]:.4f}, {e['rho 95%'][1]:.4f}], so the SD of true conversion across positions is at most about "
+                 f"{e['SD of true conversion, 95% upper bound']:.2%} (95% upper bound) around {e['makes 32768']:.2%}. The overdispersion check "
+                 f"{'agrees' if dict(agreement)['greedy'] else '**disagrees**'}: variance ratio {o['dispersion ratio']:.3f} "
+                 f"[{o['dispersion ratio 95% (bootstrap)'][0]:.3f}, {o['dispersion ratio 95% (bootstrap)'][1]:.3f}], p = {o['simulated p (variance at least the observed)']:.3f}.")
+    lines.append("- **What this doesn't show:** that entry quality can never matter. It holds for positions this policy produces, which may be similar "
+                 "to one another; other policies or deliberately varied positions could differ. And a small subgroup of unusual positions with very "
+                 "different conversion would barely change rho or the variance ratio.")
+    if "depth 3" in effects:
+        d3 = effects["depth 3"]
+        lines.append(f"- **Depth 3, {d3['positions']:,} positions × {d3['continuations each']}:** conversion is {d3['makes 32768']:.2%}, and rho = "
+                     f"{d3['rho (32768)']:.4f} [{d3['rho 95%'][0]:.4f}, {d3['rho 95%'][1]:.4f}] (SD of true conversion ≤ {d3['SD of true conversion, 95% upper bound']:.2%}). "
+                     f"With {d3['continuations each']} continuations per position this is far less precise than greedy's {e['continuations each']}, so it's "
+                     "consistent with no position effect but doesn't establish it"
+                     + (f"; likewise the greedy/depth-3 correlation of r = {r_line[0]:.2f} [{r_line[1]:.2f}, {r_line[2]:.2f}] can't show the two are unrelated, "
+                        f"since even a perfect true correlation would show as r ≤ about {r_line[3]:.2f} here." if r_line else "."))
+    lines.append(f"- **Features:** {'none of the feature models improves' if not features_help else 'some feature models improve'} on the constant "
+                 f"predictor out of fold, and the predicted best tenth converts {gap} relative to the predicted worst tenth. "
+                 "So the current features don't identify reliably better entry positions.")
+    if not all(a for _, a in agreement):
+        lines.append("- **Flag:** the overdispersion check disagrees with the beta-binomial fit for "
+                     + ", ".join(name for name, a in agreement if not a) + "; resolve that before relying on the conclusions above.")
     REPORTS.mkdir(parents=True, exist_ok=True)
     (REPORTS / "part1.md").write_text("\n".join(lines) + "\n")
     (REPORTS / "part1.json").write_text(json.dumps(effects, indent=2) + "\n")
