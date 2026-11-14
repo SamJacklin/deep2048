@@ -37,6 +37,28 @@ class LateStarts(NamedTuple):
     harvest_exponent: int
 
 
+class SearchGuide(NamedTuple):
+    """Search during training. A NamedTuple so numba can use it.
+
+    Late decisions (largest tile 2**min_exponent or more) whose greedy relative margin between the top two moves lies in
+    [margin_low, margin_high) are searched `depth` moves ahead, and the searched move is played. If rank_step > 0 and
+    search prefers another move than greedy play by at least rank_min_gap of its value, a ranking update closes
+    rank_step of the gap between the two moves' reward + value (plus rank_margin) directly. `reads` is how many weights
+    a board reads. `counts` accumulates, across threads: decisions, searched, disagreements, ranking updates, chance
+    nodes expanded, afterstates valued at the horizon.
+    """
+
+    depth: int
+    min_exponent: int
+    margin_low: float
+    margin_high: float
+    rank_step: float
+    rank_margin: float
+    rank_min_gap: float
+    reads: int
+    counts: np.ndarray
+
+
 class LambdaReturn(NamedTuple):
     """TD(λ) settings: each afterstate learns towards a blend of its 1- to horizon-step returns. A NamedTuple so numba can use it."""
 

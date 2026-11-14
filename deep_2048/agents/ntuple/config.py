@@ -36,6 +36,17 @@ class NTupleSettings(Settings):
     # A second copy of the weights for boards whose real largest tile is STAGE_TILE or more, so the late
     # game learns values of its own (scripts/add_stage.py starts it as a copy of a trained network)
     STAGE_TILE: int | None = None
+    # Search during training (stage 5): with GUIDE_DEPTH > 0, decisions from boards holding GUIDE_TILE or more whose greedy
+    # relative margin between the top two moves lies in [GUIDE_MARGIN_LOW, GUIDE_MARGIN_HIGH) are searched GUIDE_DEPTH
+    # moves ahead and the searched move is played. With RANK_STEP > 0, where search prefers another move by at least
+    # RANK_MIN_GAP of its value, a ranking update closes RANK_STEP of the two moves' gap (plus RANK_MARGIN) directly.
+    GUIDE_DEPTH: int = 0
+    GUIDE_TILE: int = 16384
+    GUIDE_MARGIN_LOW: float = 0.0
+    GUIDE_MARGIN_HIGH: float = float("inf")
+    RANK_STEP: float = 0.0
+    RANK_MARGIN: float = 1.0
+    RANK_MIN_GAP: float = 0.0
     # Threads playing and learning in parallel without locks: faster, but not bit-reproducible.
     # The first THREADS_AFTER games are single-threaded, since a fresh network collides often.
     THREADS: int = 1

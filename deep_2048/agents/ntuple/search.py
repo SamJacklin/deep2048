@@ -38,8 +38,9 @@ class Transpositions(NamedTuple):
 
 
 @njit
-def new_transpositions(reuse: bool = True) -> Transpositions:
-    size = 1 << _TABLE_BITS
+def new_transpositions(reuse: bool = True, bits: int = _TABLE_BITS) -> Transpositions:
+    """An empty table. A smaller `bits` only suits a table that's never searched with, such as unguided training's."""
+    size = 1 << bits
     return Transpositions(np.zeros(size, np.uint64), np.zeros(size, np.int64), np.zeros(size), np.zeros(size, np.int64), np.zeros(3, np.int64), reuse)
 
 

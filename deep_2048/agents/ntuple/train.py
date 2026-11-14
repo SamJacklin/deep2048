@@ -31,7 +31,9 @@ import numpy as np
 from numba import njit
 
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
-from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, LambdaReturn, LateStarts, TrainingHistoryRow, TrainingSummary
+from deep_2048.agents.ntuple.guidance import guided_move
+from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, LambdaReturn, LateStarts, SearchGuide, TrainingHistoryRow, TrainingSummary
+from deep_2048.agents.ntuple.search import new_transpositions
 from deep_2048.agents.ntuple.network import NETWORKS, CoherenceTraces, NTupleNetwork, TupleLayout, evaluate, load_traces, network_name, update, update_coherent
 from deep_2048.bench import file_sha256
 from deep_2048.experiments import Environment, RunManifest, TrainingSession, command_line, now, run_lock
@@ -39,6 +41,8 @@ from deep_2048.game import bitboard as bb
 
 CHECKPOINT_NAME = "latest.npz"
 HISTORY_NAME = "training_history.csv"
+GUIDE_HISTORY_NAME = "guide_history.csv"
+GUIDE_COLUMNS = ("decisions", "searched", "disagreed", "ranked", "chance_nodes", "leaf_values")
 
 
 @njit
@@ -83,13 +87,17 @@ def play_game(
     learn: bool,
     start: np.uint64,
     harvest_exponent: int,
+    guide: SearchGuide | None = None,
 ) -> tuple[int, int, int, np.uint64]:
     """Play one greedy game, learning from it if `learn`, and return (score, max exponent, moves, harvested).
 
     The game starts from `start`, or a fresh board if it's 0. If `harvest_exponent` is set, `harvested`
-    is the position where the game first made a 2**harvest_exponent tile, otherwise 0.
+    is the position where the game first made a 2**harvest_exponent tile, otherwise 0. With a `guide`, some
+    late decisions are searched instead (guidance.guided_move); numba compiles the plain path without it.
     """
     board = bb.initial_board() if start == np.uint64(0) else start
+    # Only guided games search, so unguided ones get a one-entry table rather than allocating a full one per game
+    table = new_transpositions(True, 0 if guide is None else 16)
     harvested = np.uint64(0)
     harvest_reward = 1 << harvest_exponent if harvest_exponent > 0 else 0
     score = 0
@@ -98,12 +106,18 @@ def play_game(
     previous_state = np.uint64(0)
 
     while True:
-        best_afterstate, best_reward, best_value = _best_move(weights, layout, board)
+        if guide is None:
+            best_afterstate, best_reward, best_value = _best_move(weights, layout, board)
+        else:
+            best_afterstate, best_reward, best_value = guided_move(weights, layout, board, guide, table)
         game_over = best_value == -np.inf
         if learn and moves > 0:
             _learn(weights, traces, layout, previous_afterstate, previous_state, 0.0 if game_over else best_value, learning_rate)
 
         if game_over:
+            if guide is not None:
+                guide.counts[4] += table.current[1]
+                guide.counts[5] += table.current[2]
             return score, bb.max_exponent(board), moves, harvested
 
         previous_afterstate, previous_state = best_afterstate, board
@@ -201,8 +215,10 @@ def play_games(
     learn: bool,
     late_starts: LateStarts | None = None,
     td_lambda: LambdaReturn | None = None,
+    guide: SearchGuide | None = None,
 ) -> GameResults:
-    """Play n games, starting a share of them from `late_starts` if given, and learning by TD(λ) if `td_lambda` is.
+    """Play n games, starting a share of them from `late_starts` if given, learning by TD(λ) if `td_lambda` is, and
+    searching some late decisions if `guide` is.
 
     Releases the GIL, so several threads can run it at once on the same weights.
     """
@@ -222,7 +238,7 @@ def play_games(
                 harvest_exponent = 0
                 synthetic[i] = True
         if td_lambda is None:
-            game = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent)
+            game = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent, guide)
         else:
             game = play_game_lambda(weights, traces, layout, learning_rate, learn, start, harvest_exponent, td_lambda)
         scores[i], max_exponents[i], moves[i], harvested[i] = game
@@ -239,12 +255,13 @@ def play_games_threaded(
     late_starts: LateStarts | None,
     threads: int,
     td_lambda: LambdaReturn | None = None,
+    guide: SearchGuide | None = None,
 ) -> GameResults:
     """Play n games split across `threads` threads, which update the shared weights without locks."""
     # Game lengths vary a lot, so small shares handed out as threads free up keep every thread busy
     shares = [len(games) for games in np.array_split(np.arange(n), 8 * threads)]
     with ThreadPoolExecutor(max_workers=threads) as pool:
-        parts = list(pool.map(lambda share: play_games(share, weights, traces, layout, learning_rate, learn, late_starts, td_lambda), shares))
+        parts = list(pool.map(lambda share: play_games(share, weights, traces, layout, learning_rate, learn, late_starts, td_lambda, guide), shares))
     return GameResults(*(np.concatenate(field) for field in zip(*parts)))
 
 
@@ -342,10 +359,16 @@ def _train(
     print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}{schedule}{coherence}{threads}")
     late_starts = _late_starts(settings)
     td_lambda = _td_lambda(settings)
+    guide = _search_guide(settings, network)
+    if guide is not None:
+        if td_lambda is not None:
+            raise ValueError("search guidance works with TD(0) only, so LAMBDA must be 0")
+        print(f"Searching {guide.depth} moves ahead at decisions from boards with {settings.GUIDE_TILE} or more and a greedy margin in "
+              f"[{guide.margin_low:.3g}, {guide.margin_high:.3g})" + (f", with ranking updates of {guide.rank_step} from a preference of {guide.rank_min_gap:.3g}" if guide.rank_step > 0 else ""))
     if not 1 <= settings.THREADS <= (os.cpu_count() or 1):
         raise ValueError(f"THREADS must be between 1 and {os.cpu_count()}, not {settings.THREADS}")
     # Compile before timing starts, otherwise the first batch's games/s includes compilation
-    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts, td_lambda)
+    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts, td_lambda, guide)
 
     interrupted = False
     try:
@@ -360,9 +383,9 @@ def _train(
             threaded = settings.THREADS > 1 and progress.games_played >= settings.THREADS_AFTER
             started = time.monotonic()
             if threaded:
-                results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS, td_lambda)
+                results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS, td_lambda, guide)
             else:
-                results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, td_lambda)
+                results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, td_lambda, guide)
             if late_starts is not None:
                 late_starts = late_starts._replace(pool=_grow_pool(late_starts.pool, results, settings.LATE_START_POOL))
             progress.games_played += batch
@@ -371,6 +394,9 @@ def _train(
             row = TrainingHistoryRow.from_results(progress.games_played, progress.moves_played, results, time.monotonic() - started)
             print(row, flush=True)
             _append_history(history_path, row)
+            if guide is not None:
+                _append_guide_history(output_dir / GUIDE_HISTORY_NAME, progress.games_played, guide.counts)
+                guide.counts[:] = 0
 
             if progress.games_played in snapshots:
                 _save_checkpoint(network, checkpoint_dir / f"games_{progress.games_played}.npz", progress, traces)
@@ -430,6 +456,23 @@ def _load_or_create_traces(resume_from: str | Path | None, network: NTupleNetwor
     resumed = load_traces(resume_from) if resume_from is not None else None
     traces = resumed if resumed is not None else CoherenceTraces.zeros(network.weights.size)
     return traces._replace(decay=settings.TC_DECAY)
+
+
+def _search_guide(settings: NTupleSettings, network: NTupleNetwork) -> SearchGuide | None:
+    """Return the search guidance for training, or None if GUIDE_DEPTH is 0."""
+    if settings.GUIDE_DEPTH == 0:
+        return None
+    return SearchGuide(settings.GUIDE_DEPTH, settings.GUIDE_TILE.bit_length() - 1, settings.GUIDE_MARGIN_LOW, settings.GUIDE_MARGIN_HIGH,
+                       settings.RANK_STEP, settings.RANK_MARGIN, settings.RANK_MIN_GAP, network.n_features, np.zeros(len(GUIDE_COLUMNS), np.int64))
+
+
+def _append_guide_history(path: Path, games: int, counts: np.ndarray) -> None:
+    """Add a batch's search counts to the run's guide history, with a header if it's new."""
+    new = not path.exists()
+    with open(path, "a") as f:
+        if new:
+            f.write(",".join(("games", *GUIDE_COLUMNS)) + "\n")
+        f.write(",".join(str(int(v)) for v in (games, *counts)) + "\n")
 
 
 def learning_rate_at(settings: NTupleSettings, start_games: int, total_games: int, games_played: int) -> float:
