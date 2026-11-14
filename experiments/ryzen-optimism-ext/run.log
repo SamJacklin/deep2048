@@ -1,0 +1,27 @@
+2026-11-13T19:38:25+00:00 waiting for ryzen-optimism to finish
+2026-11-13T20:28:25+00:00 ryzen-optimism finished; extending to 12000000 games as ryzen-optimism-ext
+Training ryzen-optimism-ext from checkpoints/ntuple/ryzen-optimism/games_10000000.npz to 12000000 games
+N-tuple TD (10,250,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      305132      14748   100.0%   100.0%   100.0%    99.6%    98.5%    94.7%    75.1%  (1000 games)
+N-tuple TD (10,500,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      312405      15146    99.9%    99.9%    99.8%    99.4%    98.3%    95.4%    77.9%  (1000 games)
+N-tuple TD (10,750,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      310252      14960   100.0%   100.0%    99.9%    99.8%    99.0%    96.2%    76.2%  (1000 games)
+N-tuple TD (11,000,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      306887      14550   100.0%   100.0%   100.0%    99.5%    98.5%    95.1%    75.1%  (1000 games)
+N-tuple TD (11,250,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      318408      15420   100.0%   100.0%    99.9%    99.7%    98.5%    96.3%    79.5%  (1000 games)
+N-tuple TD (11,500,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      312460      15148    99.8%    99.8%    99.7%    99.5%    98.6%    94.9%    78.7%  (1000 games)
+N-tuple TD (11,750,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      315379      15224    99.9%    99.9%    99.9%    99.4%    98.5%    95.2%    78.5%  (1000 games)
+N-tuple TD (12,000,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      314550      15289   100.0%    99.9%    99.6%    99.3%    98.2%    95.6%    78.2%  (1000 games)
+N-tuple TD (12,000,000 games, TC lr 0.02, 8x6 network, downgraded from 16384) + search depth=3      380930      18618   100.0%   100.0%   100.0%   100.0%    99.9%    99.4%    93.4%  (1000 games)
+ryzen-optimism-ext finished
+=== 2026-11-13T23:55:27+00:00 continuing to 14M
+2026-11-13T23:55:27+00:00 waiting for ryzen-optimism to finish
+2026-11-13T23:55:27+00:00 ryzen-optimism finished; extending to 14000000 games as ryzen-optimism-ext
+Training ryzen-optimism-ext from checkpoints/ntuple/ryzen-optimism-ext/games_12000000.npz to 14000000 games
+N-tuple TD (12,250,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      313112      15070   100.0%   100.0%    99.9%    99.7%    99.2%    95.2%    77.8%  (1000 games)
+N-tuple TD (12,500,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      318942      15499   100.0%   100.0%   100.0%    99.8%    99.3%    96.2%    80.7%  (1000 games)
+N-tuple TD (12,750,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      313252      15183   100.0%   100.0%   100.0%    99.5%    98.6%    94.9%    78.1%  (1000 games)
+N-tuple TD (13,000,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      310501      15060    99.9%    99.9%    99.9%    99.4%    98.7%    95.1%    77.5%  (1000 games)
+N-tuple TD (13,250,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      315958      15312   100.0%   100.0%   100.0%    99.7%    98.8%    95.7%    79.2%  (1000 games)
+N-tuple TD (13,500,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      315746      15297    99.9%    99.9%    99.9%    99.7%    98.9%    95.3%    79.2%  (1000 games)
+N-tuple TD (13,750,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      317857      15468   100.0%    99.9%    99.8%    99.3%    98.7%    95.3%    79.8%  (1000 games)
+N-tuple TD (14,000,000 games, TC lr 0.02, 8x6 network, downgraded from 16384)      314211      15140   100.0%   100.0%    99.9%    99.6%    98.7%    95.0%    77.3%  (1000 games)
+N-tuple TD (14,000,000 games, TC lr 0.02, 8x6 network, downgraded from 16384) + search depth=3      384536      18595   100.0%   100.0%    99.9%    99.8%    99.7%    98.8%    94.1%  (1000 games)
+ryzen-optimism-ext finished

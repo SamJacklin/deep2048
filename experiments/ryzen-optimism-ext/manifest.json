@@ -1,0 +1,169 @@
+{
+  "name": "ryzen-optimism-ext",
+  "sessions": [
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "ryzen-optimism-ext",
+        "--resume",
+        "checkpoints/ntuple/ryzen-optimism/games_10000000.npz",
+        "--games",
+        "12000000",
+        "--snapshot-at",
+        "10250000",
+        "10500000",
+        "10750000",
+        "11000000",
+        "11250000",
+        "11500000",
+        "11750000",
+        "12000000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.2,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": null,
+        "THREADS": 8,
+        "THREADS_AFTER": 10000,
+        "TRAINING_GAMES": 12000000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 10000,
+        "SNAPSHOT_AT": [
+          10250000,
+          10500000,
+          10750000,
+          11000000,
+          11250000,
+          11500000,
+          11750000,
+          12000000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/ryzen-optimism-ext",
+        "OUTPUT_DIR": "experiments/ryzen-optimism-ext"
+      },
+      "resumed_from": "checkpoints/ntuple/ryzen-optimism/games_10000000.npz",
+      "environment": {
+        "git_commit": "aa522aab0c2393e241dd846a11738862725eab92",
+        "git_dirty": false,
+        "python": "3.11.18",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "x86_64 (Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39)",
+        "cpu_count": 16
+      },
+      "started_at": "2026-11-13T20:28:29.082071Z",
+      "started_with": {
+        "games_played": 10000000,
+        "moves_played": 68734756296
+      },
+      "finished_at": "2026-11-13T23:37:07.953635Z",
+      "finished_with": {
+        "games_played": 12000000,
+        "moves_played": 90190539086
+      },
+      "interrupted": false
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "ryzen-optimism-ext",
+        "--resume",
+        "checkpoints/ntuple/ryzen-optimism-ext/games_12000000.npz",
+        "--games",
+        "14000000",
+        "--snapshot-at",
+        "12250000",
+        "12500000",
+        "12750000",
+        "13000000",
+        "13250000",
+        "13500000",
+        "13750000",
+        "14000000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.2,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": null,
+        "THREADS": 8,
+        "THREADS_AFTER": 10000,
+        "TRAINING_GAMES": 14000000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 10000,
+        "SNAPSHOT_AT": [
+          12250000,
+          12500000,
+          12750000,
+          13000000,
+          13250000,
+          13500000,
+          13750000,
+          14000000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/ryzen-optimism-ext",
+        "OUTPUT_DIR": "experiments/ryzen-optimism-ext"
+      },
+      "resumed_from": "checkpoints/ntuple/ryzen-optimism-ext/games_12000000.npz",
+      "environment": {
+        "git_commit": "aa522aab0c2393e241dd846a11738862725eab92",
+        "git_dirty": false,
+        "python": "3.11.18",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "x86_64 (Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39)",
+        "cpu_count": 16
+      },
+      "started_at": "2026-11-13T23:55:29.687470Z",
+      "started_with": {
+        "games_played": 12000000,
+        "moves_played": 90190539086
+      },
+      "finished_at": "2026-11-14T03:05:46.701916Z",
+      "finished_with": {
+        "games_played": 14000000,
+        "moves_played": 111852272507
+      },
+      "interrupted": false
+    }
+  ]
+}
