@@ -1,0 +1,66 @@
+Resuming from checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz at 2,000,000 games
+Temporal coherence sums reset: every weight starts back at the full rate
+Training 8x6 n-tuple network (134,217,728 weights) to 2,050,000 games, lr 0.02, temporal coherence, 8 threads after 10,000 games
+  games 2,001,000  moves  19136.2M  avg score   208897  max  585236  ≥2048  96.8%  ≥4096  93.4%  ≥8192  83.6%  ≥16384  43.4%  ≥32768  0.6%  |  254.3 games/s
+  games 2,002,000  moves  19144.5M  avg score   235601  max  579120  ≥2048  98.2%  ≥4096  96.0%  ≥8192  89.0%  ≥16384  52.8%  ≥32768  1.4%  |  265.6 games/s
+  games 2,003,000  moves  19153.3M  avg score   251156  max  615172  ≥2048  98.4%  ≥4096  96.7%  ≥8192  90.0%  ≥16384  58.9%  ≥32768  2.0%  |  263.5 games/s
+  games 2,004,000  moves  19162.3M  avg score   251426  max  609544  ≥2048  98.2%  ≥4096  97.3%  ≥8192  88.0%  ≥16384  55.2%  ≥32768  3.2%  |  249.1 games/s
+  games 2,005,000  moves  19171.3M  avg score   257087  max  623040  ≥2048  98.1%  ≥4096  96.6%  ≥8192  89.3%  ≥16384  58.8%  ≥32768  4.3%  |  259.8 games/s
+  games 2,006,000  moves  19180.5M  avg score   260852  max  608256  ≥2048  97.8%  ≥4096  96.0%  ≥8192  90.1%  ≥16384  61.5%  ≥32768  3.7%  |  234.6 games/s
+  games 2,007,000  moves  19189.8M  avg score   265404  max  601408  ≥2048  98.7%  ≥4096  97.9%  ≥8192  91.0%  ≥16384  61.2%  ≥32768  3.8%  |  244.5 games/s
+  games 2,008,000  moves  19198.8M  avg score   258545  max  601008  ≥2048  98.3%  ≥4096  96.3%  ≥8192  89.4%  ≥16384  61.6%  ≥32768  2.8%  |  255.6 games/s
+  games 2,009,000  moves  19208.2M  avg score   269622  max  627976  ≥2048  99.0%  ≥4096  97.9%  ≥8192  91.0%  ≥16384  61.8%  ≥32768  4.8%  |  247.4 games/s
+  games 2,010,000  moves  19217.6M  avg score   269172  max  585340  ≥2048  98.4%  ≥4096  97.5%  ≥8192  90.9%  ≥16384  61.6%  ≥32768  5.0%  |  247.7 games/s
+  saved checkpoints/ntuple/search-teacher-A/latest.npz (2,010,000 games)
+  games 2,011,000  moves  19226.8M  avg score   262628  max  609684  ≥2048  98.9%  ≥4096  97.5%  ≥8192  91.3%  ≥16384  60.0%  ≥32768  4.0%  |  252.0 games/s
+  games 2,012,000  moves  19236.2M  avg score   270498  max  605972  ≥2048  99.4%  ≥4096  97.6%  ≥8192  92.1%  ≥16384  63.3%  ≥32768  4.3%  |  244.8 games/s
+  games 2,013,000  moves  19245.7M  avg score   271073  max  609824  ≥2048  98.9%  ≥4096  97.8%  ≥8192  91.2%  ≥16384  63.0%  ≥32768  4.4%  |  244.7 games/s
+  games 2,014,000  moves  19255.6M  avg score   282818  max  625060  ≥2048  98.9%  ≥4096  97.4%  ≥8192  92.7%  ≥16384  66.6%  ≥32768  5.8%  |  235.3 games/s
+  games 2,015,000  moves  19265.2M  avg score   277576  max  625900  ≥2048  98.7%  ≥4096  97.5%  ≥8192  92.5%  ≥16384  66.1%  ≥32768  4.6%  |  243.3 games/s
+  games 2,016,000  moves  19274.7M  avg score   270745  max  609184  ≥2048  98.5%  ≥4096  97.5%  ≥8192  90.2%  ≥16384  64.6%  ≥32768  4.6%  |  246.5 games/s
+  games 2,017,000  moves  19284.3M  avg score   275354  max  608152  ≥2048  98.6%  ≥4096  96.9%  ≥8192  91.0%  ≥16384  66.4%  ≥32768  4.6%  |  245.0 games/s
+  games 2,018,000  moves  19294.0M  avg score   276116  max  607208  ≥2048  98.5%  ≥4096  97.2%  ≥8192  91.8%  ≥16384  65.6%  ≥32768  5.0%  |  237.6 games/s
+  games 2,019,000  moves  19303.8M  avg score   282016  max  624184  ≥2048  99.0%  ≥4096  98.0%  ≥8192  92.2%  ≥16384  66.7%  ≥32768  6.1%  |  240.0 games/s
+  games 2,020,000  moves  19313.8M  avg score   282353  max  586312  ≥2048  98.5%  ≥4096  97.6%  ≥8192  91.4%  ≥16384  67.1%  ≥32768  5.7%  |  240.9 games/s
+  saved checkpoints/ntuple/search-teacher-A/latest.npz (2,020,000 games)
+  games 2,021,000  moves  19323.4M  avg score   273589  max  621168  ≥2048  98.1%  ≥4096  97.1%  ≥8192  91.1%  ≥16384  65.4%  ≥32768  4.0%  |  239.0 games/s
+  games 2,022,000  moves  19333.2M  avg score   282809  max  597024  ≥2048  98.5%  ≥4096  97.0%  ≥8192  91.9%  ≥16384  67.1%  ≥32768  5.6%  |  237.6 games/s
+  games 2,023,000  moves  19343.1M  avg score   286424  max  614776  ≥2048  98.9%  ≥4096  98.4%  ≥8192  93.0%  ≥16384  67.0%  ≥32768  6.9%  |  233.7 games/s
+  games 2,024,000  moves  19352.8M  avg score   275347  max  617856  ≥2048  98.3%  ≥4096  96.9%  ≥8192  92.4%  ≥16384  62.7%  ≥32768  5.3%  |  240.0 games/s
+  games 2,025,000  moves  19362.8M  avg score   286214  max  607096  ≥2048  99.2%  ≥4096  97.9%  ≥8192  93.8%  ≥16384  69.0%  ≥32768  5.5%  |  229.6 games/s
+  games 2,026,000  moves  19372.7M  avg score   288228  max  598468  ≥2048  99.0%  ≥4096  97.6%  ≥8192  92.8%  ≥16384  68.0%  ≥32768  7.0%  |  233.3 games/s
+  games 2,027,000  moves  19382.9M  avg score   293313  max  605364  ≥2048  98.9%  ≥4096  97.7%  ≥8192  94.1%  ≥16384  70.3%  ≥32768  6.1%  |  231.0 games/s
+  games 2,028,000  moves  19392.8M  avg score   287836  max  607960  ≥2048  98.9%  ≥4096  97.7%  ≥8192  92.3%  ≥16384  68.6%  ≥32768  6.2%  |  234.1 games/s
+  games 2,029,000  moves  19402.6M  avg score   281871  max  584704  ≥2048  98.4%  ≥4096  97.5%  ≥8192  93.2%  ≥16384  66.6%  ≥32768  4.8%  |  240.5 games/s
+  games 2,030,000  moves  19412.9M  avg score   293225  max  606036  ≥2048  98.9%  ≥4096  97.4%  ≥8192  93.2%  ≥16384  70.3%  ≥32768  7.1%  |  230.9 games/s
+  saved checkpoints/ntuple/search-teacher-A/latest.npz (2,030,000 games)
+  games 2,031,000  moves  19422.8M  avg score   285414  max  607752  ≥2048  98.5%  ≥4096  97.1%  ≥8192  91.4%  ≥16384  67.4%  ≥32768  5.8%  |  232.3 games/s
+  games 2,032,000  moves  19432.9M  avg score   291978  max  625460  ≥2048  99.1%  ≥4096  97.8%  ≥8192  93.5%  ≥16384  70.0%  ≥32768  6.8%  |  224.9 games/s
+  games 2,033,000  moves  19442.8M  avg score   285595  max  624136  ≥2048  99.2%  ≥4096  97.6%  ≥8192  92.8%  ≥16384  67.5%  ≥32768  5.3%  |  240.7 games/s
+  games 2,034,000  moves  19452.6M  avg score   279045  max  604812  ≥2048  98.8%  ≥4096  97.4%  ≥8192  92.2%  ≥16384  65.2%  ≥32768  4.9%  |  237.2 games/s
+  games 2,035,000  moves  19462.6M  avg score   285819  max  621148  ≥2048  98.6%  ≥4096  97.5%  ≥8192  93.5%  ≥16384  67.4%  ≥32768  4.9%  |  237.4 games/s
+  games 2,036,000  moves  19472.6M  avg score   288641  max  627260  ≥2048  98.6%  ≥4096  97.5%  ≥8192  93.1%  ≥16384  68.8%  ≥32768  5.0%  |  228.4 games/s
+  games 2,037,000  moves  19482.7M  avg score   291057  max  620788  ≥2048  99.5%  ≥4096  98.4%  ≥8192  93.0%  ≥16384  69.5%  ≥32768  6.1%  |  221.7 games/s
+  games 2,038,000  moves  19492.7M  avg score   290566  max  609360  ≥2048  99.5%  ≥4096  98.5%  ≥8192  93.4%  ≥16384  68.9%  ≥32768  6.7%  |  227.4 games/s
+  games 2,039,000  moves  19502.9M  avg score   293878  max  606048  ≥2048  99.5%  ≥4096  99.0%  ≥8192  93.7%  ≥16384  70.8%  ≥32768  5.8%  |  227.5 games/s
+  games 2,040,000  moves  19513.3M  avg score   294710  max  617120  ≥2048  99.1%  ≥4096  98.1%  ≥8192  92.6%  ≥16384  69.2%  ≥32768  7.9%  |  229.5 games/s
+  saved checkpoints/ntuple/search-teacher-A/latest.npz (2,040,000 games)
+  games 2,041,000  moves  19523.3M  avg score   286005  max  605620  ≥2048  99.2%  ≥4096  98.4%  ≥8192  94.1%  ≥16384  66.0%  ≥32768  5.0%  |  234.2 games/s
+  games 2,042,000  moves  19533.3M  avg score   291210  max  607448  ≥2048  98.9%  ≥4096  98.4%  ≥8192  93.5%  ≥16384  69.4%  ≥32768  6.1%  |  234.1 games/s
+  games 2,043,000  moves  19543.4M  avg score   290922  max  619032  ≥2048  99.4%  ≥4096  98.2%  ≥8192  93.0%  ≥16384  69.5%  ≥32768  5.1%  |  231.2 games/s
+  games 2,044,000  moves  19553.4M  avg score   290019  max  608556  ≥2048  99.2%  ≥4096  97.8%  ≥8192  93.5%  ≥16384  70.1%  ≥32768  4.6%  |  207.7 games/s
+  games 2,045,000  moves  19563.6M  avg score   296030  max  619400  ≥2048  99.3%  ≥4096  98.0%  ≥8192  93.1%  ≥16384  70.9%  ≥32768  7.3%  |  221.7 games/s
+  games 2,046,000  moves  19573.7M  avg score   292066  max  585548  ≥2048  99.0%  ≥4096  97.9%  ≥8192  92.7%  ≥16384  70.4%  ≥32768  6.8%  |  231.5 games/s
+  games 2,047,000  moves  19583.8M  avg score   290652  max  619640  ≥2048  99.0%  ≥4096  97.0%  ≥8192  92.4%  ≥16384  69.9%  ≥32768  6.6%  |  219.5 games/s
+  games 2,048,000  moves  19594.1M  avg score   295727  max  604912  ≥2048  99.1%  ≥4096  97.7%  ≥8192  94.1%  ≥16384  70.4%  ≥32768  6.3%  |  201.5 games/s
+  games 2,049,000  moves  19604.4M  avg score   300854  max  602968  ≥2048  99.4%  ≥4096  98.1%  ≥8192  94.0%  ≥16384  72.4%  ≥32768  7.5%  |  229.4 games/s
+  games 2,050,000  moves  19614.6M  avg score   295078  max  584192  ≥2048  98.9%  ≥4096  98.0%  ≥8192  94.1%  ≥16384  69.3%  ≥32768  7.7%  |  224.9 games/s
+  saved checkpoints/ntuple/search-teacher-A/games_2050000.npz (2,050,000 games)
+  saved checkpoints/ntuple/search-teacher-A/latest.npz (2,050,000 games)
+
+Training complete
+{
+  "games_played": 2050000,
+  "checkpoint_path": "checkpoints/ntuple/search-teacher-A/latest.npz",
+  "interrupted": false
+}

@@ -50,6 +50,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | [`decision11-8x6-rate-0.005`](decision11-8x6-rate-0.005/NOTES.md), [`decision12-8x6-two-stage-reset`](decision12-8x6-two-stage-reset/NOTES.md) | [Round 11](#round-11-a-learning-rate-cut): the rate cut to 0.005; [round 12](#round-12-a-reset-for-the-two-stage-network): round 10's two-stage network with a reset. Both 2M → 2.5M games |
 | [`decision8-8x6-two-stage-by-state`](decision8-8x6-two-stage-by-state/NOTES.md), [`decision9-8x6-two-stage-by-state`](decision9-8x6-two-stage-by-state/NOTES.md) | [Rounds 8 and 9](#rounds-8-and-9-a-second-stage-chosen-by-the-board-a-move-is-made-from): the second stage chosen by the board a move is made from, 1.5M → 2M → 2.5M games |
 | [`decision10-8x6-two-stage-kept-sums`](decision10-8x6-two-stage-kept-sums/NOTES.md) | [Round 10](#round-10-a-second-stage-without-the-reset): a second stage with the coherence sums kept, 1.5M → 2M games |
+| `search-teacher-*` (4 runs) | [Stage 5](#stage-5-search-as-a-teacher): plain TD, search-guided TD and two ranking strengths, each 2M → 2.05M games from round 1's TC reset |
 
 ## Learning at equal experience
 
@@ -1024,6 +1025,65 @@ Seven checks before concluding, to rule out an implementation fault and test whe
    - **The damage comes from their sum:** small costs accumulate over thousands of moves into the conversion and full-game losses in check 5.
 
 **Verdict: stage 3 is unsuccessful in its current form.** The implementation checks pass. No strength, gate or clamping variant improves conversion or full games. The residual is no more accurate than a constant on a fixed policy, and its corrections flip near-tied moves at random. Correcting the late game's values with this TD-trained residual isn't a route to stronger play: the base's errors that matter are in the ranking of near-tied moves, which a separate correction, less precise than the base, can only add noise to. On to stage 5.
+
+### Stage 5: search as a teacher
+
+The question: depth-3 search converts a first 16384 far more often than greedy play does (18.0% against 10.9% on the dev positions). Can training on search's choices teach the network to play that way without search? Everything starts from round 1's TC-reset network at 2M games (`deep_2048/agents/ntuple/guidance.py`, `scripts/selective_search.py`, `scripts/search_teacher.py`, results in [`search-teacher`](search-teacher/)).
+
+**Selective search, before any training.** Each policy plays greedily, except at late decisions (largest tile 16384 or more) whose greedy relative margin between the top two moves lies in its band, where it searches exactly to depth 3. Bands are percentiles of that margin over 27,558 dev late positions. All play on from the 198 dev first-16384 positions, 8 continuations each, with common random numbers, paired with greedy (± 95%):
+
+| Policy | Decisions searched | Search disagrees | Makes 32768 | vs greedy | Conversion gain recovered | Score added | vs greedy | Score gain recovered | Score per 1,000 searches |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Greedy | 0% | — | 10.9% | — | — | 159,989 | — | — | — |
+| Closest 10% | 11.0% | 53.5% | 12.8% | +2.0pp ± 2.5 | 27% | 167,550 | +7.6k ± 5.8k | 19% | 10,311 |
+| Closest 25% | 27.5% | 48.5% | 13.4% | +2.5pp ± 2.2 | 35% | 169,791 | +9.8k ± 5.4k | 24% | 5,269 |
+| **Closest 50%** | 52.7% | 42.5% | 15.7% | +4.9pp ± 2.6 | **68%** | 176,433 | +16.4k ± 6.2k | 41% | 4,478 |
+| Band 10–25% | 16.1% | 45.5% | 13.3% | +2.4pp ± 2.4 | 34% | 166,562 | +6.6k ± 6.2k | 16% | 6,146 |
+| Band 25–50% | 25.8% | 36.3% | 16.0% | +5.2pp ± 2.6 | 73% | 175,120 | +15.1k ± 6.3k | 38% | 8,505 |
+| Band 50–75% | 25.6% | 27.8% | 14.3% | +3.4pp ± 2.4 | 48% | 173,960 | +14.0k ± 6.0k | 35% | 7,891 |
+| Band 75–100% | 25.7% | 15.9% | 13.1% | +2.3pp ± 2.5 | 32% | 178,927 | +18.9k ± 6.0k | 47% | 10,349 |
+| Every late decision | 100% | 32.7% | 18.0% | +7.1pp ± 2.7 | 100% | 200,167 | +40.2k ± 6.0k | 100% | 5,105 |
+
+- **Search's gain is spread across every margin, not concentrated in close calls.** The widest-margin quarter, where search disagrees only 16% of the time, recovers the most score per search: when search overrules a clear greedy preference, it tends to matter. A small margin isn't evidence the move is wrong.
+- **The bands roughly add up,** so their gains are largely independent.
+- **The automatic rule** took the narrowest closest-X% band to recover at least half the conversion gain: the closest 50% (relative margin below 0.00189). The ranking threshold for arm C is the median of search's relative preference over 873 dev disagreements (0.000268).
+
+**The arms,** each 50k games from the 2M network with the coherence sums fully reset, the recipe otherwise unchanged, on 8 threads:
+- **A:** plain TD(0), the control.
+- **B:** TD(0) on selectively guided play. Late decisions in the chosen band are searched to depth 3 and search's move is played, so TD learns along the better trajectory.
+- **C1 and C2:** B plus a ranking update wherever search disagrees by more than the threshold. It raises search's afterstate and lowers greedy's until `rank_step` (0.1 or 0.25) of the gap between them, plus a margin of 1, is closed, exactly, allowing for weights the two afterstates share.
+
+**Evaluation** (dev): 198 first-16384 positions with 32 greedy and 8 depth-3 continuations each, and 1,000 full games on seeds 10,000–10,999, greedy and at exact depth 3, all paired with the baseline on the same spawns.
+
+| Arm | Dev greedy conversion | Dev greedy score added | Dev depth-3 conversion | Dev depth-3 score added | Full greedy | Full depth 3 | 32768, full depth 3 | Late moves changed |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Baseline | 11.7% | 162,726 | 18.0% | 200,167 | 316,674 | 393,606 | 16.6% | — |
+| A | −2.4pp ± 1.2 | −11.3k ± 2.9k | +0.3pp ± 2.5 | −4.6k ± 5.9k | **−25.8k ± 10.3k** | −6.9k ± 9.3k | 17.5% | 18.4% |
+| B | −1.9pp ± 1.1 | −15.4k ± 2.9k | −0.5pp ± 2.7 | −2.6k ± 6.1k | **−37.6k ± 10.6k** | −6.2k ± 9.0k | 15.6% | 21.2% |
+| **B − A** | +0.4pp ± 1.1 | **−4.0k ± 2.6k** | −0.8pp ± 2.5 | +1.9k ± 5.9k | **−11.8k ± 10.5k** | +0.7k ± 9.5k | | |
+
+C1 and C2 stopped at their first checkpoint, 10k games in, when the disk filled (below). Their training play was already clearly worse than A's and B's over the same games, and worse with the larger step:
+
+| Games 2.005M–2.01M, training play | Average score | Reaches 16384 |
+|---|---:|---:|
+| A | 257–269k | 59–62% |
+| B | 271–282k | 58–64% |
+| C1 (step 0.1) | 243–249k | 50–53% |
+| C2 (step 0.25) | 210–222k | 40–45% |
+
+**Cost:** A took 4 minutes (487M moves). B took 2.4 hours (509M moves). It searched 121M decisions, 24% of all moves, since late-game starts make the late game a large share of play. Search disagreed with greedy on 46% of them, at about 64 chance nodes each.
+
+- **Most of A's and B's loss against the baseline is the reset.** Round 2 found that a second full reset from this network needs about 350k games to recover, and both arms' training averages were still about 20k below the 315k level at 50k games. A and B carry the same dip, so B − A isolates the guidance.
+- **Guidance added nothing.** B is level with A at depth 3 and slightly behind it greedy. Its training games scored higher, at 8–12% 32768s against A's 6–8%, but that was the search playing, not the network learning.
+- **Ranking updates actively hurt, more so at the larger step.** This is stage 3's lesson again: the base's late move margins are about 2 points, and nudging values to fix one decision disturbs many others.
+- **Why selective search works in play but not as a teacher.** Search fixes individual decisions by looking ahead. TD along its trajectories still learns the same values, and stage 1 found the problem is that those values alias, a first 16384 valued like a first 8192, not which positions are visited. Better trajectories don't give the network a way to tell those positions apart.
+- **Not run:**
+  - A rerun without the reset. It would only matter if A had come out below B.
+  - A depth-4 teacher, meant for the case where greedy improves but depth 3 doesn't. Neither improved.
+
+**What went wrong overnight:** the disk filled at about 03:45, and the chain logged every failure as a success because of how it piped its output. B's final checkpoint saved, but C1 and C2 died at their first save, and the baseline's and A's evaluations ran but couldn't be written. They were rerun the next morning. Future chains check each step's real exit code and the free disk space first.
+
+**Verdict: stage 5 is unsuccessful.** Search remains the strongest late-game tool at play time, but neither its trajectories nor its rankings teach this network to convert. That points at what stage 1 found: the late-game weights are shared with the 8192 stage through downgrading, so the late game can't learn values of its own.
 
 ## Final training run
 
