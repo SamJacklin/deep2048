@@ -1,0 +1,21 @@
+{
+  "boards": {
+    "late": 2000,
+    "sampled": 2000,
+    "boundary": 43
+  },
+  "greedy values, late": true,
+  "depth-3 values, late": true,
+  "greedy values, sampled": true,
+  "depth-3 values, sampled": true,
+  "greedy values, boundary": true,
+  "depth-3 values, boundary": true,
+  "greedy games (1,000)": true,
+  "depth-3 games (50)": true,
+  "2m: stage 1 is the 2M network": true,
+  "2m: stage 2 is its source": true,
+  "500k: stage 1 is the 2M network": true,
+  "500k: stage 2 is its source": true,
+  "scratch: stage 1 is the 2M network": true,
+  "scratch: stage 2 is its source": true
+}

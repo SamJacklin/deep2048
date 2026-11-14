@@ -27,6 +27,9 @@ class NTupleSettings(Settings):
     LATE_START_FRACTION: float = 0.0
     LATE_START_TILE: int = 8192
     LATE_START_POOL: int = 10_000
+    # A .npy file of boards to start every training game from, drawn uniformly: a fixed pool of genuine positions that
+    # games never add to or upgrade (stage 6 trains its late-game stage only from first-16384 positions)
+    START_POOL: str | None = None
     # Share late-game knowledge across tile scales: the tuples read boards with this tile or larger
     # with their tiles above the largest gap halved, and SCALE_FEATURE adds a large-tile count term,
     # for every board or, with SCALE_WHEN_DOWNGRADED, only for boards that were downgraded

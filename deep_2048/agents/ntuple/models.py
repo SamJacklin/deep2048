@@ -85,6 +85,9 @@ class TrainingHistoryRow(BaseModel):
     @classmethod
     def from_results(cls, games_played: int, moves_played: int, results: GameResults, seconds: float) -> "TrainingHistoryRow":
         normal = ~results.synthetic
+        if not normal.any():
+            # Every game started from a fixed pool (START_POOL): summarise them all, scores being what each added
+            normal = np.ones_like(normal)
         tiles = np.left_shift(1, results.max_exponents[normal])
         return cls(
             games=games_played,

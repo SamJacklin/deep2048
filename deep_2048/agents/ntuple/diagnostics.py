@@ -169,3 +169,29 @@ def boundary_boards(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff
         board, _ = bb.move(board, best)
         board = bb.spawn_tile_seeded(board, rng)
     return np.asarray(found) if len(found) > 0 else np.zeros(0, dtype=np.uint64)
+
+
+@njit(nogil=True)
+def first_board(weights: np.ndarray, layout: TupleLayout, depth: int, exponent: int, rng: np.random.Generator) -> tuple[np.uint64, int, int]:
+    """Play a seeded game as play_seeded does, searching `depth` moves ahead, until it first holds a 2**exponent tile.
+
+    Returns (that board, after the spawn, so the next decision is made from it; moves played; score so far), or a board
+    of 0 if the game ends first. Stage 6's late-game positions are made this way.
+    """
+    bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    board = bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    table = new_transpositions()
+    moves = score = 0
+    while bb.max_exponent(board) < exponent:
+        values = _search(weights, layout, board, depth, 0.0, table)
+        best = -1
+        for action in range(bb.NUM_ACTIONS):
+            if not np.isnan(values[action]) and (best < 0 or values[action] > values[best]):
+                best = action
+        if best < 0:
+            return np.uint64(0), moves, score
+        board, reward = bb.move(board, best)
+        board = bb.spawn_tile_seeded(board, rng)
+        moves += 1
+        score += reward
+    return board, moves, score

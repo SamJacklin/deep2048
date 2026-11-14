@@ -386,7 +386,7 @@ def _train(
                 results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS, td_lambda, guide)
             else:
                 results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, td_lambda, guide)
-            if late_starts is not None:
+            if late_starts is not None and settings.START_POOL is None:
                 late_starts = late_starts._replace(pool=_grow_pool(late_starts.pool, results, settings.LATE_START_POOL))
             progress.games_played += batch
             progress.moves_played += int(results.moves.sum())
@@ -500,7 +500,16 @@ def lambda_at(settings: NTupleSettings, start_games: int, total_games: int, game
 
 
 def _late_starts(settings: NTupleSettings) -> LateStarts | None:
-    """Return an empty pool of synthetic starts if they're enabled. The pool isn't checkpointed: a resumed run refills it."""
+    """Return an empty pool of synthetic starts if they're enabled, or the fixed START_POOL that every game starts from.
+    The synthetic pool isn't checkpointed: a resumed run refills it."""
+    if settings.START_POOL is not None:
+        if settings.LATE_START_FRACTION > 0:
+            raise ValueError("START_POOL replaces synthetic late starts, so LATE_START_FRACTION must be 0")
+        pool = np.load(settings.START_POOL).astype(np.uint64)
+        if pool.size == 0 or (pool == 0).any():
+            raise ValueError(f"{settings.START_POOL} must hold boards, none of them empty")
+        # Every game starts from the pool and none donates, so it stays exactly as loaded
+        return LateStarts(pool, 1.0, 0)
     if settings.LATE_START_FRACTION <= 0:
         return None
     if settings.LATE_START_TILE & (settings.LATE_START_TILE - 1):
