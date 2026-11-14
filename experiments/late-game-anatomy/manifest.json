@@ -1,0 +1,13 @@
+[
+  {
+    "checkpoint": "checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz",
+    "checkpoint sha256": "8f117f2b449ddba0c48e8a1d71b1afe4720b7b8d5c168b88ac9fbfe8b0dde513",
+    "commit": "5fd1b15828a174ce0be5cb6777e716374a05ac3f",
+    "machine": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "cpus": 16,
+    "python": "3.11.18",
+    "smoke": false,
+    "started": "2026-11-14 14:57:11"
+  }
+]

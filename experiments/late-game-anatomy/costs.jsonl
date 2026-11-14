@@ -1,0 +1,187 @@
+{"step": "p1-greedy positions 0-249", "finished": "2026-11-14 14:57:30", "wall_s": 17.9, "cpu_s": 217.9, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103459126}
+{"step": "p1-greedy positions 250-499", "finished": "2026-11-14 14:57:43", "wall_s": 13.5, "cpu_s": 212.5, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103952746}
+{"step": "p1-greedy positions 500-749", "finished": "2026-11-14 14:57:57", "wall_s": 13.4, "cpu_s": 212.7, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103856249}
+{"step": "p1-greedy positions 750-999", "finished": "2026-11-14 14:58:10", "wall_s": 13.5, "cpu_s": 213.1, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103585621}
+{"step": "p1-greedy positions 1,000-1,249", "finished": "2026-11-14 14:58:24", "wall_s": 13.5, "cpu_s": 214.3, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103085434}
+{"step": "p1-greedy positions 1,250-1,499", "finished": "2026-11-14 14:58:37", "wall_s": 13.4, "cpu_s": 211.8, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103118455}
+{"step": "p1-greedy positions 1,500-1,749", "finished": "2026-11-14 14:58:51", "wall_s": 13.5, "cpu_s": 211.6, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103453766}
+{"step": "p1-greedy positions 1,750-1,999", "finished": "2026-11-14 14:59:04", "wall_s": 13.5, "cpu_s": 213.1, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103345436}
+{"step": "p1-greedy positions 2,000-2,249", "finished": "2026-11-14 14:59:18", "wall_s": 13.3, "cpu_s": 212.8, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103007775}
+{"step": "p1-greedy positions 2,250-2,499", "finished": "2026-11-14 14:59:31", "wall_s": 13.7, "cpu_s": 216.3, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103529564}
+{"step": "p1-greedy positions 2,500-2,749", "finished": "2026-11-14 14:59:45", "wall_s": 13.3, "cpu_s": 211.1, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103240452}
+{"step": "p1-greedy positions 2,750-2,999", "finished": "2026-11-14 14:59:58", "wall_s": 13.4, "cpu_s": 210.8, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103650050}
+{"step": "p1-greedy positions 3,000-3,249", "finished": "2026-11-14 15:00:11", "wall_s": 13.4, "cpu_s": 212.6, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103684397}
+{"step": "p1-greedy positions 3,250-3,499", "finished": "2026-11-14 15:00:25", "wall_s": 13.3, "cpu_s": 211.2, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103962295}
+{"step": "p1-greedy positions 3,500-3,749", "finished": "2026-11-14 15:00:38", "wall_s": 13.3, "cpu_s": 209.0, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103009329}
+{"step": "p1-greedy positions 3,750-3,999", "finished": "2026-11-14 15:00:51", "wall_s": 13.4, "cpu_s": 211.2, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103906229}
+{"step": "p1-greedy positions 4,000-4,249", "finished": "2026-11-14 15:01:04", "wall_s": 13.1, "cpu_s": 210.1, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103224976}
+{"step": "p1-greedy positions 4,250-4,499", "finished": "2026-11-14 15:01:18", "wall_s": 13.3, "cpu_s": 209.9, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103043087}
+{"step": "p1-greedy positions 4,500-4,749", "finished": "2026-11-14 15:01:31", "wall_s": 13.4, "cpu_s": 212.5, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103772210}
+{"step": "p1-greedy positions 4,750-4,999", "finished": "2026-11-14 15:01:44", "wall_s": 13.3, "cpu_s": 210.8, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103598673}
+{"step": "p1-depth3 positions 0-249", "finished": "2026-11-14 15:13:02", "wall_s": 676.6, "cpu_s": 10733.5, "peak_rss_mb": 825.6, "continuations": 2000, "moves": 15792094}
+{"step": "p1-depth3 positions 250-499", "finished": "2026-11-14 15:24:13", "wall_s": 671.2, "cpu_s": 10692.1, "peak_rss_mb": 826.0, "continuations": 2000, "moves": 15781003}
+{"step": "p1-depth3 positions 500-749", "finished": "2026-11-14 15:35:33", "wall_s": 680.2, "cpu_s": 10835.5, "peak_rss_mb": 826.0, "continuations": 2000, "moves": 15899938}
+{"step": "p1-depth3 positions 750-999", "finished": "2026-11-14 15:46:38", "wall_s": 665.3, "cpu_s": 10587.1, "peak_rss_mb": 826.0, "continuations": 2000, "moves": 15709068}
+{"step": "p2-trajectories pilot", "finished": "2026-11-14 15:46:55", "wall_s": 4.5, "cpu_s": 7.6, "peak_rss_mb": 817.8, "games": 320, "kept": 40}
+{"step": "p2-run pilot 30000029 A", "finished": "2026-11-14 15:46:59", "wall_s": 3.9, "cpu_s": 5.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 944987, "nodes": 0}
+{"step": "p2-run pilot 30000029 B", "finished": "2026-11-14 15:47:43", "wall_s": 43.5, "cpu_s": 669.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1127096, "nodes": 62544900}
+{"step": "p2-run pilot 30000029 C", "finished": "2026-11-14 15:47:45", "wall_s": 2.1, "cpu_s": 33.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 927368, "nodes": 2846615}
+{"step": "p2-run pilot 30000029 D", "finished": "2026-11-14 15:48:09", "wall_s": 24.2, "cpu_s": 384.2, "peak_rss_mb": 837.6, "continuations": 248, "moves": 998568, "nodes": 46488580}
+{"step": "p2-run pilot 30000105 A", "finished": "2026-11-14 15:48:09", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 948570, "nodes": 0}
+{"step": "p2-run pilot 30000105 B", "finished": "2026-11-14 15:48:54", "wall_s": 44.9, "cpu_s": 701.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1170043, "nodes": 65044301}
+{"step": "p2-run pilot 30000105 C", "finished": "2026-11-14 15:48:56", "wall_s": 2.2, "cpu_s": 34.3, "peak_rss_mb": 837.6, "continuations": 248, "moves": 978654, "nodes": 2870788}
+{"step": "p2-run pilot 30000105 D", "finished": "2026-11-14 15:49:21", "wall_s": 24.5, "cpu_s": 387.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 991573, "nodes": 46589785}
+{"step": "p2-run pilot 30000120 A", "finished": "2026-11-14 15:49:21", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 921817, "nodes": 0}
+{"step": "p2-run pilot 30000120 B", "finished": "2026-11-14 15:50:06", "wall_s": 45.3, "cpu_s": 701.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1173824, "nodes": 65266821}
+{"step": "p2-run pilot 30000120 C", "finished": "2026-11-14 15:50:08", "wall_s": 2.1, "cpu_s": 33.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 947456, "nodes": 2829223}
+{"step": "p2-run pilot 30000120 D", "finished": "2026-11-14 15:50:32", "wall_s": 23.9, "cpu_s": 377.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 936408, "nodes": 46139572}
+{"step": "p2-run pilot 30000179 A", "finished": "2026-11-14 15:50:32", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 915640, "nodes": 0}
+{"step": "p2-run pilot 30000179 B", "finished": "2026-11-14 15:51:19", "wall_s": 46.8, "cpu_s": 724.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1210581, "nodes": 67264749}
+{"step": "p2-run pilot 30000179 C", "finished": "2026-11-14 15:51:21", "wall_s": 2.2, "cpu_s": 34.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 925531, "nodes": 2888214}
+{"step": "p2-run pilot 30000179 D", "finished": "2026-11-14 15:51:46", "wall_s": 24.2, "cpu_s": 381.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 968066, "nodes": 46302102}
+{"step": "p2-run pilot 30000194 A", "finished": "2026-11-14 15:51:46", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 948932, "nodes": 0}
+{"step": "p2-run pilot 30000194 B", "finished": "2026-11-14 15:52:32", "wall_s": 45.9, "cpu_s": 710.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1184107, "nodes": 65781508}
+{"step": "p2-run pilot 30000194 C", "finished": "2026-11-14 15:52:34", "wall_s": 2.1, "cpu_s": 33.3, "peak_rss_mb": 837.6, "continuations": 248, "moves": 909879, "nodes": 2830132}
+{"step": "p2-run pilot 30000194 D", "finished": "2026-11-14 15:52:58", "wall_s": 24.2, "cpu_s": 383.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 928672, "nodes": 46319303}
+{"step": "p2-run pilot 30000203 A", "finished": "2026-11-14 15:52:58", "wall_s": 0.1, "cpu_s": 1.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 965888, "nodes": 0}
+{"step": "p2-run pilot 30000203 B", "finished": "2026-11-14 15:53:41", "wall_s": 43.1, "cpu_s": 653.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1097556, "nodes": 60895076}
+{"step": "p2-run pilot 30000203 C", "finished": "2026-11-14 15:53:43", "wall_s": 2.2, "cpu_s": 34.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 991447, "nodes": 2879203}
+{"step": "p2-run pilot 30000203 D", "finished": "2026-11-14 15:54:07", "wall_s": 24.0, "cpu_s": 380.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 909821, "nodes": 46349616}
+{"step": "p2-run pilot 30000208 A", "finished": "2026-11-14 15:54:08", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 929835, "nodes": 0}
+{"step": "p2-run pilot 30000208 B", "finished": "2026-11-14 15:54:55", "wall_s": 47.6, "cpu_s": 735.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1229448, "nodes": 68230969}
+{"step": "p2-run pilot 30000208 C", "finished": "2026-11-14 15:54:57", "wall_s": 2.1, "cpu_s": 33.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 918571, "nodes": 2840913}
+{"step": "p2-run pilot 30000208 D", "finished": "2026-11-14 15:55:22", "wall_s": 24.3, "cpu_s": 384.3, "peak_rss_mb": 837.6, "continuations": 248, "moves": 931107, "nodes": 45973667}
+{"step": "p2-run pilot 30000210 A", "finished": "2026-11-14 15:55:22", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 943476, "nodes": 0}
+{"step": "p2-run pilot 30000210 B", "finished": "2026-11-14 15:56:06", "wall_s": 43.9, "cpu_s": 685.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1144090, "nodes": 63596421}
+{"step": "p2-run pilot 30000210 C", "finished": "2026-11-14 15:56:08", "wall_s": 2.2, "cpu_s": 34.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 866050, "nodes": 2866782}
+{"step": "p2-run pilot 30000210 D", "finished": "2026-11-14 15:56:32", "wall_s": 24.1, "cpu_s": 379.3, "peak_rss_mb": 837.6, "continuations": 248, "moves": 945411, "nodes": 45392660}
+{"step": "p2-run pilot 30000282 A", "finished": "2026-11-14 15:56:32", "wall_s": 0.1, "cpu_s": 1.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 896315, "nodes": 0}
+{"step": "p2-run pilot 30000282 B", "finished": "2026-11-14 15:57:19", "wall_s": 46.9, "cpu_s": 729.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1214098, "nodes": 67457089}
+{"step": "p2-run pilot 30000282 C", "finished": "2026-11-14 15:57:21", "wall_s": 2.1, "cpu_s": 34.0, "peak_rss_mb": 837.6, "continuations": 248, "moves": 919738, "nodes": 2881375}
+{"step": "p2-run pilot 30000282 D", "finished": "2026-11-14 15:57:46", "wall_s": 24.7, "cpu_s": 389.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 931607, "nodes": 46707609}
+{"step": "p2-run pilot 30000291 A", "finished": "2026-11-14 15:57:46", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 910350, "nodes": 0}
+{"step": "p2-run pilot 30000291 B", "finished": "2026-11-14 15:58:30", "wall_s": 44.0, "cpu_s": 681.3, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1138356, "nodes": 63249338}
+{"step": "p2-run pilot 30000291 C", "finished": "2026-11-14 15:58:32", "wall_s": 2.1, "cpu_s": 33.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 963951, "nodes": 2841207}
+{"step": "p2-run pilot 30000291 D", "finished": "2026-11-14 15:58:56", "wall_s": 24.0, "cpu_s": 379.1, "peak_rss_mb": 837.6, "continuations": 248, "moves": 931478, "nodes": 46179840}
+{"step": "p2-run pilot 30000311 A", "finished": "2026-11-14 15:58:56", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 937036, "nodes": 0}
+{"step": "p2-run pilot 30000311 B", "finished": "2026-11-14 15:59:40", "wall_s": 44.0, "cpu_s": 684.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1139854, "nodes": 63391152}
+{"step": "p2-run pilot 30000311 C", "finished": "2026-11-14 15:59:42", "wall_s": 2.1, "cpu_s": 32.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 916984, "nodes": 2814417}
+{"step": "p2-run pilot 30000311 D", "finished": "2026-11-14 16:00:06", "wall_s": 23.7, "cpu_s": 372.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 932056, "nodes": 45644725}
+{"step": "p2-run pilot 30000328 A", "finished": "2026-11-14 16:00:06", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 935992, "nodes": 0}
+{"step": "p2-run pilot 30000328 B", "finished": "2026-11-14 16:00:52", "wall_s": 46.0, "cpu_s": 711.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1191271, "nodes": 66117754}
+{"step": "p2-run pilot 30000328 C", "finished": "2026-11-14 16:00:54", "wall_s": 2.3, "cpu_s": 35.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 970164, "nodes": 2876317}
+{"step": "p2-run pilot 30000328 D", "finished": "2026-11-14 16:01:19", "wall_s": 24.4, "cpu_s": 384.2, "peak_rss_mb": 837.6, "continuations": 248, "moves": 971129, "nodes": 46520712}
+{"step": "p2-run pilot 30000333 A", "finished": "2026-11-14 16:01:19", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 928286, "nodes": 0}
+{"step": "p2-run pilot 30000333 B", "finished": "2026-11-14 16:02:05", "wall_s": 46.0, "cpu_s": 715.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1201342, "nodes": 66593619}
+{"step": "p2-run pilot 30000333 C", "finished": "2026-11-14 16:02:07", "wall_s": 2.1, "cpu_s": 33.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 966438, "nodes": 2820136}
+{"step": "p2-run pilot 30000333 D", "finished": "2026-11-14 16:02:31", "wall_s": 24.1, "cpu_s": 379.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 941103, "nodes": 46486421}
+{"step": "p2-run pilot 30000334 A", "finished": "2026-11-14 16:02:31", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 969110, "nodes": 0}
+{"step": "p2-run pilot 30000334 B", "finished": "2026-11-14 16:03:16", "wall_s": 44.7, "cpu_s": 692.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1162237, "nodes": 64444471}
+{"step": "p2-run pilot 30000334 C", "finished": "2026-11-14 16:03:18", "wall_s": 2.1, "cpu_s": 33.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 891266, "nodes": 2851641}
+{"step": "p2-run pilot 30000334 D", "finished": "2026-11-14 16:03:43", "wall_s": 24.7, "cpu_s": 389.1, "peak_rss_mb": 837.6, "continuations": 248, "moves": 893680, "nodes": 46419027}
+{"step": "p2-run pilot 30000342 A", "finished": "2026-11-14 16:03:43", "wall_s": 0.1, "cpu_s": 2.0, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1004796, "nodes": 0}
+{"step": "p2-run pilot 30000342 B", "finished": "2026-11-14 16:04:32", "wall_s": 49.3, "cpu_s": 759.1, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1246265, "nodes": 69243464}
+{"step": "p2-run pilot 30000342 C", "finished": "2026-11-14 16:04:34", "wall_s": 2.3, "cpu_s": 35.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 955522, "nodes": 2896195}
+{"step": "p2-run pilot 30000342 D", "finished": "2026-11-14 16:04:59", "wall_s": 24.8, "cpu_s": 392.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 905507, "nodes": 46408719}
+{"step": "p2-run pilot 30000403 A", "finished": "2026-11-14 16:04:59", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 877552, "nodes": 0}
+{"step": "p2-run pilot 30000403 B", "finished": "2026-11-14 16:05:47", "wall_s": 47.5, "cpu_s": 735.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1203481, "nodes": 66953868}
+{"step": "p2-run pilot 30000403 C", "finished": "2026-11-14 16:05:49", "wall_s": 2.2, "cpu_s": 34.2, "peak_rss_mb": 837.6, "continuations": 248, "moves": 892272, "nodes": 2831869}
+{"step": "p2-run pilot 30000403 D", "finished": "2026-11-14 16:06:13", "wall_s": 24.4, "cpu_s": 385.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 886614, "nodes": 46247908}
+{"step": "p2-run pilot 30000459 A", "finished": "2026-11-14 16:06:14", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 898273, "nodes": 0}
+{"step": "p2-run pilot 30000459 B", "finished": "2026-11-14 16:06:59", "wall_s": 45.6, "cpu_s": 708.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1184587, "nodes": 65864060}
+{"step": "p2-run pilot 30000459 C", "finished": "2026-11-14 16:07:01", "wall_s": 2.2, "cpu_s": 34.1, "peak_rss_mb": 837.6, "continuations": 248, "moves": 891616, "nodes": 2865756}
+{"step": "p2-run pilot 30000459 D", "finished": "2026-11-14 16:07:26", "wall_s": 24.4, "cpu_s": 386.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 933805, "nodes": 46640813}
+{"step": "p2-run pilot 30000494 A", "finished": "2026-11-14 16:07:26", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 917911, "nodes": 0}
+{"step": "p2-run pilot 30000494 B", "finished": "2026-11-14 16:08:13", "wall_s": 47.1, "cpu_s": 731.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1212607, "nodes": 67438598}
+{"step": "p2-run pilot 30000494 C", "finished": "2026-11-14 16:08:15", "wall_s": 2.2, "cpu_s": 34.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 931981, "nodes": 2855855}
+{"step": "p2-run pilot 30000494 D", "finished": "2026-11-14 16:08:39", "wall_s": 24.3, "cpu_s": 383.2, "peak_rss_mb": 837.6, "continuations": 248, "moves": 992883, "nodes": 45816111}
+{"step": "p2-run pilot 30000519 A", "finished": "2026-11-14 16:08:40", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 913734, "nodes": 0}
+{"step": "p2-run pilot 30000519 B", "finished": "2026-11-14 16:09:24", "wall_s": 44.6, "cpu_s": 688.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1144103, "nodes": 63551137}
+{"step": "p2-run pilot 30000519 C", "finished": "2026-11-14 16:09:26", "wall_s": 2.1, "cpu_s": 32.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 900177, "nodes": 2801330}
+{"step": "p2-run pilot 30000519 D", "finished": "2026-11-14 16:09:50", "wall_s": 23.8, "cpu_s": 376.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 978049, "nodes": 45593281}
+{"step": "p2-run pilot 30000551 A", "finished": "2026-11-14 16:09:50", "wall_s": 0.1, "cpu_s": 1.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 880746, "nodes": 0}
+{"step": "p2-run pilot 30000551 B", "finished": "2026-11-14 16:10:36", "wall_s": 46.3, "cpu_s": 725.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1208095, "nodes": 67095283}
+{"step": "p2-run pilot 30000551 C", "finished": "2026-11-14 16:10:39", "wall_s": 2.2, "cpu_s": 34.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 925167, "nodes": 2877245}
+{"step": "p2-run pilot 30000551 D", "finished": "2026-11-14 16:11:03", "wall_s": 24.5, "cpu_s": 385.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 938789, "nodes": 46593001}
+{"step": "p2-run pilot 30000001 A", "finished": "2026-11-14 16:11:03", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 264, "moves": 934730, "nodes": 0}
+{"step": "p2-run pilot 30000001 B", "finished": "2026-11-14 16:11:48", "wall_s": 44.4, "cpu_s": 685.2, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1138817, "nodes": 63278400}
+{"step": "p2-run pilot 30000001 C", "finished": "2026-11-14 16:11:50", "wall_s": 2.2, "cpu_s": 34.7, "peak_rss_mb": 837.6, "continuations": 264, "moves": 961092, "nodes": 2908965}
+{"step": "p2-run pilot 30000001 D", "finished": "2026-11-14 16:12:15", "wall_s": 25.2, "cpu_s": 388.4, "peak_rss_mb": 837.6, "continuations": 264, "moves": 991788, "nodes": 47041315}
+{"step": "p2-run pilot 30000004 A", "finished": "2026-11-14 16:12:15", "wall_s": 0.1, "cpu_s": 1.7, "peak_rss_mb": 837.6, "continuations": 264, "moves": 900526, "nodes": 0}
+{"step": "p2-run pilot 30000004 B", "finished": "2026-11-14 16:13:01", "wall_s": 45.5, "cpu_s": 704.6, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1168256, "nodes": 65057555}
+{"step": "p2-run pilot 30000004 C", "finished": "2026-11-14 16:13:03", "wall_s": 2.2, "cpu_s": 34.2, "peak_rss_mb": 837.6, "continuations": 264, "moves": 942513, "nodes": 2912698}
+{"step": "p2-run pilot 30000004 D", "finished": "2026-11-14 16:13:28", "wall_s": 25.4, "cpu_s": 393.7, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1046461, "nodes": 47377245}
+{"step": "p2-run pilot 30000005 A", "finished": "2026-11-14 16:13:28", "wall_s": 0.1, "cpu_s": 1.5, "peak_rss_mb": 837.6, "continuations": 200, "moves": 759826, "nodes": 0}
+{"step": "p2-run pilot 30000005 B", "finished": "2026-11-14 16:14:07", "wall_s": 38.7, "cpu_s": 580.2, "peak_rss_mb": 837.6, "continuations": 200, "moves": 962340, "nodes": 53667395}
+{"step": "p2-run pilot 30000005 C", "finished": "2026-11-14 16:14:09", "wall_s": 1.8, "cpu_s": 27.5, "peak_rss_mb": 837.6, "continuations": 200, "moves": 794404, "nodes": 2254769}
+{"step": "p2-run pilot 30000005 D", "finished": "2026-11-14 16:14:28", "wall_s": 19.5, "cpu_s": 309.4, "peak_rss_mb": 837.6, "continuations": 200, "moves": 777197, "nodes": 36655258}
+{"step": "p2-run pilot 30000006 A", "finished": "2026-11-14 16:14:28", "wall_s": 0.1, "cpu_s": 1.2, "peak_rss_mb": 837.6, "continuations": 136, "moves": 592345, "nodes": 0}
+{"step": "p2-run pilot 30000006 B", "finished": "2026-11-14 16:15:01", "wall_s": 32.3, "cpu_s": 484.0, "peak_rss_mb": 837.6, "continuations": 136, "moves": 795104, "nodes": 44606293}
+{"step": "p2-run pilot 30000006 C", "finished": "2026-11-14 16:15:02", "wall_s": 1.4, "cpu_s": 20.9, "peak_rss_mb": 837.6, "continuations": 136, "moves": 565670, "nodes": 1644991}
+{"step": "p2-run pilot 30000006 D", "finished": "2026-11-14 16:15:17", "wall_s": 14.4, "cpu_s": 222.4, "peak_rss_mb": 837.6, "continuations": 136, "moves": 521552, "nodes": 24997257}
+{"step": "p2-run pilot 30000008 A", "finished": "2026-11-14 16:15:17", "wall_s": 0.1, "cpu_s": 1.1, "peak_rss_mb": 837.6, "continuations": 112, "moves": 555135, "nodes": 0}
+{"step": "p2-run pilot 30000008 B", "finished": "2026-11-14 16:15:46", "wall_s": 29.5, "cpu_s": 451.1, "peak_rss_mb": 837.6, "continuations": 112, "moves": 733420, "nodes": 41328858}
+{"step": "p2-run pilot 30000008 C", "finished": "2026-11-14 16:15:47", "wall_s": 1.2, "cpu_s": 18.9, "peak_rss_mb": 837.6, "continuations": 112, "moves": 597083, "nodes": 1398605}
+{"step": "p2-run pilot 30000008 D", "finished": "2026-11-14 16:15:59", "wall_s": 12.0, "cpu_s": 185.0, "peak_rss_mb": 837.6, "continuations": 112, "moves": 602505, "nodes": 20323663}
+{"step": "p2-run pilot 30000009 A", "finished": "2026-11-14 16:15:59", "wall_s": 0.1, "cpu_s": 1.2, "peak_rss_mb": 837.6, "continuations": 136, "moves": 619176, "nodes": 0}
+{"step": "p2-run pilot 30000009 B", "finished": "2026-11-14 16:16:31", "wall_s": 32.0, "cpu_s": 476.5, "peak_rss_mb": 837.6, "continuations": 136, "moves": 781415, "nodes": 43885079}
+{"step": "p2-run pilot 30000009 C", "finished": "2026-11-14 16:16:33", "wall_s": 1.3, "cpu_s": 20.2, "peak_rss_mb": 837.6, "continuations": 136, "moves": 613064, "nodes": 1592942}
+{"step": "p2-run pilot 30000009 D", "finished": "2026-11-14 16:16:47", "wall_s": 14.0, "cpu_s": 218.6, "peak_rss_mb": 837.6, "continuations": 136, "moves": 630525, "nodes": 24931832}
+{"step": "p2-run pilot 30000010 A", "finished": "2026-11-14 16:16:47", "wall_s": 0.1, "cpu_s": 1.9, "peak_rss_mb": 837.6, "continuations": 256, "moves": 914376, "nodes": 0}
+{"step": "p2-run pilot 30000010 B", "finished": "2026-11-14 16:17:33", "wall_s": 46.5, "cpu_s": 727.1, "peak_rss_mb": 837.6, "continuations": 256, "moves": 1211111, "nodes": 67238015}
+{"step": "p2-run pilot 30000010 C", "finished": "2026-11-14 16:17:36", "wall_s": 2.2, "cpu_s": 34.4, "peak_rss_mb": 837.6, "continuations": 256, "moves": 972763, "nodes": 2911578}
+{"step": "p2-run pilot 30000010 D", "finished": "2026-11-14 16:18:00", "wall_s": 24.7, "cpu_s": 389.1, "peak_rss_mb": 837.6, "continuations": 256, "moves": 992943, "nodes": 47130489}
+{"step": "p2-run pilot 30000011 A", "finished": "2026-11-14 16:18:00", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 264, "moves": 920896, "nodes": 0}
+{"step": "p2-run pilot 30000011 B", "finished": "2026-11-14 16:18:44", "wall_s": 43.9, "cpu_s": 684.6, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1150247, "nodes": 63803786}
+{"step": "p2-run pilot 30000011 C", "finished": "2026-11-14 16:18:46", "wall_s": 2.1, "cpu_s": 33.8, "peak_rss_mb": 837.6, "continuations": 264, "moves": 945404, "nodes": 2899422}
+{"step": "p2-run pilot 30000011 D", "finished": "2026-11-14 16:19:11", "wall_s": 24.4, "cpu_s": 390.5, "peak_rss_mb": 837.6, "continuations": 264, "moves": 950315, "nodes": 48009758}
+{"step": "p2-run pilot 30000012 A", "finished": "2026-11-14 16:19:11", "wall_s": 0.1, "cpu_s": 2.2, "peak_rss_mb": 837.6, "continuations": 256, "moves": 980167, "nodes": 0}
+{"step": "p2-run pilot 30000012 B", "finished": "2026-11-14 16:19:55", "wall_s": 44.4, "cpu_s": 684.9, "peak_rss_mb": 837.6, "continuations": 256, "moves": 1141020, "nodes": 63382312}
+{"step": "p2-run pilot 30000012 C", "finished": "2026-11-14 16:19:57", "wall_s": 2.2, "cpu_s": 34.0, "peak_rss_mb": 837.6, "continuations": 256, "moves": 912221, "nodes": 2902538}
+{"step": "p2-run pilot 30000012 D", "finished": "2026-11-14 16:20:22", "wall_s": 24.7, "cpu_s": 387.0, "peak_rss_mb": 837.6, "continuations": 256, "moves": 898232, "nodes": 47386957}
+{"step": "p2-run pilot 30000014 A", "finished": "2026-11-14 16:20:22", "wall_s": 0.1, "cpu_s": 1.4, "peak_rss_mb": 837.6, "continuations": 144, "moves": 692730, "nodes": 0}
+{"step": "p2-run pilot 30000014 B", "finished": "2026-11-14 16:20:58", "wall_s": 35.4, "cpu_s": 535.2, "peak_rss_mb": 837.6, "continuations": 144, "moves": 882197, "nodes": 49484926}
+{"step": "p2-run pilot 30000014 C", "finished": "2026-11-14 16:20:59", "wall_s": 1.4, "cpu_s": 22.6, "peak_rss_mb": 837.6, "continuations": 144, "moves": 706291, "nodes": 1751785}
+{"step": "p2-run pilot 30000014 D", "finished": "2026-11-14 16:21:14", "wall_s": 14.8, "cpu_s": 230.1, "peak_rss_mb": 837.6, "continuations": 144, "moves": 729945, "nodes": 26576435}
+{"step": "p2-run pilot 30000020 A", "finished": "2026-11-14 16:21:14", "wall_s": 0.1, "cpu_s": 1.7, "peak_rss_mb": 837.6, "continuations": 264, "moves": 853897, "nodes": 0}
+{"step": "p2-run pilot 30000020 B", "finished": "2026-11-14 16:22:00", "wall_s": 46.0, "cpu_s": 716.0, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1192809, "nodes": 66173706}
+{"step": "p2-run pilot 30000020 C", "finished": "2026-11-14 16:22:02", "wall_s": 2.2, "cpu_s": 34.4, "peak_rss_mb": 837.6, "continuations": 264, "moves": 952161, "nodes": 2928474}
+{"step": "p2-run pilot 30000020 D", "finished": "2026-11-14 16:22:27", "wall_s": 24.9, "cpu_s": 394.3, "peak_rss_mb": 837.6, "continuations": 264, "moves": 983214, "nodes": 47329623}
+{"step": "p2-run pilot 30000021 A", "finished": "2026-11-14 16:22:27", "wall_s": 0.1, "cpu_s": 1.9, "peak_rss_mb": 837.6, "continuations": 264, "moves": 966669, "nodes": 0}
+{"step": "p2-run pilot 30000021 B", "finished": "2026-11-14 16:23:11", "wall_s": 44.2, "cpu_s": 685.0, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1120625, "nodes": 62279083}
+{"step": "p2-run pilot 30000021 C", "finished": "2026-11-14 16:23:14", "wall_s": 2.3, "cpu_s": 35.5, "peak_rss_mb": 837.6, "continuations": 264, "moves": 950981, "nodes": 2954311}
+{"step": "p2-run pilot 30000021 D", "finished": "2026-11-14 16:23:39", "wall_s": 25.7, "cpu_s": 401.5, "peak_rss_mb": 837.6, "continuations": 264, "moves": 992523, "nodes": 47951668}
+{"step": "p2-run pilot 30000025 A", "finished": "2026-11-14 16:23:39", "wall_s": 0.1, "cpu_s": 1.7, "peak_rss_mb": 837.6, "continuations": 232, "moves": 903484, "nodes": 0}
+{"step": "p2-run pilot 30000025 B", "finished": "2026-11-14 16:24:27", "wall_s": 47.6, "cpu_s": 733.8, "peak_rss_mb": 837.6, "continuations": 232, "moves": 1201182, "nodes": 66803549}
+{"step": "p2-run pilot 30000025 C", "finished": "2026-11-14 16:24:29", "wall_s": 2.2, "cpu_s": 33.5, "peak_rss_mb": 837.6, "continuations": 232, "moves": 942717, "nodes": 2740406}
+{"step": "p2-run pilot 30000025 D", "finished": "2026-11-14 16:24:53", "wall_s": 23.7, "cpu_s": 376.0, "peak_rss_mb": 837.6, "continuations": 232, "moves": 956722, "nodes": 43378583}
+{"step": "p2-run pilot 30000027 A", "finished": "2026-11-14 16:24:53", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 264, "moves": 905954, "nodes": 0}
+{"step": "p2-run pilot 30000027 B", "finished": "2026-11-14 16:25:43", "wall_s": 50.4, "cpu_s": 784.1, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1247482, "nodes": 69248249}
+{"step": "p2-run pilot 30000027 C", "finished": "2026-11-14 16:25:46", "wall_s": 2.4, "cpu_s": 37.0, "peak_rss_mb": 837.6, "continuations": 264, "moves": 964687, "nodes": 3035104}
+{"step": "p2-run pilot 30000027 D", "finished": "2026-11-14 16:26:12", "wall_s": 26.4, "cpu_s": 412.4, "peak_rss_mb": 837.6, "continuations": 264, "moves": 993958, "nodes": 48797686}
+{"step": "p2-run pilot 30000028 A", "finished": "2026-11-14 16:26:12", "wall_s": 0.1, "cpu_s": 2.0, "peak_rss_mb": 837.6, "continuations": 264, "moves": 972956, "nodes": 0}
+{"step": "p2-run pilot 30000028 B", "finished": "2026-11-14 16:26:57", "wall_s": 44.1, "cpu_s": 686.6, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1122103, "nodes": 62329873}
+{"step": "p2-run pilot 30000028 C", "finished": "2026-11-14 16:26:59", "wall_s": 2.3, "cpu_s": 35.1, "peak_rss_mb": 837.6, "continuations": 264, "moves": 969053, "nodes": 2932342}
+{"step": "p2-run pilot 30000028 D", "finished": "2026-11-14 16:27:25", "wall_s": 25.8, "cpu_s": 402.1, "peak_rss_mb": 837.6, "continuations": 264, "moves": 944946, "nodes": 47835869}
+{"step": "p2-run pilot 30000030 A", "finished": "2026-11-14 16:27:25", "wall_s": 0.1, "cpu_s": 1.9, "peak_rss_mb": 837.6, "continuations": 264, "moves": 952402, "nodes": 0}
+{"step": "p2-run pilot 30000030 B", "finished": "2026-11-14 16:28:12", "wall_s": 47.1, "cpu_s": 718.4, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1166353, "nodes": 64764367}
+{"step": "p2-run pilot 30000030 C", "finished": "2026-11-14 16:28:14", "wall_s": 2.4, "cpu_s": 36.9, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1019721, "nodes": 2982482}
+{"step": "p2-run pilot 30000030 D", "finished": "2026-11-14 16:28:41", "wall_s": 26.9, "cpu_s": 410.5, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1046082, "nodes": 48184741}
+{"step": "p2-run pilot 30000031 A", "finished": "2026-11-14 16:28:41", "wall_s": 0.1, "cpu_s": 1.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 970123, "nodes": 0}
+{"step": "p2-run pilot 30000031 B", "finished": "2026-11-14 16:29:36", "wall_s": 54.8, "cpu_s": 744.0, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1187069, "nodes": 65817533}
+{"step": "p2-run pilot 30000031 C", "finished": "2026-11-14 16:29:38", "wall_s": 2.2, "cpu_s": 35.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1019778, "nodes": 2852064}
+{"step": "p2-run pilot 30000031 D", "finished": "2026-11-14 16:30:04", "wall_s": 25.8, "cpu_s": 398.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 911755, "nodes": 46344010}
+{"step": "p2-run pilot 30000033 A", "finished": "2026-11-14 16:30:04", "wall_s": 0.1, "cpu_s": 1.6, "peak_rss_mb": 837.6, "continuations": 192, "moves": 838257, "nodes": 0}
+{"step": "p2-run pilot 30000033 B", "finished": "2026-11-14 16:30:54", "wall_s": 49.6, "cpu_s": 659.8, "peak_rss_mb": 837.6, "continuations": 192, "moves": 1055444, "nodes": 58892909}
+{"step": "p2-run pilot 30000033 C", "finished": "2026-11-14 16:30:56", "wall_s": 1.8, "cpu_s": 28.3, "peak_rss_mb": 837.6, "continuations": 192, "moves": 823558, "nodes": 2275395}
+{"step": "p2-run pilot 30000033 D", "finished": "2026-11-14 16:31:16", "wall_s": 20.5, "cpu_s": 317.7, "peak_rss_mb": 837.6, "continuations": 192, "moves": 836332, "nodes": 36368114}
+{"step": "p2-run pilot 30000034 A", "finished": "2026-11-14 16:31:16", "wall_s": 0.1, "cpu_s": 1.4, "peak_rss_mb": 837.6, "continuations": 176, "moves": 695059, "nodes": 0}
+{"step": "p2-run pilot 30000034 B", "finished": "2026-11-14 16:31:56", "wall_s": 39.5, "cpu_s": 604.0, "peak_rss_mb": 837.6, "continuations": 176, "moves": 1003001, "nodes": 56012325}
+{"step": "p2-run pilot 30000034 C", "finished": "2026-11-14 16:31:57", "wall_s": 1.7, "cpu_s": 26.1, "peak_rss_mb": 837.6, "continuations": 176, "moves": 765026, "nodes": 2117561}
+{"step": "p2-run pilot 30000034 D", "finished": "2026-11-14 16:32:16", "wall_s": 18.4, "cpu_s": 283.9, "peak_rss_mb": 837.6, "continuations": 176, "moves": 764867, "nodes": 32571457}
+{"step": "p2-run pilot 30000036 A", "finished": "2026-11-14 16:32:16", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 240, "moves": 862556, "nodes": 0}
+{"step": "p2-run pilot 30000036 B", "finished": "2026-11-14 16:32:58", "wall_s": 42.0, "cpu_s": 645.4, "peak_rss_mb": 837.6, "continuations": 240, "moves": 1086700, "nodes": 60356498}
+{"step": "p2-run pilot 30000036 C", "finished": "2026-11-14 16:33:00", "wall_s": 2.1, "cpu_s": 33.5, "peak_rss_mb": 837.6, "continuations": 240, "moves": 893979, "nodes": 2782454}
+{"step": "p2-run pilot 30000036 D", "finished": "2026-11-14 16:33:24", "wall_s": 24.2, "cpu_s": 378.7, "peak_rss_mb": 837.6, "continuations": 240, "moves": 929316, "nodes": 44857945}
+{"step": "p2-trajectories expansion", "finished": "2026-11-14 16:33:34", "wall_s": 4.5, "cpu_s": 6.5, "peak_rss_mb": 818.1, "games": 192, "kept": 40}
+{"step": "p2-run expansion 30000029 A", "finished": "2026-11-14 16:33:39", "wall_s": 4.2, "cpu_s": 9.7, "peak_rss_mb": 838.6, "continuations": 744, "moves": 2843225, "nodes": 0}

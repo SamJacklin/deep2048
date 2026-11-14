@@ -1,0 +1,66 @@
+{
+  "groups": [
+    [
+      "failure",
+      0
+    ],
+    [
+      "failure",
+      1
+    ],
+    [
+      "failure",
+      2
+    ],
+    [
+      "failure",
+      3
+    ],
+    [
+      "failure",
+      4
+    ],
+    [
+      "success",
+      0
+    ],
+    [
+      "success",
+      1
+    ],
+    [
+      "success",
+      2
+    ],
+    [
+      "success",
+      3
+    ],
+    [
+      "success",
+      4
+    ]
+  ],
+  "policies": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "continuations": 32,
+  "estimated hours": 5.22,
+  "budget hours": 10.0,
+  "reasons": [
+    "failure, at the first 16384: B \u0394 score +26,773 [+7,984, +45,324], \u0394 conversion +4.4% [-3.8%, +12.5%]",
+    "failure, 1\u2013500 moves after: B \u0394 score +37,111 [+28,755, +45,205], \u0394 conversion +7.3% [+2.9%, +11.9%]",
+    "failure, 501\u20131,500: B \u0394 score +32,050 [+21,822, +41,840], \u0394 conversion +5.6% [+1.4%, +9.4%]",
+    "failure, 1,501\u20133,000: B \u0394 score +40,867 [+32,890, +48,473], \u0394 conversion +8.4% [+5.4%, +11.1%]",
+    "failure, over 3,000: B \u0394 score +21,879 [+16,965, +27,948], \u0394 conversion +6.0% [+3.7%, +8.5%]",
+    "success, at the first 16384: B \u0394 score +39,477 [+22,799, +57,522], \u0394 conversion +6.9% [-0.6%, +14.4%]",
+    "success, 1\u2013500 moves after: B \u0394 score +45,596 [+34,369, +56,472], \u0394 conversion +10.6% [+6.0%, +15.4%]",
+    "success, 501\u20131,500: B \u0394 score +43,780 [+31,494, +55,885], \u0394 conversion +9.4% [+4.2%, +14.7%]",
+    "success, 1,501\u20133,000: B \u0394 score +33,157 [+26,977, +41,027], \u0394 conversion +6.6% [+3.9%, +10.0%]",
+    "success, over 3,000: B \u0394 score +19,901 [+15,316, +24,341], \u0394 conversion +5.0% [+2.9%, +6.9%]",
+    "D joins: its edge over C could reach +5,000 in ['failure', 0]"
+  ]
+}
