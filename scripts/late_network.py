@@ -55,8 +55,10 @@ ORDER = (("2m", 0.02), ("500k", 0.02), ("scratch", 0.02), ("2m", 0.005), ("500k"
 # Then extensions, once every arm above has reached 1M: (start, rate, continuations to train to)
 EXTENSIONS = (("2m", 0.005, 1_500_000), ("500k", 0.005, 1_500_000), ("scratch", 0.005, 1_500_000), ("scratch", 0.02, 1_500_000),
               ("scratch", 0.02, 2_000_000))
+# Then one temporal coherence reset at a stall: (start, rate, continuations it resets at, continuations to train to)
+RESETS = (("scratch", 0.02, 2_000_000, 3_000_000),)
 STOPS = tuple(range(100_000, 1_000_001, 100_000))
-DEPTH3_AT = (500_000, 1_000_000, 1_500_000, 2_000_000)
+DEPTH3_AT = (500_000, 1_000_000, 1_500_000, 2_000_000, 2_500_000, 3_000_000)
 # (pool, policy, network that played, first seed, positions): seed ranges disjoint from each other and every earlier one
 POOLS = (
     ("train", "greedy", "2m", 20_000_000, 100_000),
@@ -227,6 +229,27 @@ def train_to(start: str, rate: float, stop: int) -> None:
     command = [sys.executable, "-u", "scripts/train_ntuple.py", "--run", run_name(start, rate), "--resume", str(resume), "--games", str(stop)]
     with open(OUTPUT / f"train-{run_name(start, rate)}.log", "a") as log:
         subprocess.run(command, env=os.environ | recipe(rate), stdout=log, stderr=subprocess.STDOUT, check=True)
+
+
+def train_reset(start: str, rate: float, at: int, stop: int) -> Path:
+    """Train the arm's reset branch to `stop`: it starts from the arm's checkpoint at `at` continuations with its
+    coherence sums reset (every weight back at the full rate), then resumes from its own checkpoint."""
+    name = f"{run_name(start, rate)}-reset"
+    own = Path("checkpoints/ntuple") / name / "latest.npz"
+    if own.exists():
+        resume, reset = own, []
+    else:
+        resume, reset = latest(start, rate), ["--reset-coherence"]
+        if games_in(resume) != at:
+            raise SystemExit(f"{run_name(start, rate)} is at {games_in(resume):,} continuations, not {at:,}: can't branch its reset")
+    if games_in(resume) < stop:
+        free = shutil.disk_usage(".").free / 1e9
+        if free < MIN_FREE_GB:
+            raise SystemExit(f"Only {free:.1f} GB free: stopping before training {name}")
+        command = [sys.executable, "-u", "scripts/train_ntuple.py", "--run", name, "--resume", str(resume), "--games", str(stop), *reset]
+        with open(OUTPUT / f"train-{name}.log", "a") as log:
+            subprocess.run(command, env=os.environ | recipe(rate), stdout=log, stderr=subprocess.STDOUT, check=True)
+    return own
 
 
 def strip_traces(start: str, rate: float) -> None:
@@ -412,6 +435,11 @@ def run() -> None:
             train_to(start, rate, stop)
             evaluate(f"{run_name(start, rate)}-{stop}", latest(start, rate), depth3=stop in DEPTH3_AT)
             print(f"{time.strftime('%H:%M')} {run_name(start, rate)} evaluated at {stop:,}", flush=True)
+    for start, rate, at, target in RESETS:
+        for stop in range(at + 100_000, target + 1, 100_000):
+            path = train_reset(start, rate, at, stop)
+            evaluate(f"{run_name(start, rate)}-reset-{stop}", path, depth3=stop in DEPTH3_AT)
+            print(f"{time.strftime('%H:%M')} {run_name(start, rate)}-reset evaluated at {stop:,}", flush=True)
     report()
 
 
