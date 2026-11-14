@@ -1,0 +1,1002 @@
+2026-11-14 14:57:10 starting manifest
+{
+  "checkpoint": "checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz",
+  "checkpoint sha256": "8f117f2b449ddba0c48e8a1d71b1afe4720b7b8d5c168b88ac9fbfe8b0dde513",
+  "commit": "5fd1b15828a174ce0be5cb6777e716374a05ac3f",
+  "machine": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "processor": "x86_64",
+  "cpus": 16,
+  "python": "3.11.18",
+  "smoke": false,
+  "started": "2026-11-14 14:57:11"
+}
+2026-11-14 14:57:11 finished manifest
+2026-11-14 14:57:11 starting p1-greedy
+{"step": "p1-greedy positions 0-249", "finished": "2026-11-14 14:57:30", "wall_s": 17.9, "cpu_s": 217.9, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103459126}
+{"step": "p1-greedy positions 250-499", "finished": "2026-11-14 14:57:43", "wall_s": 13.5, "cpu_s": 212.5, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103952746}
+{"step": "p1-greedy positions 500-749", "finished": "2026-11-14 14:57:57", "wall_s": 13.4, "cpu_s": 212.7, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103856249}
+{"step": "p1-greedy positions 750-999", "finished": "2026-11-14 14:58:10", "wall_s": 13.5, "cpu_s": 213.1, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103585621}
+{"step": "p1-greedy positions 1,000-1,249", "finished": "2026-11-14 14:58:24", "wall_s": 13.5, "cpu_s": 214.3, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103085434}
+{"step": "p1-greedy positions 1,250-1,499", "finished": "2026-11-14 14:58:37", "wall_s": 13.4, "cpu_s": 211.8, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103118455}
+{"step": "p1-greedy positions 1,500-1,749", "finished": "2026-11-14 14:58:51", "wall_s": 13.5, "cpu_s": 211.6, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103453766}
+{"step": "p1-greedy positions 1,750-1,999", "finished": "2026-11-14 14:59:04", "wall_s": 13.5, "cpu_s": 213.1, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103345436}
+{"step": "p1-greedy positions 2,000-2,249", "finished": "2026-11-14 14:59:18", "wall_s": 13.3, "cpu_s": 212.8, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103007775}
+{"step": "p1-greedy positions 2,250-2,499", "finished": "2026-11-14 14:59:31", "wall_s": 13.7, "cpu_s": 216.3, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103529564}
+{"step": "p1-greedy positions 2,500-2,749", "finished": "2026-11-14 14:59:45", "wall_s": 13.3, "cpu_s": 211.1, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103240452}
+{"step": "p1-greedy positions 2,750-2,999", "finished": "2026-11-14 14:59:58", "wall_s": 13.4, "cpu_s": 210.8, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103650050}
+{"step": "p1-greedy positions 3,000-3,249", "finished": "2026-11-14 15:00:11", "wall_s": 13.4, "cpu_s": 212.6, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103684397}
+{"step": "p1-greedy positions 3,250-3,499", "finished": "2026-11-14 15:00:25", "wall_s": 13.3, "cpu_s": 211.2, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103962295}
+{"step": "p1-greedy positions 3,500-3,749", "finished": "2026-11-14 15:00:38", "wall_s": 13.3, "cpu_s": 209.0, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103009329}
+{"step": "p1-greedy positions 3,750-3,999", "finished": "2026-11-14 15:00:51", "wall_s": 13.4, "cpu_s": 211.2, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103906229}
+{"step": "p1-greedy positions 4,000-4,249", "finished": "2026-11-14 15:01:04", "wall_s": 13.1, "cpu_s": 210.1, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103224976}
+{"step": "p1-greedy positions 4,250-4,499", "finished": "2026-11-14 15:01:18", "wall_s": 13.3, "cpu_s": 209.9, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103043087}
+{"step": "p1-greedy positions 4,500-4,749", "finished": "2026-11-14 15:01:31", "wall_s": 13.4, "cpu_s": 212.5, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103772210}
+{"step": "p1-greedy positions 4,750-4,999", "finished": "2026-11-14 15:01:44", "wall_s": 13.3, "cpu_s": 210.8, "peak_rss_mb": 882.8, "continuations": 16000, "moves": 103598673}
+2026-11-14 15:01:45 finished p1-greedy
+2026-11-14 15:01:45 starting p1-depth3
+{"step": "p1-depth3 positions 0-249", "finished": "2026-11-14 15:13:02", "wall_s": 676.6, "cpu_s": 10733.5, "peak_rss_mb": 825.6, "continuations": 2000, "moves": 15792094}
+{"step": "p1-depth3 positions 250-499", "finished": "2026-11-14 15:24:13", "wall_s": 671.2, "cpu_s": 10692.1, "peak_rss_mb": 826.0, "continuations": 2000, "moves": 15781003}
+{"step": "p1-depth3 positions 500-749", "finished": "2026-11-14 15:35:33", "wall_s": 680.2, "cpu_s": 10835.5, "peak_rss_mb": 826.0, "continuations": 2000, "moves": 15899938}
+{"step": "p1-depth3 positions 750-999", "finished": "2026-11-14 15:46:38", "wall_s": 665.3, "cpu_s": 10587.1, "peak_rss_mb": 826.0, "continuations": 2000, "moves": 15709068}
+2026-11-14 15:46:39 finished p1-depth3
+2026-11-14 15:46:39 starting p1-report
+# Stage 7, Part 1: does the entry position matter?
+
+Generated 2026-11-14 15:46 from `p1-greedy` and `p1-depth3`.
+
+## 6.1 Position-dependent conversion
+
+| Policy | Positions × continuations | Makes 32768 | rho (32768) [95%] | SD of true conversion | Mean score added | Between-position share of score variance [95%] |
+|---|---:|---:|---:|---:|---:|---:|
+| greedy | 5,000 × 64 | 719.7% | 0.000 [0.000, 0.001] | 0.5% | 161,330 | 0.1% [0.0%, 0.2%] |
+| depth 3 | 1,000 × 8 | 149.9% | 0.000 [0.000, 0.008] | 0.0% | 201,365 | 0.0% [0.0%, 1.1%] |
+
+On the depth-3 subset's 1,000 positions, greedy makes 32768 in 11.3% and depth 3 in 18.7%; the per-position rates correlate at r = -0.02 (both noisy, so this understates the true correlation).
+
+## 6.2 Predictive board features
+
+Out-of-fold predictions from L2-penalised logistic regression on all features, 5 folds grouped by source game, against a constant predictor fitted on each training fold. Scores are per continuation; lower is better.
+
+| Model | Penalty | Brier | Log loss | Brier skill vs constant | SD of predictions |
+|---|---:|---:|---:|---:|---:|
+| Constant | — | 0.09980 | 0.35161 | 0 | 0 |
+| All features | 0.1 | 0.09981 | 0.35162 | -0.00% | 0.26% |
+| All features | 1 | 0.09981 | 0.35162 | -0.00% | 0.26% |
+| All features | 10 | 0.09981 | 0.35162 | -0.00% | 0.26% |
+| All features | 100 | 0.09981 | 0.35162 | -0.00% | 0.25% |
+
+At penalty 1, the predictions' spread is 0.26% against an estimated 0.54% spread in true conversion: the features capture roughly 22% of the between-position variance.
+
+Calibration (penalty 1), by tenths of predicted conversion:
+
+| Tenth | Predicted | Observed |
+|---:|---:|---:|
+| 1 | 10.9% | 11.3% |
+| 2 | 11.1% | 11.3% |
+| 3 | 11.2% | 11.6% |
+| 4 | 11.2% | 11.4% |
+| 5 | 11.2% | 11.3% |
+| 6 | 11.3% | 11.2% |
+| 7 | 11.3% | 11.3% |
+| 8 | 11.3% | 10.9% |
+| 9 | 11.4% | 11.0% |
+| 10 | 11.5% | 11.1% |
+
+Each feature on its own: conversion by the feature's level, over all continuations.
+
+| Feature | Level | Positions | Makes 32768 | Mean score added |
+|---|---|---:|---:|---:|
+| Top tile | corner | 4,529 | 11.3% | 161,400 |
+| Top tile | edge | 366 | 11.1% | 160,323 |
+| Top tile | interior | 105 | 11.6% | 161,813 |
+| empty cells | 1–6 | 1,159 | 11.2% | 160,810 |
+| empty cells | 7–7 | 1,427 | 11.1% | 161,144 |
+| empty cells | 8–11 | 2,414 | 11.3% | 161,690 |
+| 2nd largest (exponent) | 3–3 | 1,537 | 11.3% | 161,501 |
+| 2nd largest (exponent) | 4–12 | 3,463 | 11.2% | 161,254 |
+| 2nd largest: distance from top | 1–1 | 1,195 | 11.3% | 161,631 |
+| 2nd largest: distance from top | 2–5 | 3,805 | 11.2% | 161,236 |
+| 3rd largest (exponent) | 2–2 | 1,250 | 11.2% | 161,461 |
+| 3rd largest (exponent) | 3–9 | 3,750 | 11.3% | 161,286 |
+| 3rd largest: distance from top | 1–1 | 1,548 | 11.2% | 161,191 |
+| 3rd largest: distance from top | 2–6 | 3,452 | 11.3% | 161,392 |
+| monotonicity | 0.666667–0.75 | 876 | 11.2% | 160,734 |
+| monotonicity | 0.791667–0.791667 | 1,250 | 11.3% | 161,497 |
+| monotonicity | 0.833333–1 | 2,874 | 11.3% | 161,439 |
+| legal moves | 2–3 | 1,307 | 11.2% | 161,159 |
+| legal moves | 4–4 | 3,693 | 11.3% | 161,391 |
+| adjacent equal pairs | 0–0 | 1,334 | 11.2% | 161,226 |
+| adjacent equal pairs | 1–1 | 1,894 | 11.3% | 161,226 |
+| adjacent equal pairs | 2–5 | 1,772 | 11.2% | 161,520 |
+| chain from top tile | 1–1 | 5,000 | 11.2% | 161,330 |
+| tiles of 256+ besides the top | 0–2 | 5,000 | 11.2% | 161,330 |
+| other tiles' sum / 1,000 | 0.026–0.032 | 1,458 | 11.2% | 161,470 |
+| other tiles' sum / 1,000 | 0.034–0.038 | 1,545 | 11.4% | 161,743 |
+| other tiles' sum / 1,000 | 0.04–4.73 | 1,997 | 11.2% | 160,908 |
+
+## 6.3 Predicted best against predicted worst tenth (out of fold, penalty 1)
+
+| Group | Positions | Makes 32768 | Mean score added |
+|---|---:|---:|---:|
+| Predicted best 10% | 500 | 11.1% | 161,231 |
+| Predicted worst 10% | 500 | 11.3% | 161,039 |
+
+Difference in conversion: -0.3% [-0.7%, +0.2%].
+
+| Feature | Best 10% | Worst 10% | All |
+|---|---:|---:|---:|
+| top tile in a corner | 0.79 | 0.69 | 0.91 |
+| top tile on an edge | 0.03 | 0.30 | 0.07 |
+| empty cells | 7.85 | 6.39 | 7.37 |
+| 2nd largest (exponent) | 3.82 | 4.51 | 3.90 |
+| 2nd largest: distance from top | 1.27 | 2.47 | 2.01 |
+| 3rd largest (exponent) | 2.89 | 3.27 | 2.88 |
+| 3rd largest: distance from top | 2.16 | 2.17 | 2.09 |
+| monotonicity | 0.87 | 0.79 | 0.83 |
+| legal moves | 3.86 | 3.39 | 3.72 |
+| adjacent equal pairs | 1.67 | 0.80 | 1.22 |
+| chain from top tile | 1.00 | 1.00 | 1.00 |
+| tiles of 256+ besides the top | 0.01 | 0.02 | 0.00 |
+| other tiles' sum / 1,000 | 0.04 | 0.10 | 0.05 |
+2026-11-14 15:46:50 finished p1-report
+2026-11-14 15:46:50 starting p2-trajectories --phase pilot
+{"step": "p2-trajectories pilot", "finished": "2026-11-14 15:46:55", "wall_s": 4.5, "cpu_s": 7.6, "peak_rss_mb": 817.8, "games": 320, "kept": 40}
+2026-11-14 15:46:55 finished p2-trajectories --phase pilot
+2026-11-14 15:46:55 starting p2-run --phase pilot
+{"step": "p2-run pilot 30000029 A", "finished": "2026-11-14 15:46:59", "wall_s": 3.9, "cpu_s": 5.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 944987, "nodes": 0}
+{"step": "p2-run pilot 30000029 B", "finished": "2026-11-14 15:47:43", "wall_s": 43.5, "cpu_s": 669.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1127096, "nodes": 62544900}
+{"step": "p2-run pilot 30000029 C", "finished": "2026-11-14 15:47:45", "wall_s": 2.1, "cpu_s": 33.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 927368, "nodes": 2846615}
+{"step": "p2-run pilot 30000029 D", "finished": "2026-11-14 15:48:09", "wall_s": 24.2, "cpu_s": 384.2, "peak_rss_mb": 837.6, "continuations": 248, "moves": 998568, "nodes": 46488580}
+{"step": "p2-run pilot 30000105 A", "finished": "2026-11-14 15:48:09", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 948570, "nodes": 0}
+{"step": "p2-run pilot 30000105 B", "finished": "2026-11-14 15:48:54", "wall_s": 44.9, "cpu_s": 701.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1170043, "nodes": 65044301}
+{"step": "p2-run pilot 30000105 C", "finished": "2026-11-14 15:48:56", "wall_s": 2.2, "cpu_s": 34.3, "peak_rss_mb": 837.6, "continuations": 248, "moves": 978654, "nodes": 2870788}
+{"step": "p2-run pilot 30000105 D", "finished": "2026-11-14 15:49:21", "wall_s": 24.5, "cpu_s": 387.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 991573, "nodes": 46589785}
+{"step": "p2-run pilot 30000120 A", "finished": "2026-11-14 15:49:21", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 921817, "nodes": 0}
+{"step": "p2-run pilot 30000120 B", "finished": "2026-11-14 15:50:06", "wall_s": 45.3, "cpu_s": 701.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1173824, "nodes": 65266821}
+{"step": "p2-run pilot 30000120 C", "finished": "2026-11-14 15:50:08", "wall_s": 2.1, "cpu_s": 33.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 947456, "nodes": 2829223}
+{"step": "p2-run pilot 30000120 D", "finished": "2026-11-14 15:50:32", "wall_s": 23.9, "cpu_s": 377.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 936408, "nodes": 46139572}
+{"step": "p2-run pilot 30000179 A", "finished": "2026-11-14 15:50:32", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 915640, "nodes": 0}
+{"step": "p2-run pilot 30000179 B", "finished": "2026-11-14 15:51:19", "wall_s": 46.8, "cpu_s": 724.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1210581, "nodes": 67264749}
+{"step": "p2-run pilot 30000179 C", "finished": "2026-11-14 15:51:21", "wall_s": 2.2, "cpu_s": 34.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 925531, "nodes": 2888214}
+{"step": "p2-run pilot 30000179 D", "finished": "2026-11-14 15:51:46", "wall_s": 24.2, "cpu_s": 381.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 968066, "nodes": 46302102}
+{"step": "p2-run pilot 30000194 A", "finished": "2026-11-14 15:51:46", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 948932, "nodes": 0}
+{"step": "p2-run pilot 30000194 B", "finished": "2026-11-14 15:52:32", "wall_s": 45.9, "cpu_s": 710.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1184107, "nodes": 65781508}
+{"step": "p2-run pilot 30000194 C", "finished": "2026-11-14 15:52:34", "wall_s": 2.1, "cpu_s": 33.3, "peak_rss_mb": 837.6, "continuations": 248, "moves": 909879, "nodes": 2830132}
+{"step": "p2-run pilot 30000194 D", "finished": "2026-11-14 15:52:58", "wall_s": 24.2, "cpu_s": 383.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 928672, "nodes": 46319303}
+{"step": "p2-run pilot 30000203 A", "finished": "2026-11-14 15:52:58", "wall_s": 0.1, "cpu_s": 1.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 965888, "nodes": 0}
+{"step": "p2-run pilot 30000203 B", "finished": "2026-11-14 15:53:41", "wall_s": 43.1, "cpu_s": 653.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1097556, "nodes": 60895076}
+{"step": "p2-run pilot 30000203 C", "finished": "2026-11-14 15:53:43", "wall_s": 2.2, "cpu_s": 34.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 991447, "nodes": 2879203}
+{"step": "p2-run pilot 30000203 D", "finished": "2026-11-14 15:54:07", "wall_s": 24.0, "cpu_s": 380.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 909821, "nodes": 46349616}
+{"step": "p2-run pilot 30000208 A", "finished": "2026-11-14 15:54:08", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 929835, "nodes": 0}
+{"step": "p2-run pilot 30000208 B", "finished": "2026-11-14 15:54:55", "wall_s": 47.6, "cpu_s": 735.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1229448, "nodes": 68230969}
+{"step": "p2-run pilot 30000208 C", "finished": "2026-11-14 15:54:57", "wall_s": 2.1, "cpu_s": 33.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 918571, "nodes": 2840913}
+{"step": "p2-run pilot 30000208 D", "finished": "2026-11-14 15:55:22", "wall_s": 24.3, "cpu_s": 384.3, "peak_rss_mb": 837.6, "continuations": 248, "moves": 931107, "nodes": 45973667}
+{"step": "p2-run pilot 30000210 A", "finished": "2026-11-14 15:55:22", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 943476, "nodes": 0}
+{"step": "p2-run pilot 30000210 B", "finished": "2026-11-14 15:56:06", "wall_s": 43.9, "cpu_s": 685.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1144090, "nodes": 63596421}
+{"step": "p2-run pilot 30000210 C", "finished": "2026-11-14 15:56:08", "wall_s": 2.2, "cpu_s": 34.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 866050, "nodes": 2866782}
+{"step": "p2-run pilot 30000210 D", "finished": "2026-11-14 15:56:32", "wall_s": 24.1, "cpu_s": 379.3, "peak_rss_mb": 837.6, "continuations": 248, "moves": 945411, "nodes": 45392660}
+{"step": "p2-run pilot 30000282 A", "finished": "2026-11-14 15:56:32", "wall_s": 0.1, "cpu_s": 1.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 896315, "nodes": 0}
+{"step": "p2-run pilot 30000282 B", "finished": "2026-11-14 15:57:19", "wall_s": 46.9, "cpu_s": 729.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1214098, "nodes": 67457089}
+{"step": "p2-run pilot 30000282 C", "finished": "2026-11-14 15:57:21", "wall_s": 2.1, "cpu_s": 34.0, "peak_rss_mb": 837.6, "continuations": 248, "moves": 919738, "nodes": 2881375}
+{"step": "p2-run pilot 30000282 D", "finished": "2026-11-14 15:57:46", "wall_s": 24.7, "cpu_s": 389.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 931607, "nodes": 46707609}
+{"step": "p2-run pilot 30000291 A", "finished": "2026-11-14 15:57:46", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 910350, "nodes": 0}
+{"step": "p2-run pilot 30000291 B", "finished": "2026-11-14 15:58:30", "wall_s": 44.0, "cpu_s": 681.3, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1138356, "nodes": 63249338}
+{"step": "p2-run pilot 30000291 C", "finished": "2026-11-14 15:58:32", "wall_s": 2.1, "cpu_s": 33.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 963951, "nodes": 2841207}
+{"step": "p2-run pilot 30000291 D", "finished": "2026-11-14 15:58:56", "wall_s": 24.0, "cpu_s": 379.1, "peak_rss_mb": 837.6, "continuations": 248, "moves": 931478, "nodes": 46179840}
+{"step": "p2-run pilot 30000311 A", "finished": "2026-11-14 15:58:56", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 937036, "nodes": 0}
+{"step": "p2-run pilot 30000311 B", "finished": "2026-11-14 15:59:40", "wall_s": 44.0, "cpu_s": 684.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1139854, "nodes": 63391152}
+{"step": "p2-run pilot 30000311 C", "finished": "2026-11-14 15:59:42", "wall_s": 2.1, "cpu_s": 32.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 916984, "nodes": 2814417}
+{"step": "p2-run pilot 30000311 D", "finished": "2026-11-14 16:00:06", "wall_s": 23.7, "cpu_s": 372.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 932056, "nodes": 45644725}
+{"step": "p2-run pilot 30000328 A", "finished": "2026-11-14 16:00:06", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 935992, "nodes": 0}
+{"step": "p2-run pilot 30000328 B", "finished": "2026-11-14 16:00:52", "wall_s": 46.0, "cpu_s": 711.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1191271, "nodes": 66117754}
+{"step": "p2-run pilot 30000328 C", "finished": "2026-11-14 16:00:54", "wall_s": 2.3, "cpu_s": 35.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 970164, "nodes": 2876317}
+{"step": "p2-run pilot 30000328 D", "finished": "2026-11-14 16:01:19", "wall_s": 24.4, "cpu_s": 384.2, "peak_rss_mb": 837.6, "continuations": 248, "moves": 971129, "nodes": 46520712}
+{"step": "p2-run pilot 30000333 A", "finished": "2026-11-14 16:01:19", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 928286, "nodes": 0}
+{"step": "p2-run pilot 30000333 B", "finished": "2026-11-14 16:02:05", "wall_s": 46.0, "cpu_s": 715.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1201342, "nodes": 66593619}
+{"step": "p2-run pilot 30000333 C", "finished": "2026-11-14 16:02:07", "wall_s": 2.1, "cpu_s": 33.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 966438, "nodes": 2820136}
+{"step": "p2-run pilot 30000333 D", "finished": "2026-11-14 16:02:31", "wall_s": 24.1, "cpu_s": 379.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 941103, "nodes": 46486421}
+{"step": "p2-run pilot 30000334 A", "finished": "2026-11-14 16:02:31", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 969110, "nodes": 0}
+{"step": "p2-run pilot 30000334 B", "finished": "2026-11-14 16:03:16", "wall_s": 44.7, "cpu_s": 692.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1162237, "nodes": 64444471}
+{"step": "p2-run pilot 30000334 C", "finished": "2026-11-14 16:03:18", "wall_s": 2.1, "cpu_s": 33.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 891266, "nodes": 2851641}
+{"step": "p2-run pilot 30000334 D", "finished": "2026-11-14 16:03:43", "wall_s": 24.7, "cpu_s": 389.1, "peak_rss_mb": 837.6, "continuations": 248, "moves": 893680, "nodes": 46419027}
+{"step": "p2-run pilot 30000342 A", "finished": "2026-11-14 16:03:43", "wall_s": 0.1, "cpu_s": 2.0, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1004796, "nodes": 0}
+{"step": "p2-run pilot 30000342 B", "finished": "2026-11-14 16:04:32", "wall_s": 49.3, "cpu_s": 759.1, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1246265, "nodes": 69243464}
+{"step": "p2-run pilot 30000342 C", "finished": "2026-11-14 16:04:34", "wall_s": 2.3, "cpu_s": 35.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 955522, "nodes": 2896195}
+{"step": "p2-run pilot 30000342 D", "finished": "2026-11-14 16:04:59", "wall_s": 24.8, "cpu_s": 392.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 905507, "nodes": 46408719}
+{"step": "p2-run pilot 30000403 A", "finished": "2026-11-14 16:04:59", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 877552, "nodes": 0}
+{"step": "p2-run pilot 30000403 B", "finished": "2026-11-14 16:05:47", "wall_s": 47.5, "cpu_s": 735.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1203481, "nodes": 66953868}
+{"step": "p2-run pilot 30000403 C", "finished": "2026-11-14 16:05:49", "wall_s": 2.2, "cpu_s": 34.2, "peak_rss_mb": 837.6, "continuations": 248, "moves": 892272, "nodes": 2831869}
+{"step": "p2-run pilot 30000403 D", "finished": "2026-11-14 16:06:13", "wall_s": 24.4, "cpu_s": 385.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 886614, "nodes": 46247908}
+{"step": "p2-run pilot 30000459 A", "finished": "2026-11-14 16:06:14", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 898273, "nodes": 0}
+{"step": "p2-run pilot 30000459 B", "finished": "2026-11-14 16:06:59", "wall_s": 45.6, "cpu_s": 708.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1184587, "nodes": 65864060}
+{"step": "p2-run pilot 30000459 C", "finished": "2026-11-14 16:07:01", "wall_s": 2.2, "cpu_s": 34.1, "peak_rss_mb": 837.6, "continuations": 248, "moves": 891616, "nodes": 2865756}
+{"step": "p2-run pilot 30000459 D", "finished": "2026-11-14 16:07:26", "wall_s": 24.4, "cpu_s": 386.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 933805, "nodes": 46640813}
+{"step": "p2-run pilot 30000494 A", "finished": "2026-11-14 16:07:26", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 917911, "nodes": 0}
+{"step": "p2-run pilot 30000494 B", "finished": "2026-11-14 16:08:13", "wall_s": 47.1, "cpu_s": 731.5, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1212607, "nodes": 67438598}
+{"step": "p2-run pilot 30000494 C", "finished": "2026-11-14 16:08:15", "wall_s": 2.2, "cpu_s": 34.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 931981, "nodes": 2855855}
+{"step": "p2-run pilot 30000494 D", "finished": "2026-11-14 16:08:39", "wall_s": 24.3, "cpu_s": 383.2, "peak_rss_mb": 837.6, "continuations": 248, "moves": 992883, "nodes": 45816111}
+{"step": "p2-run pilot 30000519 A", "finished": "2026-11-14 16:08:40", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 913734, "nodes": 0}
+{"step": "p2-run pilot 30000519 B", "finished": "2026-11-14 16:09:24", "wall_s": 44.6, "cpu_s": 688.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1144103, "nodes": 63551137}
+{"step": "p2-run pilot 30000519 C", "finished": "2026-11-14 16:09:26", "wall_s": 2.1, "cpu_s": 32.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 900177, "nodes": 2801330}
+{"step": "p2-run pilot 30000519 D", "finished": "2026-11-14 16:09:50", "wall_s": 23.8, "cpu_s": 376.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 978049, "nodes": 45593281}
+{"step": "p2-run pilot 30000551 A", "finished": "2026-11-14 16:09:50", "wall_s": 0.1, "cpu_s": 1.7, "peak_rss_mb": 837.6, "continuations": 248, "moves": 880746, "nodes": 0}
+{"step": "p2-run pilot 30000551 B", "finished": "2026-11-14 16:10:36", "wall_s": 46.3, "cpu_s": 725.8, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1208095, "nodes": 67095283}
+{"step": "p2-run pilot 30000551 C", "finished": "2026-11-14 16:10:39", "wall_s": 2.2, "cpu_s": 34.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 925167, "nodes": 2877245}
+{"step": "p2-run pilot 30000551 D", "finished": "2026-11-14 16:11:03", "wall_s": 24.5, "cpu_s": 385.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 938789, "nodes": 46593001}
+{"step": "p2-run pilot 30000001 A", "finished": "2026-11-14 16:11:03", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 264, "moves": 934730, "nodes": 0}
+{"step": "p2-run pilot 30000001 B", "finished": "2026-11-14 16:11:48", "wall_s": 44.4, "cpu_s": 685.2, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1138817, "nodes": 63278400}
+{"step": "p2-run pilot 30000001 C", "finished": "2026-11-14 16:11:50", "wall_s": 2.2, "cpu_s": 34.7, "peak_rss_mb": 837.6, "continuations": 264, "moves": 961092, "nodes": 2908965}
+{"step": "p2-run pilot 30000001 D", "finished": "2026-11-14 16:12:15", "wall_s": 25.2, "cpu_s": 388.4, "peak_rss_mb": 837.6, "continuations": 264, "moves": 991788, "nodes": 47041315}
+{"step": "p2-run pilot 30000004 A", "finished": "2026-11-14 16:12:15", "wall_s": 0.1, "cpu_s": 1.7, "peak_rss_mb": 837.6, "continuations": 264, "moves": 900526, "nodes": 0}
+{"step": "p2-run pilot 30000004 B", "finished": "2026-11-14 16:13:01", "wall_s": 45.5, "cpu_s": 704.6, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1168256, "nodes": 65057555}
+{"step": "p2-run pilot 30000004 C", "finished": "2026-11-14 16:13:03", "wall_s": 2.2, "cpu_s": 34.2, "peak_rss_mb": 837.6, "continuations": 264, "moves": 942513, "nodes": 2912698}
+{"step": "p2-run pilot 30000004 D", "finished": "2026-11-14 16:13:28", "wall_s": 25.4, "cpu_s": 393.7, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1046461, "nodes": 47377245}
+{"step": "p2-run pilot 30000005 A", "finished": "2026-11-14 16:13:28", "wall_s": 0.1, "cpu_s": 1.5, "peak_rss_mb": 837.6, "continuations": 200, "moves": 759826, "nodes": 0}
+{"step": "p2-run pilot 30000005 B", "finished": "2026-11-14 16:14:07", "wall_s": 38.7, "cpu_s": 580.2, "peak_rss_mb": 837.6, "continuations": 200, "moves": 962340, "nodes": 53667395}
+{"step": "p2-run pilot 30000005 C", "finished": "2026-11-14 16:14:09", "wall_s": 1.8, "cpu_s": 27.5, "peak_rss_mb": 837.6, "continuations": 200, "moves": 794404, "nodes": 2254769}
+{"step": "p2-run pilot 30000005 D", "finished": "2026-11-14 16:14:28", "wall_s": 19.5, "cpu_s": 309.4, "peak_rss_mb": 837.6, "continuations": 200, "moves": 777197, "nodes": 36655258}
+{"step": "p2-run pilot 30000006 A", "finished": "2026-11-14 16:14:28", "wall_s": 0.1, "cpu_s": 1.2, "peak_rss_mb": 837.6, "continuations": 136, "moves": 592345, "nodes": 0}
+{"step": "p2-run pilot 30000006 B", "finished": "2026-11-14 16:15:01", "wall_s": 32.3, "cpu_s": 484.0, "peak_rss_mb": 837.6, "continuations": 136, "moves": 795104, "nodes": 44606293}
+{"step": "p2-run pilot 30000006 C", "finished": "2026-11-14 16:15:02", "wall_s": 1.4, "cpu_s": 20.9, "peak_rss_mb": 837.6, "continuations": 136, "moves": 565670, "nodes": 1644991}
+{"step": "p2-run pilot 30000006 D", "finished": "2026-11-14 16:15:17", "wall_s": 14.4, "cpu_s": 222.4, "peak_rss_mb": 837.6, "continuations": 136, "moves": 521552, "nodes": 24997257}
+{"step": "p2-run pilot 30000008 A", "finished": "2026-11-14 16:15:17", "wall_s": 0.1, "cpu_s": 1.1, "peak_rss_mb": 837.6, "continuations": 112, "moves": 555135, "nodes": 0}
+{"step": "p2-run pilot 30000008 B", "finished": "2026-11-14 16:15:46", "wall_s": 29.5, "cpu_s": 451.1, "peak_rss_mb": 837.6, "continuations": 112, "moves": 733420, "nodes": 41328858}
+{"step": "p2-run pilot 30000008 C", "finished": "2026-11-14 16:15:47", "wall_s": 1.2, "cpu_s": 18.9, "peak_rss_mb": 837.6, "continuations": 112, "moves": 597083, "nodes": 1398605}
+{"step": "p2-run pilot 30000008 D", "finished": "2026-11-14 16:15:59", "wall_s": 12.0, "cpu_s": 185.0, "peak_rss_mb": 837.6, "continuations": 112, "moves": 602505, "nodes": 20323663}
+{"step": "p2-run pilot 30000009 A", "finished": "2026-11-14 16:15:59", "wall_s": 0.1, "cpu_s": 1.2, "peak_rss_mb": 837.6, "continuations": 136, "moves": 619176, "nodes": 0}
+{"step": "p2-run pilot 30000009 B", "finished": "2026-11-14 16:16:31", "wall_s": 32.0, "cpu_s": 476.5, "peak_rss_mb": 837.6, "continuations": 136, "moves": 781415, "nodes": 43885079}
+{"step": "p2-run pilot 30000009 C", "finished": "2026-11-14 16:16:33", "wall_s": 1.3, "cpu_s": 20.2, "peak_rss_mb": 837.6, "continuations": 136, "moves": 613064, "nodes": 1592942}
+{"step": "p2-run pilot 30000009 D", "finished": "2026-11-14 16:16:47", "wall_s": 14.0, "cpu_s": 218.6, "peak_rss_mb": 837.6, "continuations": 136, "moves": 630525, "nodes": 24931832}
+{"step": "p2-run pilot 30000010 A", "finished": "2026-11-14 16:16:47", "wall_s": 0.1, "cpu_s": 1.9, "peak_rss_mb": 837.6, "continuations": 256, "moves": 914376, "nodes": 0}
+{"step": "p2-run pilot 30000010 B", "finished": "2026-11-14 16:17:33", "wall_s": 46.5, "cpu_s": 727.1, "peak_rss_mb": 837.6, "continuations": 256, "moves": 1211111, "nodes": 67238015}
+{"step": "p2-run pilot 30000010 C", "finished": "2026-11-14 16:17:36", "wall_s": 2.2, "cpu_s": 34.4, "peak_rss_mb": 837.6, "continuations": 256, "moves": 972763, "nodes": 2911578}
+{"step": "p2-run pilot 30000010 D", "finished": "2026-11-14 16:18:00", "wall_s": 24.7, "cpu_s": 389.1, "peak_rss_mb": 837.6, "continuations": 256, "moves": 992943, "nodes": 47130489}
+{"step": "p2-run pilot 30000011 A", "finished": "2026-11-14 16:18:00", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 264, "moves": 920896, "nodes": 0}
+{"step": "p2-run pilot 30000011 B", "finished": "2026-11-14 16:18:44", "wall_s": 43.9, "cpu_s": 684.6, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1150247, "nodes": 63803786}
+{"step": "p2-run pilot 30000011 C", "finished": "2026-11-14 16:18:46", "wall_s": 2.1, "cpu_s": 33.8, "peak_rss_mb": 837.6, "continuations": 264, "moves": 945404, "nodes": 2899422}
+{"step": "p2-run pilot 30000011 D", "finished": "2026-11-14 16:19:11", "wall_s": 24.4, "cpu_s": 390.5, "peak_rss_mb": 837.6, "continuations": 264, "moves": 950315, "nodes": 48009758}
+{"step": "p2-run pilot 30000012 A", "finished": "2026-11-14 16:19:11", "wall_s": 0.1, "cpu_s": 2.2, "peak_rss_mb": 837.6, "continuations": 256, "moves": 980167, "nodes": 0}
+{"step": "p2-run pilot 30000012 B", "finished": "2026-11-14 16:19:55", "wall_s": 44.4, "cpu_s": 684.9, "peak_rss_mb": 837.6, "continuations": 256, "moves": 1141020, "nodes": 63382312}
+{"step": "p2-run pilot 30000012 C", "finished": "2026-11-14 16:19:57", "wall_s": 2.2, "cpu_s": 34.0, "peak_rss_mb": 837.6, "continuations": 256, "moves": 912221, "nodes": 2902538}
+{"step": "p2-run pilot 30000012 D", "finished": "2026-11-14 16:20:22", "wall_s": 24.7, "cpu_s": 387.0, "peak_rss_mb": 837.6, "continuations": 256, "moves": 898232, "nodes": 47386957}
+{"step": "p2-run pilot 30000014 A", "finished": "2026-11-14 16:20:22", "wall_s": 0.1, "cpu_s": 1.4, "peak_rss_mb": 837.6, "continuations": 144, "moves": 692730, "nodes": 0}
+{"step": "p2-run pilot 30000014 B", "finished": "2026-11-14 16:20:58", "wall_s": 35.4, "cpu_s": 535.2, "peak_rss_mb": 837.6, "continuations": 144, "moves": 882197, "nodes": 49484926}
+{"step": "p2-run pilot 30000014 C", "finished": "2026-11-14 16:20:59", "wall_s": 1.4, "cpu_s": 22.6, "peak_rss_mb": 837.6, "continuations": 144, "moves": 706291, "nodes": 1751785}
+{"step": "p2-run pilot 30000014 D", "finished": "2026-11-14 16:21:14", "wall_s": 14.8, "cpu_s": 230.1, "peak_rss_mb": 837.6, "continuations": 144, "moves": 729945, "nodes": 26576435}
+{"step": "p2-run pilot 30000020 A", "finished": "2026-11-14 16:21:14", "wall_s": 0.1, "cpu_s": 1.7, "peak_rss_mb": 837.6, "continuations": 264, "moves": 853897, "nodes": 0}
+{"step": "p2-run pilot 30000020 B", "finished": "2026-11-14 16:22:00", "wall_s": 46.0, "cpu_s": 716.0, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1192809, "nodes": 66173706}
+{"step": "p2-run pilot 30000020 C", "finished": "2026-11-14 16:22:02", "wall_s": 2.2, "cpu_s": 34.4, "peak_rss_mb": 837.6, "continuations": 264, "moves": 952161, "nodes": 2928474}
+{"step": "p2-run pilot 30000020 D", "finished": "2026-11-14 16:22:27", "wall_s": 24.9, "cpu_s": 394.3, "peak_rss_mb": 837.6, "continuations": 264, "moves": 983214, "nodes": 47329623}
+{"step": "p2-run pilot 30000021 A", "finished": "2026-11-14 16:22:27", "wall_s": 0.1, "cpu_s": 1.9, "peak_rss_mb": 837.6, "continuations": 264, "moves": 966669, "nodes": 0}
+{"step": "p2-run pilot 30000021 B", "finished": "2026-11-14 16:23:11", "wall_s": 44.2, "cpu_s": 685.0, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1120625, "nodes": 62279083}
+{"step": "p2-run pilot 30000021 C", "finished": "2026-11-14 16:23:14", "wall_s": 2.3, "cpu_s": 35.5, "peak_rss_mb": 837.6, "continuations": 264, "moves": 950981, "nodes": 2954311}
+{"step": "p2-run pilot 30000021 D", "finished": "2026-11-14 16:23:39", "wall_s": 25.7, "cpu_s": 401.5, "peak_rss_mb": 837.6, "continuations": 264, "moves": 992523, "nodes": 47951668}
+{"step": "p2-run pilot 30000025 A", "finished": "2026-11-14 16:23:39", "wall_s": 0.1, "cpu_s": 1.7, "peak_rss_mb": 837.6, "continuations": 232, "moves": 903484, "nodes": 0}
+{"step": "p2-run pilot 30000025 B", "finished": "2026-11-14 16:24:27", "wall_s": 47.6, "cpu_s": 733.8, "peak_rss_mb": 837.6, "continuations": 232, "moves": 1201182, "nodes": 66803549}
+{"step": "p2-run pilot 30000025 C", "finished": "2026-11-14 16:24:29", "wall_s": 2.2, "cpu_s": 33.5, "peak_rss_mb": 837.6, "continuations": 232, "moves": 942717, "nodes": 2740406}
+{"step": "p2-run pilot 30000025 D", "finished": "2026-11-14 16:24:53", "wall_s": 23.7, "cpu_s": 376.0, "peak_rss_mb": 837.6, "continuations": 232, "moves": 956722, "nodes": 43378583}
+{"step": "p2-run pilot 30000027 A", "finished": "2026-11-14 16:24:53", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 264, "moves": 905954, "nodes": 0}
+{"step": "p2-run pilot 30000027 B", "finished": "2026-11-14 16:25:43", "wall_s": 50.4, "cpu_s": 784.1, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1247482, "nodes": 69248249}
+{"step": "p2-run pilot 30000027 C", "finished": "2026-11-14 16:25:46", "wall_s": 2.4, "cpu_s": 37.0, "peak_rss_mb": 837.6, "continuations": 264, "moves": 964687, "nodes": 3035104}
+{"step": "p2-run pilot 30000027 D", "finished": "2026-11-14 16:26:12", "wall_s": 26.4, "cpu_s": 412.4, "peak_rss_mb": 837.6, "continuations": 264, "moves": 993958, "nodes": 48797686}
+{"step": "p2-run pilot 30000028 A", "finished": "2026-11-14 16:26:12", "wall_s": 0.1, "cpu_s": 2.0, "peak_rss_mb": 837.6, "continuations": 264, "moves": 972956, "nodes": 0}
+{"step": "p2-run pilot 30000028 B", "finished": "2026-11-14 16:26:57", "wall_s": 44.1, "cpu_s": 686.6, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1122103, "nodes": 62329873}
+{"step": "p2-run pilot 30000028 C", "finished": "2026-11-14 16:26:59", "wall_s": 2.3, "cpu_s": 35.1, "peak_rss_mb": 837.6, "continuations": 264, "moves": 969053, "nodes": 2932342}
+{"step": "p2-run pilot 30000028 D", "finished": "2026-11-14 16:27:25", "wall_s": 25.8, "cpu_s": 402.1, "peak_rss_mb": 837.6, "continuations": 264, "moves": 944946, "nodes": 47835869}
+{"step": "p2-run pilot 30000030 A", "finished": "2026-11-14 16:27:25", "wall_s": 0.1, "cpu_s": 1.9, "peak_rss_mb": 837.6, "continuations": 264, "moves": 952402, "nodes": 0}
+{"step": "p2-run pilot 30000030 B", "finished": "2026-11-14 16:28:12", "wall_s": 47.1, "cpu_s": 718.4, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1166353, "nodes": 64764367}
+{"step": "p2-run pilot 30000030 C", "finished": "2026-11-14 16:28:14", "wall_s": 2.4, "cpu_s": 36.9, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1019721, "nodes": 2982482}
+{"step": "p2-run pilot 30000030 D", "finished": "2026-11-14 16:28:41", "wall_s": 26.9, "cpu_s": 410.5, "peak_rss_mb": 837.6, "continuations": 264, "moves": 1046082, "nodes": 48184741}
+{"step": "p2-run pilot 30000031 A", "finished": "2026-11-14 16:28:41", "wall_s": 0.1, "cpu_s": 1.9, "peak_rss_mb": 837.6, "continuations": 248, "moves": 970123, "nodes": 0}
+{"step": "p2-run pilot 30000031 B", "finished": "2026-11-14 16:29:36", "wall_s": 54.8, "cpu_s": 744.0, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1187069, "nodes": 65817533}
+{"step": "p2-run pilot 30000031 C", "finished": "2026-11-14 16:29:38", "wall_s": 2.2, "cpu_s": 35.4, "peak_rss_mb": 837.6, "continuations": 248, "moves": 1019778, "nodes": 2852064}
+{"step": "p2-run pilot 30000031 D", "finished": "2026-11-14 16:30:04", "wall_s": 25.8, "cpu_s": 398.6, "peak_rss_mb": 837.6, "continuations": 248, "moves": 911755, "nodes": 46344010}
+{"step": "p2-run pilot 30000033 A", "finished": "2026-11-14 16:30:04", "wall_s": 0.1, "cpu_s": 1.6, "peak_rss_mb": 837.6, "continuations": 192, "moves": 838257, "nodes": 0}
+{"step": "p2-run pilot 30000033 B", "finished": "2026-11-14 16:30:54", "wall_s": 49.6, "cpu_s": 659.8, "peak_rss_mb": 837.6, "continuations": 192, "moves": 1055444, "nodes": 58892909}
+{"step": "p2-run pilot 30000033 C", "finished": "2026-11-14 16:30:56", "wall_s": 1.8, "cpu_s": 28.3, "peak_rss_mb": 837.6, "continuations": 192, "moves": 823558, "nodes": 2275395}
+{"step": "p2-run pilot 30000033 D", "finished": "2026-11-14 16:31:16", "wall_s": 20.5, "cpu_s": 317.7, "peak_rss_mb": 837.6, "continuations": 192, "moves": 836332, "nodes": 36368114}
+{"step": "p2-run pilot 30000034 A", "finished": "2026-11-14 16:31:16", "wall_s": 0.1, "cpu_s": 1.4, "peak_rss_mb": 837.6, "continuations": 176, "moves": 695059, "nodes": 0}
+{"step": "p2-run pilot 30000034 B", "finished": "2026-11-14 16:31:56", "wall_s": 39.5, "cpu_s": 604.0, "peak_rss_mb": 837.6, "continuations": 176, "moves": 1003001, "nodes": 56012325}
+{"step": "p2-run pilot 30000034 C", "finished": "2026-11-14 16:31:57", "wall_s": 1.7, "cpu_s": 26.1, "peak_rss_mb": 837.6, "continuations": 176, "moves": 765026, "nodes": 2117561}
+{"step": "p2-run pilot 30000034 D", "finished": "2026-11-14 16:32:16", "wall_s": 18.4, "cpu_s": 283.9, "peak_rss_mb": 837.6, "continuations": 176, "moves": 764867, "nodes": 32571457}
+{"step": "p2-run pilot 30000036 A", "finished": "2026-11-14 16:32:16", "wall_s": 0.1, "cpu_s": 1.8, "peak_rss_mb": 837.6, "continuations": 240, "moves": 862556, "nodes": 0}
+{"step": "p2-run pilot 30000036 B", "finished": "2026-11-14 16:32:58", "wall_s": 42.0, "cpu_s": 645.4, "peak_rss_mb": 837.6, "continuations": 240, "moves": 1086700, "nodes": 60356498}
+{"step": "p2-run pilot 30000036 C", "finished": "2026-11-14 16:33:00", "wall_s": 2.1, "cpu_s": 33.5, "peak_rss_mb": 837.6, "continuations": 240, "moves": 893979, "nodes": 2782454}
+{"step": "p2-run pilot 30000036 D", "finished": "2026-11-14 16:33:24", "wall_s": 24.2, "cpu_s": 378.7, "peak_rss_mb": 837.6, "continuations": 240, "moves": 929316, "nodes": 44857945}
+2026-11-14 16:33:25 finished p2-run --phase pilot
+2026-11-14 16:33:25 starting p2-report --phase pilot
+# Stage 7, Part 2: when can failing games be rescued? (pilot)
+
+Generated 2026-11-14 16:33.
+
+Policies: **A** greedy; **B** depth 3 from here; **C** depth 3 for 200 moves, then greedy; **D** pruned depth 5 (cutoff 0.01) for 200 moves, then greedy.
+
+Each cell is the mean paired difference from greedy (A) over points, then continuations, with a 95% interval from resampling whole trajectories. Moves remaining are retrospective (the agent can't know them).
+
+Trajectories: 20 that made 32768 (sampled up to it) and 20 that didn't. Points: 1,175. Continuations: 37,600.
+
+
+## B: depth 3 from here
+
+
+**By moves since the first 16384, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 20 | 20 | 13.1% | +4.4% [-3.8%, +12.5%] | +26,773 [+7,984, +45,324] | 3.02 | 440,083 |
+| 1–500 moves after | 60 | 20 | 12.9% | +7.3% [+2.9%, +11.9%] | +37,111 [+28,755, +45,205] | 3.02 | 435,466 |
+| 501–1,500 | 80 | 20 | 13.3% | +5.6% [+1.4%, +9.4%] | +32,050 [+21,822, +41,840] | 3.02 | 379,586 |
+| 1,501–3,000 | 120 | 20 | 9.5% | +8.4% [+5.4%, +11.1%] | +40,867 [+32,890, +48,473] | 3.02 | 304,407 |
+| over 3,000 | 275 | 19 | 15.8% | +6.0% [+3.7%, +8.5%] | +21,879 [+16,965, +27,948] | 2.83 | 169,913 |
+
+**By moves since the first 16384, successful trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 20 | 20 | 11.2% | +6.9% [-0.6%, +14.4%] | +39,477 [+22,799, +57,522] | 2.85 | 452,459 |
+| 1–500 moves after | 60 | 20 | 11.7% | +10.6% [+6.0%, +15.4%] | +45,596 [+34,369, +56,472] | 2.85 | 444,264 |
+| 501–1,500 | 80 | 20 | 10.9% | +9.4% [+4.2%, +14.7%] | +43,780 [+31,494, +55,885] | 2.85 | 388,856 |
+| 1,501–3,000 | 120 | 20 | 12.3% | +6.6% [+3.9%, +10.0%] | +33,157 [+26,977, +41,027] | 2.85 | 307,960 |
+| over 3,000 | 340 | 20 | 19.2% | +5.0% [+2.9%, +6.9%] | +19,901 [+15,316, +24,341] | 2.85 | 176,424 |
+
+**By moves remaining, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| over 2,000 moves left | 356 | 20 | 12.3% | +6.2% [+4.5%, +7.8%] | +30,556 [+26,292, +34,673] | 2.87 | 322,182 |
+| 501–2,000 left | 120 | 20 | 14.6% | +7.9% [+4.6%, +11.4%] | +28,789 [+20,282, +37,727] | 3.02 | 195,656 |
+| 201–500 left | 25 | 20 | 16.5% | +9.5% [+1.6%, +16.7%] | +34,112 [+18,756, +47,030] | 3.09 | 153,010 |
+| 200 or fewer left | 54 | 20 | 19.7% | +4.4% [-0.7%, +9.5%] | +19,658 [+8,142, +31,084] | 3.00 | 121,303 |
+
+**By empty cells, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 0–1 empty | 109 | 20 | 14.0% | +7.5% [+3.5%, +11.8%] | +31,363 [+22,652, +40,331] | 2.93 | 259,535 |
+| 2–3 empty | 293 | 20 | 14.0% | +7.3% [+5.2%, +9.8%] | +30,790 [+25,060, +37,414] | 2.90 | 256,059 |
+| 4–6 empty | 133 | 20 | 13.3% | +4.0% [+1.4%, +6.9%] | +23,976 [+18,296, +30,142] | 2.99 | 281,223 |
+| 7+ empty | 20 | 15 | 9.4% | +6.9% [+2.0%, +12.5%] | +30,906 [+16,147, +47,321] | 2.97 | 391,703 |
+
+At the first 16384, weighting successes and failures by greedy's natural 11.2% conversion, B changes conversion by +4.7%.
+
+## C: depth 3 for 200 moves, then greedy
+
+
+**By moves since the first 16384, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 20 | 20 | 13.1% | -1.9% [-8.1%, +4.4%] | -8,042 [-25,032, +9,289] | 0.14 | 15,329 |
+| 1–500 moves after | 60 | 20 | 12.9% | -0.4% [-3.5%, +2.9%] | +2,086 [-3,497, +8,127] | 0.14 | 13,254 |
+| 501–1,500 | 80 | 20 | 13.3% | -0.3% [-3.4%, +2.8%] | -1,049 [-7,932, +6,141] | 0.14 | 12,169 |
+| 1,501–3,000 | 120 | 20 | 9.5% | +3.4% [+0.9%, +5.9%] | +10,123 [+3,957, +16,492] | 0.14 | 11,861 |
+| over 3,000 | 275 | 19 | 15.8% | +1.2% [-0.6%, +2.7%] | +3,330 [+38, +6,146] | 0.14 | 10,359 |
+
+**By moves since the first 16384, successful trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 20 | 20 | 11.2% | -1.9% [-6.9%, +3.1%] | -997 [-11,554, +9,858] | 0.14 | 15,304 |
+| 1–500 moves after | 60 | 20 | 11.7% | -1.0% [-5.4%, +3.3%] | -4,667 [-13,840, +4,648] | 0.14 | 13,156 |
+| 501–1,500 | 80 | 20 | 10.9% | +1.2% [-2.3%, +4.8%] | +5,384 [-2,349, +12,870] | 0.14 | 12,148 |
+| 1,501–3,000 | 120 | 20 | 12.3% | -0.2% [-3.6%, +3.1%] | +738 [-6,303, +7,143] | 0.14 | 11,919 |
+| over 3,000 | 340 | 20 | 19.2% | -1.7% [-3.2%, -0.4%] | -1,509 [-4,432, +1,290] | 0.14 | 10,693 |
+
+**By moves remaining, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| over 2,000 moves left | 356 | 20 | 12.3% | +1.5% [+0.1%, +2.9%] | +4,243 [+680, +7,635] | 0.14 | 12,203 |
+| 501–2,000 left | 120 | 20 | 14.6% | +0.9% [-1.6%, +3.2%] | +2,989 [-1,395, +7,114] | 0.14 | 11,137 |
+| 201–500 left | 25 | 20 | 16.5% | -1.0% [-9.9%, +7.1%] | +2,271 [-14,494, +17,605] | 0.14 | 9,822 |
+| 200 or fewer left | 54 | 20 | 19.7% | +0.5% [-4.3%, +5.1%] | +1,571 [-7,491, +10,335] | 0.14 | 7,799 |
+
+**By empty cells, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 0–1 empty | 109 | 20 | 14.0% | +0.9% [-3.0%, +4.5%] | +4,341 [-3,262, +11,473] | 0.14 | 10,832 |
+| 2–3 empty | 293 | 20 | 14.0% | +1.9% [-0.1%, +3.8%] | +4,828 [+401, +8,992] | 0.14 | 11,236 |
+| 4–6 empty | 133 | 20 | 13.3% | -0.2% [-1.5%, +1.2%] | +1,198 [-2,165, +4,458] | 0.14 | 11,930 |
+| 7+ empty | 20 | 15 | 9.4% | +0.6% [-4.4%, +5.1%] | -1,807 [-17,743, +12,469] | 0.14 | 14,394 |
+
+At the first 16384, weighting successes and failures by greedy's natural 11.2% conversion, C changes conversion by -1.9%.
+
+## D: pruned depth 5 (cutoff 0.01) for 200 moves, then greedy
+
+
+**By moves since the first 16384, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 20 | 20 | 13.1% | -1.2% [-8.8%, +6.2%] | +990 [-18,521, +20,813] | 1.56 | 150,086 |
+| 1–500 moves after | 60 | 20 | 12.9% | +0.8% [-2.5%, +4.4%] | +2,328 [-5,871, +10,968] | 1.56 | 178,150 |
+| 501–1,500 | 80 | 20 | 13.3% | +0.2% [-2.5%, +2.8%] | +1,867 [-3,822, +8,235] | 1.56 | 187,027 |
+| 1,501–3,000 | 120 | 20 | 9.5% | +1.7% [-0.6%, +4.1%] | +7,558 [+1,241, +13,387] | 1.56 | 189,298 |
+| over 3,000 | 275 | 19 | 15.8% | +2.6% [+0.3%, +4.8%] | +5,843 [+1,129, +10,181] | 1.54 | 183,228 |
+
+**By moves since the first 16384, successful trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 20 | 20 | 11.2% | +1.9% [-3.1%, +6.9%] | +5,020 [-7,333, +17,893] | 1.55 | 150,399 |
+| 1–500 moves after | 60 | 20 | 11.7% | +0.4% [-4.4%, +5.4%] | +683 [-9,696, +11,571] | 1.55 | 178,405 |
+| 501–1,500 | 80 | 20 | 10.9% | -1.2% [-4.2%, +1.9%] | +482 [-7,238, +8,152] | 1.55 | 188,471 |
+| 1,501–3,000 | 120 | 20 | 12.3% | +0.6% [-2.8%, +4.5%] | +1,642 [-5,558, +8,705] | 1.55 | 189,773 |
+| over 3,000 | 340 | 20 | 19.2% | -0.1% [-1.9%, +1.4%] | +1,316 [-2,293, +4,528] | 1.55 | 188,350 |
+
+**By moves remaining, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| over 2,000 moves left | 356 | 20 | 12.3% | +2.2% [+0.4%, +3.9%] | +5,716 [+1,004, +9,931] | 1.55 | 186,455 |
+| 501–2,000 left | 120 | 20 | 14.6% | +0.9% [-2.3%, +4.3%] | +3,238 [-2,472, +9,343] | 1.56 | 191,415 |
+| 201–500 left | 25 | 20 | 16.5% | -5.0% [-12.0%, +1.6%] | -3,048 [-16,313, +9,772] | 1.57 | 181,633 |
+| 200 or fewer left | 54 | 20 | 19.7% | +3.5% [-2.6%, +9.2%] | +8,803 [-2,736, +18,762] | 1.56 | 145,695 |
+
+**By empty cells, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 0–1 empty | 109 | 20 | 14.0% | +3.3% [-0.6%, +7.6%] | +10,606 [+2,135, +19,146] | 1.55 | 174,261 |
+| 2–3 empty | 293 | 20 | 14.0% | +2.0% [-0.1%, +3.9%] | +4,703 [+60, +9,069] | 1.55 | 186,568 |
+| 4–6 empty | 133 | 20 | 13.3% | -0.3% [-3.3%, +2.6%] | +1,677 [-2,617, +5,617] | 1.56 | 186,627 |
+| 7+ empty | 20 | 15 | 9.4% | +1.9% [-3.8%, +8.1%] | +3,275 [-14,636, +22,946] | 1.56 | 163,793 |
+
+At the first 16384, weighting successes and failures by greedy's natural 11.2% conversion, D changes conversion by -0.9%.
+
+## D against C: deeper search over the same 200 moves
+
+| Group (failed trajectories) | Points | Δ makes 32768, D − C [95%] | Δ score, D − C [95%] |
+|---|---:|---:|---:|
+| at the first 16384 | 20 | +0.6% [-5.6%, +7.5%] | +9,032 [-4,972, +25,540] |
+| 1–500 moves after | 60 | +1.2% [-1.0%, +3.3%] | +242 [-6,467, +6,269] |
+| 501–1,500 | 80 | +0.5% [-2.7%, +3.9%] | +2,915 [-2,975, +9,177] |
+| 1,501–3,000 | 120 | -1.8% [-4.2%, +0.7%] | -2,565 [-7,787, +2,491] |
+| over 3,000 | 275 | +1.5% [-0.6%, +3.3%] | +2,513 [-1,809, +6,296] |
+2026-11-14 16:33:28 finished p2-report --phase pilot
+2026-11-14 16:33:28 starting p2-plan
+{
+  "groups": [
+    [
+      "failure",
+      0
+    ],
+    [
+      "failure",
+      1
+    ],
+    [
+      "failure",
+      2
+    ],
+    [
+      "failure",
+      3
+    ],
+    [
+      "failure",
+      4
+    ],
+    [
+      "success",
+      0
+    ],
+    [
+      "success",
+      1
+    ],
+    [
+      "success",
+      2
+    ],
+    [
+      "success",
+      3
+    ],
+    [
+      "success",
+      4
+    ]
+  ],
+  "policies": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "continuations": 32,
+  "estimated hours": 5.22,
+  "budget hours": 10.0,
+  "reasons": [
+    "failure, at the first 16384: B \u0394 score +26,773 [+7,984, +45,324], \u0394 conversion +4.4% [-3.8%, +12.5%]",
+    "failure, 1\u2013500 moves after: B \u0394 score +37,111 [+28,755, +45,205], \u0394 conversion +7.3% [+2.9%, +11.9%]",
+    "failure, 501\u20131,500: B \u0394 score +32,050 [+21,822, +41,840], \u0394 conversion +5.6% [+1.4%, +9.4%]",
+    "failure, 1,501\u20133,000: B \u0394 score +40,867 [+32,890, +48,473], \u0394 conversion +8.4% [+5.4%, +11.1%]",
+    "failure, over 3,000: B \u0394 score +21,879 [+16,965, +27,948], \u0394 conversion +6.0% [+3.7%, +8.5%]",
+    "success, at the first 16384: B \u0394 score +39,477 [+22,799, +57,522], \u0394 conversion +6.9% [-0.6%, +14.4%]",
+    "success, 1\u2013500 moves after: B \u0394 score +45,596 [+34,369, +56,472], \u0394 conversion +10.6% [+6.0%, +15.4%]",
+    "success, 501\u20131,500: B \u0394 score +43,780 [+31,494, +55,885], \u0394 conversion +9.4% [+4.2%, +14.7%]",
+    "success, 1,501\u20133,000: B \u0394 score +33,157 [+26,977, +41,027], \u0394 conversion +6.6% [+3.9%, +10.0%]",
+    "success, over 3,000: B \u0394 score +19,901 [+15,316, +24,341], \u0394 conversion +5.0% [+2.9%, +6.9%]",
+    "D joins: its edge over C could reach +5,000 in ['failure', 0]"
+  ]
+}
+2026-11-14 16:33:29 finished p2-plan
+2026-11-14 16:33:29 starting p2-trajectories --phase expansion
+{"step": "p2-trajectories expansion", "finished": "2026-11-14 16:33:34", "wall_s": 4.5, "cpu_s": 6.5, "peak_rss_mb": 818.1, "games": 192, "kept": 40}
+2026-11-14 16:33:34 finished p2-trajectories --phase expansion
+2026-11-14 16:33:34 starting p2-run --phase expansion
+{"step": "p2-run expansion 30000029 A", "finished": "2026-11-14 16:33:39", "wall_s": 4.2, "cpu_s": 9.7, "peak_rss_mb": 838.6, "continuations": 744, "moves": 2843225, "nodes": 0}
+{"step": "p2-run expansion 30000029 B", "finished": "2026-11-14 16:35:55", "wall_s": 135.6, "cpu_s": 2147.7, "peak_rss_mb": 838.6, "continuations": 744, "moves": 3494374, "nodes": 194091026}
+{"step": "p2-run expansion 30000029 C", "finished": "2026-11-14 16:36:01", "wall_s": 6.5, "cpu_s": 103.4, "peak_rss_mb": 838.6, "continuations": 744, "moves": 2848774, "nodes": 8617458}
+{"step": "p2-run expansion 30000029 D", "finished": "2026-11-14 16:37:15", "wall_s": 73.7, "cpu_s": 1176.7, "peak_rss_mb": 838.6, "continuations": 744, "moves": 2677279, "nodes": 139030157}
+{"step": "p2-run expansion 30000105 A", "finished": "2026-11-14 16:37:15", "wall_s": 0.4, "cpu_s": 5.7, "peak_rss_mb": 838.6, "continuations": 744, "moves": 2850297, "nodes": 0}
+{"step": "p2-run expansion 30000105 B", "finished": "2026-11-14 16:39:30", "wall_s": 134.7, "cpu_s": 2132.4, "peak_rss_mb": 838.6, "continuations": 744, "moves": 3511467, "nodes": 194904535}
+{"step": "p2-run expansion 30000105 C", "finished": "2026-11-14 16:39:37", "wall_s": 6.5, "cpu_s": 104.9, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3032743, "nodes": 8624219}
+{"step": "p2-run expansion 30000105 D", "finished": "2026-11-14 16:40:50", "wall_s": 73.6, "cpu_s": 1172.6, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2874382, "nodes": 138768948}
+{"step": "p2-run expansion 30000120 A", "finished": "2026-11-14 16:40:51", "wall_s": 0.4, "cpu_s": 5.6, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2686383, "nodes": 0}
+{"step": "p2-run expansion 30000120 B", "finished": "2026-11-14 16:43:05", "wall_s": 134.8, "cpu_s": 2131.0, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3502907, "nodes": 194673749}
+{"step": "p2-run expansion 30000120 C", "finished": "2026-11-14 16:43:12", "wall_s": 6.4, "cpu_s": 101.7, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2805253, "nodes": 8451170}
+{"step": "p2-run expansion 30000120 D", "finished": "2026-11-14 16:44:24", "wall_s": 72.5, "cpu_s": 1151.1, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2796262, "nodes": 137901492}
+{"step": "p2-run expansion 30000179 A", "finished": "2026-11-14 16:44:25", "wall_s": 0.3, "cpu_s": 5.4, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2723697, "nodes": 0}
+{"step": "p2-run expansion 30000179 B", "finished": "2026-11-14 16:46:34", "wall_s": 129.2, "cpu_s": 2044.3, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3376282, "nodes": 187338756}
+{"step": "p2-run expansion 30000179 C", "finished": "2026-11-14 16:46:40", "wall_s": 6.6, "cpu_s": 104.1, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2860152, "nodes": 8610502}
+{"step": "p2-run expansion 30000179 D", "finished": "2026-11-14 16:47:54", "wall_s": 73.5, "cpu_s": 1170.0, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2837254, "nodes": 138605317}
+{"step": "p2-run expansion 30000194 A", "finished": "2026-11-14 16:47:54", "wall_s": 0.3, "cpu_s": 5.5, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2775513, "nodes": 0}
+{"step": "p2-run expansion 30000194 B", "finished": "2026-11-14 16:50:08", "wall_s": 133.6, "cpu_s": 2105.3, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3469432, "nodes": 192441060}
+{"step": "p2-run expansion 30000194 C", "finished": "2026-11-14 16:50:14", "wall_s": 6.5, "cpu_s": 104.2, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2954333, "nodes": 8552101}
+{"step": "p2-run expansion 30000194 D", "finished": "2026-11-14 16:51:27", "wall_s": 72.6, "cpu_s": 1155.2, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2771594, "nodes": 137946461}
+{"step": "p2-run expansion 30000203 A", "finished": "2026-11-14 16:51:27", "wall_s": 0.4, "cpu_s": 5.7, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2899558, "nodes": 0}
+{"step": "p2-run expansion 30000203 B", "finished": "2026-11-14 16:53:45", "wall_s": 137.7, "cpu_s": 2172.6, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3571804, "nodes": 198317276}
+{"step": "p2-run expansion 30000203 C", "finished": "2026-11-14 16:53:51", "wall_s": 6.5, "cpu_s": 103.5, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2915344, "nodes": 8581328}
+{"step": "p2-run expansion 30000203 D", "finished": "2026-11-14 16:55:05", "wall_s": 73.2, "cpu_s": 1168.7, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2993333, "nodes": 139466873}
+{"step": "p2-run expansion 30000208 A", "finished": "2026-11-14 16:55:05", "wall_s": 0.4, "cpu_s": 5.8, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2921251, "nodes": 0}
+{"step": "p2-run expansion 30000208 B", "finished": "2026-11-14 16:57:16", "wall_s": 131.4, "cpu_s": 2081.5, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3418632, "nodes": 189802220}
+{"step": "p2-run expansion 30000208 C", "finished": "2026-11-14 16:57:23", "wall_s": 6.5, "cpu_s": 103.6, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2815519, "nodes": 8586278}
+{"step": "p2-run expansion 30000208 D", "finished": "2026-11-14 16:58:36", "wall_s": 72.7, "cpu_s": 1156.7, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2925750, "nodes": 138235584}
+{"step": "p2-run expansion 30000210 A", "finished": "2026-11-14 16:58:36", "wall_s": 0.4, "cpu_s": 5.6, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2813780, "nodes": 0}
+{"step": "p2-run expansion 30000210 B", "finished": "2026-11-14 17:00:47", "wall_s": 131.7, "cpu_s": 2078.1, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3419877, "nodes": 189829809}
+{"step": "p2-run expansion 30000210 C", "finished": "2026-11-14 17:00:54", "wall_s": 6.5, "cpu_s": 103.2, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2880608, "nodes": 8567182}
+{"step": "p2-run expansion 30000210 D", "finished": "2026-11-14 17:02:07", "wall_s": 73.9, "cpu_s": 1171.0, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2820271, "nodes": 139294913}
+{"step": "p2-run expansion 30000282 A", "finished": "2026-11-14 17:02:08", "wall_s": 0.4, "cpu_s": 5.7, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2817991, "nodes": 0}
+{"step": "p2-run expansion 30000282 B", "finished": "2026-11-14 17:04:19", "wall_s": 131.8, "cpu_s": 2082.5, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3400987, "nodes": 189034068}
+{"step": "p2-run expansion 30000282 C", "finished": "2026-11-14 17:04:26", "wall_s": 6.6, "cpu_s": 105.0, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2848339, "nodes": 8633316}
+{"step": "p2-run expansion 30000282 D", "finished": "2026-11-14 17:05:40", "wall_s": 73.6, "cpu_s": 1173.3, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2817852, "nodes": 139229668}
+{"step": "p2-run expansion 30000291 A", "finished": "2026-11-14 17:05:40", "wall_s": 0.4, "cpu_s": 5.5, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2791562, "nodes": 0}
+{"step": "p2-run expansion 30000291 B", "finished": "2026-11-14 17:07:55", "wall_s": 135.2, "cpu_s": 2145.8, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3539611, "nodes": 196395162}
+{"step": "p2-run expansion 30000291 C", "finished": "2026-11-14 17:08:01", "wall_s": 6.3, "cpu_s": 101.6, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2823765, "nodes": 8516274}
+{"step": "p2-run expansion 30000291 D", "finished": "2026-11-14 17:09:14", "wall_s": 72.8, "cpu_s": 1158.3, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2807662, "nodes": 138051449}
+{"step": "p2-run expansion 30000311 A", "finished": "2026-11-14 17:09:15", "wall_s": 0.3, "cpu_s": 5.5, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2776093, "nodes": 0}
+{"step": "p2-run expansion 30000311 B", "finished": "2026-11-14 17:11:30", "wall_s": 135.4, "cpu_s": 2143.8, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3536177, "nodes": 196208723}
+{"step": "p2-run expansion 30000311 C", "finished": "2026-11-14 17:11:36", "wall_s": 6.3, "cpu_s": 100.3, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2716199, "nodes": 8455232}
+{"step": "p2-run expansion 30000311 D", "finished": "2026-11-14 17:12:48", "wall_s": 71.8, "cpu_s": 1143.9, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2774753, "nodes": 137777664}
+{"step": "p2-run expansion 30000328 A", "finished": "2026-11-14 17:12:48", "wall_s": 0.4, "cpu_s": 5.6, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2794087, "nodes": 0}
+{"step": "p2-run expansion 30000328 B", "finished": "2026-11-14 17:15:03", "wall_s": 134.4, "cpu_s": 2122.6, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3502930, "nodes": 194412493}
+{"step": "p2-run expansion 30000328 C", "finished": "2026-11-14 17:15:09", "wall_s": 6.5, "cpu_s": 103.6, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2796965, "nodes": 8594986}
+{"step": "p2-run expansion 30000328 D", "finished": "2026-11-14 17:16:23", "wall_s": 73.3, "cpu_s": 1168.2, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2874442, "nodes": 139483172}
+{"step": "p2-run expansion 30000333 A", "finished": "2026-11-14 17:16:23", "wall_s": 0.4, "cpu_s": 5.5, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2742962, "nodes": 0}
+{"step": "p2-run expansion 30000333 B", "finished": "2026-11-14 17:18:41", "wall_s": 137.7, "cpu_s": 2184.5, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3603785, "nodes": 199919454}
+{"step": "p2-run expansion 30000333 C", "finished": "2026-11-14 17:18:47", "wall_s": 6.3, "cpu_s": 100.4, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2867627, "nodes": 8471131}
+{"step": "p2-run expansion 30000333 D", "finished": "2026-11-14 17:20:00", "wall_s": 72.6, "cpu_s": 1157.2, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2897670, "nodes": 139249219}
+{"step": "p2-run expansion 30000334 A", "finished": "2026-11-14 17:20:00", "wall_s": 0.4, "cpu_s": 5.6, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2812966, "nodes": 0}
+{"step": "p2-run expansion 30000334 B", "finished": "2026-11-14 17:22:18", "wall_s": 137.4, "cpu_s": 2166.3, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3561698, "nodes": 197745579}
+{"step": "p2-run expansion 30000334 C", "finished": "2026-11-14 17:22:24", "wall_s": 6.5, "cpu_s": 103.5, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2674574, "nodes": 8572994}
+{"step": "p2-run expansion 30000334 D", "finished": "2026-11-14 17:23:38", "wall_s": 74.1, "cpu_s": 1182.7, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2805114, "nodes": 138611884}
+{"step": "p2-run expansion 30000342 A", "finished": "2026-11-14 17:23:39", "wall_s": 0.4, "cpu_s": 5.6, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2759108, "nodes": 0}
+{"step": "p2-run expansion 30000342 B", "finished": "2026-11-14 17:25:50", "wall_s": 131.7, "cpu_s": 2079.8, "peak_rss_mb": 838.7, "continuations": 744, "moves": 3382215, "nodes": 187739145}
+{"step": "p2-run expansion 30000342 C", "finished": "2026-11-14 17:25:57", "wall_s": 6.7, "cpu_s": 106.3, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2843284, "nodes": 8654441}
+{"step": "p2-run expansion 30000342 D", "finished": "2026-11-14 17:27:12", "wall_s": 75.1, "cpu_s": 1190.1, "peak_rss_mb": 838.7, "continuations": 744, "moves": 2882655, "nodes": 139223111}
+{"step": "p2-run expansion 30000403 A", "finished": "2026-11-14 17:27:12", "wall_s": 0.4, "cpu_s": 5.8, "peak_rss_mb": 838.8, "continuations": 744, "moves": 2817532, "nodes": 0}
+{"step": "p2-run expansion 30000403 B", "finished": "2026-11-14 17:29:24", "wall_s": 131.7, "cpu_s": 2083.8, "peak_rss_mb": 838.8, "continuations": 744, "moves": 3373158, "nodes": 187422573}
+{"step": "p2-run expansion 30000403 C", "finished": "2026-11-14 17:29:30", "wall_s": 6.6, "cpu_s": 104.0, "peak_rss_mb": 838.8, "continuations": 744, "moves": 2883209, "nodes": 8556902}
+{"step": "p2-run expansion 30000403 D", "finished": "2026-11-14 17:30:44", "wall_s": 74.1, "cpu_s": 1182.4, "peak_rss_mb": 838.8, "continuations": 744, "moves": 2813702, "nodes": 139036721}
+{"step": "p2-run expansion 30000459 A", "finished": "2026-11-14 17:30:45", "wall_s": 0.4, "cpu_s": 5.7, "peak_rss_mb": 838.8, "continuations": 744, "moves": 2852694, "nodes": 0}
+{"step": "p2-run expansion 30000459 B", "finished": "2026-11-14 17:33:01", "wall_s": 136.2, "cpu_s": 2155.8, "peak_rss_mb": 838.9, "continuations": 744, "moves": 3517245, "nodes": 195446729}
+{"step": "p2-run expansion 30000459 C", "finished": "2026-11-14 17:33:07", "wall_s": 6.5, "cpu_s": 103.6, "peak_rss_mb": 838.9, "continuations": 744, "moves": 2764099, "nodes": 8593466}
+{"step": "p2-run expansion 30000459 D", "finished": "2026-11-14 17:34:22", "wall_s": 74.2, "cpu_s": 1180.2, "peak_rss_mb": 838.9, "continuations": 744, "moves": 2892790, "nodes": 139634601}
+{"step": "p2-run expansion 30000494 A", "finished": "2026-11-14 17:34:22", "wall_s": 0.4, "cpu_s": 5.4, "peak_rss_mb": 838.9, "continuations": 744, "moves": 2742114, "nodes": 0}
+{"step": "p2-run expansion 30000494 B", "finished": "2026-11-14 17:36:37", "wall_s": 135.4, "cpu_s": 2141.6, "peak_rss_mb": 838.9, "continuations": 744, "moves": 3523710, "nodes": 195748636}
+{"step": "p2-run expansion 30000494 C", "finished": "2026-11-14 17:36:44", "wall_s": 6.5, "cpu_s": 104.6, "peak_rss_mb": 838.9, "continuations": 744, "moves": 2883839, "nodes": 8619556}
+{"step": "p2-run expansion 30000494 D", "finished": "2026-11-14 17:37:57", "wall_s": 72.8, "cpu_s": 1157.6, "peak_rss_mb": 838.9, "continuations": 744, "moves": 2798438, "nodes": 137952843}
+{"step": "p2-run expansion 30000519 A", "finished": "2026-11-14 17:37:57", "wall_s": 0.3, "cpu_s": 5.2, "peak_rss_mb": 838.9, "continuations": 744, "moves": 2630213, "nodes": 0}
+{"step": "p2-run expansion 30000519 B", "finished": "2026-11-14 17:40:08", "wall_s": 130.5, "cpu_s": 2064.8, "peak_rss_mb": 838.9, "continuations": 744, "moves": 3397002, "nodes": 188568618}
+{"step": "p2-run expansion 30000519 C", "finished": "2026-11-14 17:40:14", "wall_s": 6.4, "cpu_s": 101.8, "peak_rss_mb": 838.9, "continuations": 744, "moves": 2826379, "nodes": 8499378}
+{"step": "p2-run expansion 30000519 D", "finished": "2026-11-14 17:41:26", "wall_s": 72.3, "cpu_s": 1152.0, "peak_rss_mb": 838.9, "continuations": 744, "moves": 2700694, "nodes": 137820879}
+{"step": "p2-run expansion 30000551 A", "finished": "2026-11-14 17:41:27", "wall_s": 0.3, "cpu_s": 5.3, "peak_rss_mb": 838.9, "continuations": 744, "moves": 2680067, "nodes": 0}
+{"step": "p2-run expansion 30000551 B", "finished": "2026-11-14 17:43:40", "wall_s": 133.7, "cpu_s": 2114.7, "peak_rss_mb": 838.9, "continuations": 744, "moves": 3477748, "nodes": 193325322}
+{"step": "p2-run expansion 30000551 C", "finished": "2026-11-14 17:43:47", "wall_s": 6.5, "cpu_s": 104.2, "peak_rss_mb": 839.0, "continuations": 744, "moves": 2791373, "nodes": 8643810}
+{"step": "p2-run expansion 30000551 D", "finished": "2026-11-14 17:45:01", "wall_s": 73.8, "cpu_s": 1174.3, "peak_rss_mb": 839.0, "continuations": 744, "moves": 2694666, "nodes": 139263147}
+{"step": "p2-run expansion 30000001 A", "finished": "2026-11-14 17:45:01", "wall_s": 0.4, "cpu_s": 5.9, "peak_rss_mb": 839.0, "continuations": 792, "moves": 2889857, "nodes": 0}
+{"step": "p2-run expansion 30000001 B", "finished": "2026-11-14 17:47:20", "wall_s": 138.3, "cpu_s": 2191.3, "peak_rss_mb": 839.0, "continuations": 792, "moves": 3601869, "nodes": 200191095}
+{"step": "p2-run expansion 30000001 C", "finished": "2026-11-14 17:47:26", "wall_s": 6.6, "cpu_s": 105.5, "peak_rss_mb": 839.0, "continuations": 792, "moves": 2904368, "nodes": 8771254}
+{"step": "p2-run expansion 30000001 D", "finished": "2026-11-14 17:48:41", "wall_s": 74.6, "cpu_s": 1184.1, "peak_rss_mb": 839.0, "continuations": 792, "moves": 2870326, "nodes": 141450019}
+{"step": "p2-run expansion 30000004 A", "finished": "2026-11-14 17:48:41", "wall_s": 0.4, "cpu_s": 5.9, "peak_rss_mb": 839.1, "continuations": 792, "moves": 2884295, "nodes": 0}
+{"step": "p2-run expansion 30000004 B", "finished": "2026-11-14 17:50:57", "wall_s": 136.0, "cpu_s": 2150.9, "peak_rss_mb": 839.1, "continuations": 792, "moves": 3539290, "nodes": 196492905}
+{"step": "p2-run expansion 30000004 C", "finished": "2026-11-14 17:51:04", "wall_s": 6.9, "cpu_s": 107.3, "peak_rss_mb": 839.1, "continuations": 792, "moves": 2799106, "nodes": 8823479}
+{"step": "p2-run expansion 30000004 D", "finished": "2026-11-14 17:52:19", "wall_s": 75.2, "cpu_s": 1194.4, "peak_rss_mb": 839.1, "continuations": 792, "moves": 2901531, "nodes": 143037709}
+{"step": "p2-run expansion 30000005 A", "finished": "2026-11-14 17:52:20", "wall_s": 0.3, "cpu_s": 4.9, "peak_rss_mb": 839.1, "continuations": 600, "moves": 2402606, "nodes": 0}
+{"step": "p2-run expansion 30000005 B", "finished": "2026-11-14 17:54:18", "wall_s": 118.4, "cpu_s": 1854.6, "peak_rss_mb": 839.1, "continuations": 600, "moves": 3014275, "nodes": 168038903}
+{"step": "p2-run expansion 30000005 C", "finished": "2026-11-14 17:54:23", "wall_s": 5.2, "cpu_s": 85.0, "peak_rss_mb": 839.1, "continuations": 600, "moves": 2262519, "nodes": 6864690}
+{"step": "p2-run expansion 30000005 D", "finished": "2026-11-14 17:55:23", "wall_s": 60.1, "cpu_s": 955.1, "peak_rss_mb": 839.1, "continuations": 600, "moves": 2440395, "nodes": 108491226}
+{"step": "p2-run expansion 30000006 A", "finished": "2026-11-14 17:55:24", "wall_s": 0.2, "cpu_s": 3.7, "peak_rss_mb": 839.1, "continuations": 408, "moves": 1724344, "nodes": 0}
+{"step": "p2-run expansion 30000006 B", "finished": "2026-11-14 17:57:04", "wall_s": 100.7, "cpu_s": 1563.8, "peak_rss_mb": 839.1, "continuations": 408, "moves": 2484800, "nodes": 139400845}
+{"step": "p2-run expansion 30000006 C", "finished": "2026-11-14 17:57:08", "wall_s": 4.0, "cpu_s": 63.8, "peak_rss_mb": 839.1, "continuations": 408, "moves": 1783321, "nodes": 4905586}
+{"step": "p2-run expansion 30000006 D", "finished": "2026-11-14 17:57:51", "wall_s": 43.0, "cpu_s": 678.7, "peak_rss_mb": 839.1, "continuations": 408, "moves": 1784915, "nodes": 75421864}
+{"step": "p2-run expansion 30000008 A", "finished": "2026-11-14 17:57:51", "wall_s": 0.2, "cpu_s": 3.4, "peak_rss_mb": 839.1, "continuations": 336, "moves": 1714908, "nodes": 0}
+{"step": "p2-run expansion 30000008 B", "finished": "2026-11-14 17:59:21", "wall_s": 89.7, "cpu_s": 1397.3, "peak_rss_mb": 839.1, "continuations": 336, "moves": 2227099, "nodes": 125459622}
+{"step": "p2-run expansion 30000008 C", "finished": "2026-11-14 17:59:25", "wall_s": 3.5, "cpu_s": 56.6, "peak_rss_mb": 839.1, "continuations": 336, "moves": 1774163, "nodes": 4220723}
+{"step": "p2-run expansion 30000008 D", "finished": "2026-11-14 18:00:01", "wall_s": 36.4, "cpu_s": 572.9, "peak_rss_mb": 839.1, "continuations": 336, "moves": 1769572, "nodes": 61124957}
+{"step": "p2-run expansion 30000009 A", "finished": "2026-11-14 18:00:01", "wall_s": 0.2, "cpu_s": 3.4, "peak_rss_mb": 839.1, "continuations": 408, "moves": 1711071, "nodes": 0}
+{"step": "p2-run expansion 30000009 B", "finished": "2026-11-14 18:01:31", "wall_s": 89.5, "cpu_s": 1389.4, "peak_rss_mb": 839.1, "continuations": 408, "moves": 2216384, "nodes": 124668426}
+{"step": "p2-run expansion 30000009 C", "finished": "2026-11-14 18:01:35", "wall_s": 3.8, "cpu_s": 62.0, "peak_rss_mb": 839.1, "continuations": 408, "moves": 1741319, "nodes": 4773033}
+{"step": "p2-run expansion 30000009 D", "finished": "2026-11-14 18:02:17", "wall_s": 41.8, "cpu_s": 661.3, "peak_rss_mb": 839.1, "continuations": 408, "moves": 1785820, "nodes": 73638400}
+{"step": "p2-run expansion 30000010 A", "finished": "2026-11-14 18:02:17", "wall_s": 0.4, "cpu_s": 5.6, "peak_rss_mb": 839.1, "continuations": 768, "moves": 2824220, "nodes": 0}
+{"step": "p2-run expansion 30000010 B", "finished": "2026-11-14 18:04:24", "wall_s": 127.5, "cpu_s": 2018.3, "peak_rss_mb": 839.1, "continuations": 768, "moves": 3323258, "nodes": 184414382}
+{"step": "p2-run expansion 30000010 C", "finished": "2026-11-14 18:04:31", "wall_s": 6.5, "cpu_s": 103.6, "peak_rss_mb": 839.1, "continuations": 768, "moves": 2831129, "nodes": 8696669}
+{"step": "p2-run expansion 30000010 D", "finished": "2026-11-14 18:05:46", "wall_s": 74.7, "cpu_s": 1188.1, "peak_rss_mb": 839.1, "continuations": 768, "moves": 2868553, "nodes": 142258944}
+{"step": "p2-run expansion 30000011 A", "finished": "2026-11-14 18:05:46", "wall_s": 0.4, "cpu_s": 5.5, "peak_rss_mb": 839.1, "continuations": 792, "moves": 2789742, "nodes": 0}
+{"step": "p2-run expansion 30000011 B", "finished": "2026-11-14 18:08:01", "wall_s": 135.4, "cpu_s": 2141.5, "peak_rss_mb": 839.1, "continuations": 792, "moves": 3531315, "nodes": 195770882}
+{"step": "p2-run expansion 30000011 C", "finished": "2026-11-14 18:08:08", "wall_s": 6.5, "cpu_s": 102.9, "peak_rss_mb": 839.1, "continuations": 792, "moves": 2807089, "nodes": 8670043}
+{"step": "p2-run expansion 30000011 D", "finished": "2026-11-14 18:09:22", "wall_s": 74.5, "cpu_s": 1185.8, "peak_rss_mb": 839.1, "continuations": 792, "moves": 2783899, "nodes": 143628139}
+{"step": "p2-run expansion 30000012 A", "finished": "2026-11-14 18:09:23", "wall_s": 0.4, "cpu_s": 5.7, "peak_rss_mb": 839.1, "continuations": 768, "moves": 2837243, "nodes": 0}
+{"step": "p2-run expansion 30000012 B", "finished": "2026-11-14 18:11:45", "wall_s": 142.3, "cpu_s": 2253.7, "peak_rss_mb": 839.1, "continuations": 768, "moves": 3698855, "nodes": 205299087}
+{"step": "p2-run expansion 30000012 C", "finished": "2026-11-14 18:11:52", "wall_s": 6.6, "cpu_s": 104.5, "peak_rss_mb": 839.1, "continuations": 768, "moves": 2947313, "nodes": 8762764}
+{"step": "p2-run expansion 30000012 D", "finished": "2026-11-14 18:13:06", "wall_s": 74.4, "cpu_s": 1185.4, "peak_rss_mb": 839.1, "continuations": 768, "moves": 2855319, "nodes": 142185818}
+{"step": "p2-run expansion 30000014 A", "finished": "2026-11-14 18:13:06", "wall_s": 0.3, "cpu_s": 4.3, "peak_rss_mb": 839.1, "continuations": 432, "moves": 2090869, "nodes": 0}
+{"step": "p2-run expansion 30000014 B", "finished": "2026-11-14 18:14:51", "wall_s": 104.9, "cpu_s": 1638.8, "peak_rss_mb": 839.1, "continuations": 432, "moves": 2611497, "nodes": 146499208}
+{"step": "p2-run expansion 30000014 C", "finished": "2026-11-14 18:14:56", "wall_s": 4.4, "cpu_s": 68.6, "peak_rss_mb": 839.1, "continuations": 432, "moves": 2099459, "nodes": 5250849}
+{"step": "p2-run expansion 30000014 D", "finished": "2026-11-14 18:15:41", "wall_s": 45.5, "cpu_s": 719.8, "peak_rss_mb": 839.1, "continuations": 432, "moves": 2114042, "nodes": 79420418}
+{"step": "p2-run expansion 30000020 A", "finished": "2026-11-14 18:15:41", "wall_s": 0.4, "cpu_s": 5.6, "peak_rss_mb": 839.1, "continuations": 792, "moves": 2794151, "nodes": 0}
+{"step": "p2-run expansion 30000020 B", "finished": "2026-11-14 18:18:01", "wall_s": 139.5, "cpu_s": 2208.7, "peak_rss_mb": 839.1, "continuations": 792, "moves": 3564722, "nodes": 198000787}
+{"step": "p2-run expansion 30000020 C", "finished": "2026-11-14 18:18:08", "wall_s": 6.8, "cpu_s": 107.7, "peak_rss_mb": 839.1, "continuations": 792, "moves": 2820618, "nodes": 8836421}
+{"step": "p2-run expansion 30000020 D", "finished": "2026-11-14 18:19:25", "wall_s": 76.9, "cpu_s": 1218.0, "peak_rss_mb": 839.1, "continuations": 792, "moves": 3024635, "nodes": 143424230}
+{"step": "p2-run expansion 30000021 A", "finished": "2026-11-14 18:19:25", "wall_s": 0.4, "cpu_s": 5.6, "peak_rss_mb": 839.1, "continuations": 792, "moves": 2774439, "nodes": 0}
+{"step": "p2-run expansion 30000021 B", "finished": "2026-11-14 18:21:39", "wall_s": 133.6, "cpu_s": 2110.2, "peak_rss_mb": 839.1, "continuations": 792, "moves": 3444114, "nodes": 191237220}
+{"step": "p2-run expansion 30000021 C", "finished": "2026-11-14 18:21:45", "wall_s": 6.7, "cpu_s": 106.5, "peak_rss_mb": 839.1, "continuations": 792, "moves": 2906529, "nodes": 8865157}
+{"step": "p2-run expansion 30000021 D", "finished": "2026-11-14 18:23:01", "wall_s": 76.1, "cpu_s": 1208.1, "peak_rss_mb": 839.1, "continuations": 792, "moves": 2982432, "nodes": 143228908}
+{"step": "p2-run expansion 30000025 A", "finished": "2026-11-14 18:23:02", "wall_s": 0.4, "cpu_s": 5.6, "peak_rss_mb": 839.2, "continuations": 696, "moves": 2736036, "nodes": 0}
+{"step": "p2-run expansion 30000025 B", "finished": "2026-11-14 18:25:14", "wall_s": 132.5, "cpu_s": 2100.7, "peak_rss_mb": 839.2, "continuations": 696, "moves": 3410030, "nodes": 189339117}
+{"step": "p2-run expansion 30000025 C", "finished": "2026-11-14 18:25:21", "wall_s": 6.5, "cpu_s": 102.4, "peak_rss_mb": 839.2, "continuations": 696, "moves": 2780660, "nodes": 8220633}
+{"step": "p2-run expansion 30000025 D", "finished": "2026-11-14 18:26:32", "wall_s": 70.7, "cpu_s": 1125.4, "peak_rss_mb": 839.2, "continuations": 696, "moves": 2660688, "nodes": 131073172}
+{"step": "p2-run expansion 30000027 A", "finished": "2026-11-14 18:26:32", "wall_s": 0.4, "cpu_s": 5.9, "peak_rss_mb": 839.2, "continuations": 792, "moves": 2961236, "nodes": 0}
+{"step": "p2-run expansion 30000027 B", "finished": "2026-11-14 18:28:48", "wall_s": 136.5, "cpu_s": 2165.1, "peak_rss_mb": 839.2, "continuations": 792, "moves": 3536680, "nodes": 196815197}
+{"step": "p2-run expansion 30000027 C", "finished": "2026-11-14 18:28:55", "wall_s": 6.9, "cpu_s": 109.0, "peak_rss_mb": 839.2, "continuations": 792, "moves": 3037522, "nodes": 9013931}
+{"step": "p2-run expansion 30000027 D", "finished": "2026-11-14 18:30:12", "wall_s": 76.8, "cpu_s": 1217.3, "peak_rss_mb": 839.2, "continuations": 792, "moves": 2987775, "nodes": 144868232}
+{"step": "p2-run expansion 30000028 A", "finished": "2026-11-14 18:30:12", "wall_s": 0.4, "cpu_s": 5.7, "peak_rss_mb": 839.2, "continuations": 792, "moves": 2848841, "nodes": 0}
+{"step": "p2-run expansion 30000028 B", "finished": "2026-11-14 18:32:22", "wall_s": 129.7, "cpu_s": 2051.5, "peak_rss_mb": 839.2, "continuations": 792, "moves": 3343747, "nodes": 185537901}
+{"step": "p2-run expansion 30000028 C", "finished": "2026-11-14 18:32:29", "wall_s": 6.4, "cpu_s": 102.8, "peak_rss_mb": 839.2, "continuations": 792, "moves": 2802770, "nodes": 8708743}
+{"step": "p2-run expansion 30000028 D", "finished": "2026-11-14 18:33:43", "wall_s": 74.9, "cpu_s": 1187.2, "peak_rss_mb": 839.2, "continuations": 792, "moves": 2922319, "nodes": 142740139}
+{"step": "p2-run expansion 30000030 A", "finished": "2026-11-14 18:33:44", "wall_s": 0.4, "cpu_s": 5.8, "peak_rss_mb": 839.2, "continuations": 792, "moves": 2919907, "nodes": 0}
+{"step": "p2-run expansion 30000030 B", "finished": "2026-11-14 18:36:11", "wall_s": 147.2, "cpu_s": 2335.9, "peak_rss_mb": 839.2, "continuations": 792, "moves": 3819233, "nodes": 212276550}
+{"step": "p2-run expansion 30000030 C", "finished": "2026-11-14 18:36:18", "wall_s": 6.9, "cpu_s": 109.1, "peak_rss_mb": 839.2, "continuations": 792, "moves": 2911622, "nodes": 9050965}
+{"step": "p2-run expansion 30000030 D", "finished": "2026-11-14 18:37:35", "wall_s": 77.2, "cpu_s": 1221.9, "peak_rss_mb": 839.2, "continuations": 792, "moves": 2898742, "nodes": 144740307}
+{"step": "p2-run expansion 30000031 A", "finished": "2026-11-14 18:37:35", "wall_s": 0.4, "cpu_s": 5.5, "peak_rss_mb": 839.2, "continuations": 744, "moves": 2734054, "nodes": 0}
+{"step": "p2-run expansion 30000031 B", "finished": "2026-11-14 18:39:52", "wall_s": 136.8, "cpu_s": 2161.8, "peak_rss_mb": 839.2, "continuations": 744, "moves": 3546680, "nodes": 196905484}
+{"step": "p2-run expansion 30000031 C", "finished": "2026-11-14 18:39:59", "wall_s": 6.4, "cpu_s": 102.4, "peak_rss_mb": 839.2, "continuations": 744, "moves": 2749205, "nodes": 8576447}
+{"step": "p2-run expansion 30000031 D", "finished": "2026-11-14 18:41:12", "wall_s": 72.9, "cpu_s": 1161.2, "peak_rss_mb": 839.2, "continuations": 744, "moves": 2717698, "nodes": 138478138}
+{"step": "p2-run expansion 30000033 A", "finished": "2026-11-14 18:41:12", "wall_s": 0.3, "cpu_s": 4.7, "peak_rss_mb": 839.2, "continuations": 576, "moves": 2417141, "nodes": 0}
+{"step": "p2-run expansion 30000033 B", "finished": "2026-11-14 18:43:12", "wall_s": 120.2, "cpu_s": 1888.9, "peak_rss_mb": 839.2, "continuations": 576, "moves": 3093035, "nodes": 172456057}
+{"step": "p2-run expansion 30000033 C", "finished": "2026-11-14 18:43:17", "wall_s": 5.4, "cpu_s": 86.0, "peak_rss_mb": 839.2, "continuations": 576, "moves": 2399907, "nodes": 6844211}
+{"step": "p2-run expansion 30000033 D", "finished": "2026-11-14 18:44:17", "wall_s": 59.1, "cpu_s": 938.2, "peak_rss_mb": 839.2, "continuations": 576, "moves": 2421337, "nodes": 107511276}
+{"step": "p2-run expansion 30000034 A", "finished": "2026-11-14 18:44:17", "wall_s": 0.3, "cpu_s": 4.4, "peak_rss_mb": 839.2, "continuations": 528, "moves": 2190338, "nodes": 0}
+{"step": "p2-run expansion 30000034 B", "finished": "2026-11-14 18:46:10", "wall_s": 113.1, "cpu_s": 1787.2, "peak_rss_mb": 839.2, "continuations": 528, "moves": 2886944, "nodes": 161541730}
+{"step": "p2-run expansion 30000034 C", "finished": "2026-11-14 18:46:15", "wall_s": 5.1, "cpu_s": 80.7, "peak_rss_mb": 839.2, "continuations": 528, "moves": 2211111, "nodes": 6343194}
+{"step": "p2-run expansion 30000034 D", "finished": "2026-11-14 18:47:10", "wall_s": 54.8, "cpu_s": 870.9, "peak_rss_mb": 839.2, "continuations": 528, "moves": 2325716, "nodes": 98225299}
+{"step": "p2-run expansion 30000036 A", "finished": "2026-11-14 18:47:10", "wall_s": 0.3, "cpu_s": 5.1, "peak_rss_mb": 839.2, "continuations": 720, "moves": 2600796, "nodes": 0}
+{"step": "p2-run expansion 30000036 B", "finished": "2026-11-14 18:49:19", "wall_s": 129.0, "cpu_s": 2038.8, "peak_rss_mb": 839.2, "continuations": 720, "moves": 3343644, "nodes": 185852571}
+{"step": "p2-run expansion 30000036 C", "finished": "2026-11-14 18:49:26", "wall_s": 6.4, "cpu_s": 100.9, "peak_rss_mb": 839.2, "continuations": 720, "moves": 2614449, "nodes": 8306112}
+{"step": "p2-run expansion 30000036 D", "finished": "2026-11-14 18:50:38", "wall_s": 72.6, "cpu_s": 1153.7, "peak_rss_mb": 839.2, "continuations": 720, "moves": 2648117, "nodes": 134514734}
+{"step": "p2-run expansion 30000605 A", "finished": "2026-11-14 18:50:39", "wall_s": 0.5, "cpu_s": 7.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3746391, "nodes": 0}
+{"step": "p2-run expansion 30000605 B", "finished": "2026-11-14 18:53:30", "wall_s": 171.8, "cpu_s": 2727.1, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4472561, "nodes": 248448208}
+{"step": "p2-run expansion 30000605 C", "finished": "2026-11-14 18:53:39", "wall_s": 8.7, "cpu_s": 138.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3826251, "nodes": 11413494}
+{"step": "p2-run expansion 30000605 D", "finished": "2026-11-14 18:55:17", "wall_s": 98.0, "cpu_s": 1561.3, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3731461, "nodes": 184118695}
+{"step": "p2-run expansion 30000644 A", "finished": "2026-11-14 18:55:18", "wall_s": 0.5, "cpu_s": 7.6, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3749959, "nodes": 0}
+{"step": "p2-run expansion 30000644 B", "finished": "2026-11-14 18:58:15", "wall_s": 177.5, "cpu_s": 2819.8, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4619407, "nodes": 256552293}
+{"step": "p2-run expansion 30000644 C", "finished": "2026-11-14 18:58:24", "wall_s": 8.6, "cpu_s": 136.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3710672, "nodes": 11383630}
+{"step": "p2-run expansion 30000644 D", "finished": "2026-11-14 19:00:01", "wall_s": 97.5, "cpu_s": 1555.6, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3782345, "nodes": 184284068}
+{"step": "p2-run expansion 30000650 A", "finished": "2026-11-14 19:00:02", "wall_s": 0.5, "cpu_s": 7.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3794758, "nodes": 0}
+{"step": "p2-run expansion 30000650 B", "finished": "2026-11-14 19:03:02", "wall_s": 180.2, "cpu_s": 2859.1, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4689401, "nodes": 260390277}
+{"step": "p2-run expansion 30000650 C", "finished": "2026-11-14 19:03:10", "wall_s": 8.4, "cpu_s": 134.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3634519, "nodes": 11267357}
+{"step": "p2-run expansion 30000650 D", "finished": "2026-11-14 19:04:47", "wall_s": 97.0, "cpu_s": 1544.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3757763, "nodes": 184632560}
+{"step": "p2-run expansion 30000675 A", "finished": "2026-11-14 19:04:48", "wall_s": 0.5, "cpu_s": 7.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3754695, "nodes": 0}
+{"step": "p2-run expansion 30000675 B", "finished": "2026-11-14 19:07:45", "wall_s": 177.4, "cpu_s": 2818.0, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4635051, "nodes": 257277443}
+{"step": "p2-run expansion 30000675 C", "finished": "2026-11-14 19:07:54", "wall_s": 8.6, "cpu_s": 137.0, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3752918, "nodes": 11388829}
+{"step": "p2-run expansion 30000675 D", "finished": "2026-11-14 19:09:31", "wall_s": 97.5, "cpu_s": 1552.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3769911, "nodes": 184816062}
+{"step": "p2-run expansion 30000688 A", "finished": "2026-11-14 19:09:32", "wall_s": 0.5, "cpu_s": 7.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3675536, "nodes": 0}
+{"step": "p2-run expansion 30000688 B", "finished": "2026-11-14 19:12:32", "wall_s": 180.2, "cpu_s": 2856.3, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4670427, "nodes": 259457066}
+{"step": "p2-run expansion 30000688 C", "finished": "2026-11-14 19:12:41", "wall_s": 8.8, "cpu_s": 139.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3724875, "nodes": 11498962}
+{"step": "p2-run expansion 30000688 D", "finished": "2026-11-14 19:14:19", "wall_s": 97.8, "cpu_s": 1558.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3788233, "nodes": 183935238}
+{"step": "p2-run expansion 30000723 A", "finished": "2026-11-14 19:14:19", "wall_s": 0.5, "cpu_s": 7.6, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3796818, "nodes": 0}
+{"step": "p2-run expansion 30000723 B", "finished": "2026-11-14 19:17:22", "wall_s": 183.3, "cpu_s": 2906.3, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4769090, "nodes": 264662093}
+{"step": "p2-run expansion 30000723 C", "finished": "2026-11-14 19:17:31", "wall_s": 8.7, "cpu_s": 138.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3875315, "nodes": 11450222}
+{"step": "p2-run expansion 30000723 D", "finished": "2026-11-14 19:19:09", "wall_s": 98.0, "cpu_s": 1561.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3863088, "nodes": 185020612}
+{"step": "p2-run expansion 30000728 A", "finished": "2026-11-14 19:19:10", "wall_s": 0.5, "cpu_s": 7.6, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3792726, "nodes": 0}
+{"step": "p2-run expansion 30000728 B", "finished": "2026-11-14 19:22:08", "wall_s": 178.0, "cpu_s": 2825.3, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4645440, "nodes": 257907194}
+{"step": "p2-run expansion 30000728 C", "finished": "2026-11-14 19:22:16", "wall_s": 8.9, "cpu_s": 141.9, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3888752, "nodes": 11548805}
+{"step": "p2-run expansion 30000728 D", "finished": "2026-11-14 19:23:56", "wall_s": 99.9, "cpu_s": 1594.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3732814, "nodes": 185818965}
+{"step": "p2-run expansion 30000787 A", "finished": "2026-11-14 19:23:57", "wall_s": 0.5, "cpu_s": 8.0, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3831359, "nodes": 0}
+{"step": "p2-run expansion 30000787 B", "finished": "2026-11-14 19:27:03", "wall_s": 186.0, "cpu_s": 2955.0, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4809081, "nodes": 267178142}
+{"step": "p2-run expansion 30000787 C", "finished": "2026-11-14 19:27:12", "wall_s": 8.8, "cpu_s": 140.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3903998, "nodes": 11515208}
+{"step": "p2-run expansion 30000787 D", "finished": "2026-11-14 19:28:50", "wall_s": 98.1, "cpu_s": 1564.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3784232, "nodes": 185698547}
+{"step": "p2-run expansion 30000812 A", "finished": "2026-11-14 19:28:50", "wall_s": 0.5, "cpu_s": 7.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3745431, "nodes": 0}
+{"step": "p2-run expansion 30000812 B", "finished": "2026-11-14 19:31:48", "wall_s": 177.9, "cpu_s": 2831.8, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4636924, "nodes": 257369932}
+{"step": "p2-run expansion 30000812 C", "finished": "2026-11-14 19:31:57", "wall_s": 8.7, "cpu_s": 137.9, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3707241, "nodes": 11405353}
+{"step": "p2-run expansion 30000812 D", "finished": "2026-11-14 19:33:36", "wall_s": 98.5, "cpu_s": 1570.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3712041, "nodes": 185269787}
+{"step": "p2-run expansion 30000821 A", "finished": "2026-11-14 19:33:36", "wall_s": 0.5, "cpu_s": 7.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3555784, "nodes": 0}
+{"step": "p2-run expansion 30000821 B", "finished": "2026-11-14 19:36:32", "wall_s": 175.6, "cpu_s": 2788.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4596106, "nodes": 254893493}
+{"step": "p2-run expansion 30000821 C", "finished": "2026-11-14 19:36:40", "wall_s": 8.4, "cpu_s": 133.1, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3574915, "nodes": 11290315}
+{"step": "p2-run expansion 30000821 D", "finished": "2026-11-14 19:38:17", "wall_s": 96.7, "cpu_s": 1542.6, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3680146, "nodes": 184920031}
+{"step": "p2-run expansion 30000830 A", "finished": "2026-11-14 19:38:17", "wall_s": 0.5, "cpu_s": 7.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3726868, "nodes": 0}
+{"step": "p2-run expansion 30000830 B", "finished": "2026-11-14 19:41:17", "wall_s": 179.9, "cpu_s": 2856.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4668123, "nodes": 259299476}
+{"step": "p2-run expansion 30000830 C", "finished": "2026-11-14 19:41:26", "wall_s": 8.8, "cpu_s": 140.1, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3812907, "nodes": 11483208}
+{"step": "p2-run expansion 30000830 D", "finished": "2026-11-14 19:43:04", "wall_s": 98.1, "cpu_s": 1565.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3771111, "nodes": 184446399}
+{"step": "p2-run expansion 30000845 A", "finished": "2026-11-14 19:43:05", "wall_s": 0.5, "cpu_s": 7.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3728641, "nodes": 0}
+{"step": "p2-run expansion 30000845 B", "finished": "2026-11-14 19:45:59", "wall_s": 174.0, "cpu_s": 2764.0, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4514972, "nodes": 250923461}
+{"step": "p2-run expansion 30000845 C", "finished": "2026-11-14 19:46:07", "wall_s": 8.6, "cpu_s": 138.3, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3710045, "nodes": 11362852}
+{"step": "p2-run expansion 30000845 D", "finished": "2026-11-14 19:47:45", "wall_s": 97.3, "cpu_s": 1551.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3773615, "nodes": 184206225}
+{"step": "p2-run expansion 30000849 A", "finished": "2026-11-14 19:47:45", "wall_s": 0.5, "cpu_s": 7.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3651213, "nodes": 0}
+{"step": "p2-run expansion 30000849 B", "finished": "2026-11-14 19:50:42", "wall_s": 177.1, "cpu_s": 2805.1, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4592381, "nodes": 255076782}
+{"step": "p2-run expansion 30000849 C", "finished": "2026-11-14 19:50:51", "wall_s": 8.7, "cpu_s": 137.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3662891, "nodes": 11395433}
+{"step": "p2-run expansion 30000849 D", "finished": "2026-11-14 19:52:30", "wall_s": 98.8, "cpu_s": 1574.9, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3711465, "nodes": 184635489}
+{"step": "p2-run expansion 30000856 A", "finished": "2026-11-14 19:52:30", "wall_s": 0.5, "cpu_s": 7.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3597112, "nodes": 0}
+{"step": "p2-run expansion 30000856 B", "finished": "2026-11-14 19:55:26", "wall_s": 175.6, "cpu_s": 2786.1, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4563288, "nodes": 253074125}
+{"step": "p2-run expansion 30000856 C", "finished": "2026-11-14 19:55:34", "wall_s": 8.6, "cpu_s": 137.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3675705, "nodes": 11393838}
+{"step": "p2-run expansion 30000856 D", "finished": "2026-11-14 19:57:12", "wall_s": 97.3, "cpu_s": 1552.0, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3770989, "nodes": 183473402}
+{"step": "p2-run expansion 30000890 A", "finished": "2026-11-14 19:57:12", "wall_s": 0.5, "cpu_s": 6.9, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3436683, "nodes": 0}
+{"step": "p2-run expansion 30000890 B", "finished": "2026-11-14 20:00:01", "wall_s": 169.0, "cpu_s": 2678.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4389424, "nodes": 243647999}
+{"step": "p2-run expansion 30000890 C", "finished": "2026-11-14 20:00:10", "wall_s": 8.5, "cpu_s": 135.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3574705, "nodes": 11251548}
+{"step": "p2-run expansion 30000890 D", "finished": "2026-11-14 20:01:46", "wall_s": 96.6, "cpu_s": 1539.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3578552, "nodes": 182410699}
+{"step": "p2-run expansion 30000891 A", "finished": "2026-11-14 20:01:47", "wall_s": 0.5, "cpu_s": 7.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3875166, "nodes": 0}
+{"step": "p2-run expansion 30000891 B", "finished": "2026-11-14 20:04:41", "wall_s": 174.4, "cpu_s": 2761.1, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4516908, "nodes": 251122918}
+{"step": "p2-run expansion 30000891 C", "finished": "2026-11-14 20:04:50", "wall_s": 8.8, "cpu_s": 139.6, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3782126, "nodes": 11510962}
+{"step": "p2-run expansion 30000891 D", "finished": "2026-11-14 20:06:29", "wall_s": 98.8, "cpu_s": 1575.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3836571, "nodes": 185825531}
+{"step": "p2-run expansion 30000892 A", "finished": "2026-11-14 20:06:29", "wall_s": 0.5, "cpu_s": 7.6, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3801327, "nodes": 0}
+{"step": "p2-run expansion 30000892 B", "finished": "2026-11-14 20:09:31", "wall_s": 181.4, "cpu_s": 2879.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4723689, "nodes": 262195838}
+{"step": "p2-run expansion 30000892 C", "finished": "2026-11-14 20:09:39", "wall_s": 8.6, "cpu_s": 137.9, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3725616, "nodes": 11411750}
+{"step": "p2-run expansion 30000892 D", "finished": "2026-11-14 20:11:17", "wall_s": 98.0, "cpu_s": 1563.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3821728, "nodes": 184590434}
+{"step": "p2-run expansion 30000935 A", "finished": "2026-11-14 20:11:18", "wall_s": 0.5, "cpu_s": 7.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3750148, "nodes": 0}
+{"step": "p2-run expansion 30000935 B", "finished": "2026-11-14 20:14:11", "wall_s": 173.8, "cpu_s": 2764.3, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4542985, "nodes": 252188521}
+{"step": "p2-run expansion 30000935 C", "finished": "2026-11-14 20:14:20", "wall_s": 8.6, "cpu_s": 137.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3833678, "nodes": 11399119}
+{"step": "p2-run expansion 30000935 D", "finished": "2026-11-14 20:15:57", "wall_s": 97.3, "cpu_s": 1552.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3763931, "nodes": 185734821}
+{"step": "p2-run expansion 30000940 A", "finished": "2026-11-14 20:15:58", "wall_s": 0.5, "cpu_s": 7.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3647383, "nodes": 0}
+{"step": "p2-run expansion 30000940 B", "finished": "2026-11-14 20:18:57", "wall_s": 178.8, "cpu_s": 2838.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4649321, "nodes": 258408212}
+{"step": "p2-run expansion 30000940 C", "finished": "2026-11-14 20:19:05", "wall_s": 8.8, "cpu_s": 139.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3689673, "nodes": 11519938}
+{"step": "p2-run expansion 30000940 D", "finished": "2026-11-14 20:20:44", "wall_s": 98.2, "cpu_s": 1566.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3609812, "nodes": 185008974}
+{"step": "p2-run expansion 30000948 A", "finished": "2026-11-14 20:20:44", "wall_s": 0.5, "cpu_s": 7.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3807401, "nodes": 0}
+{"step": "p2-run expansion 30000948 B", "finished": "2026-11-14 20:23:47", "wall_s": 183.2, "cpu_s": 2911.0, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4679979, "nodes": 260024346}
+{"step": "p2-run expansion 30000948 C", "finished": "2026-11-14 20:23:56", "wall_s": 8.9, "cpu_s": 140.9, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3730035, "nodes": 11404727}
+{"step": "p2-run expansion 30000948 D", "finished": "2026-11-14 20:25:35", "wall_s": 98.5, "cpu_s": 1571.9, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3776561, "nodes": 183503345}
+{"step": "p2-run expansion 30000583 A", "finished": "2026-11-14 20:25:35", "wall_s": 0.5, "cpu_s": 7.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3665016, "nodes": 0}
+{"step": "p2-run expansion 30000583 B", "finished": "2026-11-14 20:28:27", "wall_s": 171.6, "cpu_s": 2714.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4455900, "nodes": 247399840}
+{"step": "p2-run expansion 30000583 C", "finished": "2026-11-14 20:28:35", "wall_s": 8.5, "cpu_s": 135.7, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3729413, "nodes": 11049243}
+{"step": "p2-run expansion 30000583 D", "finished": "2026-11-14 20:30:12", "wall_s": 96.7, "cpu_s": 1541.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3587184, "nodes": 180099980}
+{"step": "p2-run expansion 30000584 A", "finished": "2026-11-14 20:30:13", "wall_s": 0.5, "cpu_s": 7.0, "peak_rss_mb": 839.2, "continuations": 832, "moves": 3514000, "nodes": 0}
+{"step": "p2-run expansion 30000584 B", "finished": "2026-11-14 20:32:57", "wall_s": 164.8, "cpu_s": 2597.1, "peak_rss_mb": 839.2, "continuations": 832, "moves": 4215909, "nodes": 234637740}
+{"step": "p2-run expansion 30000584 C", "finished": "2026-11-14 20:33:05", "wall_s": 7.8, "cpu_s": 124.1, "peak_rss_mb": 839.2, "continuations": 832, "moves": 3474593, "nodes": 9854199}
+{"step": "p2-run expansion 30000584 D", "finished": "2026-11-14 20:34:31", "wall_s": 86.3, "cpu_s": 1374.6, "peak_rss_mb": 839.2, "continuations": 832, "moves": 3426985, "nodes": 155276753}
+{"step": "p2-run expansion 30000586 A", "finished": "2026-11-14 20:34:32", "wall_s": 0.5, "cpu_s": 7.7, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 3806870, "nodes": 0}
+{"step": "p2-run expansion 30000586 B", "finished": "2026-11-14 20:37:43", "wall_s": 190.7, "cpu_s": 3029.6, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 4878612, "nodes": 271016665}
+{"step": "p2-run expansion 30000586 C", "finished": "2026-11-14 20:37:52", "wall_s": 9.2, "cpu_s": 145.1, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 3823225, "nodes": 11875968}
+{"step": "p2-run expansion 30000586 D", "finished": "2026-11-14 20:39:34", "wall_s": 102.3, "cpu_s": 1625.7, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 3951375, "nodes": 191298838}
+{"step": "p2-run expansion 30000587 A", "finished": "2026-11-14 20:39:35", "wall_s": 0.5, "cpu_s": 8.1, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 3977037, "nodes": 0}
+{"step": "p2-run expansion 30000587 B", "finished": "2026-11-14 20:42:39", "wall_s": 184.8, "cpu_s": 2921.4, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 4740260, "nodes": 263357334}
+{"step": "p2-run expansion 30000587 C", "finished": "2026-11-14 20:42:48", "wall_s": 9.0, "cpu_s": 143.4, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 3964516, "nodes": 11939469}
+{"step": "p2-run expansion 30000587 D", "finished": "2026-11-14 20:44:31", "wall_s": 102.3, "cpu_s": 1629.1, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 3966841, "nodes": 194355950}
+{"step": "p2-run expansion 30000589 A", "finished": "2026-11-14 20:44:31", "wall_s": 0.5, "cpu_s": 7.3, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 3682997, "nodes": 0}
+{"step": "p2-run expansion 30000589 B", "finished": "2026-11-14 20:47:24", "wall_s": 172.6, "cpu_s": 2739.1, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 4485227, "nodes": 249149993}
+{"step": "p2-run expansion 30000589 C", "finished": "2026-11-14 20:47:32", "wall_s": 8.8, "cpu_s": 138.2, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 3685502, "nodes": 11569428}
+{"step": "p2-run expansion 30000589 D", "finished": "2026-11-14 20:49:12", "wall_s": 99.2, "cpu_s": 1581.2, "peak_rss_mb": 839.2, "continuations": 1056, "moves": 3720658, "nodes": 189194473}
+{"step": "p2-run expansion 30000592 A", "finished": "2026-11-14 20:49:12", "wall_s": 0.3, "cpu_s": 4.8, "peak_rss_mb": 839.2, "continuations": 480, "moves": 2429040, "nodes": 0}
+{"step": "p2-run expansion 30000592 B", "finished": "2026-11-14 20:51:15", "wall_s": 123.2, "cpu_s": 1930.7, "peak_rss_mb": 839.2, "continuations": 480, "moves": 3079339, "nodes": 173206002}
+{"step": "p2-run expansion 30000592 C", "finished": "2026-11-14 20:51:20", "wall_s": 5.1, "cpu_s": 79.6, "peak_rss_mb": 839.2, "continuations": 480, "moves": 2463806, "nodes": 5961206}
+{"step": "p2-run expansion 30000592 D", "finished": "2026-11-14 20:52:12", "wall_s": 51.3, "cpu_s": 811.9, "peak_rss_mb": 839.2, "continuations": 480, "moves": 2584786, "nodes": 87851931}
+{"step": "p2-run expansion 30000595 A", "finished": "2026-11-14 20:52:12", "wall_s": 0.5, "cpu_s": 7.5, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3768995, "nodes": 0}
+{"step": "p2-run expansion 30000595 B", "finished": "2026-11-14 20:55:09", "wall_s": 177.2, "cpu_s": 2806.5, "peak_rss_mb": 839.2, "continuations": 960, "moves": 4588698, "nodes": 254826515}
+{"step": "p2-run expansion 30000595 C", "finished": "2026-11-14 20:55:18", "wall_s": 8.6, "cpu_s": 137.5, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3695496, "nodes": 11128762}
+{"step": "p2-run expansion 30000595 D", "finished": "2026-11-14 20:56:54", "wall_s": 96.3, "cpu_s": 1535.1, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3593289, "nodes": 178755176}
+{"step": "p2-run expansion 30000600 A", "finished": "2026-11-14 20:56:55", "wall_s": 0.4, "cpu_s": 6.7, "peak_rss_mb": 839.2, "continuations": 832, "moves": 3339157, "nodes": 0}
+{"step": "p2-run expansion 30000600 B", "finished": "2026-11-14 20:59:42", "wall_s": 167.8, "cpu_s": 2647.0, "peak_rss_mb": 839.2, "continuations": 832, "moves": 4328648, "nodes": 240756346}
+{"step": "p2-run expansion 30000600 C", "finished": "2026-11-14 20:59:50", "wall_s": 7.5, "cpu_s": 118.6, "peak_rss_mb": 839.2, "continuations": 832, "moves": 3395024, "nodes": 9678220}
+{"step": "p2-run expansion 30000600 D", "finished": "2026-11-14 21:01:14", "wall_s": 83.8, "cpu_s": 1333.5, "peak_rss_mb": 839.2, "continuations": 832, "moves": 3466378, "nodes": 155327957}
+{"step": "p2-run expansion 30000601 A", "finished": "2026-11-14 21:01:14", "wall_s": 0.4, "cpu_s": 5.6, "peak_rss_mb": 839.2, "continuations": 576, "moves": 2842717, "nodes": 0}
+{"step": "p2-run expansion 30000601 B", "finished": "2026-11-14 21:03:33", "wall_s": 139.1, "cpu_s": 2202.6, "peak_rss_mb": 839.2, "continuations": 576, "moves": 3530448, "nodes": 198079751}
+{"step": "p2-run expansion 30000601 C", "finished": "2026-11-14 21:03:39", "wall_s": 5.8, "cpu_s": 91.2, "peak_rss_mb": 839.2, "continuations": 576, "moves": 2884525, "nodes": 6990272}
+{"step": "p2-run expansion 30000601 D", "finished": "2026-11-14 21:04:39", "wall_s": 59.6, "cpu_s": 946.8, "peak_rss_mb": 839.2, "continuations": 576, "moves": 2822521, "nodes": 105979887}
+{"step": "p2-run expansion 30000606 A", "finished": "2026-11-14 21:04:39", "wall_s": 0.5, "cpu_s": 7.0, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3559822, "nodes": 0}
+{"step": "p2-run expansion 30000606 B", "finished": "2026-11-14 21:07:36", "wall_s": 177.4, "cpu_s": 2805.9, "peak_rss_mb": 839.2, "continuations": 960, "moves": 4614854, "nodes": 256187651}
+{"step": "p2-run expansion 30000606 C", "finished": "2026-11-14 21:07:45", "wall_s": 8.7, "cpu_s": 137.5, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3661387, "nodes": 11265689}
+{"step": "p2-run expansion 30000606 D", "finished": "2026-11-14 21:09:23", "wall_s": 97.6, "cpu_s": 1550.8, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3552744, "nodes": 181233800}
+{"step": "p2-run expansion 30000607 A", "finished": "2026-11-14 21:09:23", "wall_s": 0.5, "cpu_s": 7.0, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3468584, "nodes": 0}
+{"step": "p2-run expansion 30000607 B", "finished": "2026-11-14 21:12:15", "wall_s": 172.2, "cpu_s": 2725.9, "peak_rss_mb": 839.2, "continuations": 960, "moves": 4460198, "nodes": 247868079}
+{"step": "p2-run expansion 30000607 C", "finished": "2026-11-14 21:12:24", "wall_s": 8.2, "cpu_s": 131.4, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3539082, "nodes": 10966303}
+{"step": "p2-run expansion 30000607 D", "finished": "2026-11-14 21:13:59", "wall_s": 95.5, "cpu_s": 1519.5, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3520577, "nodes": 179367543}
+{"step": "p2-run expansion 30000608 A", "finished": "2026-11-14 21:13:59", "wall_s": 0.5, "cpu_s": 7.5, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3693614, "nodes": 0}
+{"step": "p2-run expansion 30000608 B", "finished": "2026-11-14 21:17:02", "wall_s": 182.2, "cpu_s": 2893.2, "peak_rss_mb": 839.2, "continuations": 992, "moves": 4736789, "nodes": 263033434}
+{"step": "p2-run expansion 30000608 C", "finished": "2026-11-14 21:17:10", "wall_s": 8.8, "cpu_s": 140.1, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3713781, "nodes": 11485136}
+{"step": "p2-run expansion 30000608 D", "finished": "2026-11-14 21:18:49", "wall_s": 98.5, "cpu_s": 1569.4, "peak_rss_mb": 839.2, "continuations": 992, "moves": 3644015, "nodes": 186078593}
+{"step": "p2-run expansion 30000609 A", "finished": "2026-11-14 21:18:49", "wall_s": 0.4, "cpu_s": 5.3, "peak_rss_mb": 839.2, "continuations": 960, "moves": 2495847, "nodes": 0}
+{"step": "p2-run expansion 30000609 B", "finished": "2026-11-14 21:21:11", "wall_s": 141.6, "cpu_s": 2229.3, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3646412, "nodes": 202296818}
+{"step": "p2-run expansion 30000609 C", "finished": "2026-11-14 21:21:19", "wall_s": 7.9, "cpu_s": 125.5, "peak_rss_mb": 839.2, "continuations": 960, "moves": 2691965, "nodes": 10617720}
+{"step": "p2-run expansion 30000609 D", "finished": "2026-11-14 21:22:51", "wall_s": 92.4, "cpu_s": 1470.7, "peak_rss_mb": 839.2, "continuations": 960, "moves": 2691948, "nodes": 172749223}
+{"step": "p2-run expansion 30000612 A", "finished": "2026-11-14 21:22:52", "wall_s": 0.5, "cpu_s": 7.6, "peak_rss_mb": 839.2, "continuations": 1024, "moves": 3764225, "nodes": 0}
+{"step": "p2-run expansion 30000612 B", "finished": "2026-11-14 21:25:51", "wall_s": 179.6, "cpu_s": 2849.5, "peak_rss_mb": 839.2, "continuations": 1024, "moves": 4608973, "nodes": 256008549}
+{"step": "p2-run expansion 30000612 C", "finished": "2026-11-14 21:26:01", "wall_s": 9.1, "cpu_s": 145.2, "peak_rss_mb": 839.2, "continuations": 1024, "moves": 3839751, "nodes": 11902627}
+{"step": "p2-run expansion 30000612 D", "finished": "2026-11-14 21:27:43", "wall_s": 102.9, "cpu_s": 1639.2, "peak_rss_mb": 839.2, "continuations": 1024, "moves": 3723082, "nodes": 191630245}
+{"step": "p2-run expansion 30000614 A", "finished": "2026-11-14 21:27:44", "wall_s": 0.3, "cpu_s": 4.4, "peak_rss_mb": 839.2, "continuations": 512, "moves": 2166292, "nodes": 0}
+{"step": "p2-run expansion 30000614 B", "finished": "2026-11-14 21:29:43", "wall_s": 119.4, "cpu_s": 1878.5, "peak_rss_mb": 839.2, "continuations": 512, "moves": 2941304, "nodes": 165517980}
+{"step": "p2-run expansion 30000614 C", "finished": "2026-11-14 21:29:48", "wall_s": 5.1, "cpu_s": 80.8, "peak_rss_mb": 839.2, "continuations": 512, "moves": 2180474, "nodes": 6168158}
+{"step": "p2-run expansion 30000614 D", "finished": "2026-11-14 21:30:43", "wall_s": 54.8, "cpu_s": 866.6, "peak_rss_mb": 839.2, "continuations": 512, "moves": 2226566, "nodes": 94159514}
+{"step": "p2-run expansion 30000615 A", "finished": "2026-11-14 21:30:43", "wall_s": 0.5, "cpu_s": 7.1, "peak_rss_mb": 839.2, "continuations": 896, "moves": 3545505, "nodes": 0}
+{"step": "p2-run expansion 30000615 B", "finished": "2026-11-14 21:33:38", "wall_s": 174.9, "cpu_s": 2766.9, "peak_rss_mb": 839.2, "continuations": 896, "moves": 4460986, "nodes": 247908335}
+{"step": "p2-run expansion 30000615 C", "finished": "2026-11-14 21:33:47", "wall_s": 8.4, "cpu_s": 132.8, "peak_rss_mb": 839.2, "continuations": 896, "moves": 3535110, "nodes": 10607311}
+{"step": "p2-run expansion 30000615 D", "finished": "2026-11-14 21:35:19", "wall_s": 92.2, "cpu_s": 1466.3, "peak_rss_mb": 839.2, "continuations": 896, "moves": 3613146, "nodes": 169937099}
+{"step": "p2-run expansion 30000619 A", "finished": "2026-11-14 21:35:19", "wall_s": 0.4, "cpu_s": 6.4, "peak_rss_mb": 839.2, "continuations": 800, "moves": 3242215, "nodes": 0}
+{"step": "p2-run expansion 30000619 B", "finished": "2026-11-14 21:38:10", "wall_s": 171.0, "cpu_s": 2711.4, "peak_rss_mb": 839.2, "continuations": 800, "moves": 4423858, "nodes": 246398941}
+{"step": "p2-run expansion 30000619 C", "finished": "2026-11-14 21:38:18", "wall_s": 7.5, "cpu_s": 119.4, "peak_rss_mb": 839.2, "continuations": 800, "moves": 3426597, "nodes": 9516123}
+{"step": "p2-run expansion 30000619 D", "finished": "2026-11-14 21:39:40", "wall_s": 81.8, "cpu_s": 1299.7, "peak_rss_mb": 839.2, "continuations": 800, "moves": 3447755, "nodes": 150614535}
+{"step": "p2-run expansion 30000621 A", "finished": "2026-11-14 21:39:40", "wall_s": 0.4, "cpu_s": 6.8, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3365866, "nodes": 0}
+{"step": "p2-run expansion 30000621 B", "finished": "2026-11-14 21:42:30", "wall_s": 169.9, "cpu_s": 2692.7, "peak_rss_mb": 839.2, "continuations": 960, "moves": 4409882, "nodes": 245010116}
+{"step": "p2-run expansion 30000621 C", "finished": "2026-11-14 21:42:38", "wall_s": 8.4, "cpu_s": 134.3, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3485154, "nodes": 11072776}
+{"step": "p2-run expansion 30000621 D", "finished": "2026-11-14 21:44:15", "wall_s": 96.7, "cpu_s": 1539.7, "peak_rss_mb": 839.2, "continuations": 960, "moves": 3435769, "nodes": 178372579}
+{"step": "p2-run expansion 30000622 A", "finished": "2026-11-14 21:44:15", "wall_s": 0.5, "cpu_s": 7.1, "peak_rss_mb": 839.2, "continuations": 896, "moves": 3099704, "nodes": 0}
+{"step": "p2-run expansion 30000622 B", "finished": "2026-11-14 21:46:59", "wall_s": 163.2, "cpu_s": 2584.3, "peak_rss_mb": 839.2, "continuations": 896, "moves": 4147073, "nodes": 230645738}
+{"step": "p2-run expansion 30000622 C", "finished": "2026-11-14 21:47:07", "wall_s": 8.3, "cpu_s": 131.4, "peak_rss_mb": 839.2, "continuations": 896, "moves": 3187048, "nodes": 10435806}
+{"step": "p2-run expansion 30000622 D", "finished": "2026-11-14 21:48:40", "wall_s": 92.6, "cpu_s": 1472.8, "peak_rss_mb": 839.2, "continuations": 896, "moves": 3243382, "nodes": 166980347}
+{"step": "p2-run expansion 30000623 A", "finished": "2026-11-14 21:48:40", "wall_s": 0.4, "cpu_s": 6.0, "peak_rss_mb": 839.2, "continuations": 800, "moves": 2827106, "nodes": 0}
+{"step": "p2-run expansion 30000623 B", "finished": "2026-11-14 21:51:17", "wall_s": 156.9, "cpu_s": 2480.4, "peak_rss_mb": 839.2, "continuations": 800, "moves": 4035291, "nodes": 224671735}
+{"step": "p2-run expansion 30000623 C", "finished": "2026-11-14 21:51:24", "wall_s": 7.1, "cpu_s": 112.8, "peak_rss_mb": 839.2, "continuations": 800, "moves": 3082357, "nodes": 9219555}
+{"step": "p2-run expansion 30000623 D", "finished": "2026-11-14 21:52:44", "wall_s": 79.5, "cpu_s": 1265.7, "peak_rss_mb": 839.2, "continuations": 800, "moves": 3032417, "nodes": 145975792}
+2026-11-14 21:52:44 finished p2-run --phase expansion
+2026-11-14 21:52:44 starting p2-report --phase final
+# Stage 7, Part 2: when can failing games be rescued? (final)
+
+Generated 2026-11-14 21:52.
+
+Policies: **A** greedy; **B** depth 3 from here; **C** depth 3 for 200 moves, then greedy; **D** pruned depth 5 (cutoff 0.01) for 200 moves, then greedy.
+
+Each cell is the mean paired difference from greedy (A) over points, then continuations, with a 95% interval from resampling whole trajectories. Moves remaining are retrospective (the agent can't know them).
+
+Trajectories: 40 that made 32768 (sampled up to it) and 40 that didn't. Points: 2,345. Continuations: 300,160.
+
+
+## B: depth 3 from here
+
+
+**By moves since the first 16384, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 40 | 40 | 12.0% | +7.6% [+5.0%, +10.1%] | +38,787 [+32,800, +44,828] | 3.04 | 456,443 |
+| 1–500 moves after | 120 | 40 | 11.3% | +8.6% [+7.0%, +10.3%] | +41,509 [+38,158, +44,892] | 3.04 | 438,747 |
+| 501–1,500 | 160 | 40 | 11.6% | +7.1% [+5.6%, +8.5%] | +38,640 [+34,339, +42,850] | 3.04 | 380,801 |
+| 1,501–3,000 | 241 | 40 | 11.4% | +7.9% [+6.9%, +8.8%] | +38,290 [+35,470, +41,204] | 3.05 | 306,757 |
+| over 3,000 | 544 | 38 | 15.4% | +4.7% [+3.8%, +5.6%] | +18,909 [+16,829, +21,290] | 2.87 | 166,483 |
+
+**By moves since the first 16384, successful trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 40 | 40 | 10.4% | +9.4% [+6.7%, +11.9%] | +46,525 [+40,411, +52,438] | 2.85 | 462,844 |
+| 1–500 moves after | 120 | 40 | 12.1% | +6.8% [+5.2%, +8.5%] | +37,459 [+33,994, +41,082] | 2.85 | 436,523 |
+| 501–1,500 | 160 | 40 | 11.3% | +7.2% [+5.8%, +8.7%] | +38,006 [+35,189, +40,878] | 2.85 | 380,561 |
+| 1,501–3,000 | 240 | 40 | 12.1% | +6.8% [+5.7%, +8.0%] | +33,923 [+31,254, +36,633] | 2.85 | 308,394 |
+| over 3,000 | 680 | 40 | 18.7% | +3.6% [+3.0%, +4.2%] | +17,038 [+15,785, +18,348] | 2.85 | 170,858 |
+
+**By moves remaining, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| over 2,000 moves left | 706 | 40 | 12.4% | +6.9% [+6.1%, +7.6%] | +33,505 [+31,355, +35,838] | 2.91 | 328,521 |
+| 501–2,000 left | 240 | 40 | 14.5% | +6.2% [+4.8%, +7.8%] | +24,110 [+19,833, +28,788] | 3.04 | 187,975 |
+| 201–500 left | 52 | 40 | 15.9% | +4.6% [+1.0%, +8.0%] | +20,341 [+12,046, +28,190] | 3.10 | 139,545 |
+| 200 or fewer left | 107 | 40 | 16.3% | +3.3% [+1.1%, +5.4%] | +16,170 [+10,593, +21,567] | 3.02 | 112,378 |
+
+**By empty cells, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 0–1 empty | 230 | 40 | 13.5% | +6.4% [+5.3%, +7.7%] | +28,581 [+25,976, +31,651] | 2.98 | 259,373 |
+| 2–3 empty | 566 | 40 | 14.2% | +6.0% [+4.9%, +7.0%] | +27,968 [+25,229, +31,216] | 2.93 | 251,896 |
+| 4–6 empty | 269 | 40 | 11.9% | +6.6% [+5.7%, +7.5%] | +31,230 [+28,729, +33,935] | 3.00 | 288,410 |
+| 7+ empty | 40 | 31 | 11.7% | +7.3% [+5.4%, +9.4%] | +35,622 [+30,491, +41,135] | 2.98 | 412,994 |
+
+At the first 16384, weighting successes and failures by greedy's natural 11.2% conversion, B changes conversion by +7.8%.
+
+## C: depth 3 for 200 moves, then greedy
+
+
+**By moves since the first 16384, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 40 | 40 | 12.0% | -2.0% [-4.5%, +0.2%] | -2,469 [-8,999, +3,720] | 0.14 | 15,354 |
+| 1–500 moves after | 120 | 40 | 11.3% | +0.2% [-1.0%, +1.4%] | -514 [-3,789, +3,058] | 0.14 | 13,278 |
+| 501–1,500 | 160 | 40 | 11.6% | -0.8% [-1.8%, +0.2%] | -657 [-3,614, +2,272] | 0.14 | 12,151 |
+| 1,501–3,000 | 241 | 40 | 11.4% | +0.7% [-0.1%, +1.5%] | +4,057 [+2,085, +6,062] | 0.14 | 11,847 |
+| over 3,000 | 544 | 38 | 15.4% | +0.6% [+0.1%, +1.2%] | +1,994 [+835, +3,228] | 0.14 | 10,476 |
+
+**By moves since the first 16384, successful trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 40 | 40 | 10.4% | -0.1% [-2.2%, +2.0%] | +322 [-4,497, +5,099] | 0.14 | 15,254 |
+| 1–500 moves after | 120 | 40 | 12.1% | -0.9% [-2.0%, +0.2%] | -2,894 [-5,264, -416] | 0.14 | 13,237 |
+| 501–1,500 | 160 | 40 | 11.3% | +0.9% [-0.3%, +2.2%] | +1,673 [-1,263, +4,660] | 0.14 | 12,166 |
+| 1,501–3,000 | 240 | 40 | 12.1% | +0.2% [-0.7%, +1.2%] | +1,921 [-320, +4,200] | 0.14 | 11,910 |
+| over 3,000 | 680 | 40 | 18.7% | +0.4% [-0.2%, +1.0%] | +1,388 [+247, +2,597] | 0.14 | 10,692 |
+
+**By moves remaining, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| over 2,000 moves left | 706 | 40 | 12.4% | +0.1% [-0.4%, +0.5%] | +1,176 [-74, +2,322] | 0.14 | 12,210 |
+| 501–2,000 left | 240 | 40 | 14.5% | +1.0% [+0.1%, +1.9%] | +2,766 [+917, +4,631] | 0.14 | 11,146 |
+| 201–500 left | 52 | 40 | 15.9% | +1.0% [-2.3%, +4.1%] | +3,595 [-2,980, +9,778] | 0.14 | 9,941 |
+| 200 or fewer left | 107 | 40 | 16.3% | +0.0% [-1.5%, +1.5%] | +1,083 [-2,104, +4,124] | 0.14 | 8,352 |
+
+**By empty cells, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 0–1 empty | 230 | 40 | 13.5% | -0.2% [-1.0%, +0.7%] | +410 [-1,519, +2,349] | 0.14 | 11,068 |
+| 2–3 empty | 566 | 40 | 14.2% | +0.4% [-0.3%, +1.0%] | +1,921 [+450, +3,333] | 0.14 | 11,237 |
+| 4–6 empty | 269 | 40 | 11.9% | +0.8% [-0.0%, +1.6%] | +2,480 [+442, +4,471] | 0.14 | 11,975 |
+| 7+ empty | 40 | 31 | 11.7% | -1.2% [-3.5%, +1.3%] | -1,300 [-7,447, +5,848] | 0.14 | 14,467 |
+
+At the first 16384, weighting successes and failures by greedy's natural 11.2% conversion, C changes conversion by -1.8%.
+
+## D: pruned depth 5 (cutoff 0.01) for 200 moves, then greedy
+
+
+**By moves since the first 16384, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 40 | 40 | 12.0% | -1.8% [-4.5%, +0.9%] | -3,988 [-10,191, +2,293] | 1.59 | 148,724 |
+| 1–500 moves after | 120 | 40 | 11.3% | +0.2% [-1.1%, +1.6%] | +626 [-2,699, +3,990] | 1.59 | 177,951 |
+| 501–1,500 | 160 | 40 | 11.6% | +0.4% [-0.8%, +1.5%] | +1,623 [-1,274, +4,453] | 1.59 | 187,356 |
+| 1,501–3,000 | 241 | 40 | 11.4% | +0.6% [-0.4%, +1.6%] | +3,606 [+1,355, +5,856] | 1.59 | 189,720 |
+| over 3,000 | 544 | 38 | 15.4% | +1.1% [+0.3%, +1.9%] | +2,609 [+967, +4,174] | 1.57 | 184,552 |
+
+**By moves since the first 16384, successful trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| at the first 16384 | 40 | 40 | 10.4% | +1.8% [-0.5%, +4.2%] | +5,693 [-405, +11,820] | 1.57 | 150,525 |
+| 1–500 moves after | 120 | 40 | 12.1% | +0.0% [-1.3%, +1.3%] | -979 [-4,616, +2,540] | 1.57 | 177,669 |
+| 501–1,500 | 160 | 40 | 11.3% | +0.2% [-1.0%, +1.5%] | +107 [-3,215, +3,371] | 1.57 | 187,237 |
+| 1,501–3,000 | 240 | 40 | 12.1% | -0.7% [-1.6%, +0.2%] | +61 [-2,244, +2,385] | 1.57 | 189,886 |
+| over 3,000 | 680 | 40 | 18.7% | +0.6% [-0.1%, +1.3%] | +1,879 [+653, +3,107] | 1.57 | 188,412 |
+
+**By moves remaining, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| over 2,000 moves left | 706 | 40 | 12.4% | +0.1% [-0.5%, +0.6%] | +1,063 [-362, +2,358] | 1.57 | 186,101 |
+| 501–2,000 left | 240 | 40 | 14.5% | +0.9% [-0.2%, +2.0%] | +2,543 [+347, +4,740] | 1.59 | 191,290 |
+| 201–500 left | 52 | 40 | 15.9% | +0.2% [-2.6%, +3.1%] | +2,510 [-3,297, +8,124] | 1.59 | 184,343 |
+| 200 or fewer left | 107 | 40 | 16.3% | +4.3% [+1.9%, +6.7%] | +9,087 [+4,812, +13,376] | 1.59 | 154,351 |
+
+**By empty cells, failed trajectories**
+
+| Group | Points | Trajectories | Greedy makes 32768 | Δ makes 32768 [95%] | Δ score added [95%] | CPU s per continuation | Chance nodes per continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 0–1 empty | 230 | 40 | 13.5% | +0.4% [-0.9%, +1.7%] | +2,207 [-306, +4,856] | 1.58 | 177,569 |
+| 2–3 empty | 566 | 40 | 14.2% | +0.9% [+0.3%, +1.5%] | +2,381 [+975, +3,804] | 1.57 | 187,241 |
+| 4–6 empty | 269 | 40 | 11.9% | +0.7% [-0.2%, +1.6%] | +2,545 [+777, +4,391] | 1.58 | 186,488 |
+| 7+ empty | 40 | 31 | 11.7% | -1.4% [-4.1%, +1.5%] | -1,916 [-7,886, +5,288] | 1.58 | 160,352 |
+
+At the first 16384, weighting successes and failures by greedy's natural 11.2% conversion, D changes conversion by -1.4%.
+
+## D against C: deeper search over the same 200 moves
+
+| Group (failed trajectories) | Points | Δ makes 32768, D − C [95%] | Δ score, D − C [95%] |
+|---|---:|---:|---:|
+| at the first 16384 | 40 | +0.2% [-2.0%, +2.5%] | -1,519 [-6,839, +4,034] |
+| 1–500 moves after | 120 | +0.0% [-1.3%, +1.3%] | +1,140 [-1,735, +4,105] |
+| 501–1,500 | 160 | +1.2% [-0.0%, +2.4%] | +2,281 [-1,005, +5,540] |
+| 1,501–3,000 | 241 | -0.1% [-1.1%, +0.9%] | -451 [-2,649, +1,856] |
+| over 3,000 | 544 | +0.4% [-0.4%, +1.2%] | +615 [-984, +2,181] |
+2026-11-14 21:52:48 finished p2-report --phase final
+2026-11-14 21:52:48 stage 7 finished
