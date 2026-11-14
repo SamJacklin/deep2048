@@ -1110,7 +1110,8 @@ The question: can a second network, trained only on the late game, beat the 2M n
 | 500k copy, 0.02 | 1M | 162.0k (+0.6k ± 2.2) | 12.4% (+1.2 ± 0.9) | 317.0k (+0.3k ± 6.1) | 375.7k (−17.9k ± 6.8) | 8.5% |
 | Scratch, 0.02 | 1M | 138.2k (−23.2k ± 2.1) | 6.9% (−4.4 ± 0.8) | 298.3k (−18.3k ± 5.7) | 377.6k (−16.0k ± 7.3) | 11.6% |
 | Scratch, 0.02 | 1.5M | 151.0k (−10.4k ± 2.2) | 10.7% (−0.5 ± 0.9) | 305.4k (−11.3k ± 6.1) | 383.1k (−10.5k ± 7.4) | 12.0% |
-| Scratch, 0.02 | 2M | 157.0k (−4.4k ± 2.3) | 12.3% (+1.1 ± 0.9) | 308.8k (−7.9k ± 6.4) | pending | |
+| Scratch, 0.02 | 2M | 157.0k (−4.4k ± 2.3) | 12.3% (+1.1 ± 0.9) | 308.8k (−7.9k ± 6.4) | not run | |
+| Scratch, 0.02, reset at 2M | 3M | 159.5k (−1.9k ± 2.2) | 11.0% (−0.2 ± 0.9) | 316.3k (−0.4k ± 6.6) | not run | |
 | 2M copy, 0.005 | 1.5M | 159.9k (−1.5k ± 2.2) | 11.7% (+0.4 ± 0.9) | 313.8k (−2.9k ± 5.8) | 371.6k (−22.0k ± 6.5) | 7.9% |
 | 500k copy, 0.005 | 1.5M | 154.3k (−7.1k ± 2.2) | 9.8% (−1.4 ± 0.8) | 309.1k (−7.6k ± 6.0) | 371.4k (−22.2k ± 6.5) | 7.2% |
 | Scratch, 0.005 | 1.5M | 122.3k (−39.1k ± 1.8) | 1.4% (−9.9 ± 0.7) | 290.1k (−26.6k ± 5.1) | 372.7k (−20.9k ± 7.1) | 11.7% |
@@ -1121,7 +1122,8 @@ The question: can a second network, trained only on the late game, beat the 2M n
 - **Scratch learns the late game from nothing.** At 0.02 it reached the control's greedy conversion by about 1.6M (12.3% at 2M) and was still improving slowly (about +1k per 100k in training), 4k short on score added. At 0.005 it was still far behind at 1.5M.
 - **Every arm is worse under depth-3 search,** by 10–27k, with 7–12% 32768s against 16.6%, whatever its start, rate or greedy level. Search compresses their greedy differences (scratch at 0.005, 39k behind greedy, is 21k behind at depth 3) but never closes the gap. Stage 7 explains why: search's gain comes from many small improvements spread over every late move, so values that are slightly less precise everywhere cost it even where greedy play is level.
 
-**A coherence reset for scratch** (2M → 3M, branched from the arm at 2M with its sums reset): _pending, see below._
+- **A coherence reset for scratch doesn't lift its plateau.** Branched from the arm at 2M with its sums reset and trained to 3M: the training average fell from about 156k to 128k, recovered within about 100k continuations, then took until about 2.8M to get back to the 2M level. At 3M it's level with the control greedy (−1.9k ± 2.2 added, −0.4k ± 6.6 in full games), about where the arm without the reset was heading anyway (still +1k per 100k in training at 2M, and that continuation wasn't run). The reset came while scratch was still learning, not at a stall, so it mostly cost it the dip, as round 2's second reset did.
+- **The depth-3 evaluations at 2M and 3M were cancelled**, on the user's call: every arm had already shown the same depth-3 shortfall, and this branch's greedy result didn't call for them.
 
 **Verdict: a dedicated late-game network doesn't beat the single 2M network at this scale.** Trained only on genuine late positions, with stage 1 protected, it can match the 2M network's greedy late game, and from scratch in about 1.6M continuations, but it stays clearly behind under search, which is how the agent plays. The late game's shortfall isn't the sharing between stages that rounds 5–12B and stage 1 pointed at: removing it entirely leaves the depth-3 gap in place.
 
