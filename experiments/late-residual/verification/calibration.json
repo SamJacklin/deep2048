@@ -1,0 +1,105 @@
+{
+  "positions": 1000,
+  "rollouts": 8,
+  "mean greedy return": 97192.167,
+  "variants": {
+    "baseline": {
+      "mean predicted": 200535.34387148,
+      "bias": 103343.17687148001,
+      "bias interval": 2194.1426806367817,
+      "mean absolute error": 103402.00909165577,
+      "rms error": 109232.55439649068
+    },
+    "constant": {
+      "mean predicted": 94022.34387148001,
+      "bias": -3169.8231285199913,
+      "bias interval": 2194.1426806367817,
+      "mean absolute error": 28236.226419226175,
+      "rms error": 35524.4495067608
+    },
+    "constant, pre-move gate": {
+      "mean predicted": 94022.34387148001,
+      "bias": -3169.8231285199913,
+      "bias interval": 2194.1426806367817,
+      "mean absolute error": 28236.226419226175,
+      "rms error": 35524.4495067608
+    },
+    "constant, clamped": {
+      "mean predicted": 94633.91073216822,
+      "bias": -2558.2562678317818,
+      "bias interval": 2169.774482963999,
+      "mean absolute error": 27624.65955853797,
+      "rms error": 35083.18270726998
+    },
+    "residual 0.01, strength 0.05": {
+      "mean predicted": 194633.6263474959,
+      "bias": 97441.45934749588,
+      "bias interval": 2176.651414924302,
+      "mean absolute error": 97562.74732140188,
+      "rms error": 103570.72889909583
+    },
+    "residual 0.01, strength 0.1": {
+      "mean predicted": 188731.90882351174,
+      "bias": 91539.74182351175,
+      "bias interval": 2159.9183704005673,
+      "mean absolute error": 91734.85224904674,
+      "rms error": 97942.39173351042
+    },
+    "residual 0.01, strength 0.25": {
+      "mean predicted": 171026.75625155936,
+      "bias": 73834.58925155934,
+      "bias interval": 2114.444502584706,
+      "mean absolute error": 74452.01131004018,
+      "rms error": 81327.66045047539
+    },
+    "residual 0.01, strength 0.5": {
+      "mean predicted": 141518.1686316387,
+      "bias": 44326.001631638675,
+      "bias interval": 2055.3969558399476,
+      "mean absolute error": 48032.599190003726,
+      "rms error": 55348.057741720295
+    },
+    "residual 0.01, strength 1": {
+      "mean predicted": 82500.99339179737,
+      "bias": -14691.173608202647,
+      "bias interval": 2005.92167079055,
+      "mean absolute error": 27737.199364013897,
+      "rms error": 35527.326944890876
+    },
+    "residual 0.01, pre-move gate": {
+      "mean predicted": 82500.99339179737,
+      "bias": -14691.173608202647,
+      "bias interval": 2005.92167079055,
+      "mean absolute error": 27737.199364013897,
+      "rms error": 35527.326944890876
+    },
+    "residual 0.01, clamped": {
+      "mean predicted": 83305.89281822264,
+      "bias": -13886.274181777366,
+      "bias interval": 1984.0116626005004,
+      "mean absolute error": 26932.29993758861,
+      "rms error": 34877.72553774158
+    },
+    "residual 0.1, strength 0.05": {
+      "mean predicted": 191891.9181702072,
+      "bias": 94699.75117020721,
+      "bias interval": 2191.6143839137358,
+      "mean absolute error": 94856.98284247072,
+      "rms error": 101079.66197971422
+    },
+    "residual 0.1, strength 0.1": {
+      "mean predicted": 183248.4924689344,
+      "bias": 86056.32546893439,
+      "bias interval": 2189.792688403786,
+      "mean absolute error": 86350.68175996345,
+      "rms error": 93019.73313154459
+    },
+    "residual 0.1, strength 0.25": {
+      "mean predicted": 157318.21536511593,
+      "bias": 60126.04836511595,
+      "bias interval": 2188.5814316937885,
+      "mean absolute error": 61781.129191691,
+      "rms error": 69719.02301045456
+    }
+  }
+}

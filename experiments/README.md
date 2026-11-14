@@ -938,12 +938,92 @@ Every residual was trained for 20,000 late games. "Its own games" means the corr
   - **With search, it costs 4.5 points of conversion.** The end of a game is worth 0, but the corrected values of weak late positions are negative, so search starts preferring lines that end the game.
   - **The bias isn't uniform:** fitted on the whole late game, the constant overcorrects at the first 16384 (0.82).
 - **A learned residual makes the values more accurate and the play much worse.**
-  - **Calibration:** at 0.01 per board, the estimate at the first 16384 comes to within 5–16% of the truth.
+  - **Calibration:** at 0.01 per board, the estimate at the first 16384 comes to within 5–16% of what its own play scores. The verification below shows that was an artefact of judging it against its own, weaker play. Against the base's play, it's no more accurate than the constant.
   - **Play:** conversion falls to under 1%, and greedy play adds 45–49k less. The residual changes a fifth to two-fifths of late moves.
   - **At 0.1 per board,** training on the residual's own games slid steadily, from 104k score added in the first 1,000 games to 43k by 20,000, and full games lost 93k. A residual without the constant underneath slid the same way, from 101k to 43k ([`late-residual-alone`](late-residual/late-residual-alone/)).
   - **Training on the base's games** doesn't avoid the damage, so the cause isn't the residual steering its own training. It's the correction itself.
 - **Why:** stage 1 found the late game's moves are near-ties that the base ranks well, with no measurable single-move errors. A residual trained on 20,000 games is far less precise than the base, trained on 2M games with 134M weights. Different moves' afterstates read different residual weights, so its noise lands unevenly across moves, and that unevenness is larger than the gaps between them. More accurate values on average don't help if they rank the moves worse.
 - **So a learned correction, in this form and at this scale, doesn't improve decisions,** and the late game's large overestimate is mostly a level shift that greedy play ignores. A residual could only help once its errors between moves are smaller than those gaps, which would take far more training. The 32768 gap is better approached through what changes the ranking of moves: search, which adds 8 points of conversion from the same positions, or better relative values. Stages 4 and 5 test those.
+
+### Stage 3 verification
+
+Seven checks before concluding, to rule out an implementation fault and test whether any variant of the correction helps (`scripts/verify_residual.py`, results in [`late-residual/verification`](late-residual/verification/)). All use the corpus's dev split, except check 7, which reuses stage 1's action-ranking positions and rollouts, and the final confirmation on the test split. Full games use seeds 10,000–10,999.
+
+**The correction is applied at evaluation time in four ways, with no retraining:**
+- at a strength, which scales the whole correction (constant and residual), so strength 0 is exactly the base;
+- with the gate decided by the board the move is made from rather than the afterstate, so every move of a decision is judged alike;
+- clamped, so corrected values below 0 count as 0, as the end of a game does;
+- or unchanged.
+
+1. **A zero correction plays exactly as the base.** So does the trained residual at strength 0: identical greedy values on 2,000 dev boards, identical depth-3 values on 300 late boards, 1,000 identical greedy games and 50 identical depth-3 games.
+2. **Training is correct,** checked by tests in `tests/test_residual.py`:
+   - the last update of a game moves the combined value (base + constant + residual) exactly towards 0;
+   - training leaves the base's checkpoint, weights and coherence sums untouched;
+   - the residual reads real tiles;
+   - a reloaded correction predicts identically under every option;
+   - the strength, gate and clamp options do what they say.
+
+   One fault was fixed: training valued the previous afterstate as if it were its own pre-move board. That made no difference with the afterstate gate, but would have with the pre-move gate.
+3. **The boundary gate** (dev, paired with the baseline):
+
+| Variant | Makes the 16384 at the boundary | Full greedy games |
+|---|---:|---:|
+| Baseline | 62% | 316,674 |
+| Constant, afterstate gate | 1% | −0.5k ± 5.7k |
+| Constant, pre-move gate | 62% | identical to the baseline |
+| Residual 0.01, afterstate gate | 0% | −37.3k ± 5.3k |
+| Residual 0.01, pre-move gate | 62% | −33.0k ± 5.3k |
+
+   The afterstate gate does make merging into the first 16384 look bad, but it only delays the merge. The pre-move gate removes the artefact, and recovers only 4k of the residual's 37k loss.
+
+4. **Negative values and clamping:**
+   - **The constant values 24% of late afterstates below 0** (37% when two moves are legal), and the full residual 25%, against 1% for the baseline.
+   - **Clamping at 0 makes things worse, not better.** The constant clamped loses 2.6 points of greedy conversion and 11.6k in full games. The residual clamped loses 44.9k against 37.3k unclamped. Flooring turns many moves into exact ties, which are then broken arbitrarily.
+   - **Greedy continuations ending within 20k** rise only from 0.9% to 2.8%, so premature losses aren't the main damage.
+5. **Strength sweep** (dev: 198 first-16384 positions, 32 greedy and 2 depth-3 continuations each, paired with the baseline):
+
+| Residual | Strength | Greedy conversion | Greedy score added | Depth-3 score added | Full greedy games |
+|---|---:|---:|---:|---:|---:|
+| 0.01 per board | 0.05 | −0.3pp ± 1.2 | −0.7k ± 3.0k | −2.8k ± 12.2k | −1.1k ± 6.0k |
+| 0.01 per board | 0.1 | −0.9pp ± 1.2 | −2.5k ± 3.0k | −0.7k ± 11.9k | −0.2k ± 6.2k |
+| 0.01 per board | 0.25 | −2.2pp ± 1.2 | −7.2k ± 2.9k | −6.2k ± 10.8k | −5.4k ± 5.9k |
+| 0.01 per board | 0.5 | −6.4pp ± 1.0 | −20.9k ± 2.5k | −14.4k ± 11.4k | −17.3k ± 5.5k |
+| 0.01 per board | 1 | −11.3pp ± 0.9 | −48.1k ± 2.6k | −51.4k ± 9.4k | −37.3k ± 5.3k |
+| 0.1 per board | 0.05 | −0.6pp ± 1.1 | −3.3k ± 2.8k | +3.6k ± 12.4k | +0.1k ± 6.0k |
+| 0.1 per board | 0.1 | −1.5pp ± 1.1 | −8.7k ± 2.8k | −8.7k ± 11.4k | −6.8k ± 6.1k |
+| 0.1 per board | 0.25 | −4.9pp ± 1.1 | −27.9k ± 2.7k | −18.6k ± 10.5k | −24.0k ± 5.6k |
+
+   Harm grows steadily with strength for both residuals. No strength helps. Small strengths are indistinguishable from the base. The only positive number, the 0.1 residual's depth-3 score at strength 0.05, was confirmed on the untouched test split, with 8 depth-3 and 32 greedy continuations from each of its 196 first-16384 positions, paired with the baseline. It disappeared:
+
+| 0.1 residual at strength 0.05, test split | Makes 32768 | vs baseline | Score added | vs baseline |
+|---|---:|---:|---:|---:|
+| Greedy continuations | 11.7% | +1.0pp ± 1.1 | 159,728 | −0.9k ± 2.8k |
+| Depth-3 continuations | 19.5% | +0.0pp ± 2.8 | 201,870 | −1.2k ± 6.3k |
+6. **Calibration against one fixed policy.** On 1,000 dev late afterstates the base chose, against 8 rollouts each of the base's own greedy play (mean return 97,192):
+
+| Variant | Bias | Mean absolute error | RMS error |
+|---|---:|---:|---:|
+| Baseline | +103,343 ± 2,194 | 103,402 | 109,233 |
+| Constant | −3,170 ± 2,194 | 28,236 | 35,524 |
+| Residual 0.01, strength 1 | −14,691 ± 2,006 | 27,737 | 35,527 |
+| Residual 0.01, clamped | −13,886 ± 1,984 | 26,932 | 34,878 |
+
+   On the same afterstates and the same policy, the residual is no more accurate than the constant, and its bias is worse. It learned nothing measurable beyond the average correction.
+7. **Rankings,** on stage 1's 240 late positions, with 64 greedy rollouts of every legal move. **The base's median margin between its top two moves is 2 points.**
+
+| Variant | Moves changed | Changes better by > 2 SE | Worse by > 2 SE | Score change per position | Median correction swing between the base's top two | Swing larger than the base's margin |
+|---|---:|---:|---:|---:|---:|---:|
+| Constant | 0% | — | — | ±0 | 0 | 0% |
+| Residual 0.01, strength 0.05 | 22% | 1 | 1 | +44 ± 589 | 13 | 50% |
+| Residual 0.01, strength 0.25 | 25% | 1 | 1 | −65 ± 606 | 64 | 54% |
+| Residual 0.01, strength 1 | 34% | 2 | 2 | −85 ± 738 | 257 | 65% |
+| Residual 0.1, strength 0.25 | 39% | 1 | 1 | −64 ± 796 | 262 | 66% |
+
+   - **Even at 5% strength,** the residual's corrections outweigh the base's margin in half the positions, and change 22% of moves.
+   - **The changes are as often worse as better,** and too small for rollouts to price one by one.
+   - **The damage comes from their sum:** small costs accumulate over thousands of moves into the conversion and full-game losses in check 5.
+
+**Verdict: stage 3 is unsuccessful in its current form.** The implementation checks pass. No strength, gate or clamping variant improves conversion or full games. The residual is no more accurate than a constant on a fixed policy, and its corrections flip near-tied moves at random. Correcting the late game's values with this TD-trained residual isn't a route to stronger play: the base's errors that matter are in the ranking of near-tied moves, which a separate correction, less precise than the base, can only add noise to. On to stage 5.
 
 ## Final training run
 
