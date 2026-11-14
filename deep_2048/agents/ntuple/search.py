@@ -32,14 +32,15 @@ class Transpositions(NamedTuple):
     depths: np.ndarray
     values: np.ndarray
     searches: np.ndarray
-    current: np.ndarray  # one element: the search being run
+    # The search being run, then counts across searches: chance nodes expanded, and afterstates valued by the network
+    current: np.ndarray
     reuse: bool
 
 
 @njit
 def new_transpositions(reuse: bool = True) -> Transpositions:
     size = 1 << _TABLE_BITS
-    return Transpositions(np.zeros(size, np.uint64), np.zeros(size, np.int64), np.zeros(size), np.zeros(size, np.int64), np.zeros(1, np.int64), reuse)
+    return Transpositions(np.zeros(size, np.uint64), np.zeros(size, np.int64), np.zeros(size), np.zeros(size, np.int64), np.zeros(3, np.int64), reuse)
 
 
 @njit
@@ -62,6 +63,7 @@ def _afterstate_value(weights: np.ndarray, layout: TupleLayout, afterstate: np.u
     """
     if depth == 0 or probability < cutoff:
         # At the horizon the network values it in the stage of `state`, the board the move was made from
+        table.current[2] += 1
         return evaluate(weights, layout, afterstate, state)
 
     slot = (afterstate * _HASH_MULTIPLIER + np.uint64(depth)) >> np.uint64(64 - _TABLE_BITS)
@@ -69,6 +71,7 @@ def _afterstate_value(weights: np.ndarray, layout: TupleLayout, afterstate: np.u
     if table.reuse and table.searches[slot] == search and table.boards[slot] == afterstate and table.depths[slot] == depth:
         return table.values[slot]
 
+    table.current[1] += 1
     n_empty = bb.count_empty(afterstate)
     cell_probability = 1.0 / n_empty
     expected = 0.0
