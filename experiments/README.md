@@ -1085,6 +1085,41 @@ C1 and C2 stopped at their first checkpoint, 10k games in, when the disk filled 
 
 **Verdict: stage 5 is unsuccessful.** Search remains the strongest late-game tool at play time, but neither its trajectories nor its rankings teach this network to convert. That points at what stage 1 found: the late-game weights are shared with the 8192 stage through downgrading, so the late game can't learn values of its own.
 
+### Stage 7: the anatomy of the late game
+
+A diagnostic, with no training: why does the 2M network convert so few first 16384s, and is there anything specific to fix? Everything uses the frozen 2M network and stage 6's dev pool of 5,000 genuine first-16384 positions (its test pool untouched), and ran on the Ryzen while stage 6 trained on the M4: about 7 hours, no interruptions (`scripts/late_game_anatomy.py`, protocol and reports in [`late-game-anatomy`](late-game-anatomy/), run record in [`RYZEN-RESULTS.md`](late-game-anatomy/RYZEN-RESULTS.md)). Part 1's first two continuations replay stage 6's control evaluation exactly, across the two machines.
+
+**Part 1: does the entry position matter? No.** 64 greedy continuations from each of the 5,000 positions, and 8 at depth 3 from a stratified 1,000:
+
+| Policy | Makes 32768 | rho [95%] | SD of true conversion across positions | Between-position share of score variance |
+|---|---:|---:|---:|---:|
+| Greedy, 5,000 × 64 | 11.24% | 0.000 [0.000, 0.001] | ≤ 0.94 points | 0.1% [0.0%, 0.2%] |
+| Depth 3, 1,000 × 8 | 18.74% | 0.000 [0.000, 0.008] | ≤ 3.6 points | 0.0% [0.0%, 1.1%] |
+
+- **Each position's count of 32768s is exactly what luck alone would give:** an independent binomial check finds a variance ratio of 1.016 [0.976, 1.057] (p = 0.21), and the distribution of counts matches binomial row by row.
+- **No board feature predicts conversion:** 13 interpretable features (the top tile's place, empty cells, the next tiles and their distance, monotonicity, legal moves, merges, chains) in a penalised logistic regression, out of fold by source game, never beat a constant predictor; the predicted best and worst tenths convert at 11.1% and 11.3%.
+- **Why:** the cascade that makes a first 16384 absorbs almost the whole board, so every entry is close to "a 16384 in a corner and a few small tiles". What follows decides the outcome, so a better stage 1 handover isn't a lever for this policy.
+- **A fix from the Ryzen run:** the report's summary rate divided successes by positions instead of continuations (719.7%); the Ryzen agent corrected it and added the binomial check and bounds, with the user's agreement. No rollout changed.
+
+**Part 2: when can failing games be rescued? At no particular time.** 80 greedy trajectories from entry positions (40 that made a 32768, kept up to it, and 40 that didn't), replayed from 2,345 points along them (the 16384, every 250 moves, the first crowded board, and 200 and 50 moves before a failure's end), 300,160 continuations in all, under four policies with shared spawns. Paired differences from greedy, for failed trajectories, with intervals resampling whole trajectories:
+
+| Moves since the first 16384 | B: depth 3 from here | C: depth 3 for 200 moves, then greedy | D − C: pruned depth 5 instead, same 200 moves |
+|---|---:|---:|---:|
+| At the 16384 | +7.6 points, +38.8k | −2.0 points, −2.5k | +0.2 points, −1.5k |
+| 1–500 | +8.6 points, +41.5k | +0.2 points, −0.5k | +0.0 points, +1.1k |
+| 501–1,500 | +7.1 points, +38.6k | −0.8 points, −0.7k | +1.2 points, +2.3k |
+| 1,501–3,000 | +7.9 points, +38.3k | +0.7 [−0.1, +1.5] points, +4.1k | −0.1 points, −0.5k |
+| Over 3,000 | +4.7 points, +18.9k | +0.6 points, +2.0k | +0.4 points, +0.6k |
+
+- **Failed games weren't doomed:** greedy replays from points along them, even 200 or fewer moves before the original end, still make a 32768 in 12–16% of continuations.
+- **Sustained depth 3 helps by the same amount from anywhere:** about +7–9 points of conversion and +38–42k, whether early or late, crowded or not, far from the end or close to it. Weighted to the natural mix, it adds 7.8 points at the first 16384, matching the gap between depth-3 and greedy play.
+- **No 200-move window of search rescues anything:** C's effects are a point either side of zero, its one positive pilot bin (+3.4 points) didn't survive 40 new trajectories, and about +1–4k per window is simply B's +38k spread evenly over the ~3,000 moves left. Deeper search over the same window adds nothing.
+- **The automatic expansion rule** fired on every group, because B's effect is clearly positive but wide; it ran as an independent replication, which confirmed the pilot.
+
+**Part 3 (targeted rollouts of alternative actions) was skipped:** Parts 1 and 2, with stage 1's finding that no single decision is measurably wrong, leave no failure category to target.
+
+**Verdict: the late game's shortfall is diffuse.** There's no bad entry, no critical window, and no identifiable wrong decision: depth 3 gains a little on almost every move, and the 2M network's values are slightly less precise everywhere in the late game. That's what stage 6's dedicated networks ran into too: they matched greedy play but lost under search. Improving the late game needs more accurate values throughout it (representation, capacity or training signal), or search that's always on, not corrections at particular moments.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
