@@ -58,7 +58,8 @@ EXTENSIONS = (("2m", 0.005, 1_500_000), ("500k", 0.005, 1_500_000), ("scratch", 
 # Then one temporal coherence reset at a stall: (start, rate, continuations it resets at, continuations to train to)
 RESETS = (("scratch", 0.02, 2_000_000, 3_000_000),)
 STOPS = tuple(range(100_000, 1_000_001, 100_000))
-DEPTH3_AT = (500_000, 1_000_000, 1_500_000, 2_000_000, 2_500_000, 3_000_000)
+DEPTH3_AT = (500_000, 1_000_000, 1_500_000)
+# Depth 3 for the scratch arm at 2M and its reset branch runs once, at the very end (FINAL_DEPTH3 in run)
 # (pool, policy, network that played, first seed, positions): seed ranges disjoint from each other and every earlier one
 POOLS = (
     ("train", "greedy", "2m", 20_000_000, 100_000),
@@ -246,7 +247,7 @@ def train_reset(start: str, rate: float, at: int, stop: int) -> Path:
         free = shutil.disk_usage(".").free / 1e9
         if free < MIN_FREE_GB:
             raise SystemExit(f"Only {free:.1f} GB free: stopping before training {name}")
-        command = [sys.executable, "-u", "scripts/train_ntuple.py", "--run", name, "--resume", str(resume), "--games", str(stop), *reset]
+        command = [sys.executable, "-u", "scripts/train_ntuple.py", "--run", name, "--resume", str(resume), "--games", str(stop), "--snapshot-at", "2500000", *reset]
         with open(OUTPUT / f"train-{name}.log", "a") as log:
             subprocess.run(command, env=os.environ | recipe(rate), stdout=log, stderr=subprocess.STDOUT, check=True)
     return own
@@ -440,6 +441,12 @@ def run() -> None:
             path = train_reset(start, rate, at, stop)
             evaluate(f"{run_name(start, rate)}-reset-{stop}", path, depth3=stop in DEPTH3_AT)
             print(f"{time.strftime('%H:%M')} {run_name(start, rate)}-reset evaluated at {stop:,}", flush=True)
+    # Then every depth-3 evaluation left: the scratch arm at 2M, and its reset branch at 2.5M (a snapshot) and 3M
+    reset_dir = Path("checkpoints/ntuple") / f"{run_name('scratch', 0.02)}-reset"
+    for name, path in ((f"{run_name('scratch', 0.02)}-2000000", latest("scratch", 0.02)), (f"{run_name('scratch', 0.02)}-reset-2500000", reset_dir / "games_2500000.npz"),
+                       (f"{run_name('scratch', 0.02)}-reset-3000000", reset_dir / "latest.npz")):
+        evaluate(name, path, depth3=True)
+        print(f"{time.strftime('%H:%M')} {name} evaluated at depth 3", flush=True)
     report()
 
 
