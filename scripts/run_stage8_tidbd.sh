@@ -188,7 +188,7 @@ select)
 main | resume)
     [ -f "$OUT/selected-arm" ] || { echo "no arm selected: run 'select ARM' after the screen" >&2; exit 1; }
     arm=$(cat "$OUT/selected-arm")
-    [ -f "$CHECKPOINTS/arm-$arm/latest.npz" ] || { echo "arm $arm has no checkpoint to continue from" >&2; exit 1; }
+    [ -n "$(newest "arm-$arm")" ] || { echo "arm $arm has no checkpoint to continue from" >&2; exit 1; }
     done_games=$(games_done "arm-$arm")
     target=${TARGET:-}
     if [ -z "$target" ]; then
