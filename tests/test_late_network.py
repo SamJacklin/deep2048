@@ -6,6 +6,7 @@ from deep_2048.agents.ntuple.config import NTupleSettings
 from deep_2048.agents.ntuple.diagnostics import first_board
 from deep_2048.agents.ntuple.models import LateStarts
 from deep_2048.agents.ntuple.network import CoherenceTraces
+from deep_2048.agents.ntuple.search import play_from, play_prefix, play_seeded
 from deep_2048.agents.ntuple.train import _late_starts, play_games
 from deep_2048.game import bitboard as bb
 
@@ -50,3 +51,21 @@ def test_training_from_late_starts_leaves_stage_one_untouched() -> None:
     assert results.synthetic.all() and (results.harvested == 0).all()
     assert np.array_equal(staged.weights[:n], before[:n])
     assert not np.array_equal(staged.weights[n : 2 * n], before[n : 2 * n])
+
+
+@pytest.mark.parametrize("depth", [1, 2, 3])
+def test_a_shared_prefix_then_play_from_is_the_whole_game(depth: int) -> None:
+    staged = NTupleNetwork(SMALL_TUPLES, downgrade_tile=1024, stage_tile=64)
+    staged.weights[:] = np.random.default_rng(2).normal(scale=10, size=staged.weights.shape)
+    split = 0
+    for seed in range(12):
+        rng = np.random.default_rng(seed)
+        board, score, done, tile = play_prefix(staged.weights, staged.layout, depth, 0.0, 64, rng)
+        if done:
+            assert (score, tile) == play_seeded(staged.weights, staged.layout, depth, 0.0, np.random.default_rng(seed))
+            continue
+        split += 1
+        assert bb.max_exponent(np.uint64(board)) < 6
+        rest, tile = play_from(staged.weights, staged.layout, np.uint64(board), depth, 0.0, rng)
+        assert (score + rest, tile) == play_seeded(staged.weights, staged.layout, depth, 0.0, np.random.default_rng(seed))
+    assert split > 0

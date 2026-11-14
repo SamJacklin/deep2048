@@ -13,6 +13,9 @@ long run's 500k network, or as zeros, with fresh temporal coherence sums and a c
 each base rate in RATES. Training games each start from a position drawn from the training pool and run to the end.
 Since every board in them holds a 16384, only stage 2 is ever read or updated, so stage 1 stays frozen.
 
+Full depth-3 games are played on from prefixes shared by every arm (play_prefix), checked once against the control's
+stored evaluation, which halves their cost.
+
 Arms train in segments to each stop in STOPS, resuming from their latest checkpoint, and are evaluated at each stop,
 so only one checkpoint per arm is ever on disk. Evaluations play on from the dev pools (greedy continuations at every
 stop, depth 3 at DEPTH3_AT) and whole games on seeds 10,000-10,999, with the same spawns for every arm, so all of
@@ -40,7 +43,7 @@ from deep_2048.agents.ntuple import NTupleNetwork  # noqa: E402
 from deep_2048.agents.ntuple.diagnostics import boundary_boards, first_board, greedy_values  # noqa: E402
 from deep_2048.agents.ntuple.guidance import play_selective  # noqa: E402
 from deep_2048.agents.ntuple.models import CheckpointMetadata  # noqa: E402
-from deep_2048.agents.ntuple.search import action_values, play_from, play_seeded  # noqa: E402
+from deep_2048.agents.ntuple.search import action_values, play_from, play_prefix, play_seeded  # noqa: E402
 
 BASE = "checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz"
 SOURCES = {"2m": BASE, "500k": "checkpoints/ntuple/long-8x6/games_500000.npz", "scratch": None}
@@ -65,6 +68,7 @@ DEPTH3_POSITIONS = 1_000
 
 OUTPUT = Path("experiments/late-network")
 POSITIONS = OUTPUT / "positions.csv"
+PREFIXES = OUTPUT / "depth3-prefixes.json"
 TRAIN_POOL = OUTPUT / "train-pool.npy"
 EVALUATIONS = OUTPUT / "evaluations"
 STARTS = Path("checkpoints/ntuple/late-network-start")
@@ -245,6 +249,63 @@ def continuations(network: NTupleNetwork, rows: list[dict], n: int, depth: int) 
     return {"scores": fields[..., 0], "tiles": fields[..., 1], "moves": fields[..., 2]}
 
 
+def prefixes() -> list[dict]:
+    """Each full-game seed's depth-3 game up to its first decision that could read stage 2, played once by the 2M network.
+
+    Stage 1 is the 2M network in every arm and never changes, so until then every arm plays these exact moves (see
+    play_prefix): each arm only plays on from here, which is about half of every full depth-3 game.
+    """
+    if PREFIXES.exists():
+        return json.loads(PREFIXES.read_text())
+    base, _ = NTupleNetwork.load(BASE)
+
+    def split(seed: int) -> dict:
+        rng = np.random.default_rng(seed)
+        b, score, done, tile = play_prefix(base.weights, base.layout, 3, 0.0, 16384, rng)
+        return {"seed": seed, "board": f"{int(b):016x}", "score": score, "done": bool(done), "tile": tile, "rng": rng.bit_generator.state}
+
+    found = list(POOL.map(split, FULL_GAME_SEEDS))
+    PREFIXES.write_text(json.dumps(found) + "\n")
+    return found
+
+
+def depth3_games(network: NTupleNetwork) -> dict[str, np.ndarray]:
+    """Depth-3 continuations from the first DEPTH3_POSITIONS dev greedy-entry positions, and the full games on
+    FULL_GAME_SEEDS played on from their shared prefixes, all in one pass so threads aren't left idle between them."""
+    rows = read_positions("dev", "greedy", "2m")[:DEPTH3_POSITIONS]
+
+    def from_prefix(prefix: dict) -> tuple[int, int]:
+        if prefix["done"]:
+            return prefix["score"], prefix["tile"]
+        rng = np.random.default_rng()
+        rng.bit_generator.state = prefix["rng"]
+        score, tile = play_from(network.weights, network.layout, np.uint64(int(prefix["board"], 16)), 3, 0.0, rng)
+        return prefix["score"] + score, tile
+
+    jobs = [("full", p) for p in prefixes()] + [("dev", r) for r in rows]
+    games = list(POOL.map(lambda job: from_prefix(job[1]) if job[0] == "full" else
+                          play_from(network.weights, network.layout, board(job[1]), 3, 0.0, np.random.default_rng([seed_of(job[1]), 0])), jobs))
+    full, dev = np.array(games[: len(FULL_GAME_SEEDS)]), np.array(games[len(FULL_GAME_SEEDS) :])
+    return {"depth3_greedy_2m_scores": dev[:, :1], "depth3_greedy_2m_tiles": dev[:, 1:], "depth3_greedy_2m_moves": np.zeros((len(rows), 1), np.int64),
+            "depth3_full_scores": full[:, 0], "depth3_full_tiles": full[:, 1]}
+
+
+def verify_prefixes() -> None:
+    """Before relying on the prefixes, the control's depth-3 games played from them must match its stored evaluation exactly."""
+    path = OUTPUT / "prefix-check.json"
+    if path.exists():
+        return
+    stored = dict(np.load(EVALUATIONS / "control.npz"))
+    base, _ = NTupleNetwork.load(BASE)
+    again = depth3_games(base)
+    result = {k: bool(np.array_equal(again[k], stored[k])) for k in ("depth3_full_scores", "depth3_full_tiles", "depth3_greedy_2m_scores", "depth3_greedy_2m_tiles")}
+    result["prefix share of full-game score"] = float(np.mean([p["score"] for p in prefixes()]) / stored["depth3_full_scores"].mean())
+    path.write_text(json.dumps(result, indent=2) + "\n")
+    print(json.dumps(result, indent=2), flush=True)
+    if not all(v for k, v in result.items() if k.startswith("depth3")):
+        raise SystemExit("Depth-3 games from the shared prefixes differ from the control's stored evaluation")
+
+
 def evaluate(name: str, path: str | Path, depth3: bool) -> None:
     """Evaluate one network into evaluations/<name>.npz, adding depth 3 if asked and not done yet."""
     out_path = EVALUATIONS / f"{name}.npz"
@@ -263,10 +324,7 @@ def evaluate(name: str, path: str | Path, depth3: bool) -> None:
             base, _ = NTupleNetwork.load(BASE)
             out["stage1_unchanged"] = np.array(same(network.weights[: tables(base)], base.weights[: tables(base)]))
     if depth3:
-        for k, v in continuations(network, read_positions("dev", "greedy", "2m")[:DEPTH3_POSITIONS], 1, 3).items():
-            out[f"depth3_greedy_2m_{k}"] = v
-        full = list(POOL.map(lambda s: play_seeded(network.weights, network.layout, 3, 0.0, np.random.default_rng(s)), FULL_GAME_SEEDS))
-        out["depth3_full_scores"], out["depth3_full_tiles"] = np.array(full).T
+        out |= depth3_games(network)
     EVALUATIONS.mkdir(parents=True, exist_ok=True)
     np.savez(out_path, **out)
 
@@ -340,6 +398,7 @@ def run() -> None:
     build()
     check()
     evaluate("control", BASE, depth3=True)
+    verify_prefixes()
     for start in ("500k", "scratch"):
         evaluate(f"{start}-start-0", STARTS / f"{start}.npz", depth3=False)
     for start, rates in RATES.items():

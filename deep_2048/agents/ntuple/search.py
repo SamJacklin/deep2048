@@ -157,3 +157,42 @@ def _search(weights: np.ndarray, layout: TupleLayout, board: np.uint64, depth: i
         if afterstate != board:
             values[action] = reward + _afterstate_value(weights, layout, afterstate, board, depth - 1, 1.0, cutoff, table)
     return values
+
+
+@njit
+def tile_sum(board: np.uint64) -> int:
+    """The sum of the board's tiles."""
+    total = 0
+    for i in range(bb.NUM_CELLS):
+        exponent = bb.get_cell(board, i)
+        if exponent > 0:
+            total += 1 << exponent
+    return total
+
+
+@njit(nogil=True)
+def play_prefix(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff: float, limit: int, rng: np.random.Generator) -> tuple[np.uint64, int, bool, int]:
+    """Play a seeded game as play_seeded does, but stop at the first decision whose search could reach a board
+    holding a `limit` tile, and return (that board, score so far, whether the game already ended, its max tile if so).
+
+    A search `depth` moves ahead from a board adds at most depth - 1 spawns (4 each) before the deepest board a move is
+    made from, and tiles only ever sum to more, so below that bound every value it reads is from boards without a
+    `limit` tile. For a two-stage network split at `limit`, this prefix is the same for every second stage: play_from
+    from the returned board, with the rng as this left it, finishes the game exactly as play_seeded would.
+    """
+    bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    board = bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    score = 0
+    table = new_transpositions()
+    while tile_sum(board) + 4 * (depth - 1) < limit:
+        values = _search(weights, layout, board, depth, cutoff, table)
+        best = -1
+        for action in range(bb.NUM_ACTIONS):
+            if not np.isnan(values[action]) and (best < 0 or values[action] > values[best]):
+                best = action
+        if best < 0:
+            return board, score, True, 1 << bb.max_exponent(board)
+        board, reward = bb.move(board, best)
+        score += reward
+        board = bb.spawn_tile_seeded(board, rng)
+    return board, score, False, 0
