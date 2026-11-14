@@ -49,6 +49,9 @@ BASE = "checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz"
 SOURCES = {"2m": BASE, "500k": "checkpoints/ntuple/long-8x6/games_500000.npz", "scratch": None}
 NETWORKS = {"2m": BASE, "1.5m": "checkpoints/ntuple/long-8x6/games_1500000.npz"}
 RATES = {"2m": (0.02, 0.005, 0.00125), "500k": (0.02, 0.005, 0.00125), "scratch": (0.02, 0.005)}
+# The order arms run in, revised after the 2M copy's first two rates: the 0.00125 arms are deferred, and every arm keeps
+# its coherence sums until the leaders are chosen (strip_traces cuts the rest down to weights afterwards)
+ORDER = (("2m", 0.02), ("500k", 0.02), ("scratch", 0.02), ("2m", 0.005), ("500k", 0.005), ("scratch", 0.005))
 STOPS = tuple(range(100_000, 1_000_001, 100_000))
 DEPTH3_AT = (500_000, 1_000_000)
 # (pool, policy, network that played, first seed, positions): seed ranges disjoint from each other and every earlier one
@@ -401,17 +404,11 @@ def run() -> None:
     verify_prefixes()
     for start in ("500k", "scratch"):
         evaluate(f"{start}-start-0", STARTS / f"{start}.npz", depth3=False)
-    for start, rates in RATES.items():
-        for rate in rates:
-            for stop in STOPS:
-                train_to(start, rate, stop)
-                evaluate(f"{run_name(start, rate)}-{stop}", latest(start, rate), depth3=stop in DEPTH3_AT)
-                print(f"{time.strftime('%H:%M')} {run_name(start, rate)} evaluated at {stop:,}", flush=True)
-        best = leader(start)
-        for rate in rates:
-            if rate != best:
-                strip_traces(start, rate)
-        print(f"{start}: leading rate {best:g}; the others keep weights only", flush=True)
+    for start, rate in ORDER:
+        for stop in STOPS:
+            train_to(start, rate, stop)
+            evaluate(f"{run_name(start, rate)}-{stop}", latest(start, rate), depth3=stop in DEPTH3_AT)
+            print(f"{time.strftime('%H:%M')} {run_name(start, rate)} evaluated at {stop:,}", flush=True)
     report()
 
 
