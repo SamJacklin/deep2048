@@ -51,6 +51,7 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | [`decision8-8x6-two-stage-by-state`](decision8-8x6-two-stage-by-state/NOTES.md), [`decision9-8x6-two-stage-by-state`](decision9-8x6-two-stage-by-state/NOTES.md) | [Rounds 8 and 9](#rounds-8-and-9-a-second-stage-chosen-by-the-board-a-move-is-made-from): the second stage chosen by the board a move is made from, 1.5M → 2M → 2.5M games |
 | [`decision10-8x6-two-stage-kept-sums`](decision10-8x6-two-stage-kept-sums/NOTES.md) | [Round 10](#round-10-a-second-stage-without-the-reset): a second stage with the coherence sums kept, 1.5M → 2M games |
 | `search-teacher-*` (4 runs) | [Stage 5](#stage-5-search-as-a-teacher): plain TD, search-guided TD and two ranking strengths, each 2M → 2.05M games from round 1's TC reset |
+| `late-network-*` (8 runs) | [Stage 6](#stage-6-a-dedicated-late-game-network): a second network for the late game behind the frozen 2M network, from three starts at two rates, 0 → 1–2M continuations, and scratch with a coherence reset |
 
 ## Learning at equal experience
 
@@ -1084,6 +1085,45 @@ C1 and C2 stopped at their first checkpoint, 10k games in, when the disk filled 
 **What went wrong overnight:** the disk filled at about 03:45, and the chain logged every failure as a success because of how it piped its output. B's final checkpoint saved, but C1 and C2 died at their first save, and the baseline's and A's evaluations ran but couldn't be written. They were rerun the next morning. Future chains check each step's real exit code and the free disk space first.
 
 **Verdict: stage 5 is unsuccessful.** Search remains the strongest late-game tool at play time, but neither its trajectories nor its rankings teach this network to convert. That points at what stage 1 found: the late-game weights are shared with the 8192 stage through downgrading, so the late game can't learn values of its own.
+
+### Stage 6: a dedicated late-game network
+
+The question: can a second network, trained only on the late game, beat the 2M network after its first 16384? Rounds 5–12B gave a second stage its own weights inside one network, and it stayed 12–23k behind every time. Round 10 found the reason: with downgrading, the late game's updates were also training the 8192 stage, and splitting cut that off. Here **stage 1 is the 2M network, frozen**, so it can't lose anything, and **stage 2 learns only from genuine first-16384 positions**, where stage 1's aliasing (a first 16384 valued like a first 8192) can't reach it (`scripts/late_network.py`, results in [`late-network`](late-network/)).
+
+**Design:**
+- **Architecture:** the existing second-stage support, with the stage chosen by the board a move is made from, at every node of depth-3 search too. Stage 2 is the same 8×6 network, downgrading from 16384, with fresh temporal coherence sums.
+- **Starting points:** stage 2 a copy of the 2M network, a copy of the long run's 500k network, or zeros (scratch).
+- **Rates:** 0.02 and 0.005 for each start (0.00125 was deferred, then dropped once 0.005 showed lower rates only delay recovery).
+- **Training:** every game starts from a position drawn from a fixed pool (`NTUPLE_START_POOL`) and runs to the end; it never adds to or upgrades the pool. Every board in it holds a 16384, so only stage 2 is read or updated.
+- **Positions:** greedy games of the 2M network cut at the first 16384 plus its spawn (`first_board`), one per game, deduplicated: 100,000 for training (from 168k games; 25k were exact repeats, since the cascade that makes a 16384 leaves a nearly empty board), 5,000 dev and 5,000 test, plus 2,000 dev and test entries from depth-3 play and from the long run's 1.5M network. Seed ranges are disjoint from each other and from everything earlier.
+- **Checks before training, all passed** (`checks.json`): the 2M-copy start plays exactly as the 2M network (values, moves, 1,000 greedy and 50 depth-3 games, and boards just before a 16384 forms); every start's stage 1 is the 2M network and its stage 2 its source. Every evaluation also confirmed stage 1 byte-identical.
+- **Evaluation**, paired with the control on the same positions and spawns: greedy continuations from the 5,000 dev positions (2 each) every 100k continuations; depth-3 continuations from 1,000 of them and 1,000 full games (seeds 10,000–10,999) at 500k, 1M and 1.5M.
+- **A faster depth-3 evaluation:** stage 1 is frozen, so every arm plays the control's exact moves until a search could first reach a 16384 (tile sum plus 8 below 16384). That shared prefix, about half of each game, is played once (`play_prefix`), checked to reproduce the control's 2,000 stored depth-3 games exactly, and each arm plays on from it, cutting a depth-3 evaluation from 25 to 15 minutes.
+- **Cost:** about 45 minutes of training per 1M continuations on 8 threads (about 5,000–6,500 moves each).
+
+**Results** (dev continuations' score added and 32768 rate, full games; ± 95%, paired with the control):
+
+| Arm | Continuations | Dev score added | Dev makes 32768 | Full greedy | Full depth 3 | Depth-3 ≥32768 |
+|---|---:|---:|---:|---:|---:|---:|
+| **Control: the 2M network alone** | — | **161.4k** | **11.2%** | **316.7k** | **393.6k** | **16.6%** |
+| 2M copy, 0.02 | 1M | 164.0k (+2.6k ± 2.2) | 12.5% (+1.3 ± 0.9) | 316.8k (+0.2k ± 5.9) | 382.5k (−11.1k ± 6.9) | 11.4% |
+| 500k copy, 0.02 | 1M | 162.0k (+0.6k ± 2.2) | 12.4% (+1.2 ± 0.9) | 317.0k (+0.3k ± 6.1) | 375.7k (−17.9k ± 6.8) | 8.5% |
+| Scratch, 0.02 | 1M | 138.2k (−23.2k ± 2.1) | 6.9% (−4.4 ± 0.8) | 298.3k (−18.3k ± 5.7) | 377.6k (−16.0k ± 7.3) | 11.6% |
+| Scratch, 0.02 | 1.5M | 151.0k (−10.4k ± 2.2) | 10.7% (−0.5 ± 0.9) | 305.4k (−11.3k ± 6.1) | 383.1k (−10.5k ± 7.4) | 12.0% |
+| Scratch, 0.02 | 2M | 157.0k (−4.4k ± 2.3) | 12.3% (+1.1 ± 0.9) | 308.8k (−7.9k ± 6.4) | pending | |
+| 2M copy, 0.005 | 1.5M | 159.9k (−1.5k ± 2.2) | 11.7% (+0.4 ± 0.9) | 313.8k (−2.9k ± 5.8) | 371.6k (−22.0k ± 6.5) | 7.9% |
+| 500k copy, 0.005 | 1.5M | 154.3k (−7.1k ± 2.2) | 9.8% (−1.4 ± 0.8) | 309.1k (−7.6k ± 6.0) | 371.4k (−22.2k ± 6.5) | 7.2% |
+| Scratch, 0.005 | 1.5M | 122.3k (−39.1k ± 1.8) | 1.4% (−9.9 ± 0.7) | 290.1k (−26.6k ± 5.1) | 372.7k (−20.9k ± 7.1) | 11.7% |
+
+- **The copies at 0.02 dip and recover to the control's level.** Fresh coherence sums put every weight back at full rate: both fell about 60k by 100k continuations, were level by about 700k, and flattened there (+0.5–1k per 100k), with a borderline greedy gain in conversion (+1.2–1.3 points) that full games don't show.
+- **At 0.005 the dip is shallower but lasts far longer.** Both copies stalled 40–47k below the control until about 600k, then climbed, flattening by 1.5M at or below the 0.02 arms. The copied values overrate the late game (stage 1: by about half), and a slow rate leaves them half-corrected, with move rankings scrambled, for longer. A lower rate didn't give a higher plateau.
+- **What's copied barely matters by 1M:** the 500k and 2M copies follow almost the same path at each rate.
+- **Scratch learns the late game from nothing.** At 0.02 it reached the control's greedy conversion by about 1.6M (12.3% at 2M) and was still improving slowly (about +1k per 100k in training), 4k short on score added. At 0.005 it was still far behind at 1.5M.
+- **Every arm is worse under depth-3 search,** by 10–27k, with 7–12% 32768s against 16.6%, whatever its start, rate or greedy level. Search compresses their greedy differences (scratch at 0.005, 39k behind greedy, is 21k behind at depth 3) but never closes the gap. Stage 7 explains why: search's gain comes from many small improvements spread over every late move, so values that are slightly less precise everywhere cost it even where greedy play is level.
+
+**A coherence reset for scratch** (2M → 3M, branched from the arm at 2M with its sums reset): _pending, see below._
+
+**Verdict: a dedicated late-game network doesn't beat the single 2M network at this scale.** Trained only on genuine late positions, with stage 1 protected, it can match the 2M network's greedy late game, and from scratch in about 1.6M continuations, but it stays clearly behind under search, which is how the agent plays. The late game's shortfall isn't the sharing between stages that rounds 5–12B and stage 1 pointed at: removing it entirely leaves the depth-3 gap in place.
 
 ## Final training run
 
