@@ -308,19 +308,26 @@ def _tuple_value(weights: np.ndarray, layout: TupleLayout, board: np.uint64, sta
 @njit
 def weight_indices(layout: TupleLayout, board: np.uint64, state: np.uint64) -> np.ndarray:
     """Return the index of every weight evaluate() reads for this board, repeats included, as an update touches them."""
+    indices = np.empty(len(layout.offsets) * bb.NUM_SYMMETRIES + 1, dtype=np.int64)
+    return indices[: fill_weight_indices(layout, board, state, indices)]
+
+
+@njit(inline="always")
+def fill_weight_indices(layout: TupleLayout, board: np.uint64, state: np.uint64, indices: np.ndarray) -> int:
+    """Write weight_indices() into `indices` (room for one per tuple and symmetry, plus one) and return how many there are."""
     tuple_board = _tuple_board(layout, board)
     stage = _stage_offset(layout, state)
     boards = bb.symmetries(tuple_board)
-    scale = _scale_index(layout, board, tuple_board)
-    indices = np.empty(len(layout.offsets) * len(boards) + (scale >= 0), dtype=np.int64)
     k = 0
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
             indices[k] = stage + _weight_index(layout, t, symmetric_board)
             k += 1
+    scale = _scale_index(layout, board, tuple_board)
     if scale >= 0:
         indices[k] = scale
-    return indices
+        k += 1
+    return k
 
 
 @njit(inline="always")
@@ -429,8 +436,9 @@ class NTupleNetwork:
     def update(self, board: np.uint64, delta: float) -> None:
         update(self.weights, self.layout, np.uint64(board), np.uint64(board), delta)
 
-    def save(self, path: str | Path, metadata: CheckpointMetadata, traces: CoherenceTraces | None = None) -> None:
-        """Save the network, plus its temporal coherence traces if it's being trained with them."""
+    def save(self, path: str | Path, metadata: CheckpointMetadata, traces: CoherenceTraces | None = None, extra: dict[str, Any] | None = None, compress: bool = False) -> None:
+        """Save the network, plus its temporal coherence traces if it's being trained with them and any `extra` arrays
+        (another optimiser's state). `compress` trades a slower save for a smaller file."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         features = json.dumps(self.features)
@@ -438,10 +446,11 @@ class NTupleNetwork:
         if traces is not None:
             # Stored as float32 to keep checkpoints small: rounding a sum once costs nothing, only accumulating in float32 does
             arrays |= {"coherence_errors": traces.errors.astype(np.float32), "coherence_abs_errors": traces.abs_errors.astype(np.float32)}
+        arrays |= extra or {}
         # Write then rename so a Ctrl-C mid-save can't leave a broken checkpoint
         tmp = path.with_name(path.name + ".tmp")
         with open(tmp, "wb") as f:
-            np.savez(f, **arrays)
+            (np.savez_compressed if compress else np.savez)(f, **arrays)
         tmp.replace(path)
 
     @classmethod

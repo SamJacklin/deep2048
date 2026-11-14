@@ -10,13 +10,16 @@ class CheckpointMetadata(BaseModel):
     moves_played: int
     learning_rate: float
     temporal_coherence: bool = False
+    # "autotidbd" for a network trained with AutoStep TIDBD, whose learning_rate is each weight's initial rate
+    optimizer: str | None = None
 
 
 class GameResults(NamedTuple):
     """Per-game results from a batch of training games. A NamedTuple so numba can build it.
 
     `synthetic` marks games started from a synthetic late-game position, and `harvested` holds the
-    position each normal game donated for making those starts (0 if none).
+    position each normal game donated for making those starts (0 if none). `stats` holds the optimiser's
+    counters for the batch (autotidbd.STATS, one row per thread's share of games), empty for other learning rules.
     """
 
     scores: np.ndarray
@@ -24,6 +27,7 @@ class GameResults(NamedTuple):
     moves: np.ndarray
     synthetic: np.ndarray
     harvested: np.ndarray
+    stats: np.ndarray
 
 
 class LateStarts(NamedTuple):

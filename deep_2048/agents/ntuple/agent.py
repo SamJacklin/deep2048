@@ -28,6 +28,8 @@ class NTupleAgent(Agent):
         self.depth = depth
         self.cutoff = cutoff
         rule = "TC " if metadata.temporal_coherence else ""
+        if metadata.optimizer == "autotidbd":
+            rule = "AutoTIDBD "
         name = network_name(self.network.tuples)
         details = [f"{name} network"] if name not in (None, DEFAULT_NETWORK) else []
         if self.network.downgrade_tile is not None:

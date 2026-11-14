@@ -114,6 +114,7 @@ class TrainingSession(BaseModel):
     interrupted: bool | None = None
     # CPU time across all of the process's threads, for comparing training cost beyond games and wall time
     cpu_seconds: float | None = None
+    peak_memory_gb: float | None = None
 
 
 class RunManifest(BaseModel):

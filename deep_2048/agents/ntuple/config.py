@@ -1,3 +1,6 @@
+from typing import Literal
+
+from pydantic import model_validator
 from pydantic_settings import SettingsConfigDict
 
 from deep_2048.agents.ntuple.network import DEFAULT_NETWORK, NetworkName
@@ -17,6 +20,13 @@ class NTupleSettings(Settings):
     # With temporal coherence, shrink each weight's error sums by this factor before every update, so a weight whose
     # errors have cancelled out over its history can speed up again once they start agreeing (1 never forgets)
     TC_DECAY: float = 1.0
+    # The learning rule, if named outright: "td" (constant rate), "tc" (the same as TEMPORAL_COHERENCE) or "autotidbd"
+    # (AutoStep TIDBD(0), stage 8: each weight starts at TIDBD_INITIAL_ALPHA and learns its own rate by meta-descent
+    # at rate TIDBD_META_RATE, with AutoStep's normaliser decaying over TIDBD_TAU). Unset, TEMPORAL_COHERENCE decides.
+    OPTIMIZER: Literal["td", "tc", "autotidbd"] | None = None
+    TIDBD_INITIAL_ALPHA: float = 0.004
+    TIDBD_META_RATE: float = 0.01
+    TIDBD_TAU: float = 10_000.0
     # TD(λ): if LAMBDA > 0, each afterstate learns LAMBDA_HORIZON moves later towards its λ-return.
     # If LAMBDA_END is set, λ moves linearly from LAMBDA to it over each training session.
     LAMBDA: float = 0.0
@@ -61,6 +71,12 @@ class NTupleSettings(Settings):
 
     CHECKPOINT_DIR: str = "checkpoints/ntuple"
     OUTPUT_DIR: str = "output/ntuple"
+
+    @model_validator(mode="after")
+    def _optimizer_decides_coherence(self) -> "NTupleSettings":
+        if self.OPTIMIZER is not None:
+            self.TEMPORAL_COHERENCE = self.OPTIMIZER == "tc"
+        return self
 
 
 def get_ntuple_settings() -> NTupleSettings:

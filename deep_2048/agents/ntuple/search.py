@@ -105,11 +105,27 @@ def play_seeded(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff: fl
 
 
 @njit(nogil=True)
+def play_seeded_counted(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff: float, rng: np.random.Generator) -> tuple[int, int, int]:
+    """play_seeded, also returning how many moves the game lasted: (score, max tile, moves)."""
+    bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    board = bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    return _play_from(weights, layout, board, depth, cutoff, rng)
+
+
+@njit(nogil=True)
 def play_from(weights: np.ndarray, layout: TupleLayout, start: np.uint64, depth: int, cutoff: float, rng: np.random.Generator) -> tuple[int, int]:
     """Play on from `start` to the end, as play_seeded does, and return (score gained, max tile)."""
+    score, max_tile, _ = _play_from(weights, layout, start, depth, cutoff, rng)
+    return score, max_tile
+
+
+@njit(nogil=True)
+def _play_from(weights: np.ndarray, layout: TupleLayout, start: np.uint64, depth: int, cutoff: float, rng: np.random.Generator) -> tuple[int, int, int]:
+    """play_from, also returning how many moves were made."""
     # A board passed from Python arrives as an int64, which numba would merge with the uint64 boards below as a float
     board = np.uint64(start)
     score = 0
+    moves = 0
     table = new_transpositions()
     while True:
         values = _search(weights, layout, board, depth, cutoff, table)
@@ -118,12 +134,13 @@ def play_from(weights: np.ndarray, layout: TupleLayout, start: np.uint64, depth:
             if not np.isnan(values[action]) and (best < 0 or values[action] > values[best]):
                 best = action
         if best < 0:
-            return score, 1 << bb.max_exponent(board)
+            return score, 1 << bb.max_exponent(board), moves
         board, reward = bb.move(board, best)
         score += reward
+        moves += 1
         board = bb.spawn_tile_seeded(board, rng)
         if has_two_top_tiles(board):
-            return score, 1 << (bb.MAX_EXPONENT + 1)
+            return score, 1 << (bb.MAX_EXPONENT + 1), moves
 
 
 @njit

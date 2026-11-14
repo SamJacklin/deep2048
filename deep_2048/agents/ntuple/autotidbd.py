@@ -1,0 +1,293 @@
+"""AutoStep TIDBD(0): every weight learns its own step size by meta-descent on the TD error.
+
+The algorithm is Algorithm 1 of Günther et al. (2020), "Examining the Use of Temporal-Difference Incremental
+Delta-Bar-Delta for Real-World Predictive Knowledge Architectures" (https://pmc.ncbi.nlm.nih.gov/articles/PMC7805647/),
+with λ = 0. For a transition from features x to x' with reward r, and d = γx' − x:
+
+     4      δ ← r + γ w·x' − w·x
+     6–9    ξ_i ← max(|δ d_i h_i|,  ξ_i − (1/τ) α_i d_i z_i (|δ x_i h_i| − ξ_i))
+    10      β_i ← β_i − θ δ d_i h_i / ξ_i
+    11      M ← max(−Σ_i e^β_i d_i z_i, 1)
+    13–14   β_i ← β_i − log M,  α_i ← e^β_i          (every weight)
+    15      z_i ← γλ z_i + x_i                        (= x_i, since λ = 0)
+    16      w_i ← w_i + α_i δ z_i
+    17      h_i ← h_i max(1 + α_i z_i d_i, 0) + α_i δ z_i
+
+Lines 6 to 11 read the trace z before line 15 replaces it, so with λ = 0 they see the previous transition's features
+(none at a game's first update), as published.
+
+`reference_step` is that listing on dense float64 vectors: slow, and the one to trust. `sparse_step` is what training
+runs. It only visits the weights in x or x', which are the only ones lines 6 to 10, 16 and 17 can change, and it keeps
+line 13's shift of every β as one shared offset: weight i's β is rates[i, BETA] + shared[0].
+
+A feature's value is how many times a board reads that weight (symmetric boards read some weights several times), so
+features arrive as sorted unique weight indices with their counts.
+
+Beyond the listing:
+- Line 10 is skipped where ξ_i is 0. Its numerator is then 0 as well, so the listing asks for 0/0.
+- An update whose TD error isn't finite is skipped and counted, and training stops on it.
+- State is stored as float32 (the arithmetic is float64), and a weight's update count stops rising at 2**24.
+- With several threads, updates aren't locked. Two threads on the same weight can lose one of the updates, and the
+  shared offset can lose a normalisation that lands during another.
+"""
+
+import json
+from pathlib import Path
+from typing import Any, NamedTuple
+
+import numpy as np
+from numba import njit
+
+from deep_2048.agents.ntuple.network import TupleLayout, fill_weight_indices
+
+# Columns of Tidbd.rates
+BETA, H, XI, VISITS = 0, 1, 2, 3
+
+# A batch's counters, in the order sparse_step keeps them. The effective step is Σ α_i x_i (x_i − γx'_i): the share of
+# its own TD error an update removes, where above 1 overshoots. Normalisations count the updates where line 11's M > 1.
+STATS = ("updates", "max_effective_step", "sum_effective_step", "overshoots", "normalisations", "max_m", "max_abs_delta", "non_finite")
+UPDATES, MAX_STEP, SUM_STEP, OVERSHOOTS, NORMALISATIONS, MAX_M, MAX_ABS_DELTA, NON_FINITE = range(len(STATS))
+# Which counters are maxima rather than sums, for combining batches
+STAT_IS_MAX = np.array([name.startswith("max_") for name in STATS])
+
+# For the diagnostics: a weight is frequently visited from this many updates, and its rate very small below this share of the initial rate
+FREQUENT_VISITS = 100
+VERY_SMALL = 0.01
+LOG10_BINS = np.arange(-10.0, 1.01, 0.25)
+
+
+class Tidbd(NamedTuple):
+    """AutoStep TIDBD's state for every weight, and its two parameters. A NamedTuple so numba can use it.
+
+    Row i of `rates` holds weight i's β before the shared offset, h, ξ and how many updates it has had, side by side
+    so an update reads them from one cache line.
+    """
+
+    rates: np.ndarray
+    shared: np.ndarray
+    theta: float
+    tau: float
+
+    @classmethod
+    def create(cls, n_weights: int, initial_alpha: float, theta: float, tau: float, dtype: type = np.float32) -> "Tidbd":
+        if initial_alpha <= 0 or theta < 0 or tau <= 0:
+            raise ValueError(f"AutoTIDBD needs a positive initial rate and τ and a non-negative θ, not {initial_alpha}, {tau} and {theta}")
+        rates = np.zeros((n_weights, 4), dtype=dtype)
+        rates[:, BETA] = np.log(initial_alpha)
+        return cls(rates, np.zeros(1), theta, tau)
+
+    def alpha(self, indices: np.ndarray | slice = slice(None)) -> np.ndarray:
+        """The step sizes of these weights (default: all of them)."""
+        return np.exp(self.rates[indices, BETA].astype(np.float64) + self.shared[0])
+
+
+def reference_step(
+    w: np.ndarray, beta: np.ndarray, h: np.ndarray, xi: np.ndarray, z: np.ndarray, x: np.ndarray, x_next: np.ndarray,
+    reward: float, gamma: float, theta: float, tau: float, lam: float = 0.0,
+) -> tuple[float, float]:
+    """One step of Algorithm 1 on dense float64 vectors, changed in place, returning (δ, M). A terminal step has x_next = 0."""
+    delta = reward + gamma * (w @ x_next) - w @ x
+    d = gamma * x_next - x
+    alpha = np.exp(beta)
+    xi[:] = np.maximum(np.abs(delta * d * h), xi - alpha * d * z * (np.abs(delta * x * h) - xi) / tau)
+    known = xi != 0
+    beta[known] -= theta * delta * d[known] * h[known] / xi[known]
+    m = max(float(-(np.exp(beta) * d) @ z), 1.0)
+    beta -= np.log(m)
+    alpha = np.exp(beta)
+    z[:] = gamma * lam * z + x
+    w += alpha * delta * z
+    h[:] = h * np.maximum(1 + alpha * z * d, 0) + alpha * delta * z
+    return float(delta), m
+
+
+@njit(inline="always")
+def features(layout: TupleLayout, board: np.uint64, state: np.uint64, indices: np.ndarray, counts: np.ndarray) -> int:
+    """Write the afterstate's features as sorted unique weight indices and how often each is read, and return how many."""
+    n = fill_weight_indices(layout, board, state, indices)
+    # Tuples' tables follow one another, so the reads are already in order except within a tuple's symmetries
+    for a in range(1, n):
+        value = indices[a]
+        b = a - 1
+        while b >= 0 and indices[b] > value:
+            indices[b + 1] = indices[b]
+            b -= 1
+        indices[b + 1] = value
+    unique = 0
+    for a in range(n):
+        if unique > 0 and indices[unique - 1] == indices[a]:
+            counts[unique - 1] += 1.0
+        else:
+            indices[unique] = indices[a]
+            counts[unique] = 1.0
+            unique += 1
+    return unique
+
+
+@njit
+def sparse_step(
+    weights: np.ndarray,
+    optimiser: Tidbd,
+    gamma: float,
+    reward: float,
+    current: tuple[np.ndarray, np.ndarray, int],
+    successor: tuple[np.ndarray, np.ndarray, int],
+    trace: tuple[np.ndarray, np.ndarray, int],
+    work: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
+    stats: np.ndarray,
+) -> float:
+    """One step of Algorithm 1 with λ = 0 and return δ: reference_step, visiting only the weights in x or x'.
+
+    `current`, `successor` and `trace` are x, x' and the z left by the previous step (the features of the afterstate
+    before x, or none), each as (sorted unique indices, counts, how many). A terminal step has no successor features.
+    `work` is room for the indices, x, d and z of every weight in x or x'.
+    """
+    rates, shared = optimiser.rates, optimiser.shared
+    current_indices, current_counts, n_current = current
+    successor_indices, successor_counts, n_successor = successor
+    trace_indices, trace_counts, n_trace = trace
+    indices, xs, ds, zs = work
+
+    # Merge x and x' into one list of weights, looking each up in z, and take δ from the weights as they stand
+    delta = reward
+    n = a = b = p = 0
+    while a < n_current or b < n_successor:
+        x = x_next = 0.0
+        if b >= n_successor or (a < n_current and current_indices[a] <= successor_indices[b]):
+            i = current_indices[a]
+            x = current_counts[a]
+        else:
+            i = successor_indices[b]
+        if b < n_successor and successor_indices[b] == i:
+            x_next = successor_counts[b]
+            b += 1
+        if x > 0.0:
+            a += 1
+        while p < n_trace and trace_indices[p] < i:
+            p += 1
+        d = gamma * x_next - x
+        delta += d * weights[i]
+        indices[n], xs[n], ds[n] = i, x, d
+        zs[n] = trace_counts[p] if p < n_trace and trace_indices[p] == i else 0.0
+        n += 1
+
+    if not np.isfinite(delta):
+        stats[NON_FINITE] += 1
+        return delta
+    stats[UPDATES] += 1
+    stats[MAX_ABS_DELTA] = max(stats[MAX_ABS_DELTA], abs(delta))
+
+    # Lines 5 to 11. Where d is 0, or h and z both are, they leave ξ and β as they were
+    offset = shared[0]
+    normaliser = 0.0
+    for k in range(n):
+        d, z = ds[k], zs[k]
+        i = indices[k]
+        h = rates[i, H]
+        if d == 0.0 or (h == 0.0 and z == 0.0):
+            continue
+        beta = rates[i, BETA]
+        xi = rates[i, XI]
+        decayed = xi
+        if z != 0.0:
+            decayed = xi - np.exp(beta + offset) * d * z * (abs(delta * xs[k] * h) - xi) / optimiser.tau
+        xi = max(abs(delta * d * h), decayed)
+        if xi > 0.0:
+            beta -= optimiser.theta * delta * d * h / xi
+            rates[i, BETA] = beta
+        rates[i, XI] = xi
+        if z != 0.0:
+            normaliser -= np.exp(beta + offset) * d * z
+
+    # Lines 12 to 14: dividing every step size by M is one subtraction from the shared offset
+    if normaliser > 1.0:
+        shared[0] -= np.log(normaliser)
+        offset = shared[0]
+        stats[NORMALISATIONS] += 1
+        stats[MAX_M] = max(stats[MAX_M], normaliser)
+
+    # Lines 15 to 17: z is now x, so only the weights in x move
+    effective_step = 0.0
+    for k in range(n):
+        x = xs[k]
+        if x == 0.0:
+            continue
+        i = indices[k]
+        alpha = np.exp(rates[i, BETA] + offset)
+        step = alpha * delta * x
+        weights[i] += step
+        rates[i, H] = rates[i, H] * max(1.0 + alpha * x * ds[k], 0.0) + step
+        rates[i, VISITS] += 1
+        effective_step -= alpha * x * ds[k]
+    stats[MAX_STEP] = max(stats[MAX_STEP], effective_step)
+    stats[SUM_STEP] += effective_step
+    stats[OVERSHOOTS] += effective_step > 1.0
+    return delta
+
+
+def combine_stats(rows: np.ndarray) -> np.ndarray:
+    """Combine counters from several batches or threads into one row: maxima stay maxima and the rest add up."""
+    rows = rows.reshape(-1, len(STATS))
+    return np.where(STAT_IS_MAX, rows.max(axis=0, initial=0.0), rows.sum(axis=0))
+
+
+def checkpoint_arrays(optimiser: Tidbd, initial_alpha: float, totals: np.ndarray) -> dict[str, Any]:
+    """The arrays a checkpoint needs to carry on training exactly: the optimiser's whole state, its settings and the run's counters so far."""
+    settings = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau}
+    return {"tidbd_rates": optimiser.rates, "tidbd_shared": optimiser.shared, "tidbd_settings": json.dumps(settings), "tidbd_totals": totals}
+
+
+def load(path: str | Path) -> tuple[Tidbd, float, np.ndarray] | None:
+    """Load a checkpoint's (optimiser, initial rate, counters so far), or None if it holds weights only."""
+    with np.load(path) as data:
+        if "tidbd_rates" not in data:
+            return None
+        settings = json.loads(str(data["tidbd_settings"]))
+        optimiser = Tidbd(data["tidbd_rates"], data["tidbd_shared"], settings["theta"], settings["tau"])
+        return optimiser, settings["initial_alpha"], data["tidbd_totals"]
+
+
+def _percentiles(log_alpha: np.ndarray) -> dict[str, float]:
+    """Percentiles of the step sizes, taken on their logs since exp keeps their order."""
+    if log_alpha.size == 0:
+        return {}
+    points = np.exp(np.concatenate([np.percentile(log_alpha, [10, 50, 90]), [log_alpha.min(), log_alpha.max()]]).astype(np.float64))
+    return dict(zip(("p10", "median", "p90", "min", "max"), points.tolist()))
+
+
+def rate_diagnostics(optimiser: Tidbd, initial_alpha: float, sample_every: int = 1) -> dict[str, Any]:
+    """Describe the learned step sizes, over every weight or, with `sample_every` > 1, every that-many-th weight.
+
+    Visited weights are those with at least one update. A rate has risen or fallen if it differs from the initial rate
+    at all, which line 13's shared shift makes true of every weight once any update has been normalised.
+    """
+    rates = optimiser.rates[::sample_every]
+    offset = float(optimiser.shared[0])
+    visits = rates[:, VISITS]
+    visited = visits > 0
+    log_alpha = rates[:, BETA] + np.float32(offset)
+    start = np.log(initial_alpha)
+    seen = log_alpha[visited]
+    frequent = log_alpha[visits >= FREQUENT_VISITS]
+    result: dict[str, Any] = {
+        "sampled": sample_every > 1,
+        "sample_every": sample_every,
+        "weights": int(rates.shape[0]),
+        "visited": int(visited.sum()),
+        "frequent": int(frequent.size),
+        "initial_alpha": initial_alpha,
+        "log_offset": offset,
+        "alpha_all": _percentiles(log_alpha),
+        "alpha_visited": _percentiles(seen),
+        "alpha_frequent": _percentiles(frequent),
+    }
+    for name, values in (("visited", seen), ("frequent", frequent)):
+        if values.size:
+            # float32 β can't hold log(initial rate) exactly, so "unchanged" allows for its rounding
+            result[f"{name}_increased"] = float(np.mean(values > start + 1e-6))
+            result[f"{name}_decreased"] = float(np.mean(values < start - 1e-6))
+            result[f"{name}_very_small"] = float(np.mean(values < start + np.log(VERY_SMALL)))
+    result["log10_alpha_bins"] = LOG10_BINS.tolist()
+    result["log10_alpha_visited_histogram"] = np.histogram(seen / np.float32(np.log(10)), bins=LOG10_BINS)[0].tolist()
+    result["non_finite_state"] = int((~np.isfinite(rates)).sum())
+    return result

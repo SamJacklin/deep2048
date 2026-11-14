@@ -12,6 +12,7 @@ history and manifest go to experiments/<run>/, to be committed, and checkpoints 
 """
 
 import argparse
+import signal
 import sys
 from pathlib import Path
 
@@ -72,6 +73,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    # A plain `kill` then stops training as Ctrl-C does: at the end of the batch, saving a checkpoint
+    signal.signal(signal.SIGTERM, signal.default_int_handler)
     settings = get_ntuple_settings()
     if args.run:
         run_dirs = {"OUTPUT_DIR": str(EXPERIMENTS_DIR / args.run), "CHECKPOINT_DIR": str(Path(settings.CHECKPOINT_DIR) / args.run)}
