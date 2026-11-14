@@ -52,8 +52,10 @@ RATES = {"2m": (0.02, 0.005, 0.00125), "500k": (0.02, 0.005, 0.00125), "scratch"
 # The order arms run in, revised after the 2M copy's first two rates: the 0.00125 arms are deferred, and every arm keeps
 # its coherence sums until the leaders are chosen (strip_traces cuts the rest down to weights afterwards)
 ORDER = (("2m", 0.02), ("500k", 0.02), ("scratch", 0.02), ("2m", 0.005), ("500k", 0.005), ("scratch", 0.005))
+# Then extensions, once every arm above has reached 1M: (start, rate, continuations to train to)
+EXTENSIONS = (("2m", 0.005, 1_500_000), ("500k", 0.005, 1_500_000), ("scratch", 0.005, 1_500_000), ("scratch", 0.02, 1_500_000))
 STOPS = tuple(range(100_000, 1_000_001, 100_000))
-DEPTH3_AT = (500_000, 1_000_000)
+DEPTH3_AT = (500_000, 1_000_000, 1_500_000, 2_000_000)
 # (pool, policy, network that played, first seed, positions): seed ranges disjoint from each other and every earlier one
 POOLS = (
     ("train", "greedy", "2m", 20_000_000, 100_000),
@@ -404,8 +406,8 @@ def run() -> None:
     verify_prefixes()
     for start in ("500k", "scratch"):
         evaluate(f"{start}-start-0", STARTS / f"{start}.npz", depth3=False)
-    for start, rate in ORDER:
-        for stop in STOPS:
+    for start, rate, target in [(s, r, STOPS[-1]) for s, r in ORDER] + list(EXTENSIONS):
+        for stop in range(100_000, target + 1, 100_000):
             train_to(start, rate, stop)
             evaluate(f"{run_name(start, rate)}-{stop}", latest(start, rate), depth3=stop in DEPTH3_AT)
             print(f"{time.strftime('%H:%M')} {run_name(start, rate)} evaluated at {stop:,}", flush=True)
