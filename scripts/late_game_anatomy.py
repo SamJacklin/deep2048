@@ -305,7 +305,8 @@ def p1_report() -> None:
     x = np.array([features(board_of(rows[s])) for s in greedy["seeds"]])
     n = greedy["tiles"].shape[1]
     made = (greedy["tiles"] >= 32768).sum(axis=1)
-    lines = ["# Stage 7, Part 1: does the entry position matter?\n", f"Generated {time.strftime('%Y-%m-%d %H:%M')} from `p1-greedy`" + (" and `p1-depth3`" if (OUTPUT / "p1-depth3").exists() else "") + ".\n"]
+    sources = "`p1-greedy`" + (" and `p1-depth3`" if (OUTPUT / "p1-depth3").exists() else "")
+    lines = ["# Stage 7, Part 1: does the entry position matter?\n", f"Generated {time.strftime('%Y-%m-%d %H:%M')} from {sources}.\n"]
 
     lines.append("## 6.1 Position-dependent conversion\n")
     effects = {"greedy": position_effect(greedy["tiles"], greedy["scores"])}
@@ -326,7 +327,8 @@ def p1_report() -> None:
                      f"the per-position rates correlate at r = {np.corrcoef(g, d)[0, 1]:.2f} (both noisy, so this understates the true correlation).")
 
     lines.append("\n## 6.2 Predictive board features\n")
-    lines.append("Out-of-fold predictions from L2-penalised logistic regression on all features, 5 folds grouped by source game, against a constant predictor fitted on each training fold. Scores are per continuation; lower is better.\n")
+    lines.append("Out-of-fold predictions from L2-penalised logistic regression on all features, 5 folds grouped by source game, "
+                 "against a constant predictor fitted on each training fold. Scores are per continuation; lower is better.\n")
     folds = folds_of(greedy["seeds"])
     constant = np.zeros(len(made))
     for f in np.unique(folds):
