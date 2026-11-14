@@ -223,6 +223,14 @@ def autotidbd_metadata():  # type: ignore[no-untyped-def]
     return CheckpointMetadata(games_played=40, moves_played=1, learning_rate=0.01, optimizer="autotidbd")
 
 
+@pytest.fixture
+def small_default_network(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    """Make the default layout tiny, so train()'s checkpoints (five arrays the size of the weights) are kilobytes, not most of a gigabyte."""
+    from deep_2048.agents.ntuple import network
+
+    monkeypatch.setitem(network.NETWORKS, network.DEFAULT_NETWORK, SMALL_TUPLES)
+
+
 def tidbd_settings(tmp_path, **overrides) -> NTupleSettings:  # type: ignore[no-untyped-def]
     return NTupleSettings(
         OPTIMIZER="autotidbd", LOG_EVERY=50, CHECKPOINT_EVERY=50, DOWNGRADE_TILE=16384, LATE_START_FRACTION=0.2,
@@ -230,7 +238,7 @@ def tidbd_settings(tmp_path, **overrides) -> NTupleSettings:  # type: ignore[no-
     )  # fmt: skip
 
 
-def test_f_training_resumes_only_with_its_own_state_and_settings(tmp_path) -> None:
+def test_f_training_resumes_only_with_its_own_state_and_settings(tmp_path, small_default_network) -> None:
     settings = tidbd_settings(tmp_path)
     first = train(total_games=100, snapshot_at=[100], settings=settings)
     assert autotidbd.load(first.checkpoint_path) is not None
@@ -369,7 +377,7 @@ def test_h_stress(dtype: type) -> None:
     assert np.abs(pair.optimiser.rates[:, BETA] - np.log(0.1)).max() <= 3_000 * 0.05 * 1.0001
 
 
-def test_h_a_non_finite_error_is_skipped_and_counted_and_stops_training(tmp_path, monkeypatch) -> None:
+def test_h_a_non_finite_error_is_skipped_and_counted_and_stops_training(tmp_path, small_default_network) -> None:
     pair = Pair(w=np.full(N, np.inf))
     before = pair.optimiser.rates.copy()
     x = vector(i0=1)

@@ -75,10 +75,11 @@ train_to() {    # run name, total games, snapshot game counts...
     shift 2
     check_disk
     resume=()
-    if [ -f "$CHECKPOINTS/$run/latest.npz" ]; then
-        resume=(--resume "$CHECKPOINTS/$run/latest.npz")
+    from=$(newest "$run")
+    if [ -n "$from" ]; then
+        resume=(--resume "$from")
     elif [ -d "$CHECKPOINTS/$run" ] && [ -n "$(ls "$CHECKPOINTS/$run")" ]; then
-        echo "$CHECKPOINTS/$run has checkpoints but no latest.npz to resume from: not starting it afresh" >&2
+        echo "$CHECKPOINTS/$run isn't empty but holds no checkpoint to resume from: not starting it afresh" >&2
         exit 1
     fi
     # The odd expansion keeps an empty array working under set -u in macOS's bash 3.2
@@ -89,13 +90,23 @@ evaluate() {    # run name, games, depth, split
     uv run python scripts/stage8.py evaluate "$CHECKPOINTS/$1/games_$2.npz" --name "$1-$2" --depth "$3" --split "$4" | tr '\r' '\n'
 }
 
-games_done() {    # run name → games in its latest checkpoint, 0 if there's none
+# A run's newest checkpoint: latest.npz while a training session is unfinished, else its last snapshot. Once a stop's
+# snapshot is saved, latest.npz holds the same state uncompressed (2.6 GB), so it's deleted and the snapshot resumes the run.
+newest() {    # run name → path, or nothing
     if [ -f "$CHECKPOINTS/$1/latest.npz" ]; then
+        echo "$CHECKPOINTS/$1/latest.npz"
+    else
+        ls "$CHECKPOINTS/$1"/games_*.npz 2>/dev/null | sort -t_ -k2 -n | tail -1
+    fi
+}
+
+games_done() {    # run name → games in its newest checkpoint, 0 if there's none
+    from=$(newest "$1")
+    if [ -n "$from" ]; then
         uv run python -c "
-import sys
-from deep_2048.agents.ntuple.network import NTupleNetwork
-import numpy as np, json
-with np.load(sys.argv[1]) as data: print(json.loads(str(data['metadata']))['games_played'])" "$CHECKPOINTS/$1/latest.npz"
+import json, sys
+import numpy as np
+with np.load(sys.argv[1]) as data: print(json.loads(str(data['metadata']))['games_played'])" "$from"
     else
         echo 0
     fi
@@ -109,6 +120,7 @@ train_arm() {    # arm, split to evaluate greedily on, stops...
     for stop in "$@"; do
         if [ "$done_games" -lt "$stop" ]; then
             train_to "arm-$arm" "$stop" "$stop"
+            [ -f "$CHECKPOINTS/arm-$arm/games_$stop.npz" ] && rm -f "$CHECKPOINTS/arm-$arm/latest.npz"
         fi
         evaluate "arm-$arm" "$stop" 1 "$split"
         if [ "$split" = dev ] && [[ $DEPTH3_STOPS == *" $stop "* ]]; then
@@ -131,7 +143,8 @@ bench)
         from=()
         [ -n "$2" ] && from=(--resume "$CHECKPOINTS/bench/$2/games_10000.npz")
         rm -rf "$NTUPLE_OUTPUT_DIR"
-        /usr/bin/time -l uv run python -u scripts/train_ntuple.py ${from[@]+"${from[@]}"} --games "$3" --snapshot-at "$3"
+        uv run python -u scripts/train_ntuple.py ${from[@]+"${from[@]}"} --games "$3" --snapshot-at "$3"
+        rm -f "$NTUPLE_CHECKPOINT_DIR/latest.npz"
     }
     BENCH_ARM=${BENCH_ARM:-D}
     tidbd "$BENCH_ARM"
