@@ -3,8 +3,9 @@
 Two 10M-game runs from scratch, `recipe` (run `ryzen-recipe`) and `optimism` (run `ryzen-optimism`), following the
 `ryzen-instructions` README, plus an extension of `optimism` from 10M to 14M games added at the user's request (section 8).
 
-**Status of this file:** `optimism` and its extension are complete. `recipe` finished training to 10M games, and its
-depth-3 evaluations are still running; its tables and charts will be added in a later commit on this branch.
+**Status:** both runs and the extension are complete. The checkpoints are left on the machine under
+`checkpoints/ntuple/ryzen-*` (`ryzen-recipe`: 1.5M, 5M, 10M; `ryzen-optimism`: 5M, 9M, 10M; `ryzen-optimism-ext`:
+11M, 12M, 13M, 14M).
 
 ## 1. The machine
 
@@ -79,24 +80,76 @@ All times are UTC. Both runs used `THREADS=8` and the exact C1 commands. A hidde
 | Run | Started | Training finished | Evaluations finished |
 |---|---|---|---|
 | `ryzen-optimism` | 2026-11-13 12:17:49 | 19:42 on 11-13 (9M at 18:14) | 20:28 on 11-13 |
-| `ryzen-recipe` | 2026-11-13 12:17:49 | 03:52 on 11-14 | still running (see below) |
+| `ryzen-recipe` | 2026-11-13 12:17:49 | 03:52 on 11-14 | 08:59 on 11-14 (after the restart below) |
 | `ryzen-optimism-ext` (section 8) | 2026-11-13 20:28:25 | 03:05 on 11-14 | 03:24 on 11-14 |
 
 **Interruptions and problems:**
-- **Windows crashed and rebooted at 03:55 UTC on 2026-11-14.** `ryzen-optimism` and `ryzen-optimism-ext` had
-  already finished. `ryzen-recipe` had saved its 10M snapshot at 03:52, but its 10M greedy evaluation and its three
+- **Windows Update restarted the PC at 03:53 UTC on 2026-11-14**, to install the 2026-11 security update
+  (KB5132061). The restart was planned (event 1074 from `TrustedInstaller.exe`, "Operating System: Upgrade (Planned)",
+  and a second restart at 03:54), and 03:53 fell outside the PC's active hours (08:00–01:00). There was no
+  unexpected-shutdown event, bugcheck or hardware (WHEA) error. Windows Update hadn't been paused (step A3 needs a
+  human). `ryzen-optimism` and `ryzen-optimism-ext` had already finished. `ryzen-recipe` had saved its 10M snapshot at 03:52, but its 10M greedy evaluation and its three
   depth-3 evaluations hadn't finished. At 08:24 UTC the keepalive was restarted, the 10M greedy evaluation was run
   by hand with the script's own `evaluate.py` command (rerunning the script skips greedy evaluations once the final
   snapshot exists), and then `THREADS=8 scripts/run_ryzen_arms.sh recipe >> ryzen-recipe.log` was rerun for the
-  depth-3 evaluations. Both are appended to `ryzen-recipe/run.log`.
+  depth-3 evaluations, which finished at 08:59. Both are appended to `ryzen-recipe/run.log`. Nothing else was lost:
+  the 10M snapshot was complete, and every earlier evaluation was already recorded.
 - **Not done by the agent:** pausing Windows Update, which needs a human. `gh auth login` was done by the user
   on 2026-11-14.
 
 ## 6. Results
 
-Tables from `uv run python scripts/summarise_runs.py ryzen-optimism ryzen-optimism-ext`, pasted unchanged. Greedy
-evaluations are on 1,000 seeded games every 250,000 games; depth-3 evaluations are on the same 1,000 games.
-`ryzen-recipe`'s tables will be added when its evaluations finish.
+The tables from `/tmp/ryzen-tables.md` (`uv run python scripts/summarise_runs.py ryzen-recipe ryzen-optimism`), pasted
+unchanged. Greedy evaluations are on 1,000 seeded games every 250,000 games; depth-3 evaluations are on the same 1,000
+games at the kept points. The extension's table is in section 8.
+
+### ryzen-recipe
+
+| Games | Search | Average ± 95% | Median | ≥16384 | ≥32768 |
+|---:|---|---:|---:|---:|---:|
+| 250,000 | greedy | 245,046 ± 7,280 | 264,660 | 55.3% | 2.7% |
+| 500,000 | greedy | 265,778 ± 7,556 | 288,702 | 62.0% | 3.7% |
+| 750,000 | greedy | 281,876 ± 7,410 | 290,398 | 66.9% | 5.2% |
+| 1,000,000 | greedy | 285,821 ± 7,773 | 318,358 | 68.4% | 5.8% |
+| 1,250,000 | greedy | 302,937 ± 7,353 | 339,032 | 75.1% | 5.9% |
+| 1,500,000 | depth 3 | 367,503 ± 6,187 | 381,994 | 89.6% | 10.3% |
+| 1,500,000 | greedy | 295,499 ± 7,831 | 336,646 | 70.3% | 6.5% |
+| 1,750,000 | greedy | 308,602 ± 7,993 | 342,538 | 72.0% | 9.1% |
+| 2,000,000 | greedy | 309,199 ± 7,812 | 342,144 | 73.2% | 8.5% |
+| 2,250,000 | greedy | 303,752 ± 8,037 | 342,428 | 71.7% | 8.2% |
+| 2,500,000 | greedy | 316,576 ± 7,916 | 357,236 | 75.3% | 9.7% |
+| 2,750,000 | greedy | 315,935 ± 8,031 | 355,676 | 74.7% | 10.2% |
+| 3,000,000 | greedy | 315,204 ± 7,608 | 343,092 | 76.1% | 8.8% |
+| 3,250,000 | greedy | 317,572 ± 7,745 | 357,382 | 75.7% | 8.8% |
+| 3,500,000 | greedy | 312,483 ± 7,917 | 358,298 | 74.2% | 9.2% |
+| 3,750,000 | greedy | 311,639 ± 7,304 | 342,830 | 76.4% | 6.7% |
+| 4,000,000 | greedy | 305,270 ± 7,565 | 340,012 | 72.6% | 7.2% |
+| 4,250,000 | greedy | 305,954 ± 7,420 | 342,250 | 73.9% | 6.7% |
+| 4,500,000 | greedy | 319,668 ± 7,368 | 363,066 | 77.8% | 7.6% |
+| 4,750,000 | greedy | 308,526 ± 7,253 | 355,074 | 74.3% | 5.2% |
+| 5,000,000 | depth 3 | 396,017 ± 6,618 | 386,030 | 93.5% | 17.9% |
+| 5,000,000 | greedy | 319,802 ± 7,326 | 363,158 | 77.9% | 7.7% |
+| 5,250,000 | greedy | 325,642 ± 7,473 | 363,112 | 79.7% | 9.2% |
+| 5,500,000 | greedy | 318,262 ± 7,045 | 361,658 | 78.7% | 6.3% |
+| 5,750,000 | greedy | 317,290 ± 7,184 | 362,106 | 77.2% | 6.9% |
+| 6,000,000 | greedy | 315,726 ± 7,334 | 362,458 | 76.3% | 6.5% |
+| 6,250,000 | greedy | 317,111 ± 7,476 | 362,900 | 75.8% | 7.9% |
+| 6,500,000 | greedy | 320,155 ± 7,363 | 365,710 | 78.2% | 7.5% |
+| 6,750,000 | greedy | 321,446 ± 7,026 | 363,954 | 78.5% | 6.3% |
+| 7,000,000 | greedy | 320,224 ± 7,431 | 366,562 | 78.0% | 7.5% |
+| 7,250,000 | greedy | 328,733 ± 7,202 | 367,336 | 80.2% | 8.3% |
+| 7,500,000 | greedy | 319,618 ± 7,413 | 366,176 | 78.6% | 7.1% |
+| 7,750,000 | greedy | 325,898 ± 7,223 | 367,426 | 80.4% | 6.8% |
+| 8,000,000 | greedy | 332,965 ± 7,328 | 369,528 | 81.7% | 8.9% |
+| 8,250,000 | greedy | 323,302 ± 7,552 | 368,378 | 77.3% | 7.9% |
+| 8,500,000 | greedy | 319,974 ± 7,231 | 362,904 | 79.4% | 6.4% |
+| 8,750,000 | greedy | 328,843 ± 7,471 | 371,958 | 79.1% | 8.7% |
+| 9,000,000 | greedy | 324,137 ± 7,315 | 366,270 | 79.9% | 7.3% |
+| 9,250,000 | greedy | 321,641 ± 7,352 | 363,124 | 79.0% | 7.7% |
+| 9,500,000 | greedy | 319,426 ± 7,273 | 366,432 | 77.2% | 7.3% |
+| 9,750,000 | greedy | 322,957 ± 7,476 | 367,394 | 77.4% | 7.5% |
+| 10,000,000 | depth 3 | 389,750 ± 6,404 | 382,442 | 93.9% | 15.1% |
+| 10,000,000 | greedy | 317,639 ± 7,314 | 365,774 | 77.6% | 6.4% |
 
 ### ryzen-optimism
 
@@ -146,7 +199,49 @@ evaluations are on 1,000 seeded games every 250,000 games; depth-3 evaluations a
 | 10,000,000 | depth 3 | 379,675 ± 5,602 | 382,918 | 92.6% | 16.8% |
 | 10,000,000 | greedy | 300,537 ± 6,879 | 342,774 | 74.1% | 4.3% |
 
-### ryzen-optimism-ext
+## 7. Charts
+
+- [figures/ryzen-arms.png](figures/ryzen-arms.png): both runs overlaid
+- [ryzen-recipe/training_progress.png](ryzen-recipe/training_progress.png)
+- [ryzen-optimism/training_progress.png](ryzen-optimism/training_progress.png)
+- [ryzen-optimism-ext/training_progress.png](ryzen-optimism-ext/training_progress.png): the extension (section 8)
+
+## 8. Extension: `optimism` from 10M to 14M games (added at the user's request)
+
+Not part of the README plan. The user asked to continue `optimism` past 10M games if it hadn't plateaued, first to
+12M and then to 14M. No code was changed: a script outside the repo, `~/ryzen-notes/run_optimism_ext.sh`, resumed
+`checkpoints/ntuple/ryzen-optimism/games_10000000.npz` (weights and temporal coherence sums, no reset) into a separate run,
+`ryzen-optimism-ext`, with the same settings as `optimism`'s last phase: TC at 0.02, 8 threads, the 8x6 network,
+downgrading from 16384 and late-game starts from 8192. As in the main runs, there was a greedy evaluation on 1,000
+seeded games every 250,000 games, and depth-3 evaluations on the same 1,000 games at 12M and 14M.
+
+- **To 12M:** from 20:28:25 to 23:55 UTC on 2026-11-13 (`TOTAL=12000000`).
+- **To 14M:** restarted at 23:55:27 from the 12M snapshot, with the log appended. Training finished at 03:05 on
+  2026-11-14, and the depth-3 evaluation at 03:24.
+- **Kept checkpoints** in `checkpoints/ntuple/ryzen-optimism-ext/`: 11M, 12M, 13M and 14M.
+- **Run log:** `ryzen-optimism-ext/run.log`.
+
+Greedy averages per million games, from the tables below and in section 6:
+
+| Games | Mean of the four greedy averages |
+|---|---:|
+| 9.25M–10M (`ryzen-optimism`, after TC came on at 9M) | 299,438 |
+| 10.25M–11M | 308,669 |
+| 11.25M–12M | 315,199 |
+| 12.25M–13M | 313,952 |
+| 13.25M–14M | 315,943 |
+
+Depth-3 at the end of each stage:
+
+| Games | Average ± 95% | ≥16384 | ≥32768 |
+|---:|---:|---:|---:|
+| 10M | 379,675 ± 5,602 | 92.6% | 16.8% |
+| 12M | 380,930 ± 5,644 | 93.4% | 17.1% |
+| 14M | 384,536 ± 5,811 | 94.1% | 16.8% |
+
+The full table, from `uv run python scripts/summarise_runs.py ryzen-optimism-ext`, pasted unchanged:
+
+#### ryzen-optimism-ext
 
 | Games | Search | Average ± 95% | Median | ≥16384 | ≥32768 |
 |---:|---|---:|---:|---:|---:|
@@ -168,42 +263,3 @@ evaluations are on 1,000 seeded games every 250,000 games; depth-3 evaluations a
 | 13,750,000 | greedy | 317,857 ± 6,749 | 363,626 | 79.8% | 5.9% |
 | 14,000,000 | depth 3 | 384,536 ± 5,811 | 380,548 | 94.1% | 16.8% |
 | 14,000,000 | greedy | 314,211 ± 6,860 | 365,838 | 77.3% | 5.2% |
-
-## 7. Charts
-
-- [ryzen-optimism/training_progress.png](ryzen-optimism/training_progress.png)
-- [ryzen-optimism-ext/training_progress.png](ryzen-optimism-ext/training_progress.png)
-- `figures/ryzen-arms.png` and `ryzen-recipe/training_progress.png` will be added with `recipe`'s results.
-
-## 8. Extension: `optimism` from 10M to 14M games (added at the user's request)
-
-Not part of the README plan. The user asked to continue `optimism` past 10M games if it hadn't plateaued, first to
-12M and then to 14M. No code was changed: a script outside the repo, `~/ryzen-notes/run_optimism_ext.sh`, resumed
-`checkpoints/ntuple/ryzen-optimism/games_10000000.npz` (weights and temporal coherence sums, no reset) into a separate run,
-`ryzen-optimism-ext`, with the same settings as `optimism`'s last phase: TC at 0.02, 8 threads, the 8x6 network,
-downgrading from 16384 and late-game starts from 8192. As in the main runs, there was a greedy evaluation on 1,000
-seeded games every 250,000 games, and depth-3 evaluations on the same 1,000 games at 12M and 14M.
-
-- **To 12M:** from 20:28:25 to 23:55 UTC on 2026-11-13 (`TOTAL=12000000`).
-- **To 14M:** restarted at 23:55:27 from the 12M snapshot, with the log appended. Training finished at 03:05 on
-  2026-11-14, and the depth-3 evaluation at 03:24.
-- **Kept checkpoints** in `checkpoints/ntuple/ryzen-optimism-ext/`: 11M, 12M, 13M and 14M.
-- **Run log:** `ryzen-optimism-ext/run.log`. Its full table is in section 6.
-
-Greedy averages per million games, from the table in section 6:
-
-| Games | Mean of the four greedy averages |
-|---|---:|
-| 9.25M–10M (`ryzen-optimism`, after TC came on at 9M) | 299,438 |
-| 10.25M–11M | 308,669 |
-| 11.25M–12M | 315,199 |
-| 12.25M–13M | 313,952 |
-| 13.25M–14M | 315,943 |
-
-Depth-3 at the end of each stage:
-
-| Games | Average ± 95% | ≥16384 | ≥32768 |
-|---:|---:|---:|---:|
-| 10M | 379,675 ± 5,602 | 92.6% | 16.8% |
-| 12M | 380,930 ± 5,644 | 93.4% | 17.1% |
-| 14M | 384,536 ± 5,811 | 94.1% | 16.8% |
