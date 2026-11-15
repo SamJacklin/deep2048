@@ -96,7 +96,8 @@ newest() {    # run name → path, or nothing
     if [ -f "$CHECKPOINTS/$1/latest.npz" ]; then
         echo "$CHECKPOINTS/$1/latest.npz"
     else
-        ls "$CHECKPOINTS/$1"/games_*.npz 2>/dev/null | sort -t_ -k2 -n | tail -1
+        # No snapshots yet makes ls fail, which is an answer here, not an error
+        { ls "$CHECKPOINTS/$1"/games_*.npz 2>/dev/null || true; } | sort -t_ -k2 -n | tail -1
     fi
 }
 
