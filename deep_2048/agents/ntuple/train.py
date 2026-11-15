@@ -348,8 +348,13 @@ def train(
     settings: NTupleSettings | None = None,
     coherence_scale: float | None = None,
     optimistic_unvisited: float | None = None,
+    fork_normalisation: bool = False,
 ) -> TrainingSummary:
     """Train until total_games have been played, including any in the resumed checkpoint.
+
+    fork_normalisation lets a checkpoint trained with AutoTIDBD's published global normalisation carry on under the
+    local rule (TIDBD_NORMALISATION=local), keeping every step size as it stands. Without it, and in the other
+    direction always, a checkpoint only resumes under the rule it was trained with.
 
     coherence_scale multiplies the resumed temporal coherence sums. 0 resets them, giving every weight back
     its full rate. A fraction keeps each weight's rate for now but lets new errors move it sooner, since
@@ -364,7 +369,7 @@ def train(
     """
     settings = settings or get_ntuple_settings()
     with run_lock(Path(settings.OUTPUT_DIR)):
-        return _train(resume_from, total_games, snapshot_at, settings, coherence_scale, optimistic_unvisited)
+        return _train(resume_from, total_games, snapshot_at, settings, coherence_scale, optimistic_unvisited, fork_normalisation)
 
 
 def _train(
@@ -374,6 +379,7 @@ def _train(
     settings: NTupleSettings,
     coherence_scale: float | None,
     optimistic_unvisited: float | None,
+    fork_normalisation: bool = False,
 ) -> TrainingSummary:
     total_games = settings.TRAINING_GAMES if total_games is None else total_games
     snapshots = sorted(set(settings.SNAPSHOT_AT if snapshot_at is None else snapshot_at))
@@ -384,7 +390,7 @@ def _train(
 
     network, progress = _load_or_create(resume_from, settings)
     traces = _load_or_create_traces(resume_from, network, settings)
-    tidbd, tidbd_totals = _load_or_create_tidbd(resume_from, network, settings, coherence_scale, optimistic_unvisited)
+    tidbd, tidbd_totals = _load_or_create_tidbd(resume_from, network, settings, coherence_scale, optimistic_unvisited, fork_normalisation)
     if optimistic_unvisited is not None:
         unvisited = network.weights == 0
         network.weights[unvisited] = optimistic_unvisited
@@ -422,7 +428,7 @@ def _train(
     threads = f", {settings.THREADS} threads after {settings.THREADS_AFTER:,} games" if settings.THREADS > 1 else ""
     rule = f"lr {settings.LEARNING_RATE}{schedule}{coherence}"
     if tidbd is not None:
-        rule = f"AutoStep TIDBD(0) from rate {settings.TIDBD_INITIAL_ALPHA}, θ {tidbd.theta}, τ {tidbd.tau:g}"
+        rule = f"AutoStep TIDBD(0) from rate {settings.TIDBD_INITIAL_ALPHA}, θ {tidbd.theta}, τ {tidbd.tau:g}, {settings.TIDBD_NORMALISATION} normalisation"
     print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, {rule}{threads}")
     late_starts = _late_starts(settings)
     td_lambda = _td_lambda(settings)
@@ -499,6 +505,8 @@ def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) ->
     learning = {"learning_rate": settings.LEARNING_RATE, "temporal_coherence": settings.TEMPORAL_COHERENCE, "optimizer": settings.OPTIMIZER}
     if settings.OPTIMIZER == "autotidbd":
         learning["learning_rate"] = settings.TIDBD_INITIAL_ALPHA
+        if settings.TIDBD_NORMALISATION == "local":
+            learning["optimizer"] = "autotidbd-local"
     if settings.DOWNGRADE_TILE is not None and settings.DOWNGRADE_TILE & (settings.DOWNGRADE_TILE - 1):
         raise ValueError(f"DOWNGRADE_TILE must be a power of two, not {settings.DOWNGRADE_TILE}")
     if settings.SCALE_WHEN_DOWNGRADED and not (settings.SCALE_FEATURE and settings.DOWNGRADE_TILE):
@@ -542,7 +550,12 @@ def _load_or_create_traces(resume_from: str | Path | None, network: NTupleNetwor
 
 
 def _load_or_create_tidbd(
-    resume_from: str | Path | None, network: NTupleNetwork, settings: NTupleSettings, coherence_scale: float | None, optimistic_unvisited: float | None
+    resume_from: str | Path | None,
+    network: NTupleNetwork,
+    settings: NTupleSettings,
+    coherence_scale: float | None,
+    optimistic_unvisited: float | None,
+    fork_normalisation: bool = False,
 ) -> tuple[Tidbd | None, np.ndarray]:
     """Return AutoStep TIDBD's state and the run's optimiser counters so far, resumed or fresh, or (None, zeros) for other rules.
 
@@ -561,15 +574,24 @@ def _load_or_create_tidbd(
     }
     if any(clashes.values()):
         raise ValueError(f"OPTIMIZER=autotidbd doesn't work with {', '.join(name for name, set_ in clashes.items() if set_)}")
-    asked = {"initial_alpha": settings.TIDBD_INITIAL_ALPHA, "theta": settings.TIDBD_META_RATE, "tau": settings.TIDBD_TAU}
+    local = settings.TIDBD_NORMALISATION == "local"
+    asked = {"initial_alpha": settings.TIDBD_INITIAL_ALPHA, "theta": settings.TIDBD_META_RATE, "tau": settings.TIDBD_TAU, "normalisation": settings.TIDBD_NORMALISATION}
     if resume_from is None:
-        return Tidbd.create(network.weights.size, settings.TIDBD_INITIAL_ALPHA, settings.TIDBD_META_RATE, settings.TIDBD_TAU), totals
+        if fork_normalisation:
+            raise ValueError("fork_normalisation needs a checkpoint to fork from")
+        return Tidbd.create(network.weights.size, settings.TIDBD_INITIAL_ALPHA, settings.TIDBD_META_RATE, settings.TIDBD_TAU, local=local), totals
     loaded = autotidbd.load(resume_from)
     if loaded is None:
         raise ValueError(f"{resume_from} holds no AutoTIDBD state, so training can't resume from it with OPTIMIZER=autotidbd")
     optimiser, initial_alpha, totals = loaded
-    saved = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau}
-    if saved != asked:
+    saved = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": "local" if optimiser.local else "global"}
+    if fork_normalisation:
+        if saved != asked | {"normalisation": "global"} or not local:
+            raise ValueError(f"a fork goes from global to local normalisation with nothing else changed, not from {saved} to {asked}")
+        # Every step size stays exactly as it is: the shared offset is kept, and from here on is never moved
+        optimiser = optimiser._replace(local=True)
+        print(f"Forked to local normalisation, keeping the shared offset of {optimiser.shared[0]:.4f} fixed from here on")
+    elif saved != asked:
         raise ValueError(f"{resume_from} was trained with AutoTIDBD settings {saved}, not {asked}: set the settings to match")
     if optimiser.rates.shape[0] != network.weights.size:
         raise ValueError(f"{resume_from}'s AutoTIDBD state doesn't match its weights")

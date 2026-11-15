@@ -25,12 +25,14 @@ def sparse(x: np.ndarray) -> tuple[np.ndarray, np.ndarray, int]:
 class Pair:
     """The reference and the kernel side by side, fed the same transitions."""
 
-    def __init__(self, alpha: float = 0.05, theta: float = 0.01, tau: float = 100.0, gamma: float = 1.0, dtype: type = np.float64, w: np.ndarray | None = None) -> None:
-        self.gamma, self.theta, self.tau = gamma, theta, tau
+    def __init__(
+        self, alpha: float = 0.05, theta: float = 0.01, tau: float = 100.0, gamma: float = 1.0, dtype: type = np.float64, w: np.ndarray | None = None, local: bool = False
+    ) -> None:
+        self.gamma, self.theta, self.tau, self.local = gamma, theta, tau, local
         self.w = np.zeros(N) if w is None else w.astype(np.float64)
         self.beta, self.h, self.xi, self.z = np.full(N, np.log(alpha)), np.zeros(N), np.zeros(N), np.zeros(N)
         self.weights = self.w.astype(dtype)
-        self.optimiser = Tidbd.create(N, alpha, theta, tau, dtype)
+        self.optimiser = Tidbd.create(N, alpha, theta, tau, dtype, local)
         self.work = (np.empty(2 * N, np.int64), np.empty(2 * N), np.empty(2 * N), np.empty(2 * N))
         self.stats = np.zeros(len(autotidbd.STATS))
         self.tolerance = 1e-10 if dtype is np.float64 else 2e-4
@@ -42,7 +44,7 @@ class Pair:
     def step(self, x: np.ndarray, x_next: np.ndarray, reward: float) -> float:
         """Take one step in both, check that they agree on everything, and return δ."""
         trace = sparse(self.z)
-        delta, self.last_m = reference_step(self.w, self.beta, self.h, self.xi, self.z, x, x_next, reward, self.gamma, self.theta, self.tau)
+        delta, self.last_m = reference_step(self.w, self.beta, self.h, self.xi, self.z, x, x_next, reward, self.gamma, self.theta, self.tau, local=self.local)
         got = sparse_step(self.weights, self.optimiser, self.gamma, reward, sparse(x), sparse(x_next), trace, self.work, self.stats)
         rates, offset = self.optimiser.rates, self.optimiser.shared[0]
         close = dict(rtol=self.tolerance, atol=self.tolerance)
@@ -232,10 +234,11 @@ def small_default_network(monkeypatch) -> None:  # type: ignore[no-untyped-def]
 
 
 def tidbd_settings(tmp_path, **overrides) -> NTupleSettings:  # type: ignore[no-untyped-def]
-    return NTupleSettings(
+    defaults = dict(
         OPTIMIZER="autotidbd", LOG_EVERY=50, CHECKPOINT_EVERY=50, DOWNGRADE_TILE=16384, LATE_START_FRACTION=0.2,
-        CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"), **overrides,
+        CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"),
     )  # fmt: skip
+    return NTupleSettings(**(defaults | overrides))
 
 
 def test_f_training_resumes_only_with_its_own_state_and_settings(tmp_path, small_default_network) -> None:

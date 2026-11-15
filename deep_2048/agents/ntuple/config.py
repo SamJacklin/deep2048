@@ -27,6 +27,9 @@ class NTupleSettings(Settings):
     TIDBD_INITIAL_ALPHA: float = 0.004
     TIDBD_META_RATE: float = 0.01
     TIDBD_TAU: float = 10_000.0
+    # "global" is the published rule: an update whose effective step is too large divides every weight's step size.
+    # "local" (stage 8A, experimental) divides only those of the weights in the trace the step was measured with.
+    TIDBD_NORMALISATION: Literal["global", "local"] = "global"
     # TD(λ): if LAMBDA > 0, each afterstate learns LAMBDA_HORIZON moves later towards its λ-return.
     # If LAMBDA_END is set, λ moves linearly from LAMBDA to it over each training session.
     LAMBDA: float = 0.0

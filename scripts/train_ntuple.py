@@ -71,6 +71,11 @@ def main() -> None:
         metavar="VALUE",
         help="Set every weight training has never updated to VALUE, so greedy play explores unfamiliar patterns",
     )
+    parser.add_argument(
+        "--fork-normalisation",
+        action="store_true",
+        help="Carry an AutoTIDBD checkpoint trained with global normalisation on under NTUPLE_TIDBD_NORMALISATION=local, keeping its step sizes",
+    )
     args = parser.parse_args()
 
     # A plain `kill` then stops training as Ctrl-C does: at the end of the batch, saving a checkpoint
@@ -87,6 +92,7 @@ def main() -> None:
         settings=settings,
         coherence_scale=args.coherence_scale,
         optimistic_unvisited=args.optimistic_unvisited,
+        fork_normalisation=args.fork_normalisation,
     )
 
     print("\nTraining stopped" if summary.interrupted else "\nTraining complete")

@@ -23,6 +23,12 @@ line 13's shift of every β as one shared offset: weight i's β is rates[i, BETA
 A feature's value is how many times a board reads that weight (symmetric boards read some weights several times), so
 features arrive as sorted unique weight indices with their counts.
 
+With `local` set (stage 8A's experimental repair, not the published algorithm), line 13 changes and nothing else:
+log M is subtracted only from the β of the weights whose z isn't 0 where line 11 reads it, the previous afterstate's
+features, in place of every weight's. Dividing those step sizes by M divides line 11's sum by M, so the bound it
+measures is met exactly as before, while weights that took no part keep their step sizes. The shared offset then never
+moves again: it stays as a checkpoint trained under the published rule left it.
+
 Beyond the listing:
 - Line 10 is skipped where ξ_i is 0. Its numerator is then 0 as well, so the listing asks for 0/0.
 - An update whose TD error isn't finite is skipped and counted, and training stops on it.
@@ -45,8 +51,8 @@ BETA, H, XI, VISITS = 0, 1, 2, 3
 
 # A batch's counters, in the order sparse_step keeps them. The effective step is Σ α_i x_i (x_i − γx'_i): the share of
 # its own TD error an update removes, where above 1 overshoots. Normalisations count the updates where line 11's M > 1.
-STATS = ("updates", "max_effective_step", "sum_effective_step", "overshoots", "normalisations", "max_m", "max_abs_delta", "non_finite")
-UPDATES, MAX_STEP, SUM_STEP, OVERSHOOTS, NORMALISATIONS, MAX_M, MAX_ABS_DELTA, NON_FINITE = range(len(STATS))
+STATS = ("updates", "max_effective_step", "sum_effective_step", "overshoots", "normalisations", "max_m", "max_abs_delta", "non_finite", "sum_log_m")
+UPDATES, MAX_STEP, SUM_STEP, OVERSHOOTS, NORMALISATIONS, MAX_M, MAX_ABS_DELTA, NON_FINITE, SUM_LOG_M = range(len(STATS))
 # Which counters are maxima rather than sums, for combining batches
 STAT_IS_MAX = np.array([name.startswith("max_") for name in STATS])
 
@@ -67,14 +73,16 @@ class Tidbd(NamedTuple):
     shared: np.ndarray
     theta: float
     tau: float
+    # Normalise only the weights in the trace (stage 8A) rather than every weight (as published)
+    local: bool = False
 
     @classmethod
-    def create(cls, n_weights: int, initial_alpha: float, theta: float, tau: float, dtype: type = np.float32) -> "Tidbd":
+    def create(cls, n_weights: int, initial_alpha: float, theta: float, tau: float, dtype: type = np.float32, local: bool = False) -> "Tidbd":
         if initial_alpha <= 0 or theta < 0 or tau <= 0:
             raise ValueError(f"AutoTIDBD needs a positive initial rate and τ and a non-negative θ, not {initial_alpha}, {tau} and {theta}")
         rates = np.zeros((n_weights, 4), dtype=dtype)
         rates[:, BETA] = np.log(initial_alpha)
-        return cls(rates, np.zeros(1), theta, tau)
+        return cls(rates, np.zeros(1), theta, tau, local)
 
     def alpha(self, indices: np.ndarray | slice = slice(None)) -> np.ndarray:
         """The step sizes of these weights (default: all of them)."""
@@ -83,9 +91,11 @@ class Tidbd(NamedTuple):
 
 def reference_step(
     w: np.ndarray, beta: np.ndarray, h: np.ndarray, xi: np.ndarray, z: np.ndarray, x: np.ndarray, x_next: np.ndarray,
-    reward: float, gamma: float, theta: float, tau: float, lam: float = 0.0,
+    reward: float, gamma: float, theta: float, tau: float, lam: float = 0.0, local: bool = False,
 ) -> tuple[float, float]:
-    """One step of Algorithm 1 on dense float64 vectors, changed in place, returning (δ, M). A terminal step has x_next = 0."""
+    """One step of Algorithm 1 on dense float64 vectors, changed in place, returning (δ, M). A terminal step has x_next = 0.
+
+    With `local`, line 13 only lowers the β of weights whose z isn't 0 (the module's note on stage 8A's repair)."""
     delta = reward + gamma * (w @ x_next) - w @ x
     d = gamma * x_next - x
     alpha = np.exp(beta)
@@ -93,7 +103,10 @@ def reference_step(
     known = xi != 0
     beta[known] -= theta * delta * d[known] * h[known] / xi[known]
     m = max(float(-(np.exp(beta) * d) @ z), 1.0)
-    beta -= np.log(m)
+    if local:
+        beta[z != 0] -= np.log(m)
+    else:
+        beta -= np.log(m)
     alpha = np.exp(beta)
     z[:] = gamma * lam * z + x
     w += alpha * delta * z
@@ -200,11 +213,18 @@ def sparse_step(
             normaliser -= np.exp(beta + offset) * d * z
 
     # Lines 12 to 14: dividing every step size by M is one subtraction from the shared offset
+    # (or, with the local rule, one from each weight in the trace, each of which is listed once whatever its count)
     if normaliser > 1.0:
-        shared[0] -= np.log(normaliser)
-        offset = shared[0]
+        log_m = np.log(normaliser)
+        if optimiser.local:
+            for p in range(n_trace):
+                rates[trace_indices[p], BETA] -= log_m
+        else:
+            shared[0] -= log_m
+            offset = shared[0]
         stats[NORMALISATIONS] += 1
         stats[MAX_M] = max(stats[MAX_M], normaliser)
+        stats[SUM_LOG_M] += log_m
 
     # Lines 15 to 17: z is now x, so only the weights in x move
     effective_step = 0.0
@@ -233,7 +253,7 @@ def combine_stats(rows: np.ndarray) -> np.ndarray:
 
 def checkpoint_arrays(optimiser: Tidbd, initial_alpha: float, totals: np.ndarray) -> dict[str, Any]:
     """The arrays a checkpoint needs to carry on training exactly: the optimiser's whole state, its settings and the run's counters so far."""
-    settings = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau}
+    settings = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": "local" if optimiser.local else "global"}
     return {"tidbd_rates": optimiser.rates, "tidbd_shared": optimiser.shared, "tidbd_settings": json.dumps(settings), "tidbd_totals": totals}
 
 
@@ -243,8 +263,11 @@ def load(path: str | Path) -> tuple[Tidbd, float, np.ndarray] | None:
         if "tidbd_rates" not in data:
             return None
         settings = json.loads(str(data["tidbd_settings"]))
-        optimiser = Tidbd(data["tidbd_rates"], data["tidbd_shared"], settings["theta"], settings["tau"])
-        return optimiser, settings["initial_alpha"], data["tidbd_totals"]
+        # Checkpoints from before the local rule existed are the published, global one, and have one counter fewer
+        optimiser = Tidbd(data["tidbd_rates"], data["tidbd_shared"], settings["theta"], settings["tau"], settings.get("normalisation", "global") == "local")
+        totals = np.zeros(len(STATS))
+        totals[: len(data["tidbd_totals"])] = data["tidbd_totals"]
+        return optimiser, settings["initial_alpha"], totals
 
 
 def _percentiles(log_alpha: np.ndarray) -> dict[str, float]:
