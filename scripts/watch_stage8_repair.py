@@ -1,4 +1,4 @@
-"""Live side-by-side chart of stage 8A's fork: the control, local and proportional arms from their shared 850k start.
+"""Live side-by-side chart of stage 8A's fork: the control, local, proportional and mean-normaliser arms from their shared 850k start.
 
     uv run python scripts/watch_stage8_repair.py            # a window, redrawn every 10 seconds
     uv run python scripts/watch_stage8_repair.py --once     # save experiments/stage8-tidbd-repair/fork-progress.png and exit
@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 OUTPUT = Path("experiments/stage8-tidbd-repair")
-ARMS = {"control": ("Control (global)", "firebrick"), "local": ("Local", "steelblue"), "proportional": ("Proportional", "seagreen")}
+ARMS = {"control": ("Control (global)", "firebrick"), "local": ("Local", "steelblue"), "proportional": ("Proportional", "seagreen"), "mean": ("Proportional + mean normaliser", "darkorange")}
 PANELS = (
     ("training_history.csv", "avg_score", "Training score (rolling 20k games)", True, False),
     ("training_history.csv", "rate_16384", "% of training games reaching 16384 (rolling)", True, False),
