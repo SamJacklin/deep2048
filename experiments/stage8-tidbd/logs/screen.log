@@ -1,0 +1,953 @@
+[2026-11-15T00:01:47Z] screen  (caffeinated: 2 assertions, commit 968f55e)
+[2026-11-15T00:01:47Z] arm A screen 25000 50000 100000 (caffeinated: 2 assertions, commit 968f55e)
+Training 8x6 n-tuple network (134,217,728 weights) to 25,000 games, AutoStep TIDBD(0) from rate 0.00125, θ 0.003, τ 10000, 8 threads after 10,000 games
+  games     1,000  moves      0.5M  avg score     7712  max   23040  ≥2048   0.1%  ≥4096   0.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  516.1 games/s
+  games     2,000  moves      1.3M  avg score    11443  max   32612  ≥2048   1.6%  ≥4096   0.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  418.8 games/s
+  games     3,000  moves      2.1M  avg score    14090  max   51208  ≥2048   7.6%  ≥4096   0.1%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  355.4 games/s
+  games     4,000  moves      3.1M  avg score    16132  max   42916  ≥2048  14.0%  ≥4096   0.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  311.3 games/s
+  games     5,000  moves      4.1M  avg score    17472  max   54612  ≥2048  16.5%  ≥4096   0.3%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  301.3 games/s
+  games     6,000  moves      5.2M  avg score    19329  max   78036  ≥2048  24.7%  ≥4096   0.6%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  277.7 games/s
+  games     7,000  moves      6.4M  avg score    20306  max   57496  ≥2048  30.2%  ≥4096   0.5%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  265.3 games/s
+  games     8,000  moves      7.6M  avg score    21945  max   73568  ≥2048  36.0%  ≥4096   1.4%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  250.6 games/s
+  games     9,000  moves      8.8M  avg score    22902  max   66188  ≥2048  39.0%  ≥4096   2.1%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  243.3 games/s
+  games    10,000  moves     10.2M  avg score    23614  max   70920  ≥2048  42.7%  ≥4096   2.4%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  230.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz (10,000 games, 2.68 GB in 1.1 s)
+  games    11,000  moves     11.5M  avg score    24730  max   72260  ≥2048  44.8%  ≥4096   2.6%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  | 1103.8 games/s
+  games    12,000  moves     13.0M  avg score    26904  max   75156  ≥2048  54.1%  ≥4096   4.4%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  | 1039.3 games/s
+  games    13,000  moves     14.4M  avg score    27319  max   79208  ≥2048  54.9%  ≥4096   4.2%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  | 1001.7 games/s
+  games    14,000  moves     15.9M  avg score    28306  max   80964  ≥2048  56.3%  ≥4096   5.7%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  | 1024.4 games/s
+  games    15,000  moves     17.5M  avg score    29482  max   81380  ≥2048  60.9%  ≥4096   5.6%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  992.5 games/s
+  games    16,000  moves     19.1M  avg score    30766  max  113908  ≥2048  64.1%  ≥4096   7.7%  ≥8192   0.1%  ≥16384   0.0%  ≥32768  0.0%  |  956.1 games/s
+  games    17,000  moves     20.7M  avg score    32020  max   84492  ≥2048  68.5%  ≥4096   9.5%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  | 1011.4 games/s
+  games    18,000  moves     22.2M  avg score    32231  max   87104  ≥2048  68.7%  ≥4096   8.9%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  972.4 games/s
+  games    19,000  moves     23.8M  avg score    33728  max   83836  ≥2048  70.8%  ≥4096  12.1%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  967.9 games/s
+  games    20,000  moves     25.4M  avg score    34612  max   82740  ≥2048  71.6%  ≥4096  13.8%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  936.0 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz (20,000 games, 2.68 GB in 1.7 s)
+  games    21,000  moves     27.1M  avg score    35786  max   86688  ≥2048  73.1%  ≥4096  14.6%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  918.5 games/s
+  games    22,000  moves     28.9M  avg score    36764  max  124016  ≥2048  74.0%  ≥4096  16.2%  ≥8192   0.1%  ≥16384   0.0%  ≥32768  0.0%  |  881.5 games/s
+  games    23,000  moves     30.6M  avg score    36975  max  112888  ≥2048  72.5%  ≥4096  17.9%  ≥8192   0.5%  ≥16384   0.0%  ≥32768  0.0%  |  901.8 games/s
+  games    24,000  moves     32.4M  avg score    38810  max  121880  ≥2048  76.7%  ≥4096  19.1%  ≥8192   0.6%  ≥16384   0.0%  ≥32768  0.0%  |  851.0 games/s
+  games    25,000  moves     34.2M  avg score    39380  max  130236  ≥2048  76.0%  ≥4096  21.9%  ≥8192   0.6%  ≥16384   0.0%  ≥32768  0.0%  |  840.1 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/games_25000.npz (25,000 games, 0.14 GB in 9.0 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz (25,000 games, 2.68 GB in 1.3 s)
+
+Training complete
+{
+  "games_played": 25000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-A-25000, depth 1, screen (4 s) | 38,819 ± 1,127 | 37,026 | 0.3% | 0.0% | 0.0% | nan% | 1,972 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-A/games_25000.npz at 25,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 50,000 games, AutoStep TIDBD(0) from rate 0.00125, θ 0.003, τ 10000, 8 threads after 10,000 games
+  games    26,000  moves     36.2M  avg score    38922  max  109656  ≥2048  76.3%  ≥4096  21.0%  ≥8192   0.1%  ≥16384   0.0%  ≥32768  0.0%  |  684.1 games/s
+  games    27,000  moves     38.1M  avg score    41503  max  137272  ≥2048  79.5%  ≥4096  24.2%  ≥8192   0.8%  ≥16384   0.0%  ≥32768  0.0%  |  763.3 games/s
+  games    28,000  moves     40.0M  avg score    41967  max  133440  ≥2048  79.7%  ≥4096  25.3%  ≥8192   1.0%  ≥16384   0.0%  ≥32768  0.0%  |  797.0 games/s
+  games    29,000  moves     42.0M  avg score    43406  max  132264  ≥2048  79.3%  ≥4096  31.3%  ≥8192   0.6%  ≥16384   0.0%  ≥32768  0.0%  |  781.1 games/s
+  games    30,000  moves     44.0M  avg score    43203  max  133388  ≥2048  79.2%  ≥4096  31.0%  ≥8192   1.0%  ≥16384   0.0%  ≥32768  0.0%  |  782.0 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz (30,000 games, 2.68 GB in 0.9 s)
+  games    31,000  moves     46.0M  avg score    43099  max  149092  ≥2048  79.0%  ≥4096  29.2%  ≥8192   1.4%  ≥16384   0.0%  ≥32768  0.0%  |  787.3 games/s
+  games    32,000  moves     48.0M  avg score    46074  max  134940  ≥2048  83.8%  ≥4096  34.6%  ≥8192   1.6%  ≥16384   0.0%  ≥32768  0.0%  |  714.8 games/s
+  games    33,000  moves     50.1M  avg score    46109  max  134020  ≥2048  83.9%  ≥4096  32.9%  ≥8192   1.5%  ≥16384   0.0%  ≥32768  0.0%  |  752.9 games/s
+  games    34,000  moves     52.2M  avg score    46107  max  144296  ≥2048  81.9%  ≥4096  32.8%  ≥8192   2.0%  ≥16384   0.0%  ≥32768  0.0%  |  767.9 games/s
+  games    35,000  moves     54.3M  avg score    46883  max  140320  ≥2048  81.9%  ≥4096  35.3%  ≥8192   2.2%  ≥16384   0.0%  ≥32768  0.0%  |  702.8 games/s
+  games    36,000  moves     56.4M  avg score    46485  max  133180  ≥2048  83.5%  ≥4096  35.4%  ≥8192   1.0%  ≥16384   0.0%  ≥32768  0.0%  |  735.1 games/s
+  games    37,000  moves     58.5M  avg score    47765  max  142932  ≥2048  82.1%  ≥4096  37.1%  ≥8192   2.6%  ≥16384   0.0%  ≥32768  0.0%  |  734.7 games/s
+  games    38,000  moves     60.7M  avg score    48201  max  160636  ≥2048  84.5%  ≥4096  36.6%  ≥8192   1.6%  ≥16384   0.0%  ≥32768  0.0%  |  690.3 games/s
+  games    39,000  moves     62.9M  avg score    50136  max  144608  ≥2048  86.8%  ≥4096  40.5%  ≥8192   2.3%  ≥16384   0.0%  ≥32768  0.0%  |  712.9 games/s
+  games    40,000  moves     65.1M  avg score    49153  max  153036  ≥2048  82.8%  ≥4096  39.1%  ≥8192   2.0%  ≥16384   0.0%  ≥32768  0.0%  |  699.5 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz (40,000 games, 2.68 GB in 1.6 s)
+  games    41,000  moves     67.3M  avg score    51439  max  136716  ≥2048  85.6%  ≥4096  43.3%  ≥8192   3.3%  ≥16384   0.0%  ≥32768  0.0%  |  682.7 games/s
+  games    42,000  moves     69.6M  avg score    52019  max  142968  ≥2048  85.8%  ≥4096  45.2%  ≥8192   3.2%  ≥16384   0.0%  ≥32768  0.0%  |  686.8 games/s
+  games    43,000  moves     71.9M  avg score    49903  max  168132  ≥2048  83.7%  ≥4096  42.0%  ≥8192   2.0%  ≥16384   0.0%  ≥32768  0.0%  |  676.1 games/s
+  games    44,000  moves     74.1M  avg score    49756  max  169420  ≥2048  83.2%  ≥4096  39.2%  ≥8192   3.3%  ≥16384   0.0%  ≥32768  0.0%  |  705.8 games/s
+  games    45,000  moves     76.4M  avg score    51516  max  151036  ≥2048  84.1%  ≥4096  43.1%  ≥8192   2.8%  ≥16384   0.0%  ≥32768  0.0%  |  671.7 games/s
+  games    46,000  moves     78.7M  avg score    53245  max  158220  ≥2048  86.5%  ≥4096  46.3%  ≥8192   4.1%  ≥16384   0.0%  ≥32768  0.0%  |  653.4 games/s
+  games    47,000  moves     81.0M  avg score    51936  max  151228  ≥2048  85.6%  ≥4096  44.3%  ≥8192   3.5%  ≥16384   0.0%  ≥32768  0.0%  |  679.9 games/s
+  games    48,000  moves     83.4M  avg score    55398  max  151388  ≥2048  87.7%  ≥4096  48.9%  ≥8192   4.1%  ≥16384   0.0%  ≥32768  0.0%  |  641.7 games/s
+  games    49,000  moves     85.8M  avg score    53886  max  151748  ≥2048  86.4%  ≥4096  48.6%  ≥8192   3.2%  ≥16384   0.0%  ≥32768  0.0%  |  652.8 games/s
+  games    50,000  moves     88.2M  avg score    54425  max  155012  ≥2048  85.8%  ≥4096  46.8%  ≥8192   4.0%  ≥16384   0.0%  ≥32768  0.0%  |  662.1 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/games_50000.npz (50,000 games, 0.19 GB in 11.0 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz (50,000 games, 2.68 GB in 1.4 s)
+
+Training complete
+{
+  "games_played": 50000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-A-50000, depth 1, screen (4 s) | 55,772 ± 1,745 | 48,258 | 4.1% | 0.0% | 0.0% | nan% | 2,670 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-A/games_50000.npz at 50,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 100,000 games, AutoStep TIDBD(0) from rate 0.00125, θ 0.003, τ 10000, 8 threads after 10,000 games
+  games    51,000  moves     90.8M  avg score    54998  max  169672  ≥2048  86.1%  ≥4096  48.3%  ≥8192   3.8%  ≥16384   0.0%  ≥32768  0.0%  |  553.7 games/s
+  games    52,000  moves     93.2M  avg score    54551  max  144404  ≥2048  85.4%  ≥4096  48.9%  ≥8192   3.5%  ≥16384   0.0%  ≥32768  0.0%  |  628.7 games/s
+  games    53,000  moves     95.6M  avg score    55902  max  156396  ≥2048  88.5%  ≥4096  48.5%  ≥8192   4.3%  ≥16384   0.0%  ≥32768  0.0%  |  636.0 games/s
+  games    54,000  moves     98.1M  avg score    57413  max  168264  ≥2048  89.2%  ≥4096  52.9%  ≥8192   4.5%  ≥16384   0.0%  ≥32768  0.0%  |  624.5 games/s
+  games    55,000  moves    100.6M  avg score    56889  max  164428  ≥2048  89.1%  ≥4096  51.6%  ≥8192   3.5%  ≥16384   0.0%  ≥32768  0.0%  |  617.1 games/s
+  games    56,000  moves    103.0M  avg score    55331  max  194028  ≥2048  85.3%  ≥4096  49.3%  ≥8192   3.8%  ≥16384   0.0%  ≥32768  0.0%  |  640.4 games/s
+  games    57,000  moves    105.6M  avg score    58428  max  171372  ≥2048  88.9%  ≥4096  55.2%  ≥8192   4.7%  ≥16384   0.0%  ≥32768  0.0%  |  615.9 games/s
+  games    58,000  moves    108.0M  avg score    57201  max  166620  ≥2048  88.6%  ≥4096  51.5%  ≥8192   3.4%  ≥16384   0.0%  ≥32768  0.0%  |  608.3 games/s
+  games    59,000  moves    110.5M  avg score    57376  max  154480  ≥2048  86.3%  ≥4096  53.4%  ≥8192   3.4%  ≥16384   0.0%  ≥32768  0.0%  |  637.8 games/s
+  games    60,000  moves    113.1M  avg score    60041  max  177204  ≥2048  89.8%  ≥4096  55.7%  ≥8192   5.5%  ≥16384   0.0%  ≥32768  0.0%  |  598.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz (60,000 games, 2.68 GB in 0.9 s)
+  games    61,000  moves    115.6M  avg score    58514  max  185564  ≥2048  87.0%  ≥4096  52.4%  ≥8192   5.1%  ≥16384   0.0%  ≥32768  0.0%  |  594.1 games/s
+  games    62,000  moves    118.3M  avg score    61644  max  152268  ≥2048  90.1%  ≥4096  58.4%  ≥8192   5.5%  ≥16384   0.0%  ≥32768  0.0%  |  574.1 games/s
+  games    63,000  moves    120.9M  avg score    59071  max  150180  ≥2048  88.4%  ≥4096  55.3%  ≥8192   4.0%  ≥16384   0.0%  ≥32768  0.0%  |  580.2 games/s
+  games    64,000  moves    123.5M  avg score    61093  max  153152  ≥2048  89.5%  ≥4096  56.8%  ≥8192   5.2%  ≥16384   0.0%  ≥32768  0.0%  |  585.6 games/s
+  games    65,000  moves    126.1M  avg score    59925  max  176248  ≥2048  88.4%  ≥4096  57.2%  ≥8192   4.6%  ≥16384   0.0%  ≥32768  0.0%  |  577.7 games/s
+  games    66,000  moves    128.7M  avg score    62048  max  183892  ≥2048  88.2%  ≥4096  57.4%  ≥8192   4.9%  ≥16384   0.0%  ≥32768  0.0%  |  585.9 games/s
+  games    67,000  moves    131.3M  avg score    60811  max  165936  ≥2048  87.9%  ≥4096  54.6%  ≥8192   5.8%  ≥16384   0.0%  ≥32768  0.0%  |  610.5 games/s
+  games    68,000  moves    134.0M  avg score    60899  max  167512  ≥2048  87.6%  ≥4096  58.0%  ≥8192   4.7%  ≥16384   0.0%  ≥32768  0.0%  |  576.7 games/s
+  games    69,000  moves    136.6M  avg score    63610  max  180680  ≥2048  89.5%  ≥4096  61.6%  ≥8192   6.4%  ≥16384   0.0%  ≥32768  0.0%  |  587.3 games/s
+  games    70,000  moves    139.3M  avg score    63339  max  186488  ≥2048  89.6%  ≥4096  61.3%  ≥8192   4.8%  ≥16384   0.0%  ≥32768  0.0%  |  598.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz (70,000 games, 2.68 GB in 2.2 s)
+  games    71,000  moves    141.9M  avg score    62539  max  154472  ≥2048  90.3%  ≥4096  59.5%  ≥8192   3.9%  ≥16384   0.0%  ≥32768  0.0%  |  586.6 games/s
+  games    72,000  moves    144.7M  avg score    65463  max  171300  ≥2048  91.7%  ≥4096  61.9%  ≥8192   6.8%  ≥16384   0.0%  ≥32768  0.0%  |  573.3 games/s
+  games    73,000  moves    147.4M  avg score    63394  max  174876  ≥2048  88.9%  ≥4096  61.4%  ≥8192   5.1%  ≥16384   0.0%  ≥32768  0.0%  |  565.5 games/s
+  games    74,000  moves    150.2M  avg score    65877  max  177176  ≥2048  90.8%  ≥4096  62.7%  ≥8192   6.5%  ≥16384   0.0%  ≥32768  0.0%  |  570.5 games/s
+  games    75,000  moves    152.9M  avg score    65246  max  168236  ≥2048  90.4%  ≥4096  60.9%  ≥8192   6.5%  ≥16384   0.0%  ≥32768  0.0%  |  553.6 games/s
+  games    76,000  moves    155.6M  avg score    64061  max  166612  ≥2048  90.8%  ≥4096  61.1%  ≥8192   5.0%  ≥16384   0.0%  ≥32768  0.0%  |  565.8 games/s
+  games    77,000  moves    158.4M  avg score    64734  max  188448  ≥2048  90.4%  ≥4096  60.5%  ≥8192   5.7%  ≥16384   0.0%  ≥32768  0.0%  |  566.3 games/s
+  games    78,000  moves    161.1M  avg score    63818  max  174680  ≥2048  89.0%  ≥4096  59.6%  ≥8192   6.9%  ≥16384   0.0%  ≥32768  0.0%  |  578.5 games/s
+  games    79,000  moves    163.8M  avg score    65682  max  174832  ≥2048  89.8%  ≥4096  63.3%  ≥8192   5.2%  ≥16384   0.0%  ≥32768  0.0%  |  575.8 games/s
+  games    80,000  moves    166.6M  avg score    66697  max  166892  ≥2048  91.1%  ≥4096  65.8%  ≥8192   5.4%  ≥16384   0.0%  ≥32768  0.0%  |  565.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz (80,000 games, 2.68 GB in 1.3 s)
+  games    81,000  moves    169.3M  avg score    65288  max  177240  ≥2048  88.7%  ≥4096  62.9%  ≥8192   5.7%  ≥16384   0.0%  ≥32768  0.0%  |  574.3 games/s
+  games    82,000  moves    172.2M  avg score    67244  max  176336  ≥2048  92.0%  ≥4096  65.2%  ≥8192   6.6%  ≥16384   0.0%  ≥32768  0.0%  |  554.0 games/s
+  games    83,000  moves    175.0M  avg score    67868  max  177356  ≥2048  92.9%  ≥4096  64.1%  ≥8192   7.4%  ≥16384   0.0%  ≥32768  0.0%  |  569.0 games/s
+  games    84,000  moves    177.8M  avg score    66741  max  177536  ≥2048  91.6%  ≥4096  62.8%  ≥8192   6.6%  ≥16384   0.0%  ≥32768  0.0%  |  563.2 games/s
+  games    85,000  moves    180.6M  avg score    68272  max  194708  ≥2048  90.8%  ≥4096  66.7%  ≥8192   6.7%  ≥16384   0.0%  ≥32768  0.0%  |  533.1 games/s
+  games    86,000  moves    183.4M  avg score    65423  max  183176  ≥2048  89.4%  ≥4096  60.8%  ≥8192   6.3%  ≥16384   0.0%  ≥32768  0.0%  |  585.8 games/s
+  games    87,000  moves    186.1M  avg score    66645  max  177296  ≥2048  90.5%  ≥4096  63.3%  ≥8192   7.1%  ≥16384   0.0%  ≥32768  0.0%  |  567.0 games/s
+  games    88,000  moves    188.9M  avg score    65879  max  168184  ≥2048  91.3%  ≥4096  63.2%  ≥8192   5.7%  ≥16384   0.0%  ≥32768  0.0%  |  556.0 games/s
+  games    89,000  moves    191.8M  avg score    68402  max  181864  ≥2048  91.7%  ≥4096  64.2%  ≥8192   7.2%  ≥16384   0.0%  ≥32768  0.0%  |  537.9 games/s
+  games    90,000  moves    194.7M  avg score    68979  max  175100  ≥2048  90.6%  ≥4096  67.4%  ≥8192   6.2%  ≥16384   0.0%  ≥32768  0.0%  |  538.5 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz (90,000 games, 2.68 GB in 1.4 s)
+  games    91,000  moves    197.5M  avg score    69338  max  178568  ≥2048  91.9%  ≥4096  67.7%  ≥8192   7.2%  ≥16384   0.0%  ≥32768  0.0%  |  553.7 games/s
+  games    92,000  moves    200.5M  avg score    70538  max  178596  ≥2048  93.3%  ≥4096  67.5%  ≥8192   7.2%  ≥16384   0.0%  ≥32768  0.0%  |  524.1 games/s
+  games    93,000  moves    203.3M  avg score    69100  max  176928  ≥2048  90.5%  ≥4096  66.9%  ≥8192   6.8%  ≥16384   0.0%  ≥32768  0.0%  |  538.5 games/s
+  games    94,000  moves    206.2M  avg score    69194  max  177372  ≥2048  91.3%  ≥4096  67.2%  ≥8192   7.4%  ≥16384   0.0%  ≥32768  0.0%  |  552.3 games/s
+  games    95,000  moves    209.2M  avg score    70614  max  178780  ≥2048  92.4%  ≥4096  68.3%  ≥8192   8.7%  ≥16384   0.0%  ≥32768  0.0%  |  540.6 games/s
+  games    96,000  moves    212.1M  avg score    71767  max  199136  ≥2048  91.0%  ≥4096  69.1%  ≥8192   9.1%  ≥16384   0.0%  ≥32768  0.0%  |  547.2 games/s
+  games    97,000  moves    215.0M  avg score    70148  max  183196  ≥2048  92.8%  ≥4096  67.7%  ≥8192   7.1%  ≥16384   0.0%  ≥32768  0.0%  |  545.7 games/s
+  games    98,000  moves    217.9M  avg score    69798  max  177544  ≥2048  92.3%  ≥4096  67.9%  ≥8192   8.4%  ≥16384   0.0%  ≥32768  0.0%  |  548.0 games/s
+  games    99,000  moves    220.8M  avg score    71107  max  177236  ≥2048  91.7%  ≥4096  68.7%  ≥8192   9.2%  ≥16384   0.0%  ≥32768  0.0%  |  535.0 games/s
+  games   100,000  moves    223.7M  avg score    70900  max  177020  ≥2048  92.1%  ≥4096  69.2%  ≥8192   8.0%  ≥16384   0.0%  ≥32768  0.0%  |  544.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/games_100000.npz (100,000 games, 0.26 GB in 13.3 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz (100,000 games, 2.68 GB in 1.6 s)
+
+Training complete
+{
+  "games_played": 100000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-A/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-A-100000, depth 1, screen (4 s) | 70,558 ± 2,053 | 73,156 | 8.9% | 0.0% | 0.0% | nan% | 3,268 |
+[2026-11-15T00:06:03Z] arm exited with code 0
+[2026-11-15T00:06:03Z] arm B screen 25000 50000 100000 (caffeinated: 2 assertions, commit 968f55e)
+Training 8x6 n-tuple network (134,217,728 weights) to 25,000 games, AutoStep TIDBD(0) from rate 0.00125, θ 0.01, τ 10000, 8 threads after 10,000 games
+  games     1,000  moves      0.5M  avg score     7539  max   24328  ≥2048   0.3%  ≥4096   0.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  524.6 games/s
+  games     2,000  moves      1.3M  avg score    11706  max   34268  ≥2048   2.6%  ≥4096   0.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  399.1 games/s
+  games     3,000  moves      2.1M  avg score    14175  max   35744  ≥2048   5.5%  ≥4096   0.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  348.9 games/s
+  games     4,000  moves      3.1M  avg score    16670  max   50500  ≥2048  15.7%  ≥4096   0.2%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  306.6 games/s
+  games     5,000  moves      4.1M  avg score    18008  max   51460  ≥2048  20.8%  ≥4096   0.3%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  288.9 games/s
+  games     6,000  moves      5.3M  avg score    19487  max   58680  ≥2048  27.7%  ≥4096   0.7%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  273.5 games/s
+  games     7,000  moves      6.5M  avg score    21481  max   72528  ≥2048  34.3%  ≥4096   1.4%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  251.0 games/s
+  games     8,000  moves      7.7M  avg score    22469  max   67468  ≥2048  38.7%  ≥4096   1.6%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  244.4 games/s
+  games     9,000  moves      9.1M  avg score    24365  max   75556  ≥2048  44.2%  ≥4096   3.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  229.8 games/s
+  games    10,000  moves     10.4M  avg score    25019  max   81224  ≥2048  46.3%  ≥4096   3.4%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  224.8 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz (10,000 games, 2.68 GB in 1.1 s)
+  games    11,000  moves     11.9M  avg score    26630  max   76836  ≥2048  52.1%  ≥4096   4.7%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  | 1062.1 games/s
+  games    12,000  moves     13.3M  avg score    27132  max   73624  ≥2048  51.1%  ≥4096   4.7%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  | 1055.9 games/s
+  games    13,000  moves     14.8M  avg score    28779  max   84520  ≥2048  56.2%  ≥4096   7.3%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  | 1017.9 games/s
+  games    14,000  moves     16.4M  avg score    29355  max   83100  ≥2048  57.2%  ≥4096   8.7%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  | 1019.4 games/s
+  games    15,000  moves     18.0M  avg score    30286  max  102448  ≥2048  59.6%  ≥4096   8.8%  ≥8192   0.1%  ≥16384   0.0%  ≥32768  0.0%  |  971.2 games/s
+  games    16,000  moves     19.5M  avg score    31964  max   87984  ≥2048  62.8%  ≥4096  11.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  | 1043.5 games/s
+  games    17,000  moves     21.0M  avg score    32108  max  116960  ≥2048  64.8%  ≥4096  10.4%  ≥8192   0.1%  ≥16384   0.0%  ≥32768  0.0%  |  996.7 games/s
+  games    18,000  moves     22.5M  avg score    32244  max   92212  ≥2048  63.5%  ≥4096  11.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  | 1026.8 games/s
+  games    19,000  moves     24.1M  avg score    34924  max  104092  ≥2048  69.2%  ≥4096  13.7%  ≥8192   0.1%  ≥16384   0.0%  ≥32768  0.0%  |  966.8 games/s
+  games    20,000  moves     25.7M  avg score    34701  max  113796  ≥2048  69.4%  ≥4096  15.2%  ≥8192   0.3%  ≥16384   0.0%  ≥32768  0.0%  |  975.2 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz (20,000 games, 2.68 GB in 2.5 s)
+  games    21,000  moves     27.4M  avg score    35124  max  121656  ≥2048  69.4%  ≥4096  15.0%  ≥8192   0.3%  ≥16384   0.0%  ≥32768  0.0%  |  913.4 games/s
+  games    22,000  moves     29.1M  avg score    37653  max  133080  ≥2048  73.2%  ≥4096  20.0%  ≥8192   0.6%  ≥16384   0.0%  ≥32768  0.0%  |  911.0 games/s
+  games    23,000  moves     30.8M  avg score    37524  max  149764  ≥2048  71.4%  ≥4096  21.3%  ≥8192   1.0%  ≥16384   0.0%  ≥32768  0.0%  |  902.1 games/s
+  games    24,000  moves     32.5M  avg score    37258  max  142444  ≥2048  73.0%  ≥4096  20.0%  ≥8192   1.1%  ≥16384   0.0%  ≥32768  0.0%  |  908.3 games/s
+  games    25,000  moves     34.3M  avg score    38285  max  175652  ≥2048  74.3%  ≥4096  22.0%  ≥8192   0.6%  ≥16384   0.0%  ≥32768  0.0%  |  865.8 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/games_25000.npz (25,000 games, 0.14 GB in 9.0 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz (25,000 games, 2.68 GB in 1.3 s)
+
+Training complete
+{
+  "games_played": 25000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-B-25000, depth 1, screen (4 s) | 38,682 ± 1,261 | 36,564 | 0.6% | 0.0% | 0.0% | nan% | 1,950 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-B/games_25000.npz at 25,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 50,000 games, AutoStep TIDBD(0) from rate 0.00125, θ 0.01, τ 10000, 8 threads after 10,000 games
+  games    26,000  moves     36.2M  avg score    39349  max  133404  ≥2048  74.0%  ≥4096  23.6%  ≥8192   1.1%  ≥16384   0.0%  ≥32768  0.0%  |  722.2 games/s
+  games    27,000  moves     38.0M  avg score    38245  max  143424  ≥2048  73.3%  ≥4096  23.0%  ≥8192   0.8%  ≥16384   0.0%  ≥32768  0.0%  |  864.5 games/s
+  games    28,000  moves     39.9M  avg score    40912  max  134728  ≥2048  74.8%  ≥4096  27.5%  ≥8192   1.3%  ≥16384   0.0%  ≥32768  0.0%  |  782.7 games/s
+  games    29,000  moves     41.8M  avg score    42033  max  141032  ≥2048  78.2%  ≥4096  27.3%  ≥8192   0.9%  ≥16384   0.0%  ≥32768  0.0%  |  794.4 games/s
+  games    30,000  moves     43.7M  avg score    40655  max  137928  ≥2048  75.0%  ≥4096  27.4%  ≥8192   1.4%  ≥16384   0.0%  ≥32768  0.0%  |  796.0 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz (30,000 games, 2.68 GB in 1.0 s)
+  games    31,000  moves     45.6M  avg score    42734  max  168800  ≥2048  77.8%  ≥4096  30.1%  ≥8192   1.7%  ≥16384   0.0%  ≥32768  0.0%  |  806.2 games/s
+  games    32,000  moves     47.5M  avg score    42771  max  133124  ≥2048  80.7%  ≥4096  30.3%  ≥8192   0.7%  ≥16384   0.0%  ≥32768  0.0%  |  787.6 games/s
+  games    33,000  moves     49.5M  avg score    42744  max  152272  ≥2048  77.3%  ≥4096  28.7%  ≥8192   1.8%  ≥16384   0.0%  ≥32768  0.0%  |  801.9 games/s
+  games    34,000  moves     51.4M  avg score    43978  max  134988  ≥2048  77.7%  ≥4096  32.2%  ≥8192   1.5%  ≥16384   0.0%  ≥32768  0.0%  |  794.9 games/s
+  games    35,000  moves     53.5M  avg score    45422  max  148904  ≥2048  80.6%  ≥4096  36.5%  ≥8192   1.6%  ≥16384   0.0%  ≥32768  0.0%  |  765.4 games/s
+  games    36,000  moves     55.4M  avg score    43813  max  153412  ≥2048  78.1%  ≥4096  33.0%  ≥8192   1.4%  ≥16384   0.0%  ≥32768  0.0%  |  794.2 games/s
+  games    37,000  moves     57.5M  avg score    46116  max  157864  ≥2048  81.8%  ≥4096  35.9%  ≥8192   2.1%  ≥16384   0.0%  ≥32768  0.0%  |  750.3 games/s
+  games    38,000  moves     59.5M  avg score    45521  max  149500  ≥2048  80.0%  ≥4096  36.4%  ≥8192   1.9%  ≥16384   0.0%  ≥32768  0.0%  |  763.4 games/s
+  games    39,000  moves     61.5M  avg score    45819  max  148308  ≥2048  79.7%  ≥4096  35.5%  ≥8192   1.6%  ≥16384   0.0%  ≥32768  0.0%  |  749.8 games/s
+  games    40,000  moves     63.6M  avg score    46312  max  151384  ≥2048  80.4%  ≥4096  36.5%  ≥8192   2.0%  ≥16384   0.0%  ≥32768  0.0%  |  756.5 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz (40,000 games, 2.68 GB in 1.7 s)
+  games    41,000  moves     65.7M  avg score    47909  max  152344  ≥2048  81.4%  ≥4096  39.7%  ≥8192   2.8%  ≥16384   0.0%  ≥32768  0.0%  |  716.5 games/s
+  games    42,000  moves     67.8M  avg score    45717  max  141924  ≥2048  80.0%  ≥4096  36.7%  ≥8192   0.9%  ≥16384   0.0%  ≥32768  0.0%  |  766.3 games/s
+  games    43,000  moves     69.9M  avg score    47803  max  153100  ≥2048  81.1%  ≥4096  39.8%  ≥8192   1.9%  ≥16384   0.0%  ≥32768  0.0%  |  721.6 games/s
+  games    44,000  moves     72.1M  avg score    48104  max  143308  ≥2048  78.9%  ≥4096  41.6%  ≥8192   2.1%  ≥16384   0.0%  ≥32768  0.0%  |  727.2 games/s
+  games    45,000  moves     74.2M  avg score    48201  max  150576  ≥2048  80.2%  ≥4096  42.2%  ≥8192   2.1%  ≥16384   0.0%  ≥32768  0.0%  |  738.7 games/s
+  games    46,000  moves     76.4M  avg score    49095  max  146848  ≥2048  81.1%  ≥4096  45.1%  ≥8192   1.5%  ≥16384   0.0%  ≥32768  0.0%  |  731.3 games/s
+  games    47,000  moves     78.5M  avg score    48563  max  147960  ≥2048  79.9%  ≥4096  42.8%  ≥8192   2.3%  ≥16384   0.0%  ≥32768  0.0%  |  735.1 games/s
+  games    48,000  moves     80.6M  avg score    47689  max  167528  ≥2048  80.7%  ≥4096  40.6%  ≥8192   1.4%  ≥16384   0.0%  ≥32768  0.0%  |  727.4 games/s
+  games    49,000  moves     82.8M  avg score    49756  max  159324  ≥2048  80.6%  ≥4096  42.0%  ≥8192   2.8%  ≥16384   0.0%  ≥32768  0.0%  |  669.1 games/s
+  games    50,000  moves     85.0M  avg score    50724  max  137428  ≥2048  81.5%  ≥4096  46.5%  ≥8192   1.2%  ≥16384   0.0%  ≥32768  0.0%  |  680.8 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/games_50000.npz (50,000 games, 0.19 GB in 10.7 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz (50,000 games, 2.68 GB in 1.4 s)
+
+Training complete
+{
+  "games_played": 50000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-B-50000, depth 1, screen (4 s) | 49,416 ± 1,742 | 44,700 | 2.5% | 0.0% | 0.0% | nan% | 2,392 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-B/games_50000.npz at 50,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 100,000 games, AutoStep TIDBD(0) from rate 0.00125, θ 0.01, τ 10000, 8 threads after 10,000 games
+  games    51,000  moves     87.4M  avg score    49417  max  154132  ≥2048  82.9%  ≥4096  43.2%  ≥8192   1.8%  ≥16384   0.0%  ≥32768  0.0%  |  619.8 games/s
+  games    52,000  moves     89.7M  avg score    51660  max  143548  ≥2048  82.6%  ≥4096  46.1%  ≥8192   2.1%  ≥16384   0.0%  ≥32768  0.0%  |  673.6 games/s
+  games    53,000  moves     91.8M  avg score    49518  max  153040  ≥2048  80.3%  ≥4096  42.0%  ≥8192   1.9%  ≥16384   0.0%  ≥32768  0.0%  |  739.9 games/s
+  games    54,000  moves     94.0M  avg score    50422  max  148436  ≥2048  81.9%  ≥4096  44.7%  ≥8192   1.8%  ≥16384   0.0%  ≥32768  0.0%  |  719.8 games/s
+  games    55,000  moves     96.2M  avg score    52141  max  143976  ≥2048  81.4%  ≥4096  49.7%  ≥8192   1.6%  ≥16384   0.0%  ≥32768  0.0%  |  704.0 games/s
+  games    56,000  moves     98.4M  avg score    51703  max  176084  ≥2048  83.1%  ≥4096  47.7%  ≥8192   2.1%  ≥16384   0.0%  ≥32768  0.0%  |  727.8 games/s
+  games    57,000  moves    100.7M  avg score    53230  max  161680  ≥2048  83.1%  ≥4096  49.8%  ≥8192   2.4%  ≥16384   0.0%  ≥32768  0.0%  |  695.7 games/s
+  games    58,000  moves    103.0M  avg score    53615  max  153404  ≥2048  82.9%  ≥4096  49.6%  ≥8192   2.7%  ≥16384   0.0%  ≥32768  0.0%  |  681.2 games/s
+  games    59,000  moves    105.2M  avg score    51736  max  158176  ≥2048  83.5%  ≥4096  46.5%  ≥8192   2.0%  ≥16384   0.0%  ≥32768  0.0%  |  714.4 games/s
+  games    60,000  moves    107.5M  avg score    54266  max  162556  ≥2048  84.3%  ≥4096  51.6%  ≥8192   2.5%  ≥16384   0.0%  ≥32768  0.0%  |  691.8 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz (60,000 games, 2.68 GB in 1.1 s)
+  games    61,000  moves    109.8M  avg score    54571  max  172320  ≥2048  82.8%  ≥4096  48.7%  ≥8192   4.9%  ≥16384   0.0%  ≥32768  0.0%  |  644.5 games/s
+  games    62,000  moves    112.1M  avg score    52007  max  173368  ≥2048  83.1%  ≥4096  45.9%  ≥8192   1.6%  ≥16384   0.0%  ≥32768  0.0%  |  690.5 games/s
+  games    63,000  moves    114.4M  avg score    53467  max  144312  ≥2048  82.5%  ≥4096  50.7%  ≥8192   2.2%  ≥16384   0.0%  ≥32768  0.0%  |  688.4 games/s
+  games    64,000  moves    116.7M  avg score    52940  max  159608  ≥2048  83.2%  ≥4096  48.3%  ≥8192   2.5%  ≥16384   0.0%  ≥32768  0.0%  |  677.2 games/s
+  games    65,000  moves    119.0M  avg score    54088  max  177236  ≥2048  83.0%  ≥4096  50.6%  ≥8192   2.5%  ≥16384   0.0%  ≥32768  0.0%  |  669.5 games/s
+  games    66,000  moves    121.3M  avg score    54554  max  175436  ≥2048  83.3%  ≥4096  48.0%  ≥8192   4.2%  ≥16384   0.0%  ≥32768  0.0%  |  689.6 games/s
+  games    67,000  moves    123.6M  avg score    54191  max  255656  ≥2048  82.2%  ≥4096  49.6%  ≥8192   3.4%  ≥16384   0.1%  ≥32768  0.0%  |  689.9 games/s
+  games    68,000  moves    126.0M  avg score    55276  max  169944  ≥2048  84.5%  ≥4096  49.3%  ≥8192   4.2%  ≥16384   0.0%  ≥32768  0.0%  |  657.2 games/s
+  games    69,000  moves    128.5M  avg score    57403  max  169892  ≥2048  85.0%  ≥4096  54.8%  ≥8192   4.9%  ≥16384   0.0%  ≥32768  0.0%  |  636.7 games/s
+  games    70,000  moves    130.9M  avg score    57184  max  173336  ≥2048  83.9%  ≥4096  52.5%  ≥8192   5.5%  ≥16384   0.0%  ≥32768  0.0%  |  625.5 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz (70,000 games, 2.68 GB in 2.1 s)
+  games    71,000  moves    133.3M  avg score    57154  max  191720  ≥2048  84.0%  ≥4096  54.3%  ≥8192   4.4%  ≥16384   0.0%  ≥32768  0.0%  |  614.9 games/s
+  games    72,000  moves    135.8M  avg score    57955  max  177564  ≥2048  85.1%  ≥4096  54.9%  ≥8192   5.5%  ≥16384   0.0%  ≥32768  0.0%  |  635.6 games/s
+  games    73,000  moves    138.1M  avg score    55223  max  161236  ≥2048  85.0%  ≥4096  50.7%  ≥8192   4.6%  ≥16384   0.0%  ≥32768  0.0%  |  666.8 games/s
+  games    74,000  moves    140.6M  avg score    57714  max  169036  ≥2048  84.4%  ≥4096  54.5%  ≥8192   5.5%  ≥16384   0.0%  ≥32768  0.0%  |  656.3 games/s
+  games    75,000  moves    143.1M  avg score    60768  max  180596  ≥2048  88.2%  ≥4096  59.3%  ≥8192   6.1%  ≥16384   0.0%  ≥32768  0.0%  |  628.4 games/s
+  games    76,000  moves    145.6M  avg score    59154  max  169020  ≥2048  87.8%  ≥4096  57.3%  ≥8192   4.4%  ≥16384   0.0%  ≥32768  0.0%  |  648.5 games/s
+  games    77,000  moves    148.0M  avg score    59250  max  184424  ≥2048  86.5%  ≥4096  56.1%  ≥8192   6.7%  ≥16384   0.0%  ≥32768  0.0%  |  648.9 games/s
+  games    78,000  moves    150.6M  avg score    60745  max  179284  ≥2048  85.7%  ≥4096  58.2%  ≥8192   6.4%  ≥16384   0.0%  ≥32768  0.0%  |  638.4 games/s
+  games    79,000  moves    153.0M  avg score    58874  max  190468  ≥2048  83.9%  ≥4096  55.0%  ≥8192   6.9%  ≥16384   0.0%  ≥32768  0.0%  |  640.4 games/s
+  games    80,000  moves    155.6M  avg score    61426  max  171428  ≥2048  85.5%  ≥4096  57.0%  ≥8192   8.7%  ≥16384   0.0%  ≥32768  0.0%  |  626.4 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz (80,000 games, 2.68 GB in 1.5 s)
+  games    81,000  moves    158.1M  avg score    59994  max  177212  ≥2048  85.6%  ≥4096  56.2%  ≥8192   7.7%  ≥16384   0.0%  ≥32768  0.0%  |  629.8 games/s
+  games    82,000  moves    160.6M  avg score    60316  max  176448  ≥2048  84.3%  ≥4096  56.8%  ≥8192   7.3%  ≥16384   0.0%  ≥32768  0.0%  |  613.7 games/s
+  games    83,000  moves    163.2M  avg score    61597  max  193336  ≥2048  86.1%  ≥4096  58.9%  ≥8192   8.2%  ≥16384   0.0%  ≥32768  0.0%  |  622.4 games/s
+  games    84,000  moves    165.8M  avg score    60992  max  187604  ≥2048  85.4%  ≥4096  55.8%  ≥8192   8.7%  ≥16384   0.0%  ≥32768  0.0%  |  616.4 games/s
+  games    85,000  moves    168.5M  avg score    64323  max  189292  ≥2048  87.5%  ≥4096  60.7%  ≥8192   9.3%  ≥16384   0.0%  ≥32768  0.0%  |  586.7 games/s
+  games    86,000  moves    171.1M  avg score    60691  max  178080  ≥2048  83.9%  ≥4096  57.3%  ≥8192   9.0%  ≥16384   0.0%  ≥32768  0.0%  |  627.3 games/s
+  games    87,000  moves    173.6M  avg score    61809  max  177620  ≥2048  83.5%  ≥4096  57.5%  ≥8192  10.3%  ≥16384   0.0%  ≥32768  0.0%  |  629.6 games/s
+  games    88,000  moves    176.4M  avg score    65826  max  215648  ≥2048  87.7%  ≥4096  61.7%  ≥8192  11.7%  ≥16384   0.1%  ≥32768  0.0%  |  558.4 games/s
+  games    89,000  moves    179.0M  avg score    63731  max  178548  ≥2048  86.1%  ≥4096  59.4%  ≥8192  10.9%  ≥16384   0.0%  ≥32768  0.0%  |  594.7 games/s
+  games    90,000  moves    181.7M  avg score    64181  max  178352  ≥2048  86.4%  ≥4096  62.0%  ≥8192  10.8%  ≥16384   0.0%  ≥32768  0.0%  |  603.4 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz (90,000 games, 2.68 GB in 1.6 s)
+  games    91,000  moves    184.4M  avg score    64145  max  176188  ≥2048  85.2%  ≥4096  59.0%  ≥8192  11.3%  ≥16384   0.0%  ≥32768  0.0%  |  585.4 games/s
+  games    92,000  moves    187.0M  avg score    62720  max  176520  ≥2048  84.9%  ≥4096  57.5%  ≥8192  10.2%  ≥16384   0.0%  ≥32768  0.0%  |  606.0 games/s
+  games    93,000  moves    189.7M  avg score    63549  max  193560  ≥2048  84.8%  ≥4096  59.2%  ≥8192  10.8%  ≥16384   0.0%  ≥32768  0.0%  |  604.0 games/s
+  games    94,000  moves    192.4M  avg score    64900  max  194908  ≥2048  84.2%  ≥4096  61.7%  ≥8192  11.9%  ≥16384   0.0%  ≥32768  0.0%  |  595.2 games/s
+  games    95,000  moves    195.1M  avg score    65002  max  183428  ≥2048  87.6%  ≥4096  62.3%  ≥8192  11.6%  ≥16384   0.0%  ≥32768  0.0%  |  595.0 games/s
+  games    96,000  moves    197.8M  avg score    64485  max  177136  ≥2048  85.5%  ≥4096  60.6%  ≥8192  11.7%  ≥16384   0.0%  ≥32768  0.0%  |  587.8 games/s
+  games    97,000  moves    200.5M  avg score    65770  max  233168  ≥2048  86.2%  ≥4096  60.6%  ≥8192  12.1%  ≥16384   0.1%  ≥32768  0.0%  |  587.7 games/s
+  games    98,000  moves    203.3M  avg score    68032  max  197496  ≥2048  86.4%  ≥4096  61.9%  ≥8192  14.9%  ≥16384   0.0%  ≥32768  0.0%  |  566.8 games/s
+  games    99,000  moves    206.0M  avg score    66731  max  188176  ≥2048  86.0%  ≥4096  62.0%  ≥8192  13.3%  ≥16384   0.0%  ≥32768  0.0%  |  573.5 games/s
+  games   100,000  moves    208.9M  avg score    68299  max  193176  ≥2048  87.7%  ≥4096  63.8%  ≥8192  14.3%  ≥16384   0.0%  ≥32768  0.0%  |  565.2 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/games_100000.npz (100,000 games, 0.24 GB in 12.7 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz (100,000 games, 2.68 GB in 1.8 s)
+
+Training complete
+{
+  "games_played": 100000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-B/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-B-100000, depth 1, screen (4 s) | 67,179 ± 2,413 | 65,542 | 13.7% | 0.0% | 0.0% | nan% | 3,104 |
+[2026-11-15T00:10:09Z] arm exited with code 0
+[2026-11-15T00:10:09Z] arm C screen 25000 50000 100000 (caffeinated: 2 assertions, commit 968f55e)
+Training 8x6 n-tuple network (134,217,728 weights) to 25,000 games, AutoStep TIDBD(0) from rate 0.004, θ 0.003, τ 10000, 8 threads after 10,000 games
+  games     1,000  moves      0.7M  avg score    10168  max   36916  ≥2048   2.4%  ≥4096   0.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  418.1 games/s
+  games     2,000  moves      1.6M  avg score    15618  max   51508  ≥2048  12.9%  ≥4096   0.1%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  319.6 games/s
+  games     3,000  moves      2.7M  avg score    19747  max   61376  ≥2048  25.4%  ≥4096   0.9%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  266.4 games/s
+  games     4,000  moves      4.0M  avg score    23314  max   71624  ≥2048  40.2%  ≥4096   2.2%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  231.2 games/s
+  games     5,000  moves      5.4M  avg score    26373  max   69992  ≥2048  50.0%  ≥4096   5.6%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  209.9 games/s
+  games     6,000  moves      7.0M  avg score    29457  max   79068  ≥2048  59.4%  ≥4096   7.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  194.4 games/s
+  games     7,000  moves      8.6M  avg score    31568  max   82312  ≥2048  64.6%  ≥4096   8.9%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  183.9 games/s
+  games     8,000  moves     10.4M  avg score    33508  max  119356  ≥2048  66.1%  ≥4096  13.4%  ≥8192   0.2%  ≥16384   0.0%  ≥32768  0.0%  |  171.9 games/s
+  games     9,000  moves     12.1M  avg score    36285  max  149052  ≥2048  72.9%  ≥4096  16.1%  ≥8192   0.3%  ≥16384   0.0%  ≥32768  0.0%  |  165.0 games/s
+  games    10,000  moves     13.9M  avg score    38773  max  120492  ≥2048  75.7%  ≥4096  21.6%  ≥8192   0.5%  ≥16384   0.0%  ≥32768  0.0%  |  163.3 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz (10,000 games, 2.68 GB in 1.7 s)
+  games    11,000  moves     15.7M  avg score    39778  max  125636  ≥2048  76.0%  ≥4096  23.2%  ≥8192   0.4%  ≥16384   0.0%  ≥32768  0.0%  |  783.9 games/s
+  games    12,000  moves     17.6M  avg score    42034  max  124032  ≥2048  79.2%  ≥4096  29.2%  ≥8192   0.4%  ≥16384   0.0%  ≥32768  0.0%  |  750.5 games/s
+  games    13,000  moves     19.6M  avg score    44012  max  132984  ≥2048  80.8%  ≥4096  30.2%  ≥8192   1.2%  ≥16384   0.0%  ≥32768  0.0%  |  714.2 games/s
+  games    14,000  moves     21.6M  avg score    44122  max  124928  ≥2048  80.0%  ≥4096  29.4%  ≥8192   1.4%  ≥16384   0.0%  ≥32768  0.0%  |  752.3 games/s
+  games    15,000  moves     23.6M  avg score    45219  max  141960  ≥2048  82.3%  ≥4096  30.9%  ≥8192   1.0%  ≥16384   0.0%  ≥32768  0.0%  |  707.3 games/s
+  games    16,000  moves     25.7M  avg score    47446  max  169672  ≥2048  84.7%  ≥4096  35.3%  ≥8192   2.0%  ≥16384   0.0%  ≥32768  0.0%  |  684.3 games/s
+  games    17,000  moves     27.9M  avg score    47959  max  156092  ≥2048  85.4%  ≥4096  35.4%  ≥8192   2.6%  ≥16384   0.0%  ≥32768  0.0%  |  686.0 games/s
+  games    18,000  moves     30.0M  avg score    48730  max  153836  ≥2048  85.8%  ≥4096  36.3%  ≥8192   2.6%  ≥16384   0.0%  ≥32768  0.0%  |  668.6 games/s
+  games    19,000  moves     32.3M  avg score    51597  max  154960  ≥2048  88.7%  ≥4096  39.9%  ≥8192   3.6%  ≥16384   0.0%  ≥32768  0.0%  |  629.9 games/s
+  games    20,000  moves     34.5M  avg score    50583  max  144172  ≥2048  87.0%  ≥4096  40.3%  ≥8192   3.1%  ≥16384   0.0%  ≥32768  0.0%  |  656.6 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz (20,000 games, 2.68 GB in 2.8 s)
+  games    21,000  moves     36.8M  avg score    52593  max  145804  ≥2048  85.0%  ≥4096  43.9%  ≥8192   3.7%  ≥16384   0.0%  ≥32768  0.0%  |  633.8 games/s
+  games    22,000  moves     39.2M  avg score    54191  max  153648  ≥2048  90.3%  ≥4096  45.5%  ≥8192   4.3%  ≥16384   0.0%  ≥32768  0.0%  |  620.6 games/s
+  games    23,000  moves     41.6M  avg score    55682  max  177124  ≥2048  89.0%  ≥4096  47.2%  ≥8192   6.3%  ≥16384   0.0%  ≥32768  0.0%  |  614.3 games/s
+  games    24,000  moves     44.1M  avg score    55959  max  166976  ≥2048  89.8%  ≥4096  47.4%  ≥8192   5.7%  ≥16384   0.0%  ≥32768  0.0%  |  598.5 games/s
+  games    25,000  moves     46.5M  avg score    57136  max  158784  ≥2048  90.1%  ≥4096  47.3%  ≥8192   7.9%  ≥16384   0.0%  ≥32768  0.0%  |  579.4 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/games_25000.npz (25,000 games, 0.17 GB in 10.7 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz (25,000 games, 2.68 GB in 1.4 s)
+
+Training complete
+{
+  "games_played": 25000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-C-25000, depth 1, screen (4 s) | 56,956 ± 1,838 | 51,520 | 6.6% | 0.0% | 0.0% | nan% | 2,702 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-C/games_25000.npz at 25,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 50,000 games, AutoStep TIDBD(0) from rate 0.004, θ 0.003, τ 10000, 8 threads after 10,000 games
+  games    26,000  moves     49.3M  avg score    58905  max  177080  ≥2048  89.7%  ≥4096  53.0%  ≥8192   7.3%  ≥16384   0.0%  ≥32768  0.0%  |  505.3 games/s
+  games    27,000  moves     51.8M  avg score    58344  max  160096  ≥2048  87.8%  ≥4096  51.1%  ≥8192   7.9%  ≥16384   0.0%  ≥32768  0.0%  |  556.8 games/s
+  games    28,000  moves     54.4M  avg score    61037  max  175272  ≥2048  88.9%  ≥4096  53.8%  ≥8192   9.6%  ≥16384   0.0%  ≥32768  0.0%  |  594.4 games/s
+  games    29,000  moves     57.1M  avg score    63753  max  177040  ≥2048  90.7%  ≥4096  56.6%  ≥8192  11.9%  ≥16384   0.0%  ≥32768  0.0%  |  563.8 games/s
+  games    30,000  moves     59.8M  avg score    62368  max  177116  ≥2048  88.3%  ≥4096  57.0%  ≥8192  10.3%  ≥16384   0.0%  ≥32768  0.0%  |  562.4 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz (30,000 games, 2.68 GB in 1.2 s)
+  games    31,000  moves     62.5M  avg score    64682  max  174796  ≥2048  90.8%  ≥4096  57.2%  ≥8192  13.6%  ≥16384   0.0%  ≥32768  0.0%  |  546.7 games/s
+  games    32,000  moves     65.3M  avg score    67172  max  173912  ≥2048  91.5%  ≥4096  58.3%  ≥8192  16.0%  ≥16384   0.0%  ≥32768  0.0%  |  541.3 games/s
+  games    33,000  moves     68.2M  avg score    66847  max  177272  ≥2048  90.5%  ≥4096  57.3%  ≥8192  15.3%  ≥16384   0.0%  ≥32768  0.0%  |  534.3 games/s
+  games    34,000  moves     71.0M  avg score    68393  max  241728  ≥2048  89.6%  ≥4096  60.4%  ≥8192  17.0%  ≥16384   0.1%  ≥32768  0.0%  |  527.0 games/s
+  games    35,000  moves     74.0M  avg score    69510  max  264928  ≥2048  89.6%  ≥4096  61.7%  ≥8192  17.8%  ≥16384   0.1%  ≥32768  0.0%  |  515.8 games/s
+  games    36,000  moves     77.0M  avg score    72477  max  187080  ≥2048  90.7%  ≥4096  63.4%  ≥8192  20.6%  ≥16384   0.0%  ≥32768  0.0%  |  514.8 games/s
+  games    37,000  moves     79.9M  avg score    70417  max  200484  ≥2048  89.9%  ≥4096  61.2%  ≥8192  18.4%  ≥16384   0.0%  ≥32768  0.0%  |  531.1 games/s
+  games    38,000  moves     82.9M  avg score    71956  max  193708  ≥2048  90.2%  ≥4096  63.0%  ≥8192  19.1%  ≥16384   0.0%  ≥32768  0.0%  |  510.4 games/s
+  games    39,000  moves     86.0M  avg score    74164  max  258852  ≥2048  91.8%  ≥4096  63.8%  ≥8192  21.2%  ≥16384   0.3%  ≥32768  0.0%  |  501.0 games/s
+  games    40,000  moves     89.1M  avg score    77915  max  240480  ≥2048  94.5%  ≥4096  67.7%  ≥8192  24.2%  ≥16384   0.1%  ≥32768  0.0%  |  488.2 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz (40,000 games, 2.68 GB in 1.9 s)
+  games    41,000  moves     92.3M  avg score    75740  max  263000  ≥2048  91.9%  ≥4096  66.0%  ≥8192  22.2%  ≥16384   0.2%  ≥32768  0.0%  |  459.6 games/s
+  games    42,000  moves     95.5M  avg score    79335  max  189824  ≥2048  90.8%  ≥4096  67.7%  ≥8192  26.3%  ≥16384   0.0%  ≥32768  0.0%  |  473.5 games/s
+  games    43,000  moves     98.8M  avg score    78301  max  237224  ≥2048  92.5%  ≥4096  66.7%  ≥8192  24.9%  ≥16384   0.1%  ≥32768  0.0%  |  474.4 games/s
+  games    44,000  moves    102.0M  avg score    77429  max  257256  ≥2048  91.0%  ≥4096  65.7%  ≥8192  24.9%  ≥16384   0.3%  ≥32768  0.0%  |  470.8 games/s
+  games    45,000  moves    105.2M  avg score    80676  max  257620  ≥2048  91.9%  ≥4096  68.9%  ≥8192  26.3%  ≥16384   0.4%  ≥32768  0.0%  |  465.5 games/s
+  games    46,000  moves    108.6M  avg score    80355  max  262644  ≥2048  93.8%  ≥4096  67.8%  ≥8192  26.6%  ≥16384   0.1%  ≥32768  0.0%  |  468.1 games/s
+  games    47,000  moves    112.0M  avg score    83750  max  262176  ≥2048  92.4%  ≥4096  71.9%  ≥8192  28.6%  ≥16384   0.5%  ≥32768  0.0%  |  450.1 games/s
+  games    48,000  moves    115.5M  avg score    84579  max  242988  ≥2048  92.7%  ≥4096  71.1%  ≥8192  30.6%  ≥16384   0.4%  ≥32768  0.0%  |  451.6 games/s
+  games    49,000  moves    118.9M  avg score    85151  max  267148  ≥2048  93.3%  ≥4096  69.3%  ≥8192  30.8%  ≥16384   0.6%  ≥32768  0.0%  |  443.3 games/s
+  games    50,000  moves    122.4M  avg score    84280  max  227600  ≥2048  92.8%  ≥4096  70.9%  ≥8192  29.9%  ≥16384   0.1%  ≥32768  0.0%  |  441.0 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/games_50000.npz (50,000 games, 0.23 GB in 13.2 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz (50,000 games, 2.68 GB in 1.9 s)
+
+Training complete
+{
+  "games_played": 50000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-C-50000, depth 1, screen (4 s) | 82,376 ± 2,844 | 77,422 | 26.7% | 0.4% | 0.0% | 0.0% | 3,682 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-C/games_50000.npz at 50,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 100,000 games, AutoStep TIDBD(0) from rate 0.004, θ 0.003, τ 10000, 8 threads after 10,000 games
+  games    51,000  moves    126.2M  avg score    87285  max  289448  ≥2048  92.4%  ≥4096  71.7%  ≥8192  32.7%  ≥16384   0.4%  ≥32768  0.0%  |  370.7 games/s
+  games    52,000  moves    129.8M  avg score    86745  max  289500  ≥2048  92.8%  ≥4096  71.8%  ≥8192  33.4%  ≥16384   0.4%  ≥32768  0.0%  |  430.7 games/s
+  games    53,000  moves    133.3M  avg score    85974  max  258364  ≥2048  92.0%  ≥4096  71.6%  ≥8192  32.5%  ≥16384   0.2%  ≥32768  0.0%  |  437.8 games/s
+  games    54,000  moves    136.9M  avg score    88792  max  289528  ≥2048  92.5%  ≥4096  73.7%  ≥8192  33.6%  ≥16384   0.1%  ≥32768  0.0%  |  428.2 games/s
+  games    55,000  moves    140.4M  avg score    88580  max  270472  ≥2048  93.0%  ≥4096  73.4%  ≥8192  34.0%  ≥16384   0.4%  ≥32768  0.0%  |  419.3 games/s
+  games    56,000  moves    144.2M  avg score    92929  max  288732  ≥2048  91.6%  ≥4096  75.4%  ≥8192  38.6%  ≥16384   0.5%  ≥32768  0.0%  |  414.8 games/s
+  games    57,000  moves    147.9M  avg score    92715  max  248392  ≥2048  92.7%  ≥4096  73.5%  ≥8192  38.2%  ≥16384   0.5%  ≥32768  0.0%  |  421.0 games/s
+  games    58,000  moves    151.6M  avg score    91204  max  290184  ≥2048  93.7%  ≥4096  74.0%  ≥8192  35.3%  ≥16384   0.2%  ≥32768  0.0%  |  416.1 games/s
+  games    59,000  moves    155.4M  avg score    93112  max  281076  ≥2048  94.1%  ≥4096  75.6%  ≥8192  36.7%  ≥16384   0.7%  ≥32768  0.0%  |  408.9 games/s
+  games    60,000  moves    159.2M  avg score    95364  max  313936  ≥2048  93.7%  ≥4096  77.1%  ≥8192  39.1%  ≥16384   1.3%  ≥32768  0.0%  |  410.0 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz (60,000 games, 2.68 GB in 1.1 s)
+  games    61,000  moves    163.0M  avg score    94324  max  289648  ≥2048  92.7%  ≥4096  77.1%  ≥8192  38.3%  ≥16384   0.8%  ≥32768  0.0%  |  403.2 games/s
+  games    62,000  moves    166.9M  avg score    96372  max  342796  ≥2048  93.6%  ≥4096  72.7%  ≥8192  41.1%  ≥16384   1.0%  ≥32768  0.0%  |  387.7 games/s
+  games    63,000  moves    170.8M  avg score    98345  max  281312  ≥2048  94.0%  ≥4096  76.8%  ≥8192  43.9%  ≥16384   0.2%  ≥32768  0.0%  |  369.2 games/s
+  games    64,000  moves    174.7M  avg score    97109  max  290580  ≥2048  93.9%  ≥4096  77.3%  ≥8192  40.2%  ≥16384   1.1%  ≥32768  0.0%  |  384.3 games/s
+  games    65,000  moves    178.6M  avg score    97940  max  313600  ≥2048  92.9%  ≥4096  75.7%  ≥8192  41.1%  ≥16384   1.6%  ≥32768  0.0%  |  400.1 games/s
+  games    66,000  moves    182.6M  avg score    99039  max  279636  ≥2048  94.2%  ≥4096  78.5%  ≥8192  41.6%  ≥16384   0.6%  ≥32768  0.0%  |  384.5 games/s
+  games    67,000  moves    186.5M  avg score    97137  max  342048  ≥2048  94.1%  ≥4096  76.7%  ≥8192  40.5%  ≥16384   0.7%  ≥32768  0.0%  |  384.6 games/s
+  games    68,000  moves    190.4M  avg score    98834  max  305348  ≥2048  96.0%  ≥4096  79.7%  ≥8192  41.7%  ≥16384   1.4%  ≥32768  0.0%  |  393.8 games/s
+  games    69,000  moves    194.5M  avg score   101938  max  291420  ≥2048  93.5%  ≥4096  77.4%  ≥8192  43.6%  ≥16384   2.3%  ≥32768  0.0%  |  381.1 games/s
+  games    70,000  moves    198.4M  avg score   100472  max  317400  ≥2048  93.9%  ≥4096  76.5%  ≥8192  43.2%  ≥16384   2.2%  ≥32768  0.0%  |  384.8 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz (70,000 games, 2.68 GB in 2.7 s)
+  games    71,000  moves    202.5M  avg score   102501  max  340084  ≥2048  95.4%  ≥4096  79.5%  ≥8192  42.5%  ≥16384   1.7%  ≥32768  0.0%  |  377.2 games/s
+  games    72,000  moves    206.6M  avg score   104684  max  323036  ≥2048  94.6%  ≥4096  78.0%  ≥8192  46.6%  ≥16384   2.8%  ≥32768  0.0%  |  372.9 games/s
+  games    73,000  moves    210.9M  avg score   106357  max  314708  ≥2048  94.0%  ≥4096  80.4%  ≥8192  48.5%  ≥16384   2.2%  ≥32768  0.0%  |  360.2 games/s
+  games    74,000  moves    215.1M  avg score   106434  max  306488  ≥2048  95.0%  ≥4096  81.8%  ≥8192  48.8%  ≥16384   1.8%  ≥32768  0.0%  |  360.2 games/s
+  games    75,000  moves    219.2M  avg score   104729  max  290636  ≥2048  94.3%  ≥4096  76.3%  ≥8192  47.7%  ≥16384   1.8%  ≥32768  0.0%  |  375.8 games/s
+  games    76,000  moves    223.3M  avg score   104788  max  341600  ≥2048  94.9%  ≥4096  77.2%  ≥8192  44.2%  ≥16384   3.0%  ≥32768  0.0%  |  371.0 games/s
+  games    77,000  moves    227.5M  avg score   104630  max  312892  ≥2048  94.8%  ≥4096  78.9%  ≥8192  47.5%  ≥16384   2.1%  ≥32768  0.0%  |  367.0 games/s
+  games    78,000  moves    231.7M  avg score   106506  max  384404  ≥2048  94.0%  ≥4096  79.4%  ≥8192  47.2%  ≥16384   3.0%  ≥32768  0.0%  |  366.5 games/s
+  games    79,000  moves    236.1M  avg score   110096  max  306592  ≥2048  95.1%  ≥4096  82.0%  ≥8192  50.0%  ≥16384   3.2%  ≥32768  0.0%  |  354.1 games/s
+  games    80,000  moves    240.3M  avg score   107415  max  329428  ≥2048  94.5%  ≥4096  80.5%  ≥8192  48.2%  ≥16384   3.2%  ≥32768  0.0%  |  369.0 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz (80,000 games, 2.68 GB in 1.5 s)
+  games    81,000  moves    244.6M  avg score   111354  max  327996  ≥2048  95.6%  ≥4096  82.0%  ≥8192  52.4%  ≥16384   2.8%  ≥32768  0.0%  |  350.5 games/s
+  games    82,000  moves    249.0M  avg score   109819  max  290532  ≥2048  95.1%  ≥4096  79.4%  ≥8192  51.2%  ≥16384   2.4%  ≥32768  0.0%  |  351.4 games/s
+  games    83,000  moves    253.2M  avg score   109129  max  333956  ≥2048  94.6%  ≥4096  80.8%  ≥8192  51.5%  ≥16384   1.9%  ≥32768  0.0%  |  353.5 games/s
+  games    84,000  moves    257.5M  avg score   109950  max  341788  ≥2048  94.7%  ≥4096  80.0%  ≥8192  49.2%  ≥16384   2.9%  ≥32768  0.0%  |  359.8 games/s
+  games    85,000  moves    261.7M  avg score   107687  max  365748  ≥2048  94.0%  ≥4096  80.5%  ≥8192  50.4%  ≥16384   2.2%  ≥32768  0.0%  |  357.8 games/s
+  games    86,000  moves    266.1M  avg score   111374  max  358172  ≥2048  95.5%  ≥4096  80.4%  ≥8192  50.7%  ≥16384   2.9%  ≥32768  0.0%  |  346.0 games/s
+  games    87,000  moves    270.5M  avg score   109080  max  315204  ≥2048  93.9%  ≥4096  79.6%  ≥8192  49.9%  ≥16384   2.7%  ≥32768  0.0%  |  341.6 games/s
+  games    88,000  moves    274.8M  avg score   110793  max  290388  ≥2048  95.4%  ≥4096  79.8%  ≥8192  51.1%  ≥16384   3.6%  ≥32768  0.0%  |  349.3 games/s
+  games    89,000  moves    279.2M  avg score   112167  max  340976  ≥2048  94.8%  ≥4096  80.9%  ≥8192  51.9%  ≥16384   3.2%  ≥32768  0.0%  |  349.4 games/s
+  games    90,000  moves    283.5M  avg score   109974  max  367532  ≥2048  93.6%  ≥4096  80.1%  ≥8192  51.2%  ≥16384   3.3%  ≥32768  0.0%  |  352.6 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz (90,000 games, 2.68 GB in 2.4 s)
+  games    91,000  moves    287.9M  avg score   110984  max  300812  ≥2048  95.1%  ≥4096  80.0%  ≥8192  51.5%  ≥16384   2.1%  ≥32768  0.0%  |  346.0 games/s
+  games    92,000  moves    292.5M  avg score   116508  max  334156  ≥2048  95.7%  ≥4096  81.6%  ≥8192  55.4%  ≥16384   4.2%  ≥32768  0.0%  |  332.4 games/s
+  games    93,000  moves    297.0M  avg score   115084  max  377284  ≥2048  95.5%  ≥4096  82.1%  ≥8192  53.5%  ≥16384   4.3%  ≥32768  0.0%  |  344.2 games/s
+  games    94,000  moves    301.4M  avg score   115425  max  343088  ≥2048  96.7%  ≥4096  82.7%  ≥8192  53.6%  ≥16384   4.4%  ≥32768  0.0%  |  343.8 games/s
+  games    95,000  moves    305.9M  avg score   112997  max  293820  ≥2048  93.5%  ≥4096  81.5%  ≥8192  54.2%  ≥16384   4.0%  ≥32768  0.0%  |  338.0 games/s
+  games    96,000  moves    310.3M  avg score   115293  max  367432  ≥2048  94.9%  ≥4096  82.5%  ≥8192  54.2%  ≥16384   4.0%  ≥32768  0.0%  |  348.5 games/s
+  games    97,000  moves    314.8M  avg score   113129  max  362628  ≥2048  93.9%  ≥4096  80.5%  ≥8192  53.0%  ≥16384   4.4%  ≥32768  0.0%  |  335.7 games/s
+  games    98,000  moves    319.2M  avg score   113708  max  365244  ≥2048  93.8%  ≥4096  79.3%  ≥8192  50.3%  ≥16384   5.9%  ≥32768  0.0%  |  344.8 games/s
+  games    99,000  moves    323.9M  avg score   118967  max  361432  ≥2048  96.2%  ≥4096  83.1%  ≥8192  57.8%  ≥16384   3.3%  ≥32768  0.0%  |  332.6 games/s
+  games   100,000  moves    328.4M  avg score   117850  max  334796  ≥2048  95.0%  ≥4096  82.6%  ≥8192  54.8%  ≥16384   6.0%  ≥32768  0.0%  |  337.8 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/games_100000.npz (100,000 games, 0.31 GB in 15.9 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz (100,000 games, 2.68 GB in 1.9 s)
+
+Training complete
+{
+  "games_played": 100000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-C/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-C-100000, depth 1, screen (4 s) | 116,300 ± 3,876 | 123,946 | 55.5% | 4.2% | 0.0% | 0.0% | 4,944 |
+[2026-11-15T00:16:03Z] arm exited with code 0
+[2026-11-15T00:16:03Z] arm D screen 25000 50000 100000 (caffeinated: 2 assertions, commit 968f55e)
+Training 8x6 n-tuple network (134,217,728 weights) to 25,000 games, AutoStep TIDBD(0) from rate 0.004, θ 0.01, τ 10000, 8 threads after 10,000 games
+  games     1,000  moves      0.7M  avg score    10754  max   35552  ≥2048   3.3%  ≥4096   0.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  391.6 games/s
+  games     2,000  moves      1.7M  avg score    16777  max   59580  ≥2048  17.3%  ≥4096   0.1%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  300.1 games/s
+  games     3,000  moves      2.9M  avg score    21346  max   69268  ≥2048  34.2%  ≥4096   1.5%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  250.3 games/s
+  games     4,000  moves      4.3M  avg score    26039  max   75956  ≥2048  51.2%  ≥4096   4.2%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  213.5 games/s
+  games     5,000  moves      5.8M  avg score    29760  max  133692  ≥2048  59.0%  ≥4096   7.2%  ≥8192   0.1%  ≥16384   0.0%  ≥32768  0.0%  |  189.7 games/s
+  games     6,000  moves      7.4M  avg score    33001  max  122296  ≥2048  68.4%  ≥4096   9.3%  ≥8192   0.4%  ≥16384   0.0%  ≥32768  0.0%  |  188.3 games/s
+  games     7,000  moves      9.0M  avg score    33893  max  123932  ≥2048  68.5%  ≥4096  12.7%  ≥8192   0.1%  ≥16384   0.0%  ≥32768  0.0%  |  189.0 games/s
+  games     8,000  moves     10.7M  avg score    36077  max  133680  ≥2048  71.1%  ≥4096  16.4%  ≥8192   0.4%  ≥16384   0.0%  ≥32768  0.0%  |  181.1 games/s
+  games     9,000  moves     12.5M  avg score    38217  max  138656  ≥2048  74.2%  ≥4096  19.3%  ≥8192   0.6%  ≥16384   0.0%  ≥32768  0.0%  |  173.4 games/s
+  games    10,000  moves     14.3M  avg score    40209  max  133776  ≥2048  75.8%  ≥4096  25.0%  ≥8192   1.3%  ≥16384   0.0%  ≥32768  0.0%  |  165.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz (10,000 games, 2.68 GB in 1.6 s)
+  games    11,000  moves     16.2M  avg score    41904  max  142260  ≥2048  77.1%  ≥4096  27.2%  ≥8192   1.3%  ≥16384   0.0%  ≥32768  0.0%  |  778.5 games/s
+  games    12,000  moves     18.2M  avg score    43984  max  144156  ≥2048  80.5%  ≥4096  32.4%  ≥8192   1.3%  ≥16384   0.0%  ≥32768  0.0%  |  776.1 games/s
+  games    13,000  moves     20.3M  avg score    45762  max  144276  ≥2048  82.8%  ≥4096  33.8%  ≥8192   1.8%  ≥16384   0.0%  ≥32768  0.0%  |  738.1 games/s
+  games    14,000  moves     22.4M  avg score    46104  max  148116  ≥2048  80.1%  ≥4096  35.5%  ≥8192   1.8%  ≥16384   0.0%  ≥32768  0.0%  |  759.5 games/s
+  games    15,000  moves     24.5M  avg score    47096  max  177164  ≥2048  81.4%  ≥4096  38.6%  ≥8192   2.5%  ≥16384   0.0%  ≥32768  0.0%  |  725.9 games/s
+  games    16,000  moves     26.7M  avg score    49787  max  153684  ≥2048  83.8%  ≥4096  44.0%  ≥8192   2.0%  ≥16384   0.0%  ≥32768  0.0%  |  703.2 games/s
+  games    17,000  moves     29.0M  avg score    51241  max  175196  ≥2048  86.9%  ≥4096  42.6%  ≥8192   3.0%  ≥16384   0.0%  ≥32768  0.0%  |  689.5 games/s
+  games    18,000  moves     31.2M  avg score    50432  max  152456  ≥2048  83.1%  ≥4096  45.6%  ≥8192   1.8%  ≥16384   0.0%  ≥32768  0.0%  |  705.4 games/s
+  games    19,000  moves     33.5M  avg score    51472  max  153128  ≥2048  85.2%  ≥4096  46.0%  ≥8192   1.9%  ≥16384   0.0%  ≥32768  0.0%  |  677.9 games/s
+  games    20,000  moves     35.8M  avg score    53925  max  165300  ≥2048  85.4%  ≥4096  50.1%  ≥8192   2.4%  ≥16384   0.0%  ≥32768  0.0%  |  658.8 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz (20,000 games, 2.68 GB in 2.8 s)
+  games    21,000  moves     38.2M  avg score    53831  max  159952  ≥2048  84.1%  ≥4096  50.8%  ≥8192   2.3%  ≥16384   0.0%  ≥32768  0.0%  |  649.7 games/s
+  games    22,000  moves     40.6M  avg score    56241  max  152804  ≥2048  85.5%  ≥4096  54.9%  ≥8192   2.8%  ≥16384   0.0%  ≥32768  0.0%  |  652.1 games/s
+  games    23,000  moves     43.1M  avg score    57693  max  171552  ≥2048  86.7%  ≥4096  56.6%  ≥8192   3.8%  ≥16384   0.0%  ≥32768  0.0%  |  625.1 games/s
+  games    24,000  moves     45.5M  avg score    56128  max  173212  ≥2048  86.9%  ≥4096  53.5%  ≥8192   2.5%  ≥16384   0.0%  ≥32768  0.0%  |  650.1 games/s
+  games    25,000  moves     48.0M  avg score    57004  max  244328  ≥2048  86.5%  ≥4096  56.8%  ≥8192   2.8%  ≥16384   0.1%  ≥32768  0.0%  |  623.5 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/games_25000.npz (25,000 games, 0.16 GB in 10.3 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz (25,000 games, 2.68 GB in 1.3 s)
+
+Training complete
+{
+  "games_played": 25000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-D-25000, depth 1, screen (4 s) | 57,842 ± 1,842 | 58,808 | 3.9% | 0.0% | 0.0% | nan% | 2,742 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-D/games_25000.npz at 25,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 50,000 games, AutoStep TIDBD(0) from rate 0.004, θ 0.01, τ 10000, 8 threads after 10,000 games
+  games    26,000  moves     50.8M  avg score    59568  max  153636  ≥2048  88.0%  ≥4096  60.7%  ≥8192   3.0%  ≥16384   0.0%  ≥32768  0.0%  |  511.1 games/s
+  games    27,000  moves     53.3M  avg score    59511  max  175616  ≥2048  88.4%  ≥4096  58.5%  ≥8192   3.9%  ≥16384   0.0%  ≥32768  0.0%  |  611.5 games/s
+  games    28,000  moves     55.8M  avg score    59951  max  157784  ≥2048  87.3%  ≥4096  58.8%  ≥8192   5.3%  ≥16384   0.0%  ≥32768  0.0%  |  633.6 games/s
+  games    29,000  moves     58.4M  avg score    62235  max  174372  ≥2048  87.1%  ≥4096  60.7%  ≥8192   7.0%  ≥16384   0.0%  ≥32768  0.0%  |  608.9 games/s
+  games    30,000  moves     60.8M  avg score    59664  max  176412  ≥2048  86.9%  ≥4096  58.9%  ≥8192   5.2%  ≥16384   0.0%  ≥32768  0.0%  |  625.3 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz (30,000 games, 2.68 GB in 1.1 s)
+  games    31,000  moves     63.5M  avg score    63967  max  176488  ≥2048  88.4%  ≥4096  63.6%  ≥8192   7.3%  ≥16384   0.0%  ≥32768  0.0%  |  574.6 games/s
+  games    32,000  moves     66.2M  avg score    63473  max  173172  ≥2048  87.5%  ≥4096  64.2%  ≥8192   4.8%  ≥16384   0.0%  ≥32768  0.0%  |  586.4 games/s
+  games    33,000  moves     68.9M  avg score    65283  max  178032  ≥2048  89.6%  ≥4096  64.1%  ≥8192   7.5%  ≥16384   0.0%  ≥32768  0.0%  |  583.3 games/s
+  games    34,000  moves     71.6M  avg score    66571  max  172744  ≥2048  90.7%  ≥4096  65.4%  ≥8192   8.8%  ≥16384   0.0%  ≥32768  0.0%  |  576.6 games/s
+  games    35,000  moves     74.3M  avg score    68395  max  177500  ≥2048  89.6%  ≥4096  68.9%  ≥8192   9.3%  ≥16384   0.0%  ≥32768  0.0%  |  567.8 games/s
+  games    36,000  moves     77.1M  avg score    67587  max  197560  ≥2048  87.7%  ≥4096  68.5%  ≥8192   8.0%  ≥16384   0.0%  ≥32768  0.0%  |  572.7 games/s
+  games    37,000  moves     79.9M  avg score    68238  max  173216  ≥2048  89.8%  ≥4096  71.3%  ≥8192   9.0%  ≥16384   0.0%  ≥32768  0.0%  |  555.8 games/s
+  games    38,000  moves     82.7M  avg score    68549  max  177752  ≥2048  90.9%  ≥4096  71.3%  ≥8192   7.7%  ≥16384   0.0%  ≥32768  0.0%  |  576.4 games/s
+  games    39,000  moves     85.5M  avg score    70006  max  177240  ≥2048  90.1%  ≥4096  72.4%  ≥8192   9.6%  ≥16384   0.0%  ≥32768  0.0%  |  552.7 games/s
+  games    40,000  moves     88.5M  avg score    72180  max  228544  ≥2048  90.4%  ≥4096  73.6%  ≥8192  11.8%  ≥16384   0.1%  ≥32768  0.0%  |  549.2 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz (40,000 games, 2.68 GB in 2.0 s)
+  games    41,000  moves     91.5M  avg score    73009  max  197668  ≥2048  91.5%  ≥4096  72.7%  ≥8192  12.2%  ≥16384   0.0%  ≥32768  0.0%  |  515.9 games/s
+  games    42,000  moves     94.4M  avg score    70628  max  186148  ≥2048  89.9%  ≥4096  71.5%  ≥8192  10.5%  ≥16384   0.0%  ≥32768  0.0%  |  541.9 games/s
+  games    43,000  moves     97.4M  avg score    73535  max  176656  ≥2048  90.9%  ≥4096  73.4%  ≥8192  12.6%  ≥16384   0.0%  ≥32768  0.0%  |  527.0 games/s
+  games    44,000  moves    100.4M  avg score    74896  max  182296  ≥2048  92.0%  ≥4096  75.2%  ≥8192  13.7%  ≥16384   0.0%  ≥32768  0.0%  |  531.5 games/s
+  games    45,000  moves    103.5M  avg score    76296  max  192924  ≥2048  90.5%  ≥4096  75.5%  ≥8192  15.6%  ≥16384   0.0%  ≥32768  0.0%  |  528.3 games/s
+  games    46,000  moves    106.6M  avg score    77453  max  284424  ≥2048  91.8%  ≥4096  75.8%  ≥8192  17.1%  ≥16384   0.1%  ≥32768  0.0%  |  486.8 games/s
+  games    47,000  moves    109.7M  avg score    76689  max  193340  ≥2048  90.6%  ≥4096  74.8%  ≥8192  17.7%  ≥16384   0.0%  ≥32768  0.0%  |  521.6 games/s
+  games    48,000  moves    112.9M  avg score    77809  max  189868  ≥2048  91.7%  ≥4096  75.4%  ≥8192  17.4%  ≥16384   0.0%  ≥32768  0.0%  |  512.6 games/s
+  games    49,000  moves    116.0M  avg score    79087  max  196948  ≥2048  92.9%  ≥4096  75.9%  ≥8192  18.8%  ≥16384   0.0%  ≥32768  0.0%  |  515.2 games/s
+  games    50,000  moves    119.3M  avg score    79241  max  196560  ≥2048  91.8%  ≥4096  75.7%  ≥8192  20.3%  ≥16384   0.0%  ≥32768  0.0%  |  497.8 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/games_50000.npz (50,000 games, 0.22 GB in 12.6 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz (50,000 games, 2.68 GB in 1.8 s)
+
+Training complete
+{
+  "games_played": 50000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-D-50000, depth 1, screen (4 s) | 80,304 ± 2,614 | 80,138 | 21.6% | 0.0% | 0.0% | nan% | 3,617 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-D/games_50000.npz at 50,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 100,000 games, AutoStep TIDBD(0) from rate 0.004, θ 0.01, τ 10000, 8 threads after 10,000 games
+  games    51,000  moves    122.9M  avg score    80939  max  200468  ≥2048  92.0%  ≥4096  75.7%  ≥8192  22.6%  ≥16384   0.0%  ≥32768  0.0%  |  410.6 games/s
+  games    52,000  moves    126.2M  avg score    81006  max  201916  ≥2048  90.7%  ≥4096  76.0%  ≥8192  21.0%  ≥16384   0.0%  ≥32768  0.0%  |  494.7 games/s
+  games    53,000  moves    129.5M  avg score    83430  max  218668  ≥2048  92.6%  ≥4096  77.8%  ≥8192  23.2%  ≥16384   0.0%  ≥32768  0.0%  |  490.8 games/s
+  games    54,000  moves    132.8M  avg score    84165  max  202568  ≥2048  92.7%  ≥4096  76.4%  ≥8192  25.5%  ≥16384   0.0%  ≥32768  0.0%  |  475.2 games/s
+  games    55,000  moves    136.3M  avg score    85193  max  253024  ≥2048  92.5%  ≥4096  77.3%  ≥8192  26.8%  ≥16384   0.1%  ≥32768  0.0%  |  466.7 games/s
+  games    56,000  moves    139.7M  avg score    84551  max  245384  ≥2048  90.8%  ≥4096  77.7%  ≥8192  25.9%  ≥16384   0.1%  ≥32768  0.0%  |  473.2 games/s
+  games    57,000  moves    143.1M  avg score    86130  max  202696  ≥2048  92.5%  ≥4096  79.2%  ≥8192  26.2%  ≥16384   0.0%  ≥32768  0.0%  |  470.3 games/s
+  games    58,000  moves    146.6M  avg score    88635  max  280880  ≥2048  92.1%  ≥4096  78.3%  ≥8192  29.0%  ≥16384   0.4%  ≥32768  0.0%  |  451.1 games/s
+  games    59,000  moves    150.2M  avg score    89802  max  254376  ≥2048  92.6%  ≥4096  81.9%  ≥8192  29.8%  ≥16384   0.1%  ≥32768  0.0%  |  450.8 games/s
+  games    60,000  moves    153.7M  avg score    89143  max  243224  ≥2048  91.4%  ≥4096  78.5%  ≥8192  30.4%  ≥16384   0.2%  ≥32768  0.0%  |  452.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz (60,000 games, 2.68 GB in 1.2 s)
+  games    61,000  moves    157.3M  avg score    87592  max  281564  ≥2048  91.3%  ≥4096  75.1%  ≥8192  28.1%  ≥16384   0.5%  ≥32768  0.0%  |  430.1 games/s
+  games    62,000  moves    160.7M  avg score    86454  max  220876  ≥2048  92.0%  ≥4096  78.3%  ≥8192  26.9%  ≥16384   0.0%  ≥32768  0.0%  |  460.1 games/s
+  games    63,000  moves    164.2M  avg score    87449  max  247712  ≥2048  93.7%  ≥4096  80.2%  ≥8192  27.9%  ≥16384   0.3%  ≥32768  0.0%  |  464.0 games/s
+  games    64,000  moves    167.8M  avg score    89785  max  282524  ≥2048  91.3%  ≥4096  79.2%  ≥8192  30.9%  ≥16384   0.3%  ≥32768  0.0%  |  455.2 games/s
+  games    65,000  moves    171.3M  avg score    88299  max  226564  ≥2048  92.5%  ≥4096  77.9%  ≥8192  30.7%  ≥16384   0.2%  ≥32768  0.0%  |  449.1 games/s
+  games    66,000  moves    174.9M  avg score    92654  max  291992  ≥2048  92.5%  ≥4096  77.9%  ≥8192  31.6%  ≥16384   0.4%  ≥32768  0.0%  |  419.0 games/s
+  games    67,000  moves    178.5M  avg score    91568  max  290460  ≥2048  91.5%  ≥4096  82.3%  ≥8192  30.9%  ≥16384   0.2%  ≥32768  0.0%  |  438.9 games/s
+  games    68,000  moves    182.3M  avg score    95075  max  247904  ≥2048  93.7%  ≥4096  80.9%  ≥8192  34.9%  ≥16384   0.2%  ≥32768  0.0%  |  428.9 games/s
+  games    69,000  moves    185.9M  avg score    91795  max  333132  ≥2048  93.0%  ≥4096  80.6%  ≥8192  31.9%  ≥16384   0.5%  ≥32768  0.0%  |  431.3 games/s
+  games    70,000  moves    189.5M  avg score    89337  max  269832  ≥2048  92.0%  ≥4096  79.1%  ≥8192  28.9%  ≥16384   0.3%  ≥32768  0.0%  |  441.4 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz (70,000 games, 2.68 GB in 2.9 s)
+  games    71,000  moves    193.3M  avg score    92518  max  324972  ≥2048  93.2%  ≥4096  80.6%  ≥8192  31.5%  ≥16384   0.5%  ≥32768  0.0%  |  420.2 games/s
+  games    72,000  moves    197.0M  avg score    92846  max  219912  ≥2048  92.2%  ≥4096  79.2%  ≥8192  33.1%  ≥16384   0.1%  ≥32768  0.0%  |  428.2 games/s
+  games    73,000  moves    200.8M  avg score    95184  max  273204  ≥2048  93.8%  ≥4096  82.9%  ≥8192  33.5%  ≥16384   0.4%  ≥32768  0.0%  |  419.8 games/s
+  games    74,000  moves    204.4M  avg score    92216  max  312888  ≥2048  92.1%  ≥4096  77.9%  ≥8192  33.0%  ≥16384   0.3%  ≥32768  0.0%  |  429.7 games/s
+  games    75,000  moves    208.2M  avg score    94042  max  304692  ≥2048  92.8%  ≥4096  80.6%  ≥8192  32.9%  ≥16384   0.4%  ≥32768  0.0%  |  421.2 games/s
+  games    76,000  moves    212.0M  avg score    95198  max  261712  ≥2048  94.0%  ≥4096  80.2%  ≥8192  35.2%  ≥16384   0.8%  ≥32768  0.0%  |  419.4 games/s
+  games    77,000  moves    215.8M  avg score    95098  max  288068  ≥2048  92.7%  ≥4096  78.5%  ≥8192  35.3%  ≥16384   0.5%  ≥32768  0.0%  |  430.7 games/s
+  games    78,000  moves    219.5M  avg score    95388  max  314024  ≥2048  93.4%  ≥4096  81.0%  ≥8192  34.9%  ≥16384   0.5%  ≥32768  0.0%  |  424.9 games/s
+  games    79,000  moves    223.4M  avg score    98142  max  281408  ≥2048  93.9%  ≥4096  82.6%  ≥8192  36.1%  ≥16384   0.9%  ≥32768  0.0%  |  411.5 games/s
+  games    80,000  moves    227.2M  avg score    95730  max  285056  ≥2048  93.2%  ≥4096  82.3%  ≥8192  34.4%  ≥16384   0.4%  ≥32768  0.0%  |  415.1 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz (80,000 games, 2.68 GB in 1.4 s)
+  games    81,000  moves    231.2M  avg score   101300  max  281536  ≥2048  94.4%  ≥4096  83.6%  ≥8192  38.4%  ≥16384   1.1%  ≥32768  0.0%  |  403.1 games/s
+  games    82,000  moves    235.1M  avg score   100552  max  310532  ≥2048  94.3%  ≥4096  83.3%  ≥8192  37.7%  ≥16384   0.9%  ≥32768  0.0%  |  410.9 games/s
+  games    83,000  moves    239.1M  avg score    98256  max  326976  ≥2048  94.3%  ≥4096  81.9%  ≥8192  35.8%  ≥16384   0.6%  ≥32768  0.0%  |  412.4 games/s
+  games    84,000  moves    243.1M  avg score   101052  max  330748  ≥2048  95.1%  ≥4096  84.0%  ≥8192  37.8%  ≥16384   0.7%  ≥32768  0.0%  |  403.3 games/s
+  games    85,000  moves    246.9M  avg score    98498  max  313468  ≥2048  92.0%  ≥4096  79.8%  ≥8192  39.4%  ≥16384   0.5%  ≥32768  0.0%  |  401.0 games/s
+  games    86,000  moves    250.9M  avg score   101768  max  270368  ≥2048  93.8%  ≥4096  82.8%  ≥8192  38.5%  ≥16384   0.8%  ≥32768  0.0%  |  400.3 games/s
+  games    87,000  moves    254.8M  avg score    98605  max  313884  ≥2048  93.3%  ≥4096  80.9%  ≥8192  35.6%  ≥16384   1.3%  ≥32768  0.0%  |  406.0 games/s
+  games    88,000  moves    258.6M  avg score    99019  max  279740  ≥2048  92.2%  ≥4096  82.4%  ≥8192  37.1%  ≥16384   1.0%  ≥32768  0.0%  |  410.1 games/s
+  games    89,000  moves    262.4M  avg score    94785  max  321128  ≥2048  92.4%  ≥4096  80.7%  ≥8192  31.7%  ≥16384   1.0%  ≥32768  0.0%  |  415.5 games/s
+  games    90,000  moves    266.4M  avg score    98517  max  287520  ≥2048  93.6%  ≥4096  82.9%  ≥8192  36.2%  ≥16384   0.5%  ≥32768  0.0%  |  401.2 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz (90,000 games, 2.68 GB in 1.5 s)
+  games    91,000  moves    270.3M  avg score   101114  max  322028  ≥2048  93.6%  ≥4096  82.9%  ≥8192  38.2%  ≥16384   0.7%  ≥32768  0.0%  |  394.2 games/s
+  games    92,000  moves    274.3M  avg score   102182  max  242204  ≥2048  93.4%  ≥4096  83.1%  ≥8192  39.2%  ≥16384   1.0%  ≥32768  0.0%  |  390.8 games/s
+  games    93,000  moves    278.2M  avg score    96865  max  266040  ≥2048  92.8%  ≥4096  80.3%  ≥8192  34.8%  ≥16384   1.2%  ≥32768  0.0%  |  405.5 games/s
+  games    94,000  moves    282.2M  avg score   102621  max  313084  ≥2048  93.4%  ≥4096  84.0%  ≥8192  39.1%  ≥16384   1.4%  ≥32768  0.0%  |  395.1 games/s
+  games    95,000  moves    286.3M  avg score   105130  max  329524  ≥2048  95.0%  ≥4096  83.1%  ≥8192  39.5%  ≥16384   1.8%  ≥32768  0.0%  |  387.6 games/s
+  games    96,000  moves    290.3M  avg score   101305  max  328768  ≥2048  92.8%  ≥4096  82.0%  ≥8192  37.3%  ≥16384   1.3%  ≥32768  0.0%  |  390.6 games/s
+  games    97,000  moves    294.4M  avg score   104074  max  288908  ≥2048  94.4%  ≥4096  83.8%  ≥8192  38.2%  ≥16384   1.5%  ≥32768  0.0%  |  384.9 games/s
+  games    98,000  moves    298.4M  avg score   103213  max  290496  ≥2048  93.3%  ≥4096  84.5%  ≥8192  40.0%  ≥16384   1.0%  ≥32768  0.0%  |  387.3 games/s
+  games    99,000  moves    302.5M  avg score   102508  max  284560  ≥2048  94.5%  ≥4096  83.2%  ≥8192  40.0%  ≥16384   1.1%  ≥32768  0.0%  |  387.8 games/s
+  games   100,000  moves    306.5M  avg score   102218  max  290920  ≥2048  93.0%  ≥4096  82.3%  ≥8192  38.2%  ≥16384   1.4%  ≥32768  0.0%  |  396.4 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/games_100000.npz (100,000 games, 0.29 GB in 14.9 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz (100,000 games, 2.68 GB in 2.3 s)
+
+Training complete
+{
+  "games_played": 100000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-D/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-D-100000, depth 1, screen (4 s) | 102,060 ± 3,493 | 96,426 | 37.5% | 1.9% | 0.0% | 0.0% | 4,445 |
+[2026-11-15T00:21:32Z] arm exited with code 0
+[2026-11-15T00:21:32Z] arm E screen 25000 50000 100000 (caffeinated: 2 assertions, commit 968f55e)
+Training 8x6 n-tuple network (134,217,728 weights) to 25,000 games, AutoStep TIDBD(0) from rate 0.01, θ 0.003, τ 10000, 8 threads after 10,000 games
+  games     1,000  moves      0.7M  avg score    11301  max   38176  ≥2048   4.9%  ≥4096   0.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  382.1 games/s
+  games     2,000  moves      1.8M  avg score    19364  max   68520  ≥2048  26.4%  ≥4096   0.8%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  262.2 games/s
+  games     3,000  moves      3.1M  avg score    24613  max   80760  ≥2048  45.2%  ≥4096   2.6%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  218.6 games/s
+  games     4,000  moves      4.7M  avg score    28945  max   79348  ≥2048  59.2%  ≥4096   6.4%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  192.8 games/s
+  games     5,000  moves      6.4M  avg score    32567  max   91644  ≥2048  68.0%  ≥4096  11.8%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  174.6 games/s
+  games     6,000  moves      8.2M  avg score    35566  max   90064  ≥2048  72.5%  ≥4096  18.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  164.6 games/s
+  games     7,000  moves     10.1M  avg score    38942  max  132504  ≥2048  75.2%  ≥4096  22.7%  ≥8192   0.7%  ≥16384   0.0%  ≥32768  0.0%  |  152.0 games/s
+  games     8,000  moves     12.0M  avg score    41438  max  132916  ≥2048  79.8%  ≥4096  29.2%  ≥8192   0.4%  ≥16384   0.0%  ≥32768  0.0%  |  157.5 games/s
+  games     9,000  moves     14.0M  avg score    44101  max  133008  ≥2048  81.8%  ≥4096  34.0%  ≥8192   1.4%  ≥16384   0.0%  ≥32768  0.0%  |  150.3 games/s
+  games    10,000  moves     16.0M  avg score    46714  max  141768  ≥2048  84.2%  ≥4096  36.9%  ≥8192   1.8%  ≥16384   0.0%  ≥32768  0.0%  |  144.1 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz (10,000 games, 2.68 GB in 2.2 s)
+  games    11,000  moves     18.2M  avg score    48634  max  157984  ≥2048  82.9%  ≥4096  40.9%  ≥8192   2.9%  ≥16384   0.0%  ≥32768  0.0%  |  697.5 games/s
+  games    12,000  moves     20.4M  avg score    51059  max  159988  ≥2048  86.0%  ≥4096  46.3%  ≥8192   2.3%  ≥16384   0.0%  ≥32768  0.0%  |  661.9 games/s
+  games    13,000  moves     22.7M  avg score    51628  max  168756  ≥2048  85.4%  ≥4096  48.6%  ≥8192   3.4%  ≥16384   0.0%  ≥32768  0.0%  |  661.5 games/s
+  games    14,000  moves     25.0M  avg score    54496  max  174624  ≥2048  86.2%  ≥4096  54.2%  ≥8192   4.9%  ≥16384   0.0%  ≥32768  0.0%  |  641.6 games/s
+  games    15,000  moves     27.3M  avg score    53425  max  148420  ≥2048  84.6%  ≥4096  51.7%  ≥8192   4.2%  ≥16384   0.0%  ≥32768  0.0%  |  657.5 games/s
+  games    16,000  moves     29.8M  avg score    57654  max  166156  ≥2048  85.8%  ≥4096  57.6%  ≥8192   5.8%  ≥16384   0.0%  ≥32768  0.0%  |  610.8 games/s
+  games    17,000  moves     32.4M  avg score    59083  max  167204  ≥2048  87.9%  ≥4096  60.4%  ≥8192   5.7%  ≥16384   0.0%  ≥32768  0.0%  |  569.2 games/s
+  games    18,000  moves     34.9M  avg score    59318  max  168796  ≥2048  89.0%  ≥4096  61.9%  ≥8192   5.3%  ≥16384   0.0%  ≥32768  0.0%  |  587.0 games/s
+  games    19,000  moves     37.5M  avg score    63039  max  167424  ≥2048  89.3%  ≥4096  65.3%  ≥8192   7.6%  ≥16384   0.0%  ≥32768  0.0%  |  555.7 games/s
+  games    20,000  moves     40.2M  avg score    63604  max  173164  ≥2048  90.2%  ≥4096  64.7%  ≥8192   9.1%  ≥16384   0.0%  ≥32768  0.0%  |  560.1 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz (20,000 games, 2.68 GB in 2.6 s)
+  games    21,000  moves     42.9M  avg score    63532  max  172048  ≥2048  89.2%  ≥4096  63.2%  ≥8192  10.4%  ≥16384   0.0%  ≥32768  0.0%  |  552.9 games/s
+  games    22,000  moves     45.7M  avg score    66100  max  176820  ≥2048  88.9%  ≥4096  67.7%  ≥8192  12.4%  ≥16384   0.0%  ≥32768  0.0%  |  525.2 games/s
+  games    23,000  moves     48.4M  avg score    66810  max  178836  ≥2048  91.2%  ≥4096  69.5%  ≥8192  11.8%  ≥16384   0.0%  ≥32768  0.0%  |  532.1 games/s
+  games    24,000  moves     51.2M  avg score    66979  max  177388  ≥2048  89.2%  ≥4096  68.1%  ≥8192  13.6%  ≥16384   0.0%  ≥32768  0.0%  |  533.6 games/s
+  games    25,000  moves     54.2M  avg score    72732  max  174644  ≥2048  92.3%  ≥4096  72.8%  ≥8192  17.6%  ≥16384   0.0%  ≥32768  0.0%  |  511.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/games_25000.npz (25,000 games, 0.19 GB in 11.4 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz (25,000 games, 2.68 GB in 1.4 s)
+
+Training complete
+{
+  "games_played": 25000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-E-25000, depth 1, screen (4 s) | 69,324 ± 2,170 | 71,262 | 15.0% | 0.0% | 0.0% | nan% | 3,167 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-E/games_25000.npz at 25,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 50,000 games, AutoStep TIDBD(0) from rate 0.01, θ 0.003, τ 10000, 8 threads after 10,000 games
+  games    26,000  moves     57.4M  avg score    71765  max  177140  ≥2048  91.3%  ≥4096  71.7%  ≥8192  17.1%  ≥16384   0.0%  ≥32768  0.0%  |  421.3 games/s
+  games    27,000  moves     60.4M  avg score    72309  max  214360  ≥2048  90.6%  ≥4096  71.8%  ≥8192  18.9%  ≥16384   0.1%  ≥32768  0.0%  |  483.5 games/s
+  games    28,000  moves     63.6M  avg score    76623  max  179028  ≥2048  92.7%  ≥4096  73.6%  ≥8192  22.6%  ≥16384   0.0%  ≥32768  0.0%  |  485.0 games/s
+  games    29,000  moves     66.7M  avg score    78062  max  244036  ≥2048  92.3%  ≥4096  74.6%  ≥8192  23.2%  ≥16384   0.3%  ≥32768  0.0%  |  469.7 games/s
+  games    30,000  moves     70.0M  avg score    82151  max  256708  ≥2048  93.0%  ≥4096  77.2%  ≥8192  28.3%  ≥16384   0.1%  ≥32768  0.0%  |  459.6 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz (30,000 games, 2.68 GB in 1.2 s)
+  games    31,000  moves     73.4M  avg score    83653  max  245224  ≥2048  92.1%  ≥4096  78.5%  ≥8192  28.6%  ≥16384   0.3%  ≥32768  0.0%  |  446.7 games/s
+  games    32,000  moves     76.7M  avg score    82072  max  267112  ≥2048  92.5%  ≥4096  76.5%  ≥8192  27.7%  ≥16384   0.1%  ≥32768  0.0%  |  447.7 games/s
+  games    33,000  moves     80.1M  avg score    86756  max  201740  ≥2048  92.0%  ≥4096  79.1%  ≥8192  33.5%  ≥16384   0.0%  ≥32768  0.0%  |  438.6 games/s
+  games    34,000  moves     83.6M  avg score    85906  max  271356  ≥2048  92.2%  ≥4096  78.0%  ≥8192  32.8%  ≥16384   0.4%  ≥32768  0.0%  |  430.8 games/s
+  games    35,000  moves     87.1M  avg score    88102  max  257300  ≥2048  92.0%  ≥4096  78.1%  ≥8192  34.8%  ≥16384   0.4%  ≥32768  0.0%  |  424.8 games/s
+  games    36,000  moves     90.6M  avg score    87771  max  235612  ≥2048  94.6%  ≥4096  80.3%  ≥8192  32.3%  ≥16384   0.3%  ≥32768  0.0%  |  426.5 games/s
+  games    37,000  moves     94.1M  avg score    88871  max  215880  ≥2048  93.1%  ≥4096  79.6%  ≥8192  33.8%  ≥16384   0.0%  ≥32768  0.0%  |  406.2 games/s
+  games    38,000  moves     97.7M  avg score    85938  max  250012  ≥2048  93.0%  ≥4096  79.0%  ≥8192  32.6%  ≥16384   0.1%  ≥32768  0.0%  |  423.3 games/s
+  games    39,000  moves    101.4M  avg score    93146  max  192932  ≥2048  94.1%  ≥4096  81.7%  ≥8192  38.7%  ≥16384   0.0%  ≥32768  0.0%  |  391.5 games/s
+  games    40,000  moves    105.1M  avg score    92975  max  271348  ≥2048  93.0%  ≥4096  80.1%  ≥8192  39.0%  ≥16384   0.4%  ≥32768  0.0%  |  401.2 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz (40,000 games, 2.68 GB in 2.4 s)
+  games    41,000  moves    108.8M  avg score    91576  max  271280  ≥2048  91.8%  ≥4096  80.2%  ≥8192  38.2%  ≥16384   0.2%  ≥32768  0.0%  |  405.9 games/s
+  games    42,000  moves    112.4M  avg score    91585  max  286216  ≥2048  92.7%  ≥4096  79.5%  ≥8192  38.2%  ≥16384   0.4%  ≥32768  0.0%  |  409.8 games/s
+  games    43,000  moves    116.2M  avg score    96567  max  285568  ≥2048  94.4%  ≥4096  82.8%  ≥8192  41.3%  ≥16384   0.4%  ≥32768  0.0%  |  403.2 games/s
+  games    44,000  moves    120.1M  avg score    96794  max  278312  ≥2048  94.8%  ≥4096  83.5%  ≥8192  41.7%  ≥16384   0.2%  ≥32768  0.0%  |  393.5 games/s
+  games    45,000  moves    123.8M  avg score    94850  max  245212  ≥2048  93.0%  ≥4096  81.6%  ≥8192  40.9%  ≥16384   0.1%  ≥32768  0.0%  |  404.3 games/s
+  games    46,000  moves    127.7M  avg score    97235  max  246168  ≥2048  95.6%  ≥4096  81.7%  ≥8192  42.3%  ≥16384   0.4%  ≥32768  0.0%  |  397.4 games/s
+  games    47,000  moves    131.4M  avg score    94796  max  263004  ≥2048  92.4%  ≥4096  81.9%  ≥8192  39.7%  ≥16384   0.4%  ≥32768  0.0%  |  401.1 games/s
+  games    48,000  moves    135.3M  avg score    97491  max  280380  ≥2048  93.9%  ≥4096  82.1%  ≥8192  42.8%  ≥16384   0.7%  ≥32768  0.0%  |  376.8 games/s
+  games    49,000  moves    139.1M  avg score    95986  max  224096  ≥2048  94.0%  ≥4096  81.5%  ≥8192  42.1%  ≥16384   0.1%  ≥32768  0.0%  |  393.1 games/s
+  games    50,000  moves    143.0M  avg score    99715  max  283368  ≥2048  94.0%  ≥4096  83.5%  ≥8192  45.3%  ≥16384   0.3%  ≥32768  0.0%  |  370.3 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/games_50000.npz (50,000 games, 0.26 GB in 13.8 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz (50,000 games, 2.68 GB in 2.1 s)
+
+Training complete
+{
+  "games_played": 50000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-E-50000, depth 1, screen (4 s) | 101,383 ± 3,089 | 92,492 | 46.9% | 0.4% | 0.0% | 0.0% | 4,378 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-E/games_50000.npz at 50,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 100,000 games, AutoStep TIDBD(0) from rate 0.01, θ 0.003, τ 10000, 8 threads after 10,000 games
+  games    51,000  moves    147.3M  avg score    98379  max  289776  ≥2048  94.2%  ≥4096  83.3%  ≥8192  42.7%  ≥16384   0.3%  ≥32768  0.0%  |  327.7 games/s
+  games    52,000  moves    151.2M  avg score    99588  max  275648  ≥2048  92.8%  ≥4096  82.6%  ≥8192  45.2%  ≥16384   0.4%  ≥32768  0.0%  |  380.7 games/s
+  games    53,000  moves    155.3M  avg score   104244  max  270340  ≥2048  95.3%  ≥4096  84.8%  ≥8192  49.7%  ≥16384   0.4%  ≥32768  0.0%  |  368.6 games/s
+  games    54,000  moves    159.3M  avg score   102462  max  271096  ≥2048  95.9%  ≥4096  84.2%  ≥8192  47.6%  ≥16384   0.1%  ≥32768  0.0%  |  378.8 games/s
+  games    55,000  moves    163.3M  avg score   102608  max  313892  ≥2048  93.6%  ≥4096  84.1%  ≥8192  48.9%  ≥16384   0.6%  ≥32768  0.0%  |  375.1 games/s
+  games    56,000  moves    167.4M  avg score   102098  max  274452  ≥2048  95.1%  ≥4096  83.8%  ≥8192  46.7%  ≥16384   0.4%  ≥32768  0.0%  |  374.9 games/s
+  games    57,000  moves    171.4M  avg score   101147  max  249748  ≥2048  95.0%  ≥4096  83.3%  ≥8192  46.4%  ≥16384   0.2%  ≥32768  0.0%  |  373.5 games/s
+  games    58,000  moves    175.5M  avg score   105004  max  259828  ≥2048  94.8%  ≥4096  84.9%  ≥8192  51.5%  ≥16384   0.2%  ≥32768  0.0%  |  369.9 games/s
+  games    59,000  moves    179.6M  avg score   104270  max  255724  ≥2048  94.1%  ≥4096  86.1%  ≥8192  50.7%  ≥16384   0.1%  ≥32768  0.0%  |  366.0 games/s
+  games    60,000  moves    183.7M  avg score   105800  max  286368  ≥2048  94.4%  ≥4096  85.1%  ≥8192  50.8%  ≥16384   0.7%  ≥32768  0.0%  |  357.3 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz (60,000 games, 2.68 GB in 1.2 s)
+  games    61,000  moves    187.8M  avg score   107215  max  290336  ≥2048  95.1%  ≥4096  86.6%  ≥8192  52.6%  ≥16384   0.5%  ≥32768  0.0%  |  361.8 games/s
+  games    62,000  moves    191.9M  avg score   105359  max  288596  ≥2048  94.9%  ≥4096  86.1%  ≥8192  49.0%  ≥16384   0.9%  ≥32768  0.0%  |  369.4 games/s
+  games    63,000  moves    196.1M  avg score   106995  max  281444  ≥2048  94.1%  ≥4096  87.5%  ≥8192  52.1%  ≥16384   0.4%  ≥32768  0.0%  |  357.9 games/s
+  games    64,000  moves    200.2M  avg score   106908  max  289836  ≥2048  95.6%  ≥4096  86.1%  ≥8192  52.3%  ≥16384   0.1%  ≥32768  0.0%  |  360.2 games/s
+  games    65,000  moves    204.3M  avg score   103830  max  279432  ≥2048  94.9%  ≥4096  83.9%  ≥8192  48.2%  ≥16384   0.5%  ≥32768  0.0%  |  373.6 games/s
+  games    66,000  moves    208.4M  avg score   108843  max  270288  ≥2048  95.4%  ≥4096  87.8%  ≥8192  53.0%  ≥16384   0.5%  ≥32768  0.0%  |  357.7 games/s
+  games    67,000  moves    212.6M  avg score   106112  max  285392  ≥2048  95.2%  ≥4096  86.7%  ≥8192  51.2%  ≥16384   0.2%  ≥32768  0.0%  |  363.5 games/s
+  games    68,000  moves    216.7M  avg score   106872  max  265000  ≥2048  94.8%  ≥4096  84.2%  ≥8192  53.5%  ≥16384   0.1%  ≥32768  0.0%  |  361.4 games/s
+  games    69,000  moves    220.9M  avg score   106904  max  288552  ≥2048  94.9%  ≥4096  87.7%  ≥8192  50.6%  ≥16384   0.4%  ≥32768  0.0%  |  356.6 games/s
+  games    70,000  moves    225.1M  avg score   108706  max  246116  ≥2048  94.4%  ≥4096  85.6%  ≥8192  54.1%  ≥16384   0.5%  ≥32768  0.0%  |  348.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz (70,000 games, 2.68 GB in 2.8 s)
+  games    71,000  moves    229.2M  avg score   108314  max  284136  ≥2048  95.4%  ≥4096  86.3%  ≥8192  52.3%  ≥16384   0.8%  ≥32768  0.0%  |  350.7 games/s
+  games    72,000  moves    233.4M  avg score   108760  max  262172  ≥2048  95.6%  ≥4096  85.2%  ≥8192  55.3%  ≥16384   0.4%  ≥32768  0.0%  |  359.3 games/s
+  games    73,000  moves    237.7M  avg score   109869  max  268196  ≥2048  94.7%  ≥4096  85.0%  ≥8192  56.9%  ≥16384   0.4%  ≥32768  0.0%  |  341.1 games/s
+  games    74,000  moves    241.9M  avg score   109414  max  270448  ≥2048  94.6%  ≥4096  85.6%  ≥8192  54.5%  ≥16384   0.4%  ≥32768  0.0%  |  352.4 games/s
+  games    75,000  moves    246.2M  avg score   111711  max  279816  ≥2048  94.1%  ≥4096  86.5%  ≥8192  57.6%  ≥16384   0.3%  ≥32768  0.0%  |  347.4 games/s
+  games    76,000  moves    250.4M  avg score   109801  max  284732  ≥2048  93.8%  ≥4096  86.9%  ≥8192  54.9%  ≥16384   0.5%  ≥32768  0.0%  |  354.7 games/s
+  games    77,000  moves    254.6M  avg score   109801  max  276908  ≥2048  95.8%  ≥4096  87.4%  ≥8192  54.4%  ≥16384   0.5%  ≥32768  0.0%  |  360.1 games/s
+  games    78,000  moves    258.8M  avg score   110283  max  270480  ≥2048  95.2%  ≥4096  88.6%  ≥8192  55.3%  ≥16384   0.1%  ≥32768  0.0%  |  347.9 games/s
+  games    79,000  moves    262.9M  avg score   107165  max  195944  ≥2048  93.9%  ≥4096  85.5%  ≥8192  53.7%  ≥16384   0.0%  ≥32768  0.0%  |  352.9 games/s
+  games    80,000  moves    267.3M  avg score   111762  max  261636  ≥2048  96.6%  ≥4096  88.6%  ≥8192  56.6%  ≥16384   0.2%  ≥32768  0.0%  |  344.5 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz (80,000 games, 2.68 GB in 1.6 s)
+  games    81,000  moves    271.6M  avg score   111728  max  276664  ≥2048  96.2%  ≥4096  88.7%  ≥8192  56.6%  ≥16384   0.4%  ≥32768  0.0%  |  342.3 games/s
+  games    82,000  moves    275.9M  avg score   110695  max  270240  ≥2048  93.8%  ≥4096  86.8%  ≥8192  55.8%  ≥16384   0.2%  ≥32768  0.0%  |  347.4 games/s
+  games    83,000  moves    280.2M  avg score   111730  max  277640  ≥2048  96.8%  ≥4096  87.8%  ≥8192  57.6%  ≥16384   0.4%  ≥32768  0.0%  |  344.8 games/s
+  games    84,000  moves    284.5M  avg score   112092  max  282212  ≥2048  95.2%  ≥4096  88.0%  ≥8192  58.0%  ≥16384   0.1%  ≥32768  0.0%  |  342.1 games/s
+  games    85,000  moves    288.8M  avg score   112008  max  269868  ≥2048  96.3%  ≥4096  86.9%  ≥8192  57.4%  ≥16384   0.2%  ≥32768  0.0%  |  346.5 games/s
+  games    86,000  moves    293.0M  avg score   110019  max  288240  ≥2048  95.6%  ≥4096  87.5%  ≥8192  55.8%  ≥16384   0.5%  ≥32768  0.0%  |  357.7 games/s
+  games    87,000  moves    297.4M  avg score   115043  max  275924  ≥2048  95.7%  ≥4096  88.9%  ≥8192  59.7%  ≥16384   0.6%  ≥32768  0.0%  |  340.0 games/s
+  games    88,000  moves    301.7M  avg score   112363  max  279240  ≥2048  94.8%  ≥4096  87.8%  ≥8192  58.8%  ≥16384   0.6%  ≥32768  0.0%  |  344.2 games/s
+  games    89,000  moves    306.0M  avg score   113552  max  226020  ≥2048  96.1%  ≥4096  88.5%  ≥8192  59.5%  ≥16384   0.1%  ≥32768  0.0%  |  334.1 games/s
+  games    90,000  moves    310.4M  avg score   114591  max  279100  ≥2048  96.0%  ≥4096  89.3%  ≥8192  60.8%  ≥16384   0.2%  ≥32768  0.0%  |  329.7 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz (90,000 games, 2.68 GB in 1.9 s)
+  games    91,000  moves    314.8M  avg score   111443  max  219756  ≥2048  94.8%  ≥4096  86.3%  ≥8192  57.8%  ≥16384   0.0%  ≥32768  0.0%  |  342.9 games/s
+  games    92,000  moves    319.2M  avg score   113245  max  286600  ≥2048  96.1%  ≥4096  87.7%  ≥8192  59.6%  ≥16384   0.4%  ≥32768  0.0%  |  336.1 games/s
+  games    93,000  moves    323.6M  avg score   115692  max  287720  ≥2048  95.4%  ≥4096  89.3%  ≥8192  61.4%  ≥16384   0.6%  ≥32768  0.0%  |  329.6 games/s
+  games    94,000  moves    328.0M  avg score   116571  max  276044  ≥2048  95.9%  ≥4096  89.7%  ≥8192  62.3%  ≥16384   0.4%  ≥32768  0.0%  |  338.3 games/s
+  games    95,000  moves    332.4M  avg score   113283  max  195408  ≥2048  95.2%  ≥4096  87.2%  ≥8192  60.8%  ≥16384   0.0%  ≥32768  0.0%  |  340.2 games/s
+  games    96,000  moves    336.8M  avg score   115747  max  313444  ≥2048  95.9%  ≥4096  89.8%  ≥8192  61.1%  ≥16384   0.5%  ≥32768  0.0%  |  331.4 games/s
+  games    97,000  moves    341.2M  avg score   115089  max  280636  ≥2048  95.0%  ≥4096  88.8%  ≥8192  62.3%  ≥16384   0.6%  ≥32768  0.0%  |  336.6 games/s
+  games    98,000  moves    345.6M  avg score   114707  max  285876  ≥2048  94.8%  ≥4096  88.1%  ≥8192  59.9%  ≥16384   0.8%  ≥32768  0.0%  |  328.7 games/s
+  games    99,000  moves    350.0M  avg score   114095  max  281264  ≥2048  94.8%  ≥4096  85.9%  ≥8192  60.4%  ≥16384   0.6%  ≥32768  0.0%  |  337.5 games/s
+  games   100,000  moves    354.5M  avg score   117434  max  286024  ≥2048  95.1%  ≥4096  88.6%  ≥8192  62.9%  ≥16384   0.9%  ≥32768  0.0%  |  334.4 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/games_100000.npz (100,000 games, 0.33 GB in 16.5 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz (100,000 games, 2.68 GB in 2.2 s)
+
+Training complete
+{
+  "games_played": 100000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-E/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-E-100000, depth 1, screen (4 s) | 112,776 ± 3,115 | 124,260 | 58.7% | 0.5% | 0.0% | 0.0% | 4,802 |
+[2026-11-15T00:27:59Z] arm exited with code 0
+[2026-11-15T00:27:59Z] arm F screen 25000 50000 100000 (caffeinated: 2 assertions, commit 968f55e)
+Training 8x6 n-tuple network (134,217,728 weights) to 25,000 games, AutoStep TIDBD(0) from rate 0.01, θ 0.01, τ 10000, 8 threads after 10,000 games
+  games     1,000  moves      0.7M  avg score    11096  max   32728  ≥2048   3.7%  ≥4096   0.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  382.9 games/s
+  games     2,000  moves      1.7M  avg score    16821  max   53972  ≥2048  17.5%  ≥4096   0.2%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  298.5 games/s
+  games     3,000  moves      3.0M  avg score    24206  max   69944  ≥2048  45.8%  ≥4096   2.1%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  225.1 games/s
+  games     4,000  moves      4.5M  avg score    29379  max   83636  ≥2048  61.2%  ≥4096   7.4%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  191.6 games/s
+  games     5,000  moves      6.3M  avg score    33847  max   82320  ≥2048  68.2%  ≥4096  14.4%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  172.4 games/s
+  games     6,000  moves      8.2M  avg score    37676  max  113976  ≥2048  80.1%  ≥4096  17.0%  ≥8192   0.3%  ≥16384   0.0%  ≥32768  0.0%  |  155.8 games/s
+  games     7,000  moves     10.0M  avg score    39999  max  134772  ≥2048  80.3%  ≥4096  21.3%  ≥8192   0.5%  ≥16384   0.0%  ≥32768  0.0%  |  163.6 games/s
+  games     8,000  moves     12.0M  avg score    43375  max  135932  ≥2048  83.2%  ≥4096  27.4%  ≥8192   0.8%  ≥16384   0.0%  ≥32768  0.0%  |  154.8 games/s
+  games     9,000  moves     14.0M  avg score    46022  max  146760  ≥2048  87.0%  ≥4096  30.0%  ≥8192   1.6%  ≥16384   0.0%  ≥32768  0.0%  |  143.8 games/s
+  games    10,000  moves     16.2M  avg score    47693  max  164456  ≥2048  87.6%  ≥4096  34.4%  ≥8192   2.5%  ≥16384   0.0%  ≥32768  0.0%  |  141.6 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz (10,000 games, 2.68 GB in 2.3 s)
+  games    11,000  moves     18.4M  avg score    50161  max  153440  ≥2048  88.9%  ≥4096  39.6%  ≥8192   2.8%  ≥16384   0.0%  ≥32768  0.0%  |  680.2 games/s
+  games    12,000  moves     20.7M  avg score    53780  max  169084  ≥2048  89.9%  ≥4096  46.5%  ≥8192   4.1%  ≥16384   0.0%  ≥32768  0.0%  |  656.4 games/s
+  games    13,000  moves     23.1M  avg score    53044  max  153032  ≥2048  90.1%  ≥4096  43.9%  ≥8192   4.3%  ≥16384   0.0%  ≥32768  0.0%  |  662.4 games/s
+  games    14,000  moves     25.5M  avg score    56185  max  169640  ≥2048  88.9%  ≥4096  49.1%  ≥8192   5.7%  ≥16384   0.0%  ≥32768  0.0%  |  619.9 games/s
+  games    15,000  moves     28.0M  avg score    57817  max  177328  ≥2048  89.3%  ≥4096  52.2%  ≥8192   6.9%  ≥16384   0.0%  ≥32768  0.0%  |  620.1 games/s
+  games    16,000  moves     30.6M  avg score    61476  max  173340  ≥2048  90.5%  ≥4096  55.0%  ≥8192  11.1%  ≥16384   0.0%  ≥32768  0.0%  |  593.1 games/s
+  games    17,000  moves     33.2M  avg score    62271  max  172876  ≥2048  91.3%  ≥4096  57.5%  ≥8192   9.6%  ≥16384   0.0%  ≥32768  0.0%  |  584.1 games/s
+  games    18,000  moves     35.9M  avg score    64158  max  176556  ≥2048  91.2%  ≥4096  59.1%  ≥8192  12.9%  ≥16384   0.0%  ≥32768  0.0%  |  574.2 games/s
+  games    19,000  moves     38.7M  avg score    67277  max  245664  ≥2048  91.6%  ≥4096  60.1%  ≥8192  16.0%  ≥16384   0.1%  ≥32768  0.0%  |  535.8 games/s
+  games    20,000  moves     41.6M  avg score    70773  max  177776  ≥2048  92.4%  ≥4096  63.6%  ≥8192  18.4%  ≥16384   0.0%  ≥32768  0.0%  |  527.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz (20,000 games, 2.68 GB in 2.8 s)
+  games    21,000  moves     44.5M  avg score    67930  max  177032  ≥2048  90.4%  ≥4096  58.5%  ≥8192  16.9%  ≥16384   0.0%  ≥32768  0.0%  |  526.2 games/s
+  games    22,000  moves     47.5M  avg score    71741  max  263192  ≥2048  92.1%  ≥4096  65.1%  ≥8192  19.6%  ≥16384   0.1%  ≥32768  0.0%  |  495.8 games/s
+  games    23,000  moves     50.5M  avg score    73263  max  177296  ≥2048  91.6%  ≥4096  65.0%  ≥8192  21.3%  ≥16384   0.0%  ≥32768  0.0%  |  489.6 games/s
+  games    24,000  moves     53.5M  avg score    74699  max  236928  ≥2048  92.5%  ≥4096  65.8%  ≥8192  23.1%  ≥16384   0.1%  ≥32768  0.0%  |  497.6 games/s
+  games    25,000  moves     56.7M  avg score    77603  max  262448  ≥2048  92.7%  ≥4096  67.3%  ≥8192  25.5%  ≥16384   0.2%  ≥32768  0.0%  |  478.5 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/games_25000.npz (25,000 games, 0.19 GB in 11.4 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz (25,000 games, 2.68 GB in 1.5 s)
+
+Training complete
+{
+  "games_played": 25000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-F-25000, depth 1, screen (4 s) | 76,644 ± 2,788 | 71,686 | 25.0% | 0.2% | 0.0% | 0.0% | 3,438 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-F/games_25000.npz at 25,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 50,000 games, AutoStep TIDBD(0) from rate 0.01, θ 0.01, τ 10000, 8 threads after 10,000 games
+  games    26,000  moves     60.2M  avg score    77443  max  286580  ≥2048  92.5%  ≥4096  65.6%  ≥8192  25.6%  ≥16384   0.3%  ≥32768  0.0%  |  400.5 games/s
+  games    27,000  moves     63.4M  avg score    78911  max  277720  ≥2048  91.8%  ≥4096  68.2%  ≥8192  27.9%  ≥16384   0.1%  ≥32768  0.0%  |  471.7 games/s
+  games    28,000  moves     66.7M  avg score    80378  max  257508  ≥2048  93.8%  ≥4096  70.5%  ≥8192  27.7%  ≥16384   0.2%  ≥32768  0.0%  |  469.2 games/s
+  games    29,000  moves     70.1M  avg score    84624  max  271076  ≥2048  94.1%  ≥4096  70.4%  ≥8192  31.7%  ≥16384   0.6%  ≥32768  0.0%  |  460.4 games/s
+  games    30,000  moves     73.5M  avg score    82143  max  290184  ≥2048  92.1%  ≥4096  69.1%  ≥8192  29.0%  ≥16384   0.4%  ≥32768  0.0%  |  458.4 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz (30,000 games, 2.68 GB in 1.1 s)
+  games    31,000  moves     76.9M  avg score    82883  max  244244  ≥2048  92.8%  ≥4096  69.6%  ≥8192  30.3%  ≥16384   0.4%  ≥32768  0.0%  |  454.3 games/s
+  games    32,000  moves     80.4M  avg score    88537  max  301740  ≥2048  93.6%  ≥4096  70.8%  ≥8192  34.7%  ≥16384   1.4%  ≥32768  0.0%  |  436.6 games/s
+  games    33,000  moves     83.9M  avg score    85685  max  290088  ≥2048  93.3%  ≥4096  69.5%  ≥8192  32.8%  ≥16384   0.8%  ≥32768  0.0%  |  449.4 games/s
+  games    34,000  moves     87.4M  avg score    88706  max  290884  ≥2048  93.2%  ≥4096  72.3%  ≥8192  34.1%  ≥16384   1.4%  ≥32768  0.0%  |  442.8 games/s
+  games    35,000  moves     91.0M  avg score    88790  max  287372  ≥2048  93.5%  ≥4096  70.9%  ≥8192  35.1%  ≥16384   0.5%  ≥32768  0.0%  |  421.6 games/s
+  games    36,000  moves     94.7M  avg score    91395  max  282488  ≥2048  94.5%  ≥4096  74.1%  ≥8192  37.3%  ≥16384   1.0%  ≥32768  0.0%  |  426.8 games/s
+  games    37,000  moves     98.3M  avg score    93051  max  287812  ≥2048  94.5%  ≥4096  74.2%  ≥8192  39.7%  ≥16384   1.3%  ≥32768  0.0%  |  419.2 games/s
+  games    38,000  moves    102.0M  avg score    90767  max  289904  ≥2048  93.8%  ≥4096  73.5%  ≥8192  36.3%  ≥16384   1.4%  ≥32768  0.0%  |  414.4 games/s
+  games    39,000  moves    105.7M  avg score    92671  max  284016  ≥2048  93.8%  ≥4096  73.6%  ≥8192  39.0%  ≥16384   0.9%  ≥32768  0.0%  |  410.2 games/s
+  games    40,000  moves    109.5M  avg score    96443  max  341460  ≥2048  93.7%  ≥4096  74.4%  ≥8192  41.9%  ≥16384   1.6%  ≥32768  0.0%  |  401.4 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz (40,000 games, 2.68 GB in 2.2 s)
+  games    41,000  moves    113.3M  avg score    94630  max  289868  ≥2048  92.9%  ≥4096  74.8%  ≥8192  40.3%  ≥16384   0.9%  ≥32768  0.0%  |  402.3 games/s
+  games    42,000  moves    117.1M  avg score    95785  max  334960  ≥2048  92.2%  ≥4096  74.0%  ≥8192  41.6%  ≥16384   1.2%  ≥32768  0.0%  |  402.9 games/s
+  games    43,000  moves    120.8M  avg score    91869  max  329844  ≥2048  91.1%  ≥4096  74.0%  ≥8192  36.9%  ≥16384   1.2%  ≥32768  0.0%  |  412.2 games/s
+  games    44,000  moves    124.6M  avg score    95255  max  288420  ≥2048  94.0%  ≥4096  75.3%  ≥8192  40.7%  ≥16384   1.0%  ≥32768  0.0%  |  406.4 games/s
+  games    45,000  moves    128.4M  avg score    93840  max  340924  ≥2048  94.9%  ≥4096  74.7%  ≥8192  37.5%  ≥16384   1.2%  ≥32768  0.0%  |  392.7 games/s
+  games    46,000  moves    132.2M  avg score    95686  max  290040  ≥2048  93.2%  ≥4096  72.0%  ≥8192  41.9%  ≥16384   1.6%  ≥32768  0.0%  |  398.2 games/s
+  games    47,000  moves    136.1M  avg score    98998  max  289552  ≥2048  93.7%  ≥4096  75.4%  ≥8192  45.0%  ≥16384   1.1%  ≥32768  0.0%  |  392.7 games/s
+  games    48,000  moves    140.1M  avg score    99860  max  285056  ≥2048  94.6%  ≥4096  75.3%  ≥8192  45.8%  ≥16384   1.5%  ≥32768  0.0%  |  387.3 games/s
+  games    49,000  moves    143.9M  avg score    95585  max  288008  ≥2048  93.4%  ≥4096  75.2%  ≥8192  42.2%  ≥16384   0.7%  ≥32768  0.0%  |  392.6 games/s
+  games    50,000  moves    147.9M  avg score    99045  max  333324  ≥2048  94.4%  ≥4096  77.3%  ≥8192  44.8%  ≥16384   1.1%  ≥32768  0.0%  |  388.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/games_50000.npz (50,000 games, 0.26 GB in 14.0 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz (50,000 games, 2.68 GB in 2.4 s)
+
+Training complete
+{
+  "games_played": 50000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-F-50000, depth 1, screen (4 s) | 99,797 ± 3,518 | 80,692 | 43.7% | 2.4% | 0.0% | 0.0% | 4,308 |
+Resuming from checkpoints/ntuple/stage8-tidbd/arm-F/games_50000.npz at 50,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 100,000 games, AutoStep TIDBD(0) from rate 0.01, θ 0.01, τ 10000, 8 threads after 10,000 games
+  games    51,000  moves    152.1M  avg score    98154  max  341500  ≥2048  93.0%  ≥4096  74.0%  ≥8192  42.4%  ≥16384   2.1%  ≥32768  0.0%  |  342.1 games/s
+  games    52,000  moves    156.2M  avg score   103288  max  295036  ≥2048  94.2%  ≥4096  77.5%  ≥8192  47.7%  ≥16384   1.7%  ≥32768  0.0%  |  364.0 games/s
+  games    53,000  moves    160.2M  avg score   101810  max  288632  ≥2048  94.5%  ≥4096  78.1%  ≥8192  47.7%  ≥16384   1.1%  ≥32768  0.0%  |  382.8 games/s
+  games    54,000  moves    164.3M  avg score   101741  max  288388  ≥2048  93.5%  ≥4096  77.3%  ≥8192  49.0%  ≥16384   1.3%  ≥32768  0.0%  |  376.9 games/s
+  games    55,000  moves    168.4M  avg score   105305  max  344008  ≥2048  94.9%  ≥4096  79.5%  ≥8192  49.1%  ≥16384   2.0%  ≥32768  0.0%  |  365.7 games/s
+  games    56,000  moves    172.7M  avg score   107211  max  289956  ≥2048  96.3%  ≥4096  81.0%  ≥8192  49.9%  ≥16384   2.4%  ≥32768  0.0%  |  356.3 games/s
+  games    57,000  moves    176.7M  avg score   102465  max  339016  ≥2048  94.8%  ≥4096  78.4%  ≥8192  48.1%  ≥16384   1.5%  ≥32768  0.0%  |  373.0 games/s
+  games    58,000  moves    180.8M  avg score   102826  max  293812  ≥2048  95.0%  ≥4096  79.3%  ≥8192  46.1%  ≥16384   2.3%  ≥32768  0.0%  |  380.5 games/s
+  games    59,000  moves    184.8M  avg score   104310  max  336508  ≥2048  94.0%  ≥4096  77.2%  ≥8192  48.9%  ≥16384   2.4%  ≥32768  0.0%  |  380.0 games/s
+  games    60,000  moves    189.0M  avg score   104346  max  348436  ≥2048  92.4%  ≥4096  76.5%  ≥8192  49.6%  ≥16384   2.7%  ≥32768  0.0%  |  353.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz (60,000 games, 2.68 GB in 1.4 s)
+  games    61,000  moves    193.1M  avg score   105417  max  338240  ≥2048  93.2%  ≥4096  77.6%  ≥8192  49.7%  ≥16384   2.4%  ≥32768  0.0%  |  368.9 games/s
+  games    62,000  moves    197.3M  avg score   106257  max  332824  ≥2048  93.8%  ≥4096  78.3%  ≥8192  51.1%  ≥16384   2.7%  ≥32768  0.0%  |  368.3 games/s
+  games    63,000  moves    201.5M  avg score   108410  max  340908  ≥2048  94.3%  ≥4096  77.7%  ≥8192  51.1%  ≥16384   3.5%  ≥32768  0.0%  |  354.5 games/s
+  games    64,000  moves    205.8M  avg score   110890  max  337708  ≥2048  95.8%  ≥4096  80.0%  ≥8192  53.7%  ≥16384   4.2%  ≥32768  0.0%  |  346.1 games/s
+  games    65,000  moves    210.1M  avg score   108792  max  320192  ≥2048  94.4%  ≥4096  78.5%  ≥8192  52.3%  ≥16384   3.1%  ≥32768  0.0%  |  349.3 games/s
+  games    66,000  moves    214.3M  avg score   106408  max  359892  ≥2048  96.2%  ≥4096  77.9%  ≥8192  48.8%  ≥16384   3.3%  ≥32768  0.0%  |  358.8 games/s
+  games    67,000  moves    218.6M  avg score   106904  max  333800  ≥2048  95.8%  ≥4096  77.4%  ≥8192  52.2%  ≥16384   2.2%  ≥32768  0.0%  |  361.9 games/s
+  games    68,000  moves    222.8M  avg score   107472  max  363220  ≥2048  95.1%  ≥4096  77.9%  ≥8192  48.5%  ≥16384   3.5%  ≥32768  0.0%  |  353.2 games/s
+  games    69,000  moves    227.2M  avg score   113145  max  329996  ≥2048  94.4%  ≥4096  78.6%  ≥8192  55.0%  ≥16384   4.3%  ≥32768  0.0%  |  348.3 games/s
+  games    70,000  moves    231.5M  avg score   111472  max  328248  ≥2048  94.7%  ≥4096  79.2%  ≥8192  53.5%  ≥16384   3.8%  ≥32768  0.0%  |  355.1 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz (70,000 games, 2.68 GB in 2.9 s)
+  games    71,000  moves    235.9M  avg score   111287  max  346156  ≥2048  95.2%  ≥4096  82.0%  ≥8192  53.6%  ≥16384   2.9%  ≥32768  0.0%  |  342.9 games/s
+  games    72,000  moves    240.4M  avg score   112849  max  342768  ≥2048  95.2%  ≥4096  81.0%  ≥8192  56.5%  ≥16384   3.0%  ≥32768  0.0%  |  345.1 games/s
+  games    73,000  moves    244.7M  avg score   110510  max  363324  ≥2048  93.5%  ≥4096  77.7%  ≥8192  53.1%  ≥16384   4.4%  ≥32768  0.0%  |  357.2 games/s
+  games    74,000  moves    249.0M  avg score   111695  max  342944  ≥2048  95.2%  ≥4096  82.0%  ≥8192  53.9%  ≥16384   2.3%  ≥32768  0.0%  |  357.8 games/s
+  games    75,000  moves    253.2M  avg score   110712  max  310692  ≥2048  95.5%  ≥4096  79.1%  ≥8192  54.9%  ≥16384   2.9%  ≥32768  0.0%  |  352.0 games/s
+  games    76,000  moves    257.7M  avg score   114588  max  338032  ≥2048  95.0%  ≥4096  81.8%  ≥8192  56.2%  ≥16384   3.2%  ≥32768  0.0%  |  342.8 games/s
+  games    77,000  moves    262.0M  avg score   112072  max  329404  ≥2048  94.7%  ≥4096  78.2%  ≥8192  55.9%  ≥16384   3.2%  ≥32768  0.0%  |  346.8 games/s
+  games    78,000  moves    266.3M  avg score   111218  max  286480  ≥2048  95.3%  ≥4096  81.0%  ≥8192  56.4%  ≥16384   2.1%  ≥32768  0.0%  |  348.4 games/s
+  games    79,000  moves    270.6M  avg score   110047  max  290280  ≥2048  95.8%  ≥4096  78.7%  ≥8192  53.4%  ≥16384   2.8%  ≥32768  0.0%  |  358.0 games/s
+  games    80,000  moves    275.0M  avg score   114394  max  342776  ≥2048  95.5%  ≥4096  81.2%  ≥8192  56.8%  ≥16384   3.1%  ≥32768  0.0%  |  342.6 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz (80,000 games, 2.68 GB in 1.5 s)
+  games    81,000  moves    279.3M  avg score   110307  max  305740  ≥2048  93.7%  ≥4096  78.8%  ≥8192  55.6%  ≥16384   2.8%  ≥32768  0.0%  |  353.2 games/s
+  games    82,000  moves    283.6M  avg score   110799  max  342708  ≥2048  94.3%  ≥4096  78.3%  ≥8192  55.3%  ≥16384   2.8%  ≥32768  0.0%  |  356.1 games/s
+  games    83,000  moves    288.2M  avg score   117958  max  329864  ≥2048  95.9%  ≥4096  82.8%  ≥8192  59.8%  ≥16384   4.1%  ≥32768  0.0%  |  340.1 games/s
+  games    84,000  moves    292.7M  avg score   116537  max  367140  ≥2048  95.6%  ≥4096  83.0%  ≥8192  56.7%  ≥16384   4.2%  ≥32768  0.0%  |  333.2 games/s
+  games    85,000  moves    297.1M  avg score   114393  max  288208  ≥2048  94.1%  ≥4096  82.4%  ≥8192  58.6%  ≥16384   3.8%  ≥32768  0.0%  |  352.8 games/s
+  games    86,000  moves    301.5M  avg score   114928  max  307248  ≥2048  94.8%  ≥4096  80.8%  ≥8192  57.4%  ≥16384   3.0%  ≥32768  0.0%  |  347.1 games/s
+  games    87,000  moves    305.9M  avg score   115145  max  312920  ≥2048  95.0%  ≥4096  81.6%  ≥8192  57.7%  ≥16384   3.1%  ≥32768  0.0%  |  341.2 games/s
+  games    88,000  moves    310.6M  avg score   120924  max  295472  ≥2048  96.0%  ≥4096  84.7%  ≥8192  62.0%  ≥16384   4.2%  ≥32768  0.0%  |  329.3 games/s
+  games    89,000  moves    315.1M  avg score   117217  max  337544  ≥2048  95.0%  ≥4096  80.8%  ≥8192  59.4%  ≥16384   4.3%  ≥32768  0.0%  |  343.2 games/s
+  games    90,000  moves    319.7M  avg score   119201  max  338592  ≥2048  95.8%  ≥4096  82.6%  ≥8192  60.6%  ≥16384   4.3%  ≥32768  0.0%  |  322.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz (90,000 games, 2.68 GB in 1.6 s)
+  games    91,000  moves    324.4M  avg score   123040  max  387452  ≥2048  95.6%  ≥4096  83.2%  ≥8192  64.0%  ≥16384   4.5%  ≥32768  0.0%  |  326.7 games/s
+  games    92,000  moves    329.0M  avg score   120380  max  290376  ≥2048  95.7%  ≥4096  84.4%  ≥8192  63.3%  ≥16384   3.5%  ≥32768  0.0%  |  332.0 games/s
+  games    93,000  moves    333.6M  avg score   119378  max  337728  ≥2048  94.9%  ≥4096  82.7%  ≥8192  60.0%  ≥16384   4.7%  ≥32768  0.0%  |  336.4 games/s
+  games    94,000  moves    338.1M  avg score   117487  max  342792  ≥2048  94.6%  ≥4096  81.4%  ≥8192  57.7%  ≥16384   4.9%  ≥32768  0.0%  |  331.8 games/s
+  games    95,000  moves    342.7M  avg score   115521  max  381696  ≥2048  94.1%  ≥4096  80.9%  ≥8192  57.0%  ≥16384   4.5%  ≥32768  0.0%  |  334.4 games/s
+  games    96,000  moves    347.3M  avg score   120406  max  366376  ≥2048  94.9%  ≥4096  81.0%  ≥8192  59.2%  ≥16384   6.9%  ≥32768  0.0%  |  327.2 games/s
+  games    97,000  moves    352.0M  avg score   122083  max  340644  ≥2048  95.2%  ≥4096  82.0%  ≥8192  59.9%  ≥16384   7.2%  ≥32768  0.0%  |  325.0 games/s
+  games    98,000  moves    356.6M  avg score   119160  max  357224  ≥2048  94.7%  ≥4096  81.1%  ≥8192  59.3%  ≥16384   6.5%  ≥32768  0.0%  |  327.0 games/s
+  games    99,000  moves    361.1M  avg score   117217  max  351668  ≥2048  94.1%  ≥4096  80.7%  ≥8192  58.2%  ≥16384   5.5%  ≥32768  0.0%  |  333.7 games/s
+  games   100,000  moves    365.8M  avg score   122756  max  360924  ≥2048  95.9%  ≥4096  83.3%  ≥8192  62.0%  ≥16384   5.9%  ≥32768  0.0%  |  315.0 games/s
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/games_100000.npz (100,000 games, 0.33 GB in 16.4 s)
+  saved checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz (100,000 games, 2.68 GB in 2.1 s)
+
+Training complete
+{
+  "games_played": 100000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/arm-F/latest.npz",
+  "interrupted": false
+}
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-F-100000, depth 1, screen (4 s) | 118,163 ± 4,194 | 123,810 | 57.5% | 6.5% | 0.0% | 0.0% | 4,969 |
+[2026-11-15T00:34:27Z] arm exited with code 0
+Greedy play, seeds 0-999. The difference is paired with the long run (temporal coherence at 0.02) at the same games, where the archive has it.
+
+| Arm | Rate, θ | Games | Moves | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves | vs TC | 32768 vs TC |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| A | 0.00125, 0.003 | 25,000 | 34M  | 38,819 ± 1,127 | 37,026 | 0.3% | 0.0% | 0.0% | nan% | 1,972 |
+| A | 0.00125, 0.003 | 50,000 | 88M  | 55,772 ± 1,745 | 48,258 | 4.1% | 0.0% | 0.0% | nan% | 2,670 |
+| A | 0.00125, 0.003 | 100,000 | 224M  | 70,558 ± 2,053 | 73,156 | 8.9% | 0.0% | 0.0% | nan% | 3,268 | -97,227 ± 5,440 | -0.2% ± 0.3% |
+| B | 0.00125, 0.01 | 25,000 | 34M  | 38,682 ± 1,261 | 36,564 | 0.6% | 0.0% | 0.0% | nan% | 1,950 |
+| B | 0.00125, 0.01 | 50,000 | 85M  | 49,416 ± 1,742 | 44,700 | 2.5% | 0.0% | 0.0% | nan% | 2,392 |
+| B | 0.00125, 0.01 | 100,000 | 209M  | 67,179 ± 2,413 | 65,542 | 13.7% | 0.0% | 0.0% | nan% | 3,104 | -100,606 ± 5,585 | -0.2% ± 0.3% |
+| C | 0.004, 0.003 | 25,000 | 47M  | 56,956 ± 1,838 | 51,520 | 6.6% | 0.0% | 0.0% | nan% | 2,702 |
+| C | 0.004, 0.003 | 50,000 | 122M  | 82,376 ± 2,844 | 77,422 | 26.7% | 0.4% | 0.0% | 0.0% | 3,682 |
+| C | 0.004, 0.003 | 100,000 | 328M  | 116,300 ± 3,876 | 123,946 | 55.5% | 4.2% | 0.0% | 0.0% | 4,944 | -51,485 ± 6,290 | -0.2% ± 0.3% |
+| D | 0.004, 0.01 | 25,000 | 48M  | 57,842 ± 1,842 | 58,808 | 3.9% | 0.0% | 0.0% | nan% | 2,742 |
+| D | 0.004, 0.01 | 50,000 | 119M  | 80,304 ± 2,614 | 80,138 | 21.6% | 0.0% | 0.0% | nan% | 3,617 |
+| D | 0.004, 0.01 | 100,000 | 306M  | 102,060 ± 3,493 | 96,426 | 37.5% | 1.9% | 0.0% | 0.0% | 4,445 | -65,724 ± 6,142 | -0.2% ± 0.3% |
+| E | 0.01, 0.003 | 25,000 | 54M  | 69,324 ± 2,170 | 71,262 | 15.0% | 0.0% | 0.0% | nan% | 3,167 |
+| E | 0.01, 0.003 | 50,000 | 143M  | 101,383 ± 3,089 | 92,492 | 46.9% | 0.4% | 0.0% | 0.0% | 4,378 |
+| E | 0.01, 0.003 | 100,000 | 354M  | 112,776 ± 3,115 | 124,260 | 58.7% | 0.5% | 0.0% | 0.0% | 4,802 | -55,008 ± 5,962 | -0.2% ± 0.3% |
+| F | 0.01, 0.01 | 25,000 | 57M  | 76,644 ± 2,788 | 71,686 | 25.0% | 0.2% | 0.0% | 0.0% | 3,438 |
+| F | 0.01, 0.01 | 50,000 | 148M  | 99,797 ± 3,518 | 80,692 | 43.7% | 2.4% | 0.0% | 0.0% | 4,308 |
+| F | 0.01, 0.01 | 100,000 | 366M  | 118,163 ± 4,194 | 123,810 | 57.5% | 6.5% | 0.0% | 0.0% | 4,969 | -49,622 ± 6,479 | -0.2% ± 0.3% |
+
+Step sizes at each snapshot, over every weight updated at least once (frequent: at least 100 times), and the run's update counters so far.
+
+| Arm | Games | Visited | α p10 | α median | α p90 | Frequent: α median | rose | fell | below 1% of initial | Max effective step | Overshoots | Normalised (M>1) | Shared shift | Moves/s |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| A | 25,000 | 7.8M | 0.0012 | 0.0012 | 0.0013 | 0.0013 | 56.9% | 43.1% | 0.02% | 0.278 | 0 of 34,241,509 | 0 | 0 | 1,532,027 |
+| A | 50,000 | 10.9M | 0.0012 | 0.0012 | 0.0013 | 0.0013 | 57.2% | 42.8% | 0.04% | 0.278 | 0 of 88,174,108 | 0 | 0 | 1,531,269 |
+| A | 100,000 | 14.8M | 0.0012 | 0.0012 | 0.0013 | 0.0013 | 57.7% | 42.3% | 0.07% | 0.328 | 0 of 223,712,978 | 0 | 0 | 1,568,436 |
+| B | 25,000 | 7.9M | 0.0012 | 0.0012 | 0.0013 | 0.0013 | 57.0% | 43.0% | 0.13% | 0.477 | 0 of 34,266,178 | 0 | 0 | 1,545,075 |
+| B | 50,000 | 10.8M | 0.0012 | 0.0012 | 0.0013 | 0.0013 | 57.2% | 42.7% | 0.19% | 0.543 | 0 of 85,024,876 | 0 | 0 | 1,533,771 |
+| B | 100,000 | 13.8M | 0.0012 | 0.0012 | 0.0013 | 0.0013 | 57.7% | 42.3% | 0.29% | 0.656 | 0 of 208,873,884 | 0 | 0 | 1,591,064 |
+| C | 25,000 | 9.4M | 0.004 | 0.004 | 0.004 | 0.004 | 45.6% | 54.4% | 0.01% | 0.606 | 0 of 46,520,957 | 0 | 0 | 1,452,191 |
+| C | 50,000 | 13.4M | 0.004 | 0.004 | 0.0041 | 0.004 | 46.2% | 53.8% | 0.02% | 0.606 | 0 of 122,380,493 | 0 | 0 | 1,516,601 |
+| C | 100,000 | 17.9M | 0.004 | 0.004 | 0.0041 | 0.004 | 46.9% | 53.1% | 0.04% | 0.606 | 0 of 328,399,991 | 0 | 0 | 1,526,269 |
+| D | 25,000 | 9.2M | 0.0039 | 0.004 | 0.0042 | 0.004 | 46.2% | 53.8% | 0.15% | 0.832 | 0 of 47,991,607 | 0 | 0 | 1,549,038 |
+| D | 50,000 | 12.7M | 0.0039 | 0.004 | 0.0042 | 0.004 | 46.9% | 53.1% | 0.21% | 0.883 | 0 of 119,260,770 | 0 | 0 | 1,572,485 |
+| D | 100,000 | 16.6M | 0.0039 | 0.004 | 0.0042 | 0.004 | 47.4% | 52.6% | 0.30% | 0.899 | 0 of 306,480,546 | 0 | 0 | 1,584,686 |
+| E | 25,000 | 10.7M | 0.0077 | 0.0078 | 0.0078 | 0.0077 | 0.3% | 99.7% | 0.01% | 1.18 | 22 of 54,175,087 | 2 | -0.253 | 1,487,737 |
+| E | 50,000 | 14.7M | 0.0077 | 0.0078 | 0.0079 | 0.0077 | 0.3% | 99.7% | 0.01% | 1.18 | 22 of 143,004,823 | 2 | -0.253 | 1,486,404 |
+| E | 100,000 | 19.2M | 0.0077 | 0.0078 | 0.0079 | 0.0077 | 0.3% | 99.7% | 0.02% | 1.18 | 22 of 354,488,770 | 2 | -0.253 | 1,479,811 |
+| F | 25,000 | 10.8M | 0.008 | 0.0083 | 0.0085 | 0.008 | 5.7% | 94.3% | 0.14% | 1.28 | 195 of 56,728,777 | 1 | -0.19 | 1,521,029 |
+| F | 50,000 | 14.8M | 0.0079 | 0.0083 | 0.0086 | 0.008 | 6.2% | 93.8% | 0.20% | 1.28 | 574 of 147,877,927 | 1 | -0.19 | 1,527,898 |
+| F | 100,000 | 19.3M | 0.0079 | 0.0083 | 0.0086 | 0.008 | 6.3% | 93.7% | 0.25% | 1.28 | 634 of 365,804,130 | 1 | -0.19 | 1,519,783 |
+[2026-11-15T00:34:27Z] screen exited with code 0
