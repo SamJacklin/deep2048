@@ -9,6 +9,8 @@ fires. Each update where line 11's M exceeds 1 is recorded with the weights that
 """
 
 import argparse
+import csv
+import json
 import sys
 import time
 from collections import defaultdict
@@ -316,7 +318,7 @@ def compare() -> None:
                 print(row)
 
     print("\nTraining and optimiser state at each stop. Training averages and speeds cover the games since the previous stop; step sizes are over weights updated at least once.\n")
-    print("| Arm | Games | Moves | Training avg score | α p10 | α median | α p90 | α max | below 1% of initial | Shared shift | Normalisations since last stop | Σ log M since | Largest M so far | Overshoots since | Moves/s |")
+    print("| Arm | Games | Moves | Training avg score | α p10 | α median | α p90 | α max | below 1% of initial | Shared shift | Normalisations since last stop | Σ log M since | Largest M so far | Overshoots since | Moves/s |")  # noqa: E501
     print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for arm in ("control", "local", "scratch"):
         directory = OUTPUT / arm
