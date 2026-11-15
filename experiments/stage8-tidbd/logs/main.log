@@ -1373,3 +1373,6 @@ Training complete
 | arm-F-1500000, depth 1, dev (5 s) | 267,046 ± 7,885 | 289,944 | 86.3% | 64.0% | 3.5% | 5.5% | 10,277 |
 [2026-11-15T11:46:00Z] main exited with code 0
 [2026-11-15T11:46:00Z] stopped by request at 1.5M games, before training toward 2M; the 1.5M depth-3 evaluation (pid 7007) continues under caffeinate -i -w
+| Network | Mean score ± 95% | Median | ≥8192 | ≥16384 | ≥32768 | 16384→32768 | Moves |
+|---|---|---|---|---|---|---|---|
+| arm-F-1500000, depth 3, dev (1088 s) | 341,719 ± 5,014 | 373,110 | 97.7% | 89.0% | 1.9% | 2.1% | 13,015 |
