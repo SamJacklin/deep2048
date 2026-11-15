@@ -291,7 +291,7 @@ def compare() -> None:
     from stage8 import EVALUATIONS, HEADER, RULE, describe, stored
 
     champion = stored("tc-2000000", 1, "dev")
-    arms = {"start": "Shared start", "control": "Control (global)", "local": "Repair (local)", "scratch": "Local from scratch"}
+    arms = {"start": "Shared start", "control": "Control (global)", "local": "Repair (local)", "proportional": "Repair (proportional)", "scratch": "Local from scratch"}
     found: dict[int, dict[str, dict[str, np.ndarray]]] = defaultdict(dict)
     for path in EVALUATIONS.glob("repair-*-depth1-dev.npz"):
         _, arm, games = path.name.split("-")[:3]
@@ -310,7 +310,7 @@ def compare() -> None:
                 if result is None:
                     continue
                 row = f"| {label} | {games:,} " + describe("", result, champion)[2:]
-                if arm == "local" and control is not None:
+                if arm in ("local", "proportional") and control is not None:
                     difference = result["scores"] - control["scores"]
                     conversion = (result["max_tiles"] >= 32768).astype(float) - (control["max_tiles"] >= 32768)
                     sd = lambda v: 1.96 * v.std(ddof=1) / np.sqrt(len(v))  # noqa: E731
@@ -320,7 +320,7 @@ def compare() -> None:
     print("\nTraining and optimiser state at each stop. Training averages and speeds cover the games since the previous stop; step sizes are over weights updated at least once.\n")
     print("| Arm | Games | Moves | Training avg score | α p10 | α median | α p90 | α max | below 1% of initial | Shared shift | Normalisations since last stop | Σ log M since | Largest M so far | Overshoots since | Moves/s |")  # noqa: E501
     print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
-    for arm in ("control", "local", "scratch"):
+    for arm in ("control", "local", "proportional", "scratch"):
         directory = OUTPUT / arm
         training, optimiser = _rows(directory, "training_history.csv"), _rows(directory, "optimizer_history.csv")
         previous = None

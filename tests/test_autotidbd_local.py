@@ -279,3 +279,130 @@ def test_h_threads_share_the_local_optimiser() -> None:
     assert stats[autotidbd.UPDATES] == results.moves.sum() and stats[autotidbd.NON_FINITE] == 0
     assert stats[autotidbd.NORMALISATIONS] > 0 and optimiser.shared[0] == 0.0
     assert np.isfinite(network.weights).all() and np.isfinite(optimiser.rates).all()
+
+
+# The proportional rule: the cut is shared by blame rather than equally
+
+
+@pytest.mark.parametrize("dtype", [np.float64, np.float32])
+def test_proportional_brings_the_measured_step_to_exactly_one(dtype: type) -> None:
+    pair = Pair(alpha=0.3, theta=0.01, dtype=dtype, proportional=True, w=np.arange(N, dtype=np.float64))
+    # Weight 5 comes back with a higher count, so it pulls the sum down: a negative contribution
+    trace, x, x_next = vector(i0=2, i3=1, i5=1), vector(i0=2, i3=3, i5=1, i7=1), vector(i0=1, i5=2, i8=1)
+    pair.step(vector(i1=1), trace, reward=1.0)
+    pair.step(trace, x, reward=0.5)
+    pair.step(x, x_next, reward=1.0)
+    assert pair.last_m > 1.1 and pair.stats[autotidbd.NORMALISATIONS] >= 1
+    assert normaliser_sum(pair, x, x_next, trace) == pytest.approx(1.0, abs=1e-11 if dtype is np.float64 else 1e-5)
+    assert pair.optimiser.shared[0] == 0.0
+
+
+@pytest.mark.parametrize("dtype", [np.float64, np.float32])
+@pytest.mark.parametrize("gamma", [1.0, 0.9])
+def test_proportional_sparse_update_matches_the_dense_reference(dtype: type, gamma: float) -> None:
+    rng = np.random.default_rng(13)
+    pair = Pair(alpha=0.03, theta=0.02, dtype=dtype, gamma=gamma, proportional=True, w=rng.normal(size=N))
+    # As in the real run: one weight with a step size near the bound, which comes and goes among ordinary ones
+    pair.beta[0] = pair.optimiser.rates[0, BETA] = np.log(0.9)
+    # The kernel finds λ by Newton's method and the reference by bisection: they agree to rounding at each event (the
+    # bound test holds one to 1e-11), which later steps can amplify a little
+    pair.tolerance = max(pair.tolerance, 1e-8)
+
+    def features() -> np.ndarray:
+        x = (rng.random(N) < 0.4) * rng.integers(1, 3, size=N).astype(np.float64)
+        x[0] = rng.random() < 0.7
+        return x
+
+    for _ in range(40):
+        pair.start_episode()
+        x = features()
+        for _ in range(rng.integers(1, 30)):
+            x_next = features()
+            if x.any():
+                pair.step(x, x_next, float(rng.normal()))
+            x = x_next
+        if x.any():
+            pair.step(x, NO_FEATURES, 0.0)
+    # One cut by blame settles the culprit for good, so events are few; every step was checked against the reference
+    assert pair.stats[autotidbd.NORMALISATIONS] >= 2 and pair.optimiser.shared[0] == 0.0
+    assert np.abs(pair.weights).max() < 100
+
+
+def test_proportional_cut_falls_on_the_weight_to_blame() -> None:
+    # The diagnosed event in miniature: one weight at 0.9 and five neighbours at 0.03 leave together (sum 1.05); weight 7
+    # stays (no contribution), and weight 8 is in the trace but not the update
+    def run(**rule: bool) -> tuple[Pair, np.ndarray]:
+        pair = Pair(alpha=0.03, theta=0.0, **rule)
+        pair.beta[0] = pair.optimiser.rates[0, BETA] = np.log(0.9)
+        trace = vector(i0=1, i1=1, i2=1, i3=1, i4=1, i5=1, i7=1, i8=1)
+        x = vector(i0=1, i1=1, i2=1, i3=1, i4=1, i5=1, i7=1)
+        pair.step(trace, x, reward=0.0)
+        before = pair.optimiser.alpha()
+        pair.step(x, vector(i7=1, i9=1), reward=0.0)
+        return pair, pair.optimiser.alpha() / before
+
+    local, local_kept = run(local=True)
+    proportional, kept = run(proportional=True)
+    assert local.last_m == proportional.last_m == pytest.approx(1.05)
+    # Local: the same 4.8% off all eight in the trace, the bystander and the two that added nothing included
+    np.testing.assert_allclose(local_kept[[0, 1, 2, 3, 4, 5, 7, 8]], 1 / 1.05)
+    # Proportional: the culprit gives up 5.5%, each neighbour 0.2%, and the rest nothing at all
+    assert kept[0] == pytest.approx(0.945, abs=0.001)
+    np.testing.assert_allclose(kept[1:6], 0.998, atol=0.0005)
+    np.testing.assert_array_equal(kept[6:], 1.0)
+    # The culprit bears its share: its log cut is 0.9 / 0.03 = 30 times a neighbour's
+    assert np.log(kept[0]) / np.log(kept[1]) == pytest.approx(30)
+
+
+def test_proportional_forks_resumes_and_keeps_to_itself(tmp_path, small_default_network) -> None:  # noqa: F811
+    settings = tidbd_settings(tmp_path, TIDBD_INITIAL_ALPHA=0.05)
+    original = train(total_games=200, snapshot_at=[200], settings=settings).checkpoint_path
+    loaded = autotidbd.load(original)
+    ours = tidbd_settings(tmp_path, TIDBD_INITIAL_ALPHA=0.05, TIDBD_NORMALISATION="proportional", CHECKPOINT_DIR=str(tmp_path / "fork"), OUTPUT_DIR=str(tmp_path / "fork-output"))
+    forked = train(resume_from=original, total_games=200, settings=ours, fork_normalisation=True).checkpoint_path
+    fork = autotidbd.load(forked)
+    assert loaded is not None and fork is not None and fork[0].local and fork[0].proportional
+    np.testing.assert_array_equal(fork[0].alpha(), loaded[0].alpha())
+    assert "AutoTIDBD proportional" in NTupleAgent(forked).label
+    train(resume_from=forked, total_games=300, settings=ours)
+    assert autotidbd.load(forked)[0].shared[0] == loaded[0].shared[0]
+    # It resumes under neither other rule
+    for other in ("global", "local"):
+        with pytest.raises(ValueError, match="AutoTIDBD settings"):
+            train(resume_from=forked, total_games=400, settings=tidbd_settings(tmp_path, TIDBD_INITIAL_ALPHA=0.05, TIDBD_NORMALISATION=other))
+
+
+def test_proportional_reloaded_checkpoint_carries_on_exactly(tmp_path) -> None:
+    def run(reload: bool) -> tuple[np.ndarray, Tidbd, np.ndarray]:
+        network, _ = small_network()
+        optimiser = Tidbd.create(network.weights.size, 0.05, 0.01, 10_000.0, np.float32, True, True)
+        bb.seed(5)
+        first = play_games(60, network.weights, None, network.layout, 0.0, True, None, None, None, optimiser)
+        if reload:
+            network.save(tmp_path / "state.npz", metadata("autotidbd-proportional"), None, autotidbd.checkpoint_arrays(optimiser, 0.05, np.zeros(len(autotidbd.STATS))))
+            network, _ = NTupleNetwork.load(tmp_path / "state.npz")
+            optimiser = autotidbd.load(tmp_path / "state.npz")[0]
+            assert optimiser.proportional
+        bb.seed(6)
+        second = play_games(60, network.weights, None, network.layout, 0.0, True, None, None, None, optimiser)
+        return network.weights, optimiser, first.stats + second.stats
+
+    weights, optimiser, stats = run(reload=False)
+    reloaded_weights, reloaded, _ = run(reload=True)
+    np.testing.assert_array_equal(reloaded_weights, weights)
+    np.testing.assert_array_equal(reloaded.rates, optimiser.rates)
+    assert stats[autotidbd.NORMALISATIONS] > 0
+
+
+@pytest.mark.parametrize("dtype", [np.float64, np.float32])
+def test_proportional_stress(dtype: type) -> None:
+    weights = np.zeros(64, dtype)
+    optimiser = Tidbd.create(64, 0.005, 0.05, 10_000.0, dtype, local=True, proportional=True)
+    optimiser.rates[0, BETA] = np.log(0.5)
+    stats = np.zeros(len(autotidbd.STATS))
+    worst = hammer(weights, optimiser, 3_000_000, 1, stats)
+    assert stats[autotidbd.UPDATES] > 2_900_000 and stats[autotidbd.NON_FINITE] == 0
+    assert stats[autotidbd.NORMALISATIONS] >= 5 and stats[autotidbd.MAX_M] > 10
+    assert np.isfinite(weights).all() and np.isfinite(optimiser.rates).all() and optimiser.shared[0] == 0.0
+    assert worst <= 1.0 + (1e-9 if dtype is np.float64 else 1e-4)
+    assert np.exp(optimiser.rates[0, BETA]) < 1 / 16 and np.exp(optimiser.rates[:, BETA].max()) < 1.0

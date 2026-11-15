@@ -505,8 +505,8 @@ def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) ->
     learning = {"learning_rate": settings.LEARNING_RATE, "temporal_coherence": settings.TEMPORAL_COHERENCE, "optimizer": settings.OPTIMIZER}
     if settings.OPTIMIZER == "autotidbd":
         learning["learning_rate"] = settings.TIDBD_INITIAL_ALPHA
-        if settings.TIDBD_NORMALISATION == "local":
-            learning["optimizer"] = "autotidbd-local"
+        if settings.TIDBD_NORMALISATION != "global":
+            learning["optimizer"] = f"autotidbd-{settings.TIDBD_NORMALISATION}"
     if settings.DOWNGRADE_TILE is not None and settings.DOWNGRADE_TILE & (settings.DOWNGRADE_TILE - 1):
         raise ValueError(f"DOWNGRADE_TILE must be a power of two, not {settings.DOWNGRADE_TILE}")
     if settings.SCALE_WHEN_DOWNGRADED and not (settings.SCALE_FEATURE and settings.DOWNGRADE_TILE):
@@ -574,23 +574,23 @@ def _load_or_create_tidbd(
     }
     if any(clashes.values()):
         raise ValueError(f"OPTIMIZER=autotidbd doesn't work with {', '.join(name for name, set_ in clashes.items() if set_)}")
-    local = settings.TIDBD_NORMALISATION == "local"
+    local, proportional = settings.TIDBD_NORMALISATION != "global", settings.TIDBD_NORMALISATION == "proportional"
     asked = {"initial_alpha": settings.TIDBD_INITIAL_ALPHA, "theta": settings.TIDBD_META_RATE, "tau": settings.TIDBD_TAU, "normalisation": settings.TIDBD_NORMALISATION}
     if resume_from is None:
         if fork_normalisation:
             raise ValueError("fork_normalisation needs a checkpoint to fork from")
-        return Tidbd.create(network.weights.size, settings.TIDBD_INITIAL_ALPHA, settings.TIDBD_META_RATE, settings.TIDBD_TAU, local=local), totals
+        return Tidbd.create(network.weights.size, settings.TIDBD_INITIAL_ALPHA, settings.TIDBD_META_RATE, settings.TIDBD_TAU, local=local, proportional=proportional), totals
     loaded = autotidbd.load(resume_from)
     if loaded is None:
         raise ValueError(f"{resume_from} holds no AutoTIDBD state, so training can't resume from it with OPTIMIZER=autotidbd")
     optimiser, initial_alpha, totals = loaded
-    saved = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": "local" if optimiser.local else "global"}
+    saved = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": autotidbd.normalisation(optimiser)}
     if fork_normalisation:
         if saved != asked | {"normalisation": "global"} or not local:
             raise ValueError(f"a fork goes from global to local normalisation with nothing else changed, not from {saved} to {asked}")
         # Every step size stays exactly as it is: the shared offset is kept, and from here on is never moved
-        optimiser = optimiser._replace(local=True)
-        print(f"Forked to local normalisation, keeping the shared offset of {optimiser.shared[0]:.4f} fixed from here on")
+        optimiser = optimiser._replace(local=True, proportional=proportional)
+        print(f"Forked to {settings.TIDBD_NORMALISATION} normalisation, keeping the shared offset of {optimiser.shared[0]:.4f} fixed from here on")
     elif saved != asked:
         raise ValueError(f"{resume_from} was trained with AutoTIDBD settings {saved}, not {asked}: set the settings to match")
     if optimiser.rates.shape[0] != network.weights.size:

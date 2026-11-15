@@ -29,6 +29,12 @@ features, in place of every weight's. Dividing those step sizes by M divides lin
 measures is met exactly as before, while weights that took no part keep their step sizes. The shared offset then never
 moves again: it stays as a checkpoint trained under the published rule left it.
 
+With `proportional` as well (also experimental), the cut is shared by blame instead of equally. Weight i's part of
+line 11's sum is c_i = −α_i d_i z_i. Each weight with c_i > 0 has λ c_i / Σ_{c>0} c subtracted from its β, with the one
+λ that brings the sum to exactly 1, found by Newton's method. So a weight that makes up 90% of the positive part takes
+90% of λ, the weights that merely sit beside it take almost none, and weights that add nothing or pull the sum down are
+left alone. The local rule's equal cut lets the one weight whose step size keeps climbing drag its neighbours' down.
+
 Beyond the listing:
 - Line 10 is skipped where ξ_i is 0. Its numerator is then 0 as well, so the listing asks for 0/0.
 - An update whose TD error isn't finite is skipped and counted, and training stops on it.
@@ -75,14 +81,18 @@ class Tidbd(NamedTuple):
     tau: float
     # Normalise only the weights in the trace (stage 8A) rather than every weight (as published)
     local: bool = False
+    # With local: share the cut among the weights that made up the sum, by how much of it each made up
+    proportional: bool = False
 
     @classmethod
-    def create(cls, n_weights: int, initial_alpha: float, theta: float, tau: float, dtype: type = np.float32, local: bool = False) -> "Tidbd":
+    def create(cls, n_weights: int, initial_alpha: float, theta: float, tau: float, dtype: type = np.float32, local: bool = False, proportional: bool = False) -> "Tidbd":
+        if proportional and not local:
+            raise ValueError("proportional normalisation is a kind of local normalisation")
         if initial_alpha <= 0 or theta < 0 or tau <= 0:
             raise ValueError(f"AutoTIDBD needs a positive initial rate and τ and a non-negative θ, not {initial_alpha}, {tau} and {theta}")
         rates = np.zeros((n_weights, 4), dtype=dtype)
         rates[:, BETA] = np.log(initial_alpha)
-        return cls(rates, np.zeros(1), theta, tau, local)
+        return cls(rates, np.zeros(1), theta, tau, local, proportional)
 
     def alpha(self, indices: np.ndarray | slice = slice(None)) -> np.ndarray:
         """The step sizes of these weights (default: all of them)."""
@@ -91,11 +101,12 @@ class Tidbd(NamedTuple):
 
 def reference_step(
     w: np.ndarray, beta: np.ndarray, h: np.ndarray, xi: np.ndarray, z: np.ndarray, x: np.ndarray, x_next: np.ndarray,
-    reward: float, gamma: float, theta: float, tau: float, lam: float = 0.0, local: bool = False,
+    reward: float, gamma: float, theta: float, tau: float, lam: float = 0.0, local: bool = False, proportional: bool = False,
 ) -> tuple[float, float]:
     """One step of Algorithm 1 on dense float64 vectors, changed in place, returning (δ, M). A terminal step has x_next = 0.
 
-    With `local`, line 13 only lowers the β of weights whose z isn't 0 (the module's note on stage 8A's repair)."""
+    With `local`, line 13 only lowers the β of weights whose z isn't 0 (the module's note on stage 8A's repair), and
+    with `proportional` it lowers each positive contributor's by its share of the sum, here solved by bisection."""
     delta = reward + gamma * (w @ x_next) - w @ x
     d = gamma * x_next - x
     alpha = np.exp(beta)
@@ -103,7 +114,19 @@ def reference_step(
     known = xi != 0
     beta[known] -= theta * delta * d[known] * h[known] / xi[known]
     m = max(float(-(np.exp(beta) * d) @ z), 1.0)
-    if local:
+    if proportional and m > 1:
+        c = -np.exp(beta) * d * z
+        positive = c > 0
+        share = c[positive] / c[positive].sum()
+        target = 1.0 - c[~positive].sum()
+        low, high = 0.0, 1.0
+        while (c[positive] * np.exp(-high * share)).sum() > target:
+            high *= 2
+        for _ in range(200):
+            middle = (low + high) / 2
+            low, high = (middle, high) if (c[positive] * np.exp(-middle * share)).sum() > target else (low, middle)
+        beta[positive] -= high * share
+    elif local:
         beta[z != 0] -= np.log(m)
     else:
         beta -= np.log(m)
@@ -216,7 +239,39 @@ def sparse_step(
     # (or, with the local rule, one from each weight in the trace, each of which is listed once whatever its count)
     if normaliser > 1.0:
         log_m = np.log(normaliser)
-        if optimiser.local:
+        if optimiser.proportional:
+            # c_k = −α d z for each weight in the sum; the positive ones give up λ × their share, where λ solves
+            # Σ_{c>0} c exp(−λ share) = 1 − Σ_{c≤0} c. The left side falls and is convex in λ, so Newton's steps from 0
+            # only ever approach the root from below.
+            positive = negative = 0.0
+            for k in range(n):
+                if zs[k] != 0.0 and ds[k] != 0.0:
+                    c = -np.exp(rates[indices[k], BETA] + offset) * ds[k] * zs[k]
+                    if c > 0.0:
+                        positive += c
+                    else:
+                        negative += c
+            target = 1.0 - negative
+            lam = 0.0
+            for _ in range(50):
+                value = slope = 0.0
+                for k in range(n):
+                    if zs[k] != 0.0 and ds[k] != 0.0:
+                        c = -np.exp(rates[indices[k], BETA] + offset) * ds[k] * zs[k]
+                        if c > 0.0:
+                            term = c * np.exp(-lam * c / positive)
+                            value += term
+                            slope += term * c / positive
+                step = (value - target) / slope
+                lam += step
+                if step <= 1e-13 * (1.0 + lam):
+                    break
+            for k in range(n):
+                if zs[k] != 0.0 and ds[k] != 0.0:
+                    c = -np.exp(rates[indices[k], BETA] + offset) * ds[k] * zs[k]
+                    if c > 0.0:
+                        rates[indices[k], BETA] -= lam * c / positive
+        elif optimiser.local:
             for p in range(n_trace):
                 rates[trace_indices[p], BETA] -= log_m
         else:
@@ -251,9 +306,14 @@ def combine_stats(rows: np.ndarray) -> np.ndarray:
     return np.where(STAT_IS_MAX, rows.max(axis=0, initial=0.0), rows.sum(axis=0))
 
 
+def normalisation(optimiser: Tidbd) -> str:
+    """The name of the optimiser's normalisation rule, as settings and checkpoints give it."""
+    return "proportional" if optimiser.proportional else "local" if optimiser.local else "global"
+
+
 def checkpoint_arrays(optimiser: Tidbd, initial_alpha: float, totals: np.ndarray) -> dict[str, Any]:
     """The arrays a checkpoint needs to carry on training exactly: the optimiser's whole state, its settings and the run's counters so far."""
-    settings = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": "local" if optimiser.local else "global"}
+    settings = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": normalisation(optimiser)}
     return {"tidbd_rates": optimiser.rates, "tidbd_shared": optimiser.shared, "tidbd_settings": json.dumps(settings), "tidbd_totals": totals}
 
 
@@ -264,7 +324,8 @@ def load(path: str | Path) -> tuple[Tidbd, float, np.ndarray] | None:
             return None
         settings = json.loads(str(data["tidbd_settings"]))
         # Checkpoints from before the local rule existed are the published, global one, and have one counter fewer
-        optimiser = Tidbd(data["tidbd_rates"], data["tidbd_shared"], settings["theta"], settings["tau"], settings.get("normalisation", "global") == "local")
+        rule = settings.get("normalisation", "global")
+        optimiser = Tidbd(data["tidbd_rates"], data["tidbd_shared"], settings["theta"], settings["tau"], rule != "global", rule == "proportional")
         totals = np.zeros(len(STATS))
         totals[: len(data["tidbd_totals"])] = data["tidbd_totals"]
         return optimiser, settings["initial_alpha"], totals
