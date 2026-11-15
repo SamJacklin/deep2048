@@ -19,7 +19,7 @@ PANELS = (
     ("training_history.csv", "avg_score", "Training score (rolling 20k games)", True, False),
     ("training_history.csv", "rate_16384", "% of training games reaching 16384 (rolling)", True, False),
     ("training_history.csv", "rate_32768", "% of training games reaching 32768 (rolling)", True, False),
-    ("optimizer_history.csv", "sampled_alpha_median", "Median step size over all updated weights (mostly rarely used ones)", False, True),
+    ("optimizer_history.csv", "sampled_alpha_median", "Step size over all updated weights: median, 10th (dashed) and 90th (dotted) percentiles", False, True),
 )
 
 
@@ -44,10 +44,18 @@ def draw(fig: plt.Figure) -> None:
             if len(games):
                 values = rolling(values) if smooth else values
                 ax.plot(games / 1e3, values, color=colour, linewidth=1.5, label=f"{label}: {values[-1]:,.4g} at {games[-1] / 1e3:,.0f}k")
+            if name == "sampled_alpha_median":
+                # The median sits among rarely used weights, which never move: the 10th and 90th percentiles show the spread
+                for other, style in (("sampled_alpha_p10", "--"), ("sampled_alpha_p90", ":")):
+                    games, values = column(OUTPUT / arm / file, other)
+                    if len(games):
+                        ax.plot(games / 1e3, values, color=colour, linewidth=1, linestyle=style)
         ax.set_title(title)
         ax.set_xlabel("Games played (thousands)")
         if log:
+            # The control's collapse runs off the bottom, so the arms that keep their step sizes can be told apart
             ax.set_yscale("log")
+            ax.set_ylim(3e-3, 1.2e-2)
         ax.legend(fontsize=8)
         ax.grid(True, which="both", alpha=0.3)
     fig.suptitle("Stage 8A fork from 850k games", fontweight="bold")

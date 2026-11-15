@@ -413,11 +413,14 @@
         "games_played": 1250000,
         "moves_played": 9478576627
       },
-      "finished_at": null,
-      "finished_with": null,
-      "interrupted": null,
-      "cpu_seconds": null,
-      "peak_memory_gb": null
+      "finished_at": "2026-11-15T15:46:51.737230Z",
+      "finished_with": {
+        "games_played": 1350000,
+        "moves_played": 10421001466
+      },
+      "interrupted": false,
+      "cpu_seconds": 5372.2142650000005,
+      "peak_memory_gb": 2.870345728
     }
   ]
 }
