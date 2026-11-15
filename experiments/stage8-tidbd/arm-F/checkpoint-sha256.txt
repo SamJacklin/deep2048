@@ -1,0 +1,3 @@
+a970ede6d58aa110c4852af44b86b991be957f7c943b8abeb233b548c752b847  checkpoints/ntuple/stage8-tidbd/arm-F/games_500000.npz
+8a58e6d5ab753ed99584c88b0536cd54fa12c68de462ddc07d358d9742e15b82  checkpoints/ntuple/stage8-tidbd/arm-F/games_1000000.npz
+a1fcdeb5b9112f9ee3f866d9ce06ea3e8383fb445ebee4013e580489a9ef202e  checkpoints/ntuple/stage8-tidbd/arm-F/games_1500000.npz

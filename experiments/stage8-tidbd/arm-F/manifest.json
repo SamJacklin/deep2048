@@ -579,6 +579,255 @@
       "interrupted": false,
       "cpu_seconds": 1646.640431,
       "peak_memory_gb": 3.39288064
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "stage8-tidbd/arm-F",
+        "--resume",
+        "checkpoints/ntuple/stage8-tidbd/arm-F/games_300000.npz",
+        "--games",
+        "500000",
+        "--snapshot-at",
+        "500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.0025,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": false,
+        "TC_DECAY": 1.0,
+        "OPTIMIZER": "autotidbd",
+        "TIDBD_INITIAL_ALPHA": 0.01,
+        "TIDBD_META_RATE": 0.01,
+        "TIDBD_TAU": 10000.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.2,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": null,
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": null,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 10000,
+        "TRAINING_GAMES": 500000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 10000,
+        "SNAPSHOT_AT": [
+          500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/stage8-tidbd/arm-F",
+        "OUTPUT_DIR": "experiments/stage8-tidbd/arm-F"
+      },
+      "resumed_from": "checkpoints/ntuple/stage8-tidbd/arm-F/games_300000.npz",
+      "resumed_from_sha256": "10323dbfa2c25e66936339e4a7399a7c9fd219f0a1fa1e8dfb1c7c733e5cd575",
+      "environment": {
+        "git_commit": "9b170c41aa54c4d5a9af8e33ff8aa6d618d0d764",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-15T09:27:28.333653Z",
+      "started_with": {
+        "games_played": 300000,
+        "moves_played": 1579470925
+      },
+      "finished_at": "2026-11-15T09:44:43.365542Z",
+      "finished_with": {
+        "games_played": 500000,
+        "moves_played": 3036550974
+      },
+      "interrupted": false,
+      "cpu_seconds": 7117.090819,
+      "peak_memory_gb": 3.175907328
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "stage8-tidbd/arm-F",
+        "--resume",
+        "checkpoints/ntuple/stage8-tidbd/arm-F/games_500000.npz",
+        "--games",
+        "1000000",
+        "--snapshot-at",
+        "1000000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.0025,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": false,
+        "TC_DECAY": 1.0,
+        "OPTIMIZER": "autotidbd",
+        "TIDBD_INITIAL_ALPHA": 0.01,
+        "TIDBD_META_RATE": 0.01,
+        "TIDBD_TAU": 10000.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.2,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": null,
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": null,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 10000,
+        "TRAINING_GAMES": 1000000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 10000,
+        "SNAPSHOT_AT": [
+          1000000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/stage8-tidbd/arm-F",
+        "OUTPUT_DIR": "experiments/stage8-tidbd/arm-F"
+      },
+      "resumed_from": "checkpoints/ntuple/stage8-tidbd/arm-F/games_500000.npz",
+      "resumed_from_sha256": "a970ede6d58aa110c4852af44b86b991be957f7c943b8abeb233b548c752b847",
+      "environment": {
+        "git_commit": "9b170c41aa54c4d5a9af8e33ff8aa6d618d0d764",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-15T09:54:58.895576Z",
+      "started_with": {
+        "games_played": 500000,
+        "moves_played": 3036550974
+      },
+      "finished_at": "2026-11-15T10:41:40.026768Z",
+      "finished_with": {
+        "games_played": 1000000,
+        "moves_played": 7091214819
+      },
+      "interrupted": false,
+      "cpu_seconds": 19702.291247,
+      "peak_memory_gb": 3.2141312
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "stage8-tidbd/arm-F",
+        "--resume",
+        "checkpoints/ntuple/stage8-tidbd/arm-F/games_1000000.npz",
+        "--games",
+        "1500000",
+        "--snapshot-at",
+        "1500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.0025,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": false,
+        "TC_DECAY": 1.0,
+        "OPTIMIZER": "autotidbd",
+        "TIDBD_INITIAL_ALPHA": 0.01,
+        "TIDBD_META_RATE": 0.01,
+        "TIDBD_TAU": 10000.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.2,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": null,
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": null,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 10000,
+        "TRAINING_GAMES": 1500000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 10000,
+        "SNAPSHOT_AT": [
+          1500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/stage8-tidbd/arm-F",
+        "OUTPUT_DIR": "experiments/stage8-tidbd/arm-F"
+      },
+      "resumed_from": "checkpoints/ntuple/stage8-tidbd/arm-F/games_1000000.npz",
+      "resumed_from_sha256": "8a58e6d5ab753ed99584c88b0536cd54fa12c68de462ddc07d358d9742e15b82",
+      "environment": {
+        "git_commit": "9b170c41aa54c4d5a9af8e33ff8aa6d618d0d764",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-15T10:52:19.398960Z",
+      "started_with": {
+        "games_played": 1000000,
+        "moves_played": 7091214819
+      },
+      "finished_at": "2026-11-15T11:45:50.325105Z",
+      "finished_with": {
+        "games_played": 1500000,
+        "moves_played": 11789453032
+      },
+      "interrupted": false,
+      "cpu_seconds": 22896.24331,
+      "peak_memory_gb": 3.272654848
     }
   ]
 }
