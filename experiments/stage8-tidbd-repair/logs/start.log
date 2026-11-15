@@ -1,0 +1,3 @@
+[2026-11-15T12:31:30Z] start checkpoints/ntuple/stage8-tidbd-repair/prefix/games_850000.npz (caffeinated: 0 assertions, commit 8d48099)
+the fork starts from checkpoints/ntuple/stage8-tidbd-repair/prefix/games_850000.npz (850000 games)
+[2026-11-15T12:31:31Z] start exited with code 0
