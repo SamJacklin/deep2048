@@ -35,6 +35,13 @@ line 11's sum is c_i = −α_i d_i z_i. Each weight with c_i > 0 has λ c_i / Σ
 90% of λ, the weights that merely sit beside it take almost none, and weights that add nothing or pull the sum down are
 left alone. The local rule's equal cut lets the one weight whose step size keeps climbing drag its neighbours' down.
 
+With `mean_decay` above 0 (experimental again), lines 6 to 10 change: ξ_i becomes a running mean of |δ d_i h_i|,
+moving that fraction of the way to each new value, and line 10 divides by the larger of ξ_i and the current value, so
+a meta-step is still at most θ. As published ξ_i is in effect the largest value the weight has ever seen, since its
+decay needs the weight in two afterstates running and is scaled by α/τ. TD errors here are heavy-tailed (the end of a
+game is an error the size of the whole value), so the typical meta-step measured at 850k games was 0.3% of θ and step
+sizes barely moved in 1.2M games. Against a running mean the typical meta-step is a good part of θ.
+
 Beyond the listing:
 - Line 10 is skipped where ξ_i is 0. Its numerator is then 0 as well, so the listing asks for 0/0.
 - An update whose TD error isn't finite is skipped and counted, and training stops on it.
@@ -83,16 +90,20 @@ class Tidbd(NamedTuple):
     local: bool = False
     # With local: share the cut among the weights that made up the sum, by how much of it each made up
     proportional: bool = False
+    # Above 0: ξ is a running mean of the meta-gradient's size, moving this fraction towards each new value, not its running maximum
+    mean_decay: float = 0.0
 
     @classmethod
-    def create(cls, n_weights: int, initial_alpha: float, theta: float, tau: float, dtype: type = np.float32, local: bool = False, proportional: bool = False) -> "Tidbd":
+    def create(cls, n_weights: int, initial_alpha: float, theta: float, tau: float, dtype: type = np.float32, local: bool = False, proportional: bool = False, mean_decay: float = 0.0) -> "Tidbd":
         if proportional and not local:
             raise ValueError("proportional normalisation is a kind of local normalisation")
         if initial_alpha <= 0 or theta < 0 or tau <= 0:
             raise ValueError(f"AutoTIDBD needs a positive initial rate and τ and a non-negative θ, not {initial_alpha}, {tau} and {theta}")
         rates = np.zeros((n_weights, 4), dtype=dtype)
         rates[:, BETA] = np.log(initial_alpha)
-        return cls(rates, np.zeros(1), theta, tau, local, proportional)
+        if not 0 <= mean_decay <= 1:
+            raise ValueError(f"the normaliser's mean decay is a fraction, not {mean_decay}")
+        return cls(rates, np.zeros(1), theta, tau, local, proportional, mean_decay)
 
     def alpha(self, indices: np.ndarray | slice = slice(None)) -> np.ndarray:
         """The step sizes of these weights (default: all of them)."""
@@ -101,18 +112,28 @@ class Tidbd(NamedTuple):
 
 def reference_step(
     w: np.ndarray, beta: np.ndarray, h: np.ndarray, xi: np.ndarray, z: np.ndarray, x: np.ndarray, x_next: np.ndarray,
-    reward: float, gamma: float, theta: float, tau: float, lam: float = 0.0, local: bool = False, proportional: bool = False,
+    reward: float, gamma: float, theta: float, tau: float, lam: float = 0.0, local: bool = False, proportional: bool = False, mean_decay: float = 0.0,
 ) -> tuple[float, float]:
     """One step of Algorithm 1 on dense float64 vectors, changed in place, returning (δ, M). A terminal step has x_next = 0.
 
     With `local`, line 13 only lowers the β of weights whose z isn't 0 (the module's note on stage 8A's repair), and
-    with `proportional` it lowers each positive contributor's by its share of the sum, here solved by bisection."""
+    with `proportional` it lowers each positive contributor's by its share of the sum, here solved by bisection.
+    With `mean_decay`, ξ is a running mean and line 10 divides by the larger of it and the current value."""
     delta = reward + gamma * (w @ x_next) - w @ x
     d = gamma * x_next - x
     alpha = np.exp(beta)
-    xi[:] = np.maximum(np.abs(delta * d * h), xi - alpha * d * z * (np.abs(delta * x * h) - xi) / tau)
-    known = xi != 0
-    beta[known] -= theta * delta * d[known] * h[known] / xi[known]
+    if mean_decay > 0:
+        now = np.abs(delta * d * h)
+        divisor = np.maximum(now, xi)
+        known = divisor != 0
+        beta[known] -= theta * delta * d[known] * h[known] / divisor[known]
+        # As the listing only touches ξ where the weight is in x or x' and has some h to speak of
+        moved = (d != 0) & ((h != 0) | (z != 0))
+        xi[moved] += mean_decay * (now[moved] - xi[moved])
+    else:
+        xi[:] = np.maximum(np.abs(delta * d * h), xi - alpha * d * z * (np.abs(delta * x * h) - xi) / tau)
+        known = xi != 0
+        beta[known] -= theta * delta * d[known] * h[known] / xi[known]
     m = max(float(-(np.exp(beta) * d) @ z), 1.0)
     if proportional and m > 1:
         c = -np.exp(beta) * d * z
@@ -224,14 +245,22 @@ def sparse_step(
             continue
         beta = rates[i, BETA]
         xi = rates[i, XI]
-        decayed = xi
-        if z != 0.0:
-            decayed = xi - np.exp(beta + offset) * d * z * (abs(delta * xs[k] * h) - xi) / optimiser.tau
-        xi = max(abs(delta * d * h), decayed)
-        if xi > 0.0:
-            beta -= optimiser.theta * delta * d * h / xi
-            rates[i, BETA] = beta
-        rates[i, XI] = xi
+        if optimiser.mean_decay > 0.0:
+            now = abs(delta * d * h)
+            divisor = max(now, xi)
+            if divisor > 0.0:
+                beta -= optimiser.theta * delta * d * h / divisor
+                rates[i, BETA] = beta
+            rates[i, XI] = xi + optimiser.mean_decay * (now - xi)
+        else:
+            decayed = xi
+            if z != 0.0:
+                decayed = xi - np.exp(beta + offset) * d * z * (abs(delta * xs[k] * h) - xi) / optimiser.tau
+            xi = max(abs(delta * d * h), decayed)
+            if xi > 0.0:
+                beta -= optimiser.theta * delta * d * h / xi
+                rates[i, BETA] = beta
+            rates[i, XI] = xi
         if z != 0.0:
             normaliser -= np.exp(beta + offset) * d * z
 
@@ -313,7 +342,7 @@ def normalisation(optimiser: Tidbd) -> str:
 
 def checkpoint_arrays(optimiser: Tidbd, initial_alpha: float, totals: np.ndarray) -> dict[str, Any]:
     """The arrays a checkpoint needs to carry on training exactly: the optimiser's whole state, its settings and the run's counters so far."""
-    settings = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": normalisation(optimiser)}
+    settings = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": normalisation(optimiser), "normaliser_decay": optimiser.mean_decay}
     return {"tidbd_rates": optimiser.rates, "tidbd_shared": optimiser.shared, "tidbd_settings": json.dumps(settings), "tidbd_totals": totals}
 
 
@@ -325,7 +354,7 @@ def load(path: str | Path) -> tuple[Tidbd, float, np.ndarray] | None:
         settings = json.loads(str(data["tidbd_settings"]))
         # Checkpoints from before the local rule existed are the published, global one, and have one counter fewer
         rule = settings.get("normalisation", "global")
-        optimiser = Tidbd(data["tidbd_rates"], data["tidbd_shared"], settings["theta"], settings["tau"], rule != "global", rule == "proportional")
+        optimiser = Tidbd(data["tidbd_rates"], data["tidbd_shared"], settings["theta"], settings["tau"], rule != "global", rule == "proportional", settings.get("normaliser_decay", 0.0))
         totals = np.zeros(len(STATS))
         totals[: len(data["tidbd_totals"])] = data["tidbd_totals"]
         return optimiser, settings["initial_alpha"], totals

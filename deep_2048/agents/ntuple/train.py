@@ -429,6 +429,8 @@ def _train(
     rule = f"lr {settings.LEARNING_RATE}{schedule}{coherence}"
     if tidbd is not None:
         rule = f"AutoStep TIDBD(0) from rate {settings.TIDBD_INITIAL_ALPHA}, θ {tidbd.theta}, τ {tidbd.tau:g}, {settings.TIDBD_NORMALISATION} normalisation"
+        if tidbd.mean_decay > 0:
+            rule += f", mean normaliser with decay {tidbd.mean_decay:g}"
     print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, {rule}{threads}")
     late_starts = _late_starts(settings)
     td_lambda = _td_lambda(settings)
@@ -507,6 +509,8 @@ def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) ->
         learning["learning_rate"] = settings.TIDBD_INITIAL_ALPHA
         if settings.TIDBD_NORMALISATION != "global":
             learning["optimizer"] = f"autotidbd-{settings.TIDBD_NORMALISATION}"
+        if settings.TIDBD_NORMALISER_DECAY > 0:
+            learning["optimizer"] = str(learning["optimizer"]) + "-mean"
     if settings.DOWNGRADE_TILE is not None and settings.DOWNGRADE_TILE & (settings.DOWNGRADE_TILE - 1):
         raise ValueError(f"DOWNGRADE_TILE must be a power of two, not {settings.DOWNGRADE_TILE}")
     if settings.SCALE_WHEN_DOWNGRADED and not (settings.SCALE_FEATURE and settings.DOWNGRADE_TILE):
@@ -575,21 +579,22 @@ def _load_or_create_tidbd(
     if any(clashes.values()):
         raise ValueError(f"OPTIMIZER=autotidbd doesn't work with {', '.join(name for name, set_ in clashes.items() if set_)}")
     local, proportional = settings.TIDBD_NORMALISATION != "global", settings.TIDBD_NORMALISATION == "proportional"
-    asked = {"initial_alpha": settings.TIDBD_INITIAL_ALPHA, "theta": settings.TIDBD_META_RATE, "tau": settings.TIDBD_TAU, "normalisation": settings.TIDBD_NORMALISATION}
+    asked = {"initial_alpha": settings.TIDBD_INITIAL_ALPHA, "theta": settings.TIDBD_META_RATE, "tau": settings.TIDBD_TAU, "normalisation": settings.TIDBD_NORMALISATION, "normaliser_decay": settings.TIDBD_NORMALISER_DECAY}
     if resume_from is None:
         if fork_normalisation:
             raise ValueError("fork_normalisation needs a checkpoint to fork from")
-        return Tidbd.create(network.weights.size, settings.TIDBD_INITIAL_ALPHA, settings.TIDBD_META_RATE, settings.TIDBD_TAU, local=local, proportional=proportional), totals
+        return Tidbd.create(network.weights.size, settings.TIDBD_INITIAL_ALPHA, settings.TIDBD_META_RATE, settings.TIDBD_TAU, local=local, proportional=proportional, mean_decay=settings.TIDBD_NORMALISER_DECAY), totals
     loaded = autotidbd.load(resume_from)
     if loaded is None:
         raise ValueError(f"{resume_from} holds no AutoTIDBD state, so training can't resume from it with OPTIMIZER=autotidbd")
     optimiser, initial_alpha, totals = loaded
-    saved = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": autotidbd.normalisation(optimiser)}
+    saved = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": autotidbd.normalisation(optimiser), "normaliser_decay": optimiser.mean_decay}
     if fork_normalisation:
-        if saved != asked | {"normalisation": "global"} or not local:
+        # The published rules (global normalisation, the listing's normaliser) can be left for the experimental ones, not the reverse
+        if saved != asked | {"normalisation": "global", "normaliser_decay": 0.0} or not local:
             raise ValueError(f"a fork goes from global to local normalisation with nothing else changed, not from {saved} to {asked}")
         # Every step size stays exactly as it is: the shared offset is kept, and from here on is never moved
-        optimiser = optimiser._replace(local=True, proportional=proportional)
+        optimiser = optimiser._replace(local=True, proportional=proportional, mean_decay=settings.TIDBD_NORMALISER_DECAY)
         print(f"Forked to {settings.TIDBD_NORMALISATION} normalisation, keeping the shared offset of {optimiser.shared[0]:.4f} fixed from here on")
     elif saved != asked:
         raise ValueError(f"{resume_from} was trained with AutoTIDBD settings {saved}, not {asked}: set the settings to match")

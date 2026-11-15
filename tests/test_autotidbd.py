@@ -26,13 +26,14 @@ class Pair:
     """The reference and the kernel side by side, fed the same transitions."""
 
     def __init__(
-        self, alpha: float = 0.05, theta: float = 0.01, tau: float = 100.0, gamma: float = 1.0, dtype: type = np.float64, w: np.ndarray | None = None, local: bool = False, proportional: bool = False
+        self, alpha: float = 0.05, theta: float = 0.01, tau: float = 100.0, gamma: float = 1.0, dtype: type = np.float64, w: np.ndarray | None = None, local: bool = False, proportional: bool = False, mean_decay: float = 0.0
     ) -> None:
+        self.mean_decay = mean_decay
         self.gamma, self.theta, self.tau, self.local, self.proportional = gamma, theta, tau, local or proportional, proportional
         self.w = np.zeros(N) if w is None else w.astype(np.float64)
         self.beta, self.h, self.xi, self.z = np.full(N, np.log(alpha)), np.zeros(N), np.zeros(N), np.zeros(N)
         self.weights = self.w.astype(dtype)
-        self.optimiser = Tidbd.create(N, alpha, theta, tau, dtype, self.local, proportional)
+        self.optimiser = Tidbd.create(N, alpha, theta, tau, dtype, self.local, proportional, mean_decay)
         self.work = (np.empty(2 * N, np.int64), np.empty(2 * N), np.empty(2 * N), np.empty(2 * N))
         self.stats = np.zeros(len(autotidbd.STATS))
         self.tolerance = 1e-10 if dtype is np.float64 else 2e-4
@@ -44,7 +45,7 @@ class Pair:
     def step(self, x: np.ndarray, x_next: np.ndarray, reward: float) -> float:
         """Take one step in both, check that they agree on everything, and return δ."""
         trace = sparse(self.z)
-        delta, self.last_m = reference_step(self.w, self.beta, self.h, self.xi, self.z, x, x_next, reward, self.gamma, self.theta, self.tau, local=self.local, proportional=self.proportional)
+        delta, self.last_m = reference_step(self.w, self.beta, self.h, self.xi, self.z, x, x_next, reward, self.gamma, self.theta, self.tau, local=self.local, proportional=self.proportional, mean_decay=self.mean_decay)
         got = sparse_step(self.weights, self.optimiser, self.gamma, reward, sparse(x), sparse(x_next), trace, self.work, self.stats)
         rates, offset = self.optimiser.rates, self.optimiser.shared[0]
         close = dict(rtol=self.tolerance, atol=self.tolerance)

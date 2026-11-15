@@ -31,6 +31,9 @@ class NTupleSettings(Settings):
     # "local" (stage 8A, experimental) divides only those of the weights in the trace the step was measured with.
     # "proportional" (also experimental) shares the cut among the weights that made up the step, by how much each did.
     TIDBD_NORMALISATION: Literal["global", "local", "proportional"] = "global"
+    # 0 is the published per-weight normaliser, in effect the largest meta-gradient the weight has ever seen. Above 0
+    # (experimental) it's a running mean instead, moving this fraction towards each new value.
+    TIDBD_NORMALISER_DECAY: float = 0.0
     # TD(λ): if LAMBDA > 0, each afterstate learns LAMBDA_HORIZON moves later towards its λ-return.
     # If LAMBDA_END is set, λ moves linearly from LAMBDA to it over each training session.
     LAMBDA: float = 0.0

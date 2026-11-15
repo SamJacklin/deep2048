@@ -406,3 +406,79 @@ def test_proportional_stress(dtype: type) -> None:
     assert np.isfinite(weights).all() and np.isfinite(optimiser.rates).all() and optimiser.shared[0] == 0.0
     assert worst <= 1.0 + (1e-9 if dtype is np.float64 else 1e-4)
     assert np.exp(optimiser.rates[0, BETA]) < 1 / 16 and np.exp(optimiser.rates[:, BETA].max()) < 1.0
+
+
+# The mean normaliser: ξ as a running mean of the meta-gradient's size, in place of its running maximum
+
+
+@pytest.mark.parametrize("dtype", [np.float64, np.float32])
+@pytest.mark.parametrize("rule", [{}, {"local": True}, {"proportional": True}], ids=["global", "local", "proportional"])
+def test_mean_normaliser_sparse_update_matches_the_dense_reference(dtype: type, rule: dict) -> None:
+    rng = np.random.default_rng(14)
+    pair = Pair(alpha=0.03, theta=0.02, dtype=dtype, mean_decay=0.05, w=rng.normal(size=N), **rule)
+    pair.tolerance = max(pair.tolerance, 1e-8)
+    for _ in range(40):
+        pair.start_episode()
+        x = random_features(rng) > 0
+        for _ in range(rng.integers(1, 30)):
+            x_next = (random_features(rng) > 0) if rng.random() < 0.5 else np.where(rng.random(N) < 0.8, x, 0)
+            if x.any():
+                pair.step(x.astype(np.float64), x_next.astype(np.float64), float(rng.normal()))
+            x = x_next
+        if x.any():
+            pair.step(x.astype(np.float64), NO_FEATURES, 0.0)
+    assert np.ptp(pair.optimiser.rates[:, BETA]) > 0.05 and np.abs(pair.weights).max() < 100
+
+
+def test_mean_normaliser_keeps_meta_steps_near_theta_after_an_outlier() -> None:
+    """One huge error early on, then ordinary ones: as published every later meta-step is dwarfed by the outlier, and
+    against the running mean they're soon a good part of θ again. Either way no step exceeds θ."""
+    def run(mean_decay: float) -> tuple[float, float]:
+        rng = np.random.default_rng(15)
+        pair = Pair(alpha=0.01, theta=0.01, tau=10_000.0, mean_decay=mean_decay)
+        x, other = vector(i0=1), vector(i1=1)
+        steps = []
+        for step in range(400):
+            before = pair.beta[0]
+            pair.step(x, other, reward=1e4 if step == 3 else float(rng.normal()))
+            pair.step(other, x, reward=float(rng.normal()))
+            steps.append(abs(pair.beta[0] - before))
+        return float(np.mean(steps[200:])), float(np.max(steps))
+
+    published, published_largest = run(0.0)
+    mean, mean_largest = run(0.05)
+    assert published < 0.01 * 0.01 and mean > 0.2 * 0.01
+    # Each step() pair above makes two meta-steps on weight 0 (once in x, once in x'), each at most θ
+    assert published_largest <= 0.02 * 1.0001 and mean_largest <= 0.02 * 1.0001
+
+
+def test_mean_normaliser_forks_resumes_and_keeps_to_itself(tmp_path, small_default_network) -> None:  # noqa: F811
+    settings = tidbd_settings(tmp_path, TIDBD_INITIAL_ALPHA=0.05)
+    original = train(total_games=200, snapshot_at=[200], settings=settings).checkpoint_path
+    loaded = autotidbd.load(original)
+    ours = tidbd_settings(
+        tmp_path, TIDBD_INITIAL_ALPHA=0.05, TIDBD_NORMALISATION="proportional", TIDBD_NORMALISER_DECAY=0.01, CHECKPOINT_DIR=str(tmp_path / "fork"), OUTPUT_DIR=str(tmp_path / "fork-output")
+    )
+    forked = train(resume_from=original, total_games=200, settings=ours, fork_normalisation=True).checkpoint_path
+    fork = autotidbd.load(forked)
+    assert loaded is not None and fork is not None and fork[0].proportional and fork[0].mean_decay == 0.01
+    np.testing.assert_array_equal(fork[0].rates, loaded[0].rates)
+    assert "AutoTIDBD proportional mean" in NTupleAgent(forked).label
+    train(resume_from=forked, total_games=300, settings=ours)
+    assert autotidbd.load(forked)[0].mean_decay == 0.01
+    # It doesn't resume with the published normaliser, or another decay
+    for decay in (0.0, 0.02):
+        with pytest.raises(ValueError, match="AutoTIDBD settings"):
+            train(resume_from=forked, total_games=400, settings=ours.model_copy(update={"TIDBD_NORMALISER_DECAY": decay}))
+
+
+@pytest.mark.parametrize("dtype", [np.float64, np.float32])
+def test_mean_normaliser_stress(dtype: type) -> None:
+    weights = np.zeros(64, dtype)
+    optimiser = Tidbd.create(64, 0.005, 0.05, 10_000.0, dtype, local=True, proportional=True, mean_decay=0.01)
+    optimiser.rates[0, BETA] = np.log(0.5)
+    stats = np.zeros(len(autotidbd.STATS))
+    worst = hammer(weights, optimiser, 3_000_000, 1, stats)
+    assert stats[autotidbd.UPDATES] > 2_900_000 and stats[autotidbd.NON_FINITE] == 0
+    assert np.isfinite(weights).all() and np.isfinite(optimiser.rates).all() and (optimiser.rates[:, XI] >= 0).all()
+    assert worst <= 1.0 + (1e-9 if dtype is np.float64 else 1e-4)
