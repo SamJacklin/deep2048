@@ -7,6 +7,10 @@
 #   ARM=theta0.1 META_RATE=0.1 caffeinate -i bash scripts/run_stage8_tidbd_arm.sh         # the same with the meta-rate θ at 0.1 from the fork on
 #   ARM=mean NORMALISER_DECAY=0.01 caffeinate -i bash scripts/run_stage8_tidbd_arm.sh     # the same with the running-mean normaliser (stopped at 880k: see the README)
 #
+# STOPS lists the game counts to train to and evaluate greedily at (default: every 100k from 950k to 1.35M), and
+# DEPTH3_AT those to evaluate at exact depth 3 afterwards (default: 1.35M), so an arm can be carried on further:
+#   ARM=theta0.1 META_RATE=0.1 STOPS="1450000 1550000 1650000 1750000 1850000" DEPTH3_AT=1850000 caffeinate -i bash scripts/run_stage8_tidbd_arm.sh
+#
 # NORMALISATION (default proportional), META_RATE (default 0.01, arm F's) and NORMALISER_DECAY (default 0, the published
 # normaliser) are the only things an arm changes. Rerunning resumes from the arm's newest checkpoint.
 # Log: experiments/stage8-tidbd-repair/logs/<arm>.log.
@@ -30,7 +34,7 @@ export NTUPLE_TIDBD_NORMALISATION=${NORMALISATION:-proportional} NTUPLE_TIDBD_NO
 
 read -r start sha < "$OUT/start"
 [ "$(shasum -a 256 "$start" | cut -d' ' -f1)" = "$sha" ] || { echo "$start has changed since it was named as the start" >&2; exit 1; }
-for stop in 950000 1050000 1150000 1250000 1350000; do
+for stop in ${STOPS:-950000 1050000 1150000 1250000 1350000}; do
     if [ ! -f "$ARM/games_$stop.npz" ]; then
         [ "$(df -g . | awk 'NR == 2 { print $4 }')" -ge 8 ] || { echo "less than 8 GB of disk free" >&2; exit 1; }
         if [ -f "$ARM/latest.npz" ]; then
@@ -44,5 +48,7 @@ for stop in 950000 1050000 1150000 1250000 1350000; do
     fi
     uv run python scripts/stage8.py evaluate "$ARM/games_$stop.npz" --name "repair-$NAME-$stop" --depth 1 --split dev | tr '\r' '\n'
 done
-uv run python scripts/stage8.py evaluate "$ARM/games_1350000.npz" --name "repair-$NAME-1350000" --depth 3 --split dev | tr '\r' '\n'
+for stop in ${DEPTH3_AT:-1350000}; do
+    uv run python scripts/stage8.py evaluate "$ARM/games_$stop.npz" --name "repair-$NAME-$stop" --depth 3 --split dev | tr '\r' '\n'
+done
 uv run python scripts/stage8_repair.py compare
