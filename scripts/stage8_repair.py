@@ -291,7 +291,7 @@ def compare() -> None:
     from stage8 import EVALUATIONS, HEADER, RULE, describe, stored
 
     champion = stored("tc-2000000", 1, "dev")
-    arms = {"start": "Shared start", "control": "Control (global)", "local": "Repair (local)", "proportional": "Repair (proportional)", "mean": "Proportional + mean normaliser", "scratch": "Local from scratch"}
+    arms = {"start": "Shared start", "control": "Control (global)", "local": "Repair (local)", "proportional": "Repair (proportional)", "theta0.1": "Proportional, θ 0.1", "scratch": "Local from scratch"}  # noqa: E501
     found: dict[int, dict[str, dict[str, np.ndarray]]] = defaultdict(dict)
     for path in EVALUATIONS.glob("repair-*-depth1-dev.npz"):
         _, arm, games = path.name.split("-")[:3]
@@ -310,7 +310,7 @@ def compare() -> None:
                 if result is None:
                     continue
                 row = f"| {label} | {games:,} " + describe("", result, champion)[2:]
-                if arm in ("local", "proportional", "mean") and control is not None:
+                if arm in ("local", "proportional", "theta0.1") and control is not None:
                     difference = result["scores"] - control["scores"]
                     conversion = (result["max_tiles"] >= 32768).astype(float) - (control["max_tiles"] >= 32768)
                     sd = lambda v: 1.96 * v.std(ddof=1) / np.sqrt(len(v))  # noqa: E731
@@ -320,7 +320,7 @@ def compare() -> None:
     print("\nTraining and optimiser state at each stop. Training averages and speeds cover the games since the previous stop; step sizes are over weights updated at least once.\n")
     print("| Arm | Games | Moves | Training avg score | α p10 | α median | α p90 | α max | below 1% of initial | Shared shift | Normalisations since last stop | Σ log M since | Largest M so far | Overshoots since | Moves/s |")  # noqa: E501
     print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
-    for arm in ("control", "local", "proportional", "mean", "scratch"):
+    for arm in ("control", "local", "proportional", "theta0.1", "scratch"):
         directory = OUTPUT / arm
         training, optimiser = _rows(directory, "training_history.csv"), _rows(directory, "optimizer_history.csv")
         previous = None
@@ -339,6 +339,20 @@ def compare() -> None:
             previous = games
 
 
+def by_visits() -> None:
+    """Median step size at each stop by how many updates a weight has had, for the arms whose snapshots record it."""
+    bands = ("1", "100", "1000", "10000", "100000", "1000000")
+    print("\nMedian step size by how many updates a weight has had (weights in the band).\n")
+    print("| Arm | Games | 1–99 | 100–999 | 1k–10k | 10k–100k | 100k–1M | over 1M |")
+    print("|---|---|---|---|---|---|---|---|")
+    for directory in sorted(OUTPUT.glob("*/optimizer_stats")):
+        for path in sorted(directory.glob("games_*.json"), key=lambda p: int(p.stem.split("_")[1])):
+            report = json.loads(path.read_text())
+            if "alpha_by_visits" in report:
+                cells = [f"{report['alpha_by_visits'][b]['median']:.2g} ({report['alpha_by_visits'][b]['weights'] / 1e3:,.0f}k)" if b in report["alpha_by_visits"] else "" for b in bands]
+                print(f"| {directory.parent.name} | {report['games']:,} | " + " | ".join(cells) + " |")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -352,6 +366,7 @@ def main() -> None:
         diagnose(args.checkpoint, args.games, args.single_games)
     elif args.command == "compare":
         compare()
+        by_visits()
 
 
 if __name__ == "__main__":

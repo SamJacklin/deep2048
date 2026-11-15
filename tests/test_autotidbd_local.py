@@ -159,9 +159,9 @@ def test_f_a_fork_starts_from_exactly_the_original(tmp_path, small_default_netwo
     # ... and never goes back under the global one, nor forks a second time, nor does a fresh run "fork"
     with pytest.raises(ValueError, match="AutoTIDBD settings"):
         train(resume_from=forked, total_games=400, settings=settings)
-    with pytest.raises(ValueError, match="a fork goes from global to local"):
+    with pytest.raises(ValueError, match="a fork goes from global to local normalisation"):
         train(resume_from=forked, total_games=400, settings=local_settings, fork_normalisation=True)
-    with pytest.raises(ValueError, match="a fork goes from global to local"):
+    with pytest.raises(ValueError, match="a fork goes from global to local normalisation"):
         train(resume_from=original, total_games=400, settings=settings, fork_normalisation=True)
     with pytest.raises(ValueError, match="needs a checkpoint"):
         train(total_games=50, settings=local_settings, fork_normalisation=True)
@@ -482,3 +482,19 @@ def test_mean_normaliser_stress(dtype: type) -> None:
     assert stats[autotidbd.UPDATES] > 2_900_000 and stats[autotidbd.NON_FINITE] == 0
     assert np.isfinite(weights).all() and np.isfinite(optimiser.rates).all() and (optimiser.rates[:, XI] >= 0).all()
     assert worst <= 1.0 + (1e-9 if dtype is np.float64 else 1e-4)
+
+
+def test_a_fork_can_change_the_meta_rate_and_nothing_more(tmp_path, small_default_network) -> None:  # noqa: F811
+    settings = tidbd_settings(tmp_path, TIDBD_INITIAL_ALPHA=0.05)
+    original = train(total_games=100, snapshot_at=[100], settings=settings).checkpoint_path
+    ours = tidbd_settings(tmp_path, TIDBD_INITIAL_ALPHA=0.05, TIDBD_NORMALISATION="proportional", TIDBD_META_RATE=0.1, CHECKPOINT_DIR=str(tmp_path / "fork"), OUTPUT_DIR=str(tmp_path / "fork-output"))
+    forked = train(resume_from=original, total_games=100, settings=ours, fork_normalisation=True).checkpoint_path
+    fork, loaded = autotidbd.load(forked), autotidbd.load(original)
+    assert fork is not None and loaded is not None and fork[0].theta == 0.1 and loaded[0].theta == 0.01
+    np.testing.assert_array_equal(fork[0].alpha(), loaded[0].alpha())
+    # It then resumes only at its own meta-rate, and a fork can't change τ or the initial rate
+    train(resume_from=forked, total_games=150, settings=ours)
+    with pytest.raises(ValueError, match="AutoTIDBD settings"):
+        train(resume_from=forked, total_games=200, settings=ours.model_copy(update={"TIDBD_META_RATE": 0.01}))
+    with pytest.raises(ValueError, match="a fork goes from global to local normalisation"):
+        train(resume_from=original, total_games=100, settings=ours.model_copy(update={"TIDBD_TAU": 100.0}), fork_normalisation=True)

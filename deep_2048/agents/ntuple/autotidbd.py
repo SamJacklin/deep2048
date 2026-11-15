@@ -400,6 +400,12 @@ def rate_diagnostics(optimiser: Tidbd, initial_alpha: float, sample_every: int =
             result[f"{name}_increased"] = float(np.mean(values > start + 1e-6))
             result[f"{name}_decreased"] = float(np.mean(values < start - 1e-6))
             result[f"{name}_very_small"] = float(np.mean(values < start + np.log(VERY_SMALL)))
+    # Most weights are rarely updated, so the overall median says little about the weights doing most of the work
+    result["alpha_by_visits"] = {}
+    for low in (1, 100, 1_000, 10_000, 100_000, 1_000_000):
+        band = log_alpha[(visits >= low) & (visits < (100 if low == 1 else 10 * low if low < 1_000_000 else np.inf))]
+        if band.size:
+            result["alpha_by_visits"][str(low)] = {"weights": int(band.size)} | _percentiles(band)
     result["log10_alpha_bins"] = LOG10_BINS.tolist()
     result["log10_alpha_visited_histogram"] = np.histogram(seen / np.float32(np.log(10)), bins=LOG10_BINS)[0].tolist()
     result["non_finite_state"] = int((~np.isfinite(rates)).sum())

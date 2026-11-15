@@ -352,9 +352,10 @@ def train(
 ) -> TrainingSummary:
     """Train until total_games have been played, including any in the resumed checkpoint.
 
-    fork_normalisation lets a checkpoint trained with AutoTIDBD's published global normalisation carry on under the
-    local rule (TIDBD_NORMALISATION=local), keeping every step size as it stands. Without it, and in the other
-    direction always, a checkpoint only resumes under the rule it was trained with.
+    fork_normalisation lets a checkpoint trained with AutoTIDBD's published global normalisation carry on under a
+    local rule (TIDBD_NORMALISATION), keeping every step size as it stands, and with it another normaliser decay or
+    meta-rate if the settings ask for them. Without it, and in the other direction always, a checkpoint only resumes
+    with the rules and settings it was trained with.
 
     coherence_scale multiplies the resumed temporal coherence sums. 0 resets them, giving every weight back
     its full rate. A fraction keeps each weight's rate for now but lets new errors move it sooner, since
@@ -579,11 +580,11 @@ def _load_or_create_tidbd(
     if any(clashes.values()):
         raise ValueError(f"OPTIMIZER=autotidbd doesn't work with {', '.join(name for name, set_ in clashes.items() if set_)}")
     local, proportional = settings.TIDBD_NORMALISATION != "global", settings.TIDBD_NORMALISATION == "proportional"
-    asked = {"initial_alpha": settings.TIDBD_INITIAL_ALPHA, "theta": settings.TIDBD_META_RATE, "tau": settings.TIDBD_TAU, "normalisation": settings.TIDBD_NORMALISATION, "normaliser_decay": settings.TIDBD_NORMALISER_DECAY}
+    asked = {"initial_alpha": settings.TIDBD_INITIAL_ALPHA, "theta": settings.TIDBD_META_RATE, "tau": settings.TIDBD_TAU, "normalisation": settings.TIDBD_NORMALISATION, "normaliser_decay": settings.TIDBD_NORMALISER_DECAY}  # noqa: E501
     if resume_from is None:
         if fork_normalisation:
             raise ValueError("fork_normalisation needs a checkpoint to fork from")
-        return Tidbd.create(network.weights.size, settings.TIDBD_INITIAL_ALPHA, settings.TIDBD_META_RATE, settings.TIDBD_TAU, local=local, proportional=proportional, mean_decay=settings.TIDBD_NORMALISER_DECAY), totals
+        return Tidbd.create(network.weights.size, settings.TIDBD_INITIAL_ALPHA, settings.TIDBD_META_RATE, settings.TIDBD_TAU, local=local, proportional=proportional, mean_decay=settings.TIDBD_NORMALISER_DECAY), totals  # noqa: E501
     loaded = autotidbd.load(resume_from)
     if loaded is None:
         raise ValueError(f"{resume_from} holds no AutoTIDBD state, so training can't resume from it with OPTIMIZER=autotidbd")
@@ -591,10 +592,12 @@ def _load_or_create_tidbd(
     saved = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": autotidbd.normalisation(optimiser), "normaliser_decay": optimiser.mean_decay}
     if fork_normalisation:
         # The published rules (global normalisation, the listing's normaliser) can be left for the experimental ones, not the reverse
-        if saved != asked | {"normalisation": "global", "normaliser_decay": 0.0} or not local:
-            raise ValueError(f"a fork goes from global to local normalisation with nothing else changed, not from {saved} to {asked}")
+        if saved | {"theta": asked["theta"]} != asked | {"normalisation": "global", "normaliser_decay": 0.0} or not local:
+            raise ValueError(f"a fork goes from global to local normalisation, with at most the normaliser's decay and the meta-rate changed besides, not from {saved} to {asked}")
         # Every step size stays exactly as it is: the shared offset is kept, and from here on is never moved
-        optimiser = optimiser._replace(local=True, proportional=proportional, mean_decay=settings.TIDBD_NORMALISER_DECAY)
+        optimiser = optimiser._replace(local=True, proportional=proportional, mean_decay=settings.TIDBD_NORMALISER_DECAY, theta=settings.TIDBD_META_RATE)
+        if saved["theta"] != asked["theta"]:
+            print(f"Meta-rate θ changed from {saved['theta']} to {asked['theta']}")
         print(f"Forked to {settings.TIDBD_NORMALISATION} normalisation, keeping the shared offset of {optimiser.shared[0]:.4f} fixed from here on")
     elif saved != asked:
         raise ValueError(f"{resume_from} was trained with AutoTIDBD settings {saved}, not {asked}: set the settings to match")
