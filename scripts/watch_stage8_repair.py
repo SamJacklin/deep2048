@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 OUTPUT = Path("experiments/stage8-tidbd-repair")
-ARMS = {"control": ("Control (global)", "firebrick"), "local": ("Local", "steelblue"), "proportional": ("Proportional", "seagreen"), "theta0.1": ("Proportional, θ 0.1", "darkorange"), "theta0.3": ("Proportional, θ 0.3", "purple")}
+ARMS = {"control": ("Control (global)", "firebrick"), "local": ("Local", "steelblue"), "proportional": ("Proportional", "seagreen"), "theta0.1": ("Proportional, θ 0.1", "darkorange"), "theta0.03": ("Proportional, θ 0.03", "goldenrod"), "theta0.3": ("Proportional, θ 0.3", "purple")}
 PANELS = (
     ("training_history.csv", "avg_score", "Training score (rolling 20k games)", True, False),
     ("training_history.csv", "rate_16384", "% of training games reaching 16384 (rolling)", True, False),
