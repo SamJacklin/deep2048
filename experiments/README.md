@@ -1131,7 +1131,7 @@ The question: can a second network, trained only on the late game, beat the 2M n
 
 Stages 0 to 6 above found that the gap is the step from 16384 to 32768, and that neither a late correction nor a dedicated late network closes it. This section covers what came next: a longer search for the best single network (the methods batch), a closer look at where the last step fails, and two changes that did help, a search-taught finisher and expected backups. Play is greedy throughout unless a line says otherwise.
 
-**Where it stands:** the best greedy player scores about 350k after 6.65M training games, with 32768 in about 18% of games.
+**Where it stands:** the best greedy player scores about 351k after 6.65M training games, with 32768 in about 18% of games.
 
 | Player | Seeds 0–4,999 and 20,000–24,999 | Seeds 30,000–69,999 | ≥32768 (40,000 games) | 16384 → 32768 |
 |---|---:|---:|---:|---:|
@@ -1139,7 +1139,8 @@ Stages 0 to 6 above found that the gap is the step from 16384 to 32768, and that
 | 6.4M + finisher | 344,197 | 341,733 | 15.8% | 19.9% |
 | 6.4M + finisher with a work-area table | 344,508 | 343,432 | 16.7% | 21.0% |
 | 6.65M network (expected backups from 6.4M) | 342,289 | 341,558 | 13.2% | 16.3% |
-| **6.65M + finisher with a work-area table** | **350,932** | **349,491** | **17.8%** | **22.0%** |
+| 6.65M + finisher with a work-area table | 350,932 | 349,491 | 17.8% | 22.0% |
+| **6.65M + that finisher and one before 16384** | **350,603** | **351,587** | **17.9%** | **21.9%** |
 
 - **How these are measured:** every player plays the same seeded games, so differences are paired game by game (`paired-games/compare.py`, with every player's games kept in [`paired-games/games`](paired-games/games) and the tables in [`paired-games/tables`](paired-games/tables)). The second seed set scores every player about 1.5k lower, so compare within a column. In this section ± is one standard error unless a line says 95%.
 - **For scale** ([RELATED_WORK.md](RELATED_WORK.md)): Guei's single-stage 8×6 scores 370,194 greedy with 32768 in 22.2% of games after 100M games, and his 2-stage network 412,785.
@@ -1214,9 +1215,10 @@ A second set of weights that plays only one window of the game: boards whose lar
   - **The finisher was limited by what it could represent, not by its teacher.** It fitted its training boards no better than unseen ones, and four extra 6-cell shapes or Jaśkowski's small tuples changed nothing. With the table it goes from about 58% of the teacher's gain to about 78%.
   - **In whole games** it adds +1,698 ± 253 over the plain finisher on 40,000 games (+311 ± 520 on the first 10,000, which was an unlucky draw), and +0.9 points of 32768.
   - **Without a teacher it fails** (`--td`, the table learning alone by TD(0) from the finisher's own play): −10 to −19 points from the window at every rate tried. TD only revalues the afterstates that are played, the rejected moves keep the base's higher values, and play drifts to them. The teacher values every legal move.
-- **Before 16384 no finisher has worked in whole games.** Over the last 1,024 of tile sum before a 16384:
+- **Before 16384 a finisher adds a little, once measured on enough games.** Over the last 1,024 of tile sum before a 16384:
   - Value matching makes play collapse, and mistakes mode with a depth-8 or depth-3 teacher ends at or below the base.
-  - **A rollout teacher** (`--rollout`) scores each move by the base's own greedy rollouts and overrides greedy play only above 2 standard errors, so its moves are good given that greedy play follows. As a player it makes the 16384 in 93.1% from the window against 88.9% (+4.2 ± 0.9). The finisher taught by it keeps +1.1 of that in the window, and in whole games gives −1.2k ± 1.3k alone and −2.0k ± 1.4k alongside the 32768 finisher.
+  - **A rollout teacher** (`--rollout`) scores each move by the base's own greedy rollouts and overrides greedy play only above 2 standard errors, so its moves are good given that greedy play follows. As a player it makes the 16384 in 93.1% from the window against 88.9% (+4.2 ± 0.9). The finisher taught by it keeps +1.1 of that in the window, and on 10,000 whole games of the 6.4M network gives −1.2k ± 1.3k alone and −2.0k ± 1.4k alongside the 32768 finisher.
+  - **On the 6.65M network, with a work-area table and 50,000 games,** the same finisher ends +0.8 points from the window, no better than without the table, but whole games show a small gain: +1.8k ± 0.6k alone, with 16384 in +0.9 ± 0.2 points more games and the 32768 rate unchanged. Alongside the 32768 finisher (`combine_windows`) it adds +1.6k ± 0.7k (−0.3k ± 1.5k on the first 10,000 games, +2.1k ± 0.7k on the other 40,000). The 10,000-game comparisons above were too small to see a gain of this size. A matched run without the table wasn't finished, so the table can't be credited with it.
 - **Supplementary, with search at play time:** the 6.4M network and its finisher, searching 3 moves ahead over the last 4,096 before a 16384 and 8 moves over the last 64 before a 32768, score 364,837 (+20.6k ± 1.5k), with about 1,750 searched moves a game. Depth 3 over the stretch before a 32768 costs 9.5k.
 
 ### Expected backups
@@ -1232,7 +1234,7 @@ Greedy play is about 80k behind depth-3 search on the same network (320k against
 - **The gain is real but small:** about +2.6k for K = 8 and +1.3k for K = 4 averaged over the two snapshots, in line with the leads in the training games (+2.7k and +1.7k over 500k games).
 - **Snapshots of one run wander by about ±2k,** as much as the effect, so single snapshots can't be compared at this scale.
 - **K = 8 at 6.65M is the best single network measured:** 341,558 on 40,000 fresh games against 336,604 for 6.4M. It costs compute but no games.
-- **A finisher fitted on it gains more than on 6.4M** (+7.9k ± 0.3k against +6.8k ± 0.3k), which gives the 350k player at the top of this section.
+- **A finisher fitted on it gains more than on 6.4M** (+7.9k ± 0.3k against +6.8k ± 0.3k), which gives the 350k player in the table at the top of this section.
 
 ### Averaging one lineage's snapshots
 
