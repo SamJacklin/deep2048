@@ -1,0 +1,29 @@
+Network checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz: 134,217,728 weights, 0 not finite, largest 141,127
+Untaught: greedy play takes 78.7% of the 987 measuring boards to 16384
+
+A. What the depth-3 teacher would teach, along the network's own play from 200 measuring boards (nothing learned)
+  60,000 decisions, 213,762 moves valued; teacher and network pick the same move 68.0% of the time; targets not finite: 0
+  teacher value minus the network's, raw:     mean +15,387, mean size 16,204, sizes p50/p90/p99 366/64,559/119,910, largest 242,496
+  the same, centred on each decision's mean:  mean -0, mean size 21,680, sizes p50/p90/p99 16,869/46,248/86,459, largest 177,499
+
+B. Controls (must not collapse)
+
+B1 rate 0: teacher depth 3, rate 0, centred, one thread
+ attempts   reach goal  not finite  largest weight  largest change  weights moved  minutes
+       20        78.7%           0         141,127               0              0      2.5
+
+B2 depth-1 teacher (the network's own values): teacher depth 1, rate 0.001, centred, one thread
+ attempts   reach goal  not finite  largest weight  largest change  weights moved  minutes
+       20        78.7%           0         141,127               0              0      0.2
+      100        78.7%           0         141,127               0              0      0.4
+
+C. The real setting
+
+C1: teacher depth 3, rate 0.001, centred, one thread
+ attempts   reach goal  not finite  largest weight  largest change  weights moved  minutes
+        1         4.4%           0         141,127           5,703        355,147      0.2
+        5         0.3%           0         141,127           8,465        797,561      0.6
+       20         0.3%           0         141,127          10,453      1,491,730      1.9
+       50         0.0%           0         141,087          12,323      2,262,191      4.4
+      100         0.0%           0         140,970          13,772      3,140,435      8.1
+      200         0.1%           0         140,963          18,616      4,101,047     15.4
