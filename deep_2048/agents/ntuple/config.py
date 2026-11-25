@@ -85,6 +85,9 @@ class NTupleSettings(Settings):
     RANK_MIN_GAP: float = 0.0
     # Threads playing and learning in parallel without locks: faster, but not bit-reproducible.
     # The first THREADS_AFTER games are single-threaded, since a fresh network collides often.
+    # TD(0)'s target for an afterstate with at most this many empty cells is the expectation over every spawn
+    # (each cell, 2 or 4) of the best next move's value, not the one spawn sampled. 0 is off.
+    EXPECTED_BACKUP_EMPTY: int = 0
     THREADS: int = 1
     THREADS_AFTER: int = 10_000
     TRAINING_GAMES: int = 100_000

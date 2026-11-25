@@ -335,3 +335,28 @@ def test_history_keeps_an_older_files_columns(tmp_path) -> None:
     _append_history(new_path, row)
     with open(new_path) as f:
         assert next(csv.DictReader(f))["rate_32768"] == "11.0"
+
+
+def test_expected_target_averages_the_best_next_value_over_every_spawn() -> None:
+    from deep_2048.agents.ntuple.network import evaluate
+    from deep_2048.agents.ntuple.train import expected_target
+
+    network = NTupleNetwork(tuples=SMALL_TUPLES)
+    network.weights[:] = np.random.default_rng(0).normal(0, 10, network.weights.size).astype(network.weights.dtype)
+    afterstate = np.uint64(bb.from_array(np.array([[2, 4, 8, 16], [32, 64, 128, 256], [2, 4, 8, 0], [0, 0, 32, 64]])))
+    expected = 0.0
+    for cell in (11, 12, 13):
+        for exponent, chance in ((1, 0.9), (2, 0.1)):
+            board = afterstate | np.uint64(exponent << (4 * cell))
+            values = [r + evaluate(network.weights, network.layout, np.uint64(a), board) for a, r in (bb.move(board, m) for m in range(4)) if np.uint64(a) != board]
+            expected += chance * (max(values) if values else 0.0) / 3
+    assert expected_target(network.weights, network.layout, afterstate) == pytest.approx(expected)
+
+
+def test_expected_backups_learn_and_improve_play() -> None:
+    network = NTupleNetwork(tuples=SMALL_TUPLES)
+    before = play(network, 200, learn=False, seed=0)
+    bb.seed(1)
+    play_games(2_000, network.weights, None, network.layout, 0.01, True, expected_empty=16)
+    after = play(network, 200, learn=False, seed=0)
+    assert after.scores.mean() > 1.5 * before.scores.mean()

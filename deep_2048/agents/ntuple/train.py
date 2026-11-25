@@ -110,6 +110,25 @@ def _best_move_goal(weights: np.ndarray, layout: TupleLayout, board: np.uint64, 
 
 
 @njit
+def expected_target(weights: np.ndarray, layout: TupleLayout, afterstate: np.uint64) -> float:
+    """The mean over every spawn on the afterstate (each empty cell, 2 or 4 by their chances) of the best next move's
+    reward plus value, 0 where the game is over: the TD(0) target with the spawn's luck taken out."""
+    empty = bb._empty_cells(afterstate)
+    cells = empty
+    total = 0.0
+    count = 0
+    while cells:
+        lowest = cells & (~cells + np.uint64(1))
+        for exponent, chance in ((np.uint64(1), 1.0 - bb.SPAWN_FOUR_PROBABILITY), (np.uint64(2), bb.SPAWN_FOUR_PROBABILITY)):
+            _, _, value = _best_move(weights, layout, afterstate | (exponent * lowest))
+            if value > -np.inf:
+                total += chance * value
+        count += 1
+        cells &= cells - np.uint64(1)
+    return total / count if count else 0.0
+
+
+@njit
 def play_game(
     weights: np.ndarray,
     traces: CoherenceTraces | None,
@@ -120,6 +139,7 @@ def play_game(
     harvest_exponent: int,
     guide: SearchGuide | None = None,
     goal: Goal | None = None,
+    expected_empty: int = 0,
 ) -> tuple[int, int, int, np.uint64]:
     """Play one greedy game, learning from it if `learn`, and return (score, max exponent, moves, harvested).
 
@@ -127,7 +147,8 @@ def play_game(
     is the position where the game first made a 2**harvest_exponent tile, otherwise 0. With a `guide`, some
     late decisions are searched instead (guidance.guided_move); numba compiles the plain path without it. With a
     `goal`, the move that makes the goal tile ends the game: its afterstate learns towards the goal's value, which is
-    also what the move before learns from.
+    also what the move before learns from. An afterstate with at most `expected_empty` empty cells (if positive)
+    learns towards expected_target rather than the spawn that happened.
     """
     board = bb.initial_board() if start == np.uint64(0) else start
     # Only guided games search, so unguided ones get a one-entry table rather than allocating a full one per game
@@ -148,7 +169,10 @@ def play_game(
             best_afterstate, best_reward, best_value = guided_move(weights, layout, board, guide, table)
         game_over = best_value == -np.inf
         if learn and moves > 0:
-            _learn(weights, traces, layout, previous_afterstate, previous_state, 0.0 if game_over else best_value, learning_rate)
+            target = 0.0 if game_over else best_value
+            if expected_empty > 0 and bb._count_cells(bb._empty_cells(previous_afterstate)) <= expected_empty:
+                target = expected_target(weights, layout, previous_afterstate)
+            _learn(weights, traces, layout, previous_afterstate, previous_state, target, learning_rate)
 
         if goal is not None and not game_over and bb.max_exponent(best_afterstate) >= goal.exponent:
             if learn:  # the goal's afterstates learn their fixed value, so play with the network alone values them the same way
@@ -305,6 +329,7 @@ def play_games(
     guide: SearchGuide | None = None,
     tidbd: Tidbd | None = None,
     goal: Goal | None = None,
+    expected_empty: int = 0,
 ) -> GameResults:
     """Play n games, starting a share of them from `late_starts` if given, learning by TD(λ) if `td_lambda` is,
     searching some late decisions if `guide` is, learning by AutoStep TIDBD if `tidbd` is (and `learn`), and ending
@@ -331,7 +356,7 @@ def play_games(
         if tidbd is not None and learn:
             game = play_game_tidbd(weights, tidbd, layout, start, harvest_exponent, stats)
         elif td_lambda is None:
-            game = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent, guide, goal)
+            game = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent, guide, goal, expected_empty)
         else:
             game = play_game_lambda(weights, traces, layout, learning_rate, learn, start, harvest_exponent, td_lambda)
         scores[i], max_exponents[i], moves[i], harvested[i] = game
@@ -351,12 +376,13 @@ def play_games_threaded(
     guide: SearchGuide | None = None,
     tidbd: Tidbd | None = None,
     goal: Goal | None = None,
+    expected_empty: int = 0,
 ) -> GameResults:
     """Play n games split across `threads` threads, which update the shared weights without locks."""
     # Game lengths vary a lot, so small shares handed out as threads free up keep every thread busy
     shares = [len(games) for games in np.array_split(np.arange(n), 8 * threads)]
     with ThreadPoolExecutor(max_workers=threads) as pool:
-        parts = list(pool.map(lambda share: play_games(share, weights, traces, layout, learning_rate, learn, late_starts, td_lambda, guide, tidbd, goal), shares))
+        parts = list(pool.map(lambda share: play_games(share, weights, traces, layout, learning_rate, learn, late_starts, td_lambda, guide, tidbd, goal, expected_empty), shares))
     return GameResults(*(np.concatenate(field) for field in zip(*parts)))
 
 
@@ -479,7 +505,12 @@ def _train(
     goal = None if settings.GOAL_TILE is None else Goal(settings.GOAL_TILE.bit_length() - 1, settings.GOAL_VALUE)
     if goal is not None:
         print(f"Every game ends on the move that makes {settings.GOAL_TILE}, worth {settings.GOAL_VALUE:,.0f} after its reward")
-    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts, td_lambda, guide, tidbd, goal)
+    expected = settings.EXPECTED_BACKUP_EMPTY
+    if expected > 0:
+        if td_lambda is not None or tidbd is not None or guide is not None or goal is not None:
+            raise ValueError("EXPECTED_BACKUP_EMPTY works with plain TD(0) or TC only")
+        print(f"Afterstates with at most {expected} empty cells learn towards the expectation over every spawn")
+    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts, td_lambda, guide, tidbd, goal, expected)
 
     interrupted = False
     try:
@@ -494,9 +525,9 @@ def _train(
             threaded = settings.THREADS > 1 and progress.games_played >= settings.THREADS_AFTER
             started = time.monotonic()
             if threaded:
-                results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS, td_lambda, guide, tidbd, goal)
+                results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS, td_lambda, guide, tidbd, goal, expected)
             else:
-                results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, td_lambda, guide, tidbd, goal)
+                results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, td_lambda, guide, tidbd, goal, expected)
             if tidbd is not None:
                 batch_stats = autotidbd.combine_stats(results.stats)
                 if batch_stats[autotidbd.NON_FINITE] > 0:
