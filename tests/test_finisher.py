@@ -279,16 +279,18 @@ def test_a_work_area_table_adds_to_the_window_only_and_can_learn_alone_by_td(tmp
     assert abs_errors.any() and plain.base_unchanged(base)
 
 
-def test_two_windows_play_each_finisher_in_its_own_window_and_the_base_elsewhere(tmp_path: Path) -> None:
+@pytest.mark.parametrize("areas", [(False, False), (True, True), (True, False), (False, True)])
+def test_two_windows_play_each_finisher_in_its_own_window_and_the_base_elsewhere(tmp_path: Path, areas: tuple[bool, bool]) -> None:
     path = saved_base(tmp_path, seed=6)
     base, _ = NTupleNetwork.load(path)
     lower = board([[512, 256, 128, 32], [16, 8, 4, 2], [2, 0, 0, 0], [0] * 4])  # largest 512, sums to 960: the lower window
     trained = []
-    for top, start in ((TOP, INSIDE), (TOP - 1, lower)):
-        finisher = FinisherNetwork.from_base(path, top, MARGIN)
-        errors, abs_errors = np.zeros(finisher.first), np.zeros(finisher.first)
+    for top, start, area in ((TOP, INSIDE, areas[0]), (TOP - 1, lower, areas[1])):
+        finisher = FinisherNetwork.from_base(path, top, MARGIN, area=area)
+        errors, abs_errors = np.zeros(finisher.weights.size - finisher.first), np.zeros(finisher.weights.size - finisher.first)
         train_attempts(finisher.weights, errors, abs_errors, finisher.layout, finisher.base_layout, np.array([start], dtype=np.uint64), 20, 2, 0.0, 0.01, top, finisher.low,
                        finisher.first, 0.5, False, 3)
+        assert finisher.weights[2 * finisher.first :].any() == area  # a table, where there is one, has learned something
         finisher.progress = {"attempts": 20}
         finisher.save(tmp_path / f"finisher-{top}.npz")
         trained.append(finisher)

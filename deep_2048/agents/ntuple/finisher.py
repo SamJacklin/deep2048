@@ -393,19 +393,35 @@ class FinisherNetwork:
         return network
 
 
-def combine_windows(path: str | Path, second_path: str | Path) -> tuple[np.ndarray, TupleLayout]:
+def combine_windows(path: str | Path, second_path: str | Path) -> tuple[np.ndarray, TupleLayout | AreaLayout]:
     """Two finishers on the same base as one player: (weights, layout). The second finisher's window must lie below
-    the first's (a smaller largest tile), so the two never overlap; outside both, the base plays."""
+    the first's (a smaller largest tile), so the two never overlap; outside both, the base plays. Either may have a
+    work-area table: the weights are then the base, the two windows' stages, and the tables after them."""
     first = FinisherNetwork.load(path)
     with np.load(second_path) as data:
         about = json.loads(str(data["finisher"]))
         indices, values = data["indices"], data["values"]
-    if about["base_sha256"] != first.base_sha256 or first.extra or about.get("extra") or first.area or about.get("area"):
-        raise ValueError("Both finishers must patch the same base, without extra tuples or a work-area table")
+    if about["base_sha256"] != first.base_sha256 or first.extra or about.get("extra"):
+        raise ValueError("Both finishers must patch the same base, without extra tuples")
     if about["top"] >= first.top:
         raise ValueError("The second finisher's window must be below the first's")
+    indices = indices.astype(np.int64)
+    in_stage = indices < first.first  # the rest are the second finisher's work-area weights
     window = first.weights[: first.first].copy()
-    window[indices.astype(np.int64)] = values
+    window[indices[in_stage]] = values[in_stage]
     low = (1 << (about["top"] + 1)) - about["margin"]
-    layout = first.layout._replace(sharing=first.layout.sharing._replace(window2_exponent=about["top"], window2_sum=low))
-    return np.concatenate([first.weights, window]), layout
+    staged = first.layout.base if first.area else first.layout
+    staged = staged._replace(sharing=staged.sharing._replace(window2_exponent=about["top"], window2_sum=low))
+    parts = [first.weights[: 2 * first.first], window]
+    if not first.area and not about.get("area"):
+        return np.concatenate(parts), staged
+    area_offset = area2_offset = -1
+    if first.area:
+        area_offset = 3 * first.first
+        parts.append(first.weights[2 * first.first :])
+    if about.get("area"):
+        area2_offset = 3 * first.first + (AREA_WEIGHTS if first.area else 0)
+        table = np.zeros(AREA_WEIGHTS, dtype=first.weights.dtype)
+        table[indices[~in_stage] - first.first] = values[~in_stage]
+        parts.append(table)
+    return np.concatenate(parts), AreaLayout(staged, area_offset, area2_offset)

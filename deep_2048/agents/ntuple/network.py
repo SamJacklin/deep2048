@@ -356,11 +356,13 @@ class AreaLayout(NamedTuple):
     In the second stage (chosen by the board a move is made from, as the stage's tables are), an afterstate's value
     adds one weight for each symmetry of the real board whose top two rows hold nothing above 128: those 8 cells read
     as one pattern. Late in a build the large tiles fill one half of the board, so the other half is everything that
-    changes, and each 6-cell tuple sees only part of it.
+    changes, and each 6-cell tuple sees only part of it. A second window (the base's window2) reads a table of its own
+    at area2_offset. An offset of -1 means that window has no table.
     """
 
     base: TupleLayout
     area_offset: int
+    area2_offset: int = -1
 
 
 @njit
@@ -405,15 +407,25 @@ def _value_overload(weights, layout, board, state):  # type: ignore[no-untyped-d
 
 
 @njit
+def _area_start(layout: AreaLayout, state: np.uint64) -> int:
+    """Where the work-area table of the state's window starts, or -1 outside the windows or in one without a table."""
+    stage = _stage_offset(layout.base, state)
+    if stage == 0:
+        return -1
+    return layout.area_offset if stage == layout.base.sharing.stage_size else layout.area2_offset
+
+
+@njit
 def _area_value(weights: np.ndarray, layout: AreaLayout, board: np.uint64, state: np.uint64) -> float:
-    """The two-stage value, plus the work-area weights in the second stage. A call rather than inlined, as
+    """The staged value, plus the work-area weights of the state's window. A call rather than inlined, as
     _corrected_value is."""
     total = _tuple_value(weights, layout.base, board, state)
-    if _stage_offset(layout.base, state) != 0:
+    start = _area_start(layout, state)
+    if start >= 0:
         for symmetric_board in bb.symmetries(board):
             index = area_index(symmetric_board)
             if index >= 0:
-                total += weights[layout.area_offset + index]
+                total += weights[start + index]
     return total
 
 
@@ -429,11 +441,12 @@ def _fill_indices_overload(layout, board, state, indices):  # type: ignore[no-un
 
     def with_area(layout, board, state, indices):  # type: ignore[no-untyped-def]
         k = fill_weight_indices(layout.base, board, state, indices)
-        if _stage_offset(layout.base, state) != 0:
+        start = _area_start(layout, state)
+        if start >= 0:
             for symmetric_board in bb.symmetries(board):
                 index = area_index(symmetric_board)
                 if index >= 0:
-                    indices[k] = layout.area_offset + index
+                    indices[k] = start + index
                     k += 1
         return k
 
