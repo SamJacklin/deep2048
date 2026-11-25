@@ -6,15 +6,21 @@ reflections of the board using the same table. Cells are numbered 4 * row + col.
 """
 
 import json
+import warnings
 from pathlib import Path
 from typing import Any, Literal, NamedTuple, get_args
 
 import numpy as np
 from numba import njit, types
+from numba.core.errors import NumbaIRAssumptionWarning
 from numba.extending import overload
 
 from deep_2048.agents.ntuple.models import CheckpointMetadata
 from deep_2048.game import bitboard as bb
+
+# numba's pedantic IR check flags a variable from the inlined stage-downgrading rule; the compiled code is correct
+# (tests/test_stage_downgrade.py), so the warning is only noise in every training log
+warnings.filterwarnings("ignore", category=NumbaIRAssumptionWarning)
 
 TUPLES: tuple[tuple[int, ...], ...] = (
     (0, 1, 2, 3),
@@ -93,6 +99,11 @@ class TupleLayout(NamedTuple):
         scale_feature: bool = False,
         scale_when_downgraded: bool = False,
         stage_tile: int | None = None,
+        stage_downgrade_tile: int | None = None,
+        scale_rate: float = 1.0,
+        scale_skip_empty: bool = False,
+        scale_below_tile: int | None = None,
+        scale_by_state: bool = False,
     ) -> "TupleLayout":
         max_runs = max(len(t) for t in tuples)
         offsets = np.zeros(len(tuples), dtype=np.int64)
@@ -116,6 +127,12 @@ class TupleLayout(NamedTuple):
         stage_size = table_start if stage_tile is not None else 0
         table_start += stage_size
         sharing = None
+        if stage_downgrade_tile is not None and stage_tile is None:
+            raise ValueError("stage_downgrade_tile needs a second stage (stage_tile)")
+        if (scale_rate != 1.0 or scale_skip_empty or scale_below_tile is not None or scale_by_state) and not scale_feature:
+            raise ValueError("scale_rate, scale_skip_empty, scale_below_tile and scale_by_state need the scale feature")
+        if scale_below_tile is not None and (scale_below_tile & (scale_below_tile - 1) or scale_below_tile < 2):
+            raise ValueError(f"scale_below_tile must be a power of two, not {scale_below_tile}")
         if downgrade_tile is not None or scale_feature or stage_tile is not None:
             downgrade_exponent = 0 if downgrade_tile is None else downgrade_tile.bit_length() - 1
             sharing = ScaleSharing(
@@ -124,6 +141,12 @@ class TupleLayout(NamedTuple):
                 scale_when_downgraded=scale_when_downgraded,
                 stage_exponent=0 if stage_tile is None else stage_tile.bit_length() - 1,
                 stage_size=stage_size,
+                # 0 turns downgrading off in the second stage; None (-1) reads it as the first stage does
+                stage_downgrade_exponent=-1 if stage_downgrade_tile is None else max(stage_downgrade_tile.bit_length() - 1, 0),
+                scale_rate=scale_rate,
+                scale_skip_empty=scale_skip_empty,
+                scale_below_exponent=0 if scale_below_tile is None else scale_below_tile.bit_length() - 1,
+                scale_by_state=scale_by_state,
             )
         return cls(
             offsets=offsets,
@@ -152,6 +175,40 @@ class ScaleSharing(NamedTuple):
     # weights further on (0 means a single stage)
     stage_exponent: int = 0
     stage_size: int = 0
+    # Above 0, the second stage plays only a window: boards whose largest tile is exactly 2**stage_exponent and whose
+    # tiles sum to at least stage_sum, the last stretch before the next tile (the finisher's stage). Tiles only ever sum
+    # to more, so a game enters the window once and leaves it when the next tile is made.
+    stage_sum: int = 0
+    # The second stage's own downgrading: boards read in it are downgraded from 2**stage_downgrade_exponent (0: not
+    # at all) instead of from 2**downgrade_exponent; -1 reads them as the first stage does
+    stage_downgrade_exponent: int = -1
+    # The scale weight's own step, as a share of the tuples' rate: a board reads 64 tuple weights but one scale weight,
+    # so at 1 that single, heavily shared weight takes as big a step as each tuple weight and can soak up the error
+    scale_rate: float = 1.0
+    # Boards with no tile of 2048 or more read no scale weight: their entry would be one bias shared by every early board
+    scale_skip_empty: bool = False
+    # Above 0, boards whose real largest tile is 2**scale_below_exponent or more read no scale weight: the table only
+    # gives context below that tile, so it can't learn a value offset for the boards that downgrading reads at a smaller scale
+    scale_below_exponent: int = 0
+    # Read the scale weight from the board the move is made from (as the stage is chosen) instead of the afterstate:
+    # every move of a decision then reads the same entry, so the table can't make one move look better than another,
+    # only take up the part of the value that the large tiles already on the board explain
+    scale_by_state: bool = False
+    # Above 0, a second window with tables of its own, 2 * stage_size weights on: boards whose largest tile is exactly
+    # 2**window2_exponent and whose tiles sum to at least window2_sum (a second finisher, below the first's tile)
+    window2_exponent: int = 0
+    window2_sum: int = 0
+
+
+@njit
+def _board_sum(board: np.uint64) -> int:
+    """The sum of the board's tiles. A call rather than inlined, which numba's inliner mishandles inside the stage rule."""
+    total = 0
+    for i in range(bb.NUM_CELLS):
+        exponent = bb.get_cell(board, i)
+        if exponent > 0:
+            total += 1 << exponent
+    return total
 
 
 @njit(inline="always")
@@ -167,8 +224,13 @@ def _tuple_board(layout: TupleLayout, board: np.uint64) -> np.uint64:
     raise NotImplementedError
 
 
-def _scale_index(layout: TupleLayout, board: np.uint64, tuple_board: np.uint64) -> int:
+def _scale_index(layout: TupleLayout, board: np.uint64, tuple_board: np.uint64, state: np.uint64) -> int:
     """Return the board's scale weight index, or -1 if it gets no scale weight. Numba only."""
+    raise NotImplementedError
+
+
+def _stage_tuple_board(layout: TupleLayout, board: np.uint64, stage: int) -> np.uint64:
+    """Return the board the tuples read in the given stage (its tables' offset): downgraded as that stage asks. Numba only."""
     raise NotImplementedError
 
 
@@ -196,19 +258,56 @@ def _tuple_board_overload(layout, board):  # type: ignore[no-untyped-def]
     return downgraded
 
 
-@overload(_scale_index, inline="always")
-def _scale_index_overload(layout, board, tuple_board):  # type: ignore[no-untyped-def]
-    if not _has_sharing(layout):
-        return lambda layout, board, tuple_board: -1
+@njit(inline="always")
+def _downgrade_from(board: np.uint64, exponent: int) -> np.uint64:
+    """The board downgraded from 2**exponent, or unchanged for 0."""
+    return board if exponent == 0 else bb.downgrade(board, exponent)
 
-    def scale_index(layout, board, tuple_board):  # type: ignore[no-untyped-def]
+
+@overload(_stage_tuple_board, inline="always")
+def _stage_tuple_board_overload(layout, board, stage):  # type: ignore[no-untyped-def]
+    if not _has_sharing(layout):
+        return lambda layout, board, stage: board
+
+    def downgraded(layout, board, stage):  # type: ignore[no-untyped-def]
+        # Chosen without a branch: an if here trips a pedantic numba warning once inlined into the training loop
+        own = int(stage != 0) * int(layout.sharing.stage_downgrade_exponent >= 0)
+        return _downgrade_from(board, own * layout.sharing.stage_downgrade_exponent + (1 - own) * layout.sharing.downgrade_exponent)
+
+    return downgraded
+
+
+@overload(_scale_index, inline="always")
+def _scale_index_overload(layout, board, tuple_board, state):  # type: ignore[no-untyped-def]
+    if not _has_sharing(layout):
+        return lambda layout, board, tuple_board, state: -1
+
+    def scale_index(layout, board, tuple_board, state):  # type: ignore[no-untyped-def]
         if layout.sharing.scale_offset < 0:
             return -1
         if layout.sharing.scale_when_downgraded and tuple_board == board:
             return -1
-        return layout.sharing.scale_offset + bb.large_tile_counts(board)
+        counted = state if layout.sharing.scale_by_state else board
+        if layout.sharing.scale_below_exponent > 0 and bb.max_exponent(counted) >= layout.sharing.scale_below_exponent:
+            return -1
+        counts = bb.large_tile_counts(counted)
+        if layout.sharing.scale_skip_empty and counts == 0:
+            return -1
+        return layout.sharing.scale_offset + counts
 
     return scale_index
+
+
+def _scale_rate(layout: TupleLayout) -> float:
+    """The scale weight's share of the tuples' rate (1 without scale sharing). Numba only."""
+    raise NotImplementedError
+
+
+@overload(_scale_rate, inline="always")
+def _scale_rate_overload(layout):  # type: ignore[no-untyped-def]
+    if not _has_sharing(layout):
+        return lambda layout: 1.0
+    return lambda layout: layout.sharing.scale_rate
 
 
 @overload(_stage_offset, inline="always")
@@ -217,7 +316,11 @@ def _stage_offset_overload(layout, board):  # type: ignore[no-untyped-def]
         return lambda layout, board: 0
 
     def stage_offset(layout, board):  # type: ignore[no-untyped-def]
+        if layout.sharing.window2_exponent > 0 and bb.max_exponent(board) == layout.sharing.window2_exponent and _board_sum(board) >= layout.sharing.window2_sum:
+            return 2 * layout.sharing.stage_size
         if layout.sharing.stage_exponent == 0 or bb.max_exponent(board) < layout.sharing.stage_exponent:
+            return 0
+        if layout.sharing.stage_sum > 0 and (bb.max_exponent(board) > layout.sharing.stage_exponent or _board_sum(board) < layout.sharing.stage_sum):
             return 0
         return layout.sharing.stage_size
 
@@ -292,14 +395,14 @@ def _residual_value(weights: np.ndarray, layout: TupleLayout, board: np.uint64) 
 @njit(inline="always")
 def _tuple_value(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: np.uint64) -> float:
     """Sum the weights each tuple reads from each symmetry of the board, plus the scale weight if any."""
-    tuple_board = _tuple_board(layout, board)
     stage = _stage_offset(layout, state)
+    tuple_board = _stage_tuple_board(layout, board, stage)
     boards = bb.symmetries(tuple_board)
     total = 0.0
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
             total += weights[stage + _weight_index(layout, t, symmetric_board)]
-    scale = _scale_index(layout, board, tuple_board)
+    scale = _scale_index(layout, board, tuple_board, state)
     if scale >= 0:
         total += weights[scale]
     return total
@@ -315,15 +418,15 @@ def weight_indices(layout: TupleLayout, board: np.uint64, state: np.uint64) -> n
 @njit(inline="always")
 def fill_weight_indices(layout: TupleLayout, board: np.uint64, state: np.uint64, indices: np.ndarray) -> int:
     """Write weight_indices() into `indices` (room for one per tuple and symmetry, plus one) and return how many there are."""
-    tuple_board = _tuple_board(layout, board)
     stage = _stage_offset(layout, state)
+    tuple_board = _stage_tuple_board(layout, board, stage)
     boards = bb.symmetries(tuple_board)
     k = 0
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
             indices[k] = stage + _weight_index(layout, t, symmetric_board)
             k += 1
-    scale = _scale_index(layout, board, tuple_board)
+    scale = _scale_index(layout, board, tuple_board, state)
     if scale >= 0:
         indices[k] = scale
         k += 1
@@ -333,15 +436,15 @@ def fill_weight_indices(layout: TupleLayout, board: np.uint64, state: np.uint64,
 @njit(inline="always")
 def update(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: np.uint64, delta: float) -> None:
     """Add delta to every weight read for this board."""
-    tuple_board = _tuple_board(layout, board)
     stage = _stage_offset(layout, state)
+    tuple_board = _stage_tuple_board(layout, board, stage)
     boards = bb.symmetries(tuple_board)
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
             weights[stage + _weight_index(layout, t, symmetric_board)] += delta
-    scale = _scale_index(layout, board, tuple_board)
+    scale = _scale_index(layout, board, tuple_board, state)
     if scale >= 0:
-        weights[scale] += delta
+        weights[scale] += delta * _scale_rate(layout)
 
 
 class CoherenceTraces(NamedTuple):
@@ -378,15 +481,15 @@ def update_coherent(weights: np.ndarray, traces: CoherenceTraces, layout: TupleL
     A weight's coherence is |sum of its errors| / sum of their sizes: near 1 while its errors keep
     pointing the same way, and near 0 once they cancel out. A weight with no history learns at the full rate.
     """
-    tuple_board = _tuple_board(layout, board)
     stage = _stage_offset(layout, state)
+    tuple_board = _stage_tuple_board(layout, board, stage)
     boards = bb.symmetries(tuple_board)
     for t in range(len(layout.offsets)):
         for symmetric_board in boards:
             _update_coherent_weight(weights, traces, stage + _weight_index(layout, t, symmetric_board), learning_rate, error)
-    scale = _scale_index(layout, board, tuple_board)
+    scale = _scale_index(layout, board, tuple_board, state)
     if scale >= 0:
-        _update_coherent_weight(weights, traces, scale, learning_rate, error)
+        _update_coherent_weight(weights, traces, scale, learning_rate * _scale_rate(layout), error)
 
 
 @njit(inline="always")
@@ -406,13 +509,24 @@ class NTupleNetwork:
         scale_feature: bool = False,
         scale_when_downgraded: bool = False,
         stage_tile: int | None = None,
+        stage_downgrade_tile: int | None = None,
+        scale_rate: float = 1.0,
+        scale_skip_empty: bool = False,
+        scale_below_tile: int | None = None,
+        scale_by_state: bool = False,
     ) -> None:
         self.tuples = tuples
         self.downgrade_tile = downgrade_tile
         self.scale_feature = scale_feature
         self.scale_when_downgraded = scale_when_downgraded
         self.stage_tile = stage_tile
-        self.layout = TupleLayout.build(tuples, downgrade_tile, scale_feature, scale_when_downgraded, stage_tile)
+        self.stage_downgrade_tile = stage_downgrade_tile
+        self.scale_rate = scale_rate
+        self.scale_skip_empty = scale_skip_empty
+        self.scale_below_tile = scale_below_tile
+        self.scale_by_state = scale_by_state
+        self.layout = TupleLayout.build(tuples, downgrade_tile, scale_feature, scale_when_downgraded, stage_tile, stage_downgrade_tile, scale_rate, scale_skip_empty,
+                                        scale_below_tile, scale_by_state)
         self.weights = np.zeros(self.layout.n_weights, dtype=np.float32) if weights is None else weights
 
     @property
@@ -423,7 +537,9 @@ class NTupleNetwork:
             "scale_feature": self.scale_feature,
             "scale_when_downgraded": self.scale_when_downgraded,
             "stage_tile": self.stage_tile,
-        }
+        } | ({} if self.stage_downgrade_tile is None else {"stage_downgrade_tile": self.stage_downgrade_tile}) \
+          | ({} if self.scale_rate == 1.0 else {"scale_rate": self.scale_rate}) | ({"scale_skip_empty": True} if self.scale_skip_empty else {}) \
+          | ({} if self.scale_below_tile is None else {"scale_below_tile": self.scale_below_tile}) | ({"scale_by_state": True} if self.scale_by_state else {})
 
     @property
     def n_features(self) -> int:

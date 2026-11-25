@@ -40,7 +40,7 @@ from deep_2048.agents.ntuple import autotidbd
 from deep_2048.agents.ntuple.autotidbd import Tidbd
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
 from deep_2048.agents.ntuple.guidance import guided_move
-from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, LambdaReturn, LateStarts, SearchGuide, TrainingHistoryRow, TrainingSummary
+from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, Goal, LambdaReturn, LateStarts, SearchGuide, TrainingHistoryRow, TrainingSummary
 from deep_2048.agents.ntuple.search import new_transpositions
 from deep_2048.agents.ntuple.network import NETWORKS, CoherenceTraces, NTupleNetwork, TupleLayout, evaluate, load_traces, network_name, update, update_coherent
 from deep_2048.bench import file_sha256
@@ -90,6 +90,25 @@ def _best_move(weights: np.ndarray, layout: TupleLayout, board: np.uint64) -> tu
     return best_afterstate, best_reward, best_value
 
 
+@njit(inline="always")
+def _best_move_goal(weights: np.ndarray, layout: TupleLayout, board: np.uint64, goal: Goal) -> tuple[np.uint64, int, float]:
+    """_best_move, but a move that makes the goal tile is worth its reward plus the goal's value exactly."""
+    best_afterstate = board
+    best_reward = 0
+    best_value = -np.inf
+    for action in range(bb.NUM_ACTIONS):
+        afterstate, reward = bb.move(board, action)
+        if afterstate == board:
+            continue
+        if bb.max_exponent(afterstate) >= goal.exponent:
+            value = reward + goal.value
+        else:
+            value = reward + evaluate(weights, layout, afterstate, board)
+        if value > best_value:
+            best_afterstate, best_reward, best_value = afterstate, reward, value
+    return best_afterstate, best_reward, best_value
+
+
 @njit
 def play_game(
     weights: np.ndarray,
@@ -100,12 +119,15 @@ def play_game(
     start: np.uint64,
     harvest_exponent: int,
     guide: SearchGuide | None = None,
+    goal: Goal | None = None,
 ) -> tuple[int, int, int, np.uint64]:
     """Play one greedy game, learning from it if `learn`, and return (score, max exponent, moves, harvested).
 
     The game starts from `start`, or a fresh board if it's 0. If `harvest_exponent` is set, `harvested`
     is the position where the game first made a 2**harvest_exponent tile, otherwise 0. With a `guide`, some
-    late decisions are searched instead (guidance.guided_move); numba compiles the plain path without it.
+    late decisions are searched instead (guidance.guided_move); numba compiles the plain path without it. With a
+    `goal`, the move that makes the goal tile ends the game: its afterstate learns towards the goal's value, which is
+    also what the move before learns from.
     """
     board = bb.initial_board() if start == np.uint64(0) else start
     # Only guided games search, so unguided ones get a one-entry table rather than allocating a full one per game
@@ -118,13 +140,20 @@ def play_game(
     previous_state = np.uint64(0)
 
     while True:
-        if guide is None:
+        if goal is not None:
+            best_afterstate, best_reward, best_value = _best_move_goal(weights, layout, board, goal)
+        elif guide is None:
             best_afterstate, best_reward, best_value = _best_move(weights, layout, board)
         else:
             best_afterstate, best_reward, best_value = guided_move(weights, layout, board, guide, table)
         game_over = best_value == -np.inf
         if learn and moves > 0:
             _learn(weights, traces, layout, previous_afterstate, previous_state, 0.0 if game_over else best_value, learning_rate)
+
+        if goal is not None and not game_over and bb.max_exponent(best_afterstate) >= goal.exponent:
+            if learn:  # the goal's afterstates learn their fixed value, so play with the network alone values them the same way
+                _learn(weights, traces, layout, best_afterstate, board, goal.value, learning_rate)
+            return score + best_reward, bb.max_exponent(best_afterstate), moves + 1, harvested
 
         if game_over:
             if guide is not None:
@@ -275,9 +304,11 @@ def play_games(
     td_lambda: LambdaReturn | None = None,
     guide: SearchGuide | None = None,
     tidbd: Tidbd | None = None,
+    goal: Goal | None = None,
 ) -> GameResults:
     """Play n games, starting a share of them from `late_starts` if given, learning by TD(λ) if `td_lambda` is,
-    searching some late decisions if `guide` is, and learning by AutoStep TIDBD if `tidbd` is (and `learn`).
+    searching some late decisions if `guide` is, learning by AutoStep TIDBD if `tidbd` is (and `learn`), and ending
+    each game on the move that makes the `goal` tile if one is given.
 
     Releases the GIL, so several threads can run it at once on the same weights.
     """
@@ -300,7 +331,7 @@ def play_games(
         if tidbd is not None and learn:
             game = play_game_tidbd(weights, tidbd, layout, start, harvest_exponent, stats)
         elif td_lambda is None:
-            game = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent, guide)
+            game = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent, guide, goal)
         else:
             game = play_game_lambda(weights, traces, layout, learning_rate, learn, start, harvest_exponent, td_lambda)
         scores[i], max_exponents[i], moves[i], harvested[i] = game
@@ -319,12 +350,13 @@ def play_games_threaded(
     td_lambda: LambdaReturn | None = None,
     guide: SearchGuide | None = None,
     tidbd: Tidbd | None = None,
+    goal: Goal | None = None,
 ) -> GameResults:
     """Play n games split across `threads` threads, which update the shared weights without locks."""
     # Game lengths vary a lot, so small shares handed out as threads free up keep every thread busy
     shares = [len(games) for games in np.array_split(np.arange(n), 8 * threads)]
     with ThreadPoolExecutor(max_workers=threads) as pool:
-        parts = list(pool.map(lambda share: play_games(share, weights, traces, layout, learning_rate, learn, late_starts, td_lambda, guide, tidbd), shares))
+        parts = list(pool.map(lambda share: play_games(share, weights, traces, layout, learning_rate, learn, late_starts, td_lambda, guide, tidbd, goal), shares))
     return GameResults(*(np.concatenate(field) for field in zip(*parts)))
 
 
@@ -444,7 +476,10 @@ def _train(
     if not 1 <= settings.THREADS <= (os.cpu_count() or 1):
         raise ValueError(f"THREADS must be between 1 and {os.cpu_count()}, not {settings.THREADS}")
     # Compile before timing starts, otherwise the first batch's games/s includes compilation
-    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts, td_lambda, guide, tidbd)
+    goal = None if settings.GOAL_TILE is None else Goal(settings.GOAL_TILE.bit_length() - 1, settings.GOAL_VALUE)
+    if goal is not None:
+        print(f"Every game ends on the move that makes {settings.GOAL_TILE}, worth {settings.GOAL_VALUE:,.0f} after its reward")
+    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts, td_lambda, guide, tidbd, goal)
 
     interrupted = False
     try:
@@ -459,9 +494,9 @@ def _train(
             threaded = settings.THREADS > 1 and progress.games_played >= settings.THREADS_AFTER
             started = time.monotonic()
             if threaded:
-                results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS, td_lambda, guide, tidbd)
+                results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS, td_lambda, guide, tidbd, goal)
             else:
-                results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, td_lambda, guide, tidbd)
+                results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, td_lambda, guide, tidbd, goal)
             if tidbd is not None:
                 batch_stats = autotidbd.combine_stats(results.stats)
                 if batch_stats[autotidbd.NON_FINITE] > 0:
@@ -518,12 +553,16 @@ def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) ->
         raise ValueError("SCALE_WHEN_DOWNGRADED needs SCALE_FEATURE and DOWNGRADE_TILE")
     if settings.STAGE_TILE is not None and settings.STAGE_TILE & (settings.STAGE_TILE - 1):
         raise ValueError(f"STAGE_TILE must be a power of two, not {settings.STAGE_TILE}")
+    if settings.STAGE_DOWNGRADE_TILE is not None and settings.STAGE_TILE is None:
+        raise ValueError("STAGE_DOWNGRADE_TILE needs STAGE_TILE")
     features = {
         "downgrade_tile": settings.DOWNGRADE_TILE,
         "scale_feature": settings.SCALE_FEATURE,
         "scale_when_downgraded": settings.SCALE_WHEN_DOWNGRADED,
         "stage_tile": settings.STAGE_TILE,
-    }
+    } | ({} if settings.STAGE_DOWNGRADE_TILE is None else {"stage_downgrade_tile": settings.STAGE_DOWNGRADE_TILE}) \
+      | ({} if settings.SCALE_RATE == 1.0 else {"scale_rate": settings.SCALE_RATE}) | ({"scale_skip_empty": True} if settings.SCALE_SKIP_EMPTY else {}) \
+      | ({} if settings.SCALE_BELOW_TILE is None else {"scale_below_tile": settings.SCALE_BELOW_TILE}) | ({"scale_by_state": True} if settings.SCALE_BY_STATE else {})
     if resume_from is None:
         network = NTupleNetwork(
             NETWORKS[settings.NETWORK],
@@ -531,6 +570,11 @@ def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) ->
             scale_feature=settings.SCALE_FEATURE,
             scale_when_downgraded=settings.SCALE_WHEN_DOWNGRADED,
             stage_tile=settings.STAGE_TILE,
+            stage_downgrade_tile=settings.STAGE_DOWNGRADE_TILE,
+            scale_rate=settings.SCALE_RATE,
+            scale_skip_empty=settings.SCALE_SKIP_EMPTY,
+            scale_below_tile=settings.SCALE_BELOW_TILE,
+            scale_by_state=settings.SCALE_BY_STATE,
         )
         return network, CheckpointMetadata(games_played=0, moves_played=0, **learning)
 

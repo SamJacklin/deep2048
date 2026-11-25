@@ -41,6 +41,17 @@ class LateStarts(NamedTuple):
     harvest_exponent: int
 
 
+class Goal(NamedTuple):
+    """A tile that ends a training game (a tailored first stage). A NamedTuple so numba can use it.
+
+    The move that makes a 2**exponent tile ends the game, and its afterstate is worth `value` (a fixed bonus standing in
+    for whatever comes after): moves are chosen with that value exactly, and the afterstate learns towards it.
+    """
+
+    exponent: int
+    value: float
+
+
 class SearchGuide(NamedTuple):
     """Search during training. A NamedTuple so numba can use it.
 

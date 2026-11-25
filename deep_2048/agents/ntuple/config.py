@@ -53,9 +53,25 @@ class NTupleSettings(Settings):
     DOWNGRADE_TILE: int | None = None
     SCALE_FEATURE: bool = False
     SCALE_WHEN_DOWNGRADED: bool = False
+    # The scale weight's step as a share of the tuples' rate, and whether boards with no tile of 2048 or more skip it
+    # (plain TD(0) or TC only: TD(lambda) and autotidbd update every weight they read alike)
+    SCALE_RATE: float = 1.0
+    SCALE_SKIP_EMPTY: bool = False
+    # Boards whose largest tile is SCALE_BELOW_TILE or more read no scale weight
+    SCALE_BELOW_TILE: int | None = None
+    # Read the scale weight from the board the move is made from, not the afterstate, so it can't separate one move from another
+    SCALE_BY_STATE: bool = False
     # A second copy of the weights for boards whose real largest tile is STAGE_TILE or more, so the late
     # game learns values of its own (scripts/add_stage.py starts it as a copy of a trained network)
     STAGE_TILE: int | None = None
+    # The second stage's own downgrading tile (0: none), instead of DOWNGRADE_TILE: the first stage can share across
+    # scales from 16384 while the late game reads real 16384s and shares only from 32768
+    STAGE_DOWNGRADE_TILE: int | None = None
+    # A tailored first stage: every training game ends on the move that makes GOAL_TILE, whose afterstate is worth
+    # GOAL_VALUE (a fixed bonus for reaching it, standing in for the later stages). Plain TD(0) or TC only, no late starts,
+    # and no downgrading at or below GOAL_TILE, which would share the goal's afterstates with boards still short of it.
+    GOAL_TILE: int | None = None
+    GOAL_VALUE: float = 0.0
     # Search during training (stage 5): with GUIDE_DEPTH > 0, decisions from boards holding GUIDE_TILE or more whose greedy
     # relative margin between the top two moves lies in [GUIDE_MARGIN_LOW, GUIDE_MARGIN_HIGH) are searched GUIDE_DEPTH
     # moves ahead and the searched move is played. With RANK_STEP > 0, where search prefers another move by at least
@@ -83,6 +99,32 @@ class NTupleSettings(Settings):
     def _optimizer_decides_coherence(self) -> "NTupleSettings":
         if self.OPTIMIZER is not None:
             self.TEMPORAL_COHERENCE = self.OPTIMIZER == "tc"
+        return self
+
+    @model_validator(mode="after")
+    def _scale_options_fit(self) -> "NTupleSettings":
+        if (self.SCALE_RATE != 1.0 or self.SCALE_SKIP_EMPTY or self.SCALE_BELOW_TILE is not None or self.SCALE_BY_STATE) and not self.SCALE_FEATURE:
+            raise ValueError("SCALE_RATE, SCALE_SKIP_EMPTY, SCALE_BELOW_TILE and SCALE_BY_STATE need SCALE_FEATURE")
+        if self.SCALE_RATE != 1.0 and (self.OPTIMIZER == "autotidbd" or self.LAMBDA > 0):
+            raise ValueError("SCALE_RATE works with plain TD(0) or TC only")
+        if not self.SCALE_RATE > 0:
+            raise ValueError(f"SCALE_RATE must be positive, not {self.SCALE_RATE}")
+        return self
+
+    @model_validator(mode="after")
+    def _goal_fits(self) -> "NTupleSettings":
+        if self.GOAL_TILE is None:
+            return self
+        if self.GOAL_TILE & (self.GOAL_TILE - 1) or self.GOAL_TILE < 4:
+            raise ValueError(f"GOAL_TILE must be a power of two, not {self.GOAL_TILE}")
+        if self.OPTIMIZER == "autotidbd" or self.LAMBDA > 0 or self.GUIDE_DEPTH > 0:
+            raise ValueError("GOAL_TILE works with plain TD(0) or TC only: no autotidbd, LAMBDA or GUIDE_DEPTH")
+        if self.LATE_START_FRACTION > 0 or self.START_POOL is not None:
+            raise ValueError("GOAL_TILE trains whole games from an empty board: LATE_START_FRACTION must be 0 and START_POOL unset")
+        if self.DOWNGRADE_TILE is not None and self.DOWNGRADE_TILE <= self.GOAL_TILE:
+            raise ValueError(f"DOWNGRADE_TILE {self.DOWNGRADE_TILE} would read the goal's afterstates as boards short of {self.GOAL_TILE}: unset it")
+        if self.STAGE_TILE is not None:
+            raise ValueError("GOAL_TILE trains a single-stage network: STAGE_TILE must be unset")
         return self
 
 
