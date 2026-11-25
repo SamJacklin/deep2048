@@ -1,0 +1,4 @@
+attempts,moves,seconds,teacher_made,student_made,patch_weights,agrees,regret,value_error,ranking_error,dev_greedy,dev_greedy_vs_base,dev_depth3,dev_depth3_vs_base,arrival_greedy,arrival_greedy_vs_base
+5000,2291819,2489,0.9584,0.7682,1176585,0.7417,104.8,13561.9,9400.9,0.7881,-0.0984,0.8545,-0.089,0.7565,-0.079
+10000,4609232,2503,0.9536,0.8173,1715662,0.7575,94.2,13847.0,9352.6,0.8271,-0.0594,0.8553,-0.0882,0.7665,-0.069
+15000,6942887,4835,0.9669,0.8458,2049117,0.7649,90.4,14065.4,9377.8,0.8347,-0.0517,0.8637,-0.0798,0.7785,-0.057

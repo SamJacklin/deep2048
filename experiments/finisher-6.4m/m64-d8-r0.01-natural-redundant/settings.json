@@ -1,0 +1,14 @@
+{
+  "margin": 64,
+  "rate": 0.01,
+  "depth": 8,
+  "cutoff": 0.02,
+  "threads": 8,
+  "student_share": 0.5,
+  "centred": false,
+  "natural": true,
+  "extra": "redundant",
+  "base": "checkpoints/ntuple/methods-8x6-second-reset/stall_6400000.npz",
+  "base_sha256": "1806a0b305a460992cadfdf41afe8d9243e606acfa64ed02f7b0df0d47b21739",
+  "top": 14
+}

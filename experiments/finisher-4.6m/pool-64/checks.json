@@ -1,0 +1,7 @@
+{
+  "greedy values on training boards": true,
+  "greedy continuations from the window (200)": true,
+  "depth-3 continuations from the window (20)": true,
+  "whole greedy games (100)": true,
+  "first stage is the base": true
+}
