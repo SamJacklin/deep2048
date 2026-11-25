@@ -1127,6 +1127,125 @@ The question: can a second network, trained only on the late game, beat the 2M n
 
 **Verdict: a dedicated late-game network doesn't beat the single 2M network at this scale.** Trained only on genuine late positions, with stage 1 protected, it can match the 2M network's greedy late game, and from scratch in about 1.6M continuations, but it stays clearly behind under search, which is how the agent plays. The late game's shortfall isn't the sharing between stages that rounds 5–12B and stage 1 pointed at: removing it entirely leaves the depth-3 gap in place.
 
+## Finishing the late game
+
+Stages 0 to 6 above found that the gap is the step from 16384 to 32768, and that neither a late correction nor a dedicated late network closes it. This section covers what came next: a longer search for the best single network (the methods batch), a closer look at where the last step fails, and two changes that did help, a search-taught finisher and expected backups. Play is greedy throughout unless a line says otherwise.
+
+**Where it stands:** the best greedy player scores about 350k after 6.65M training games, with 32768 in about 18% of games.
+
+| Player | Seeds 0–4,999 and 20,000–24,999 | Seeds 30,000–69,999 | ≥32768 (40,000 games) | 16384 → 32768 |
+|---|---:|---:|---:|---:|
+| 6.4M network | 338,136 | 336,604 | 12.8% | 16.1% |
+| 6.4M + finisher | 344,197 | 341,733 | 15.8% | 19.9% |
+| 6.4M + finisher with a work-area table | 344,508 | 343,432 | 16.7% | 21.0% |
+| 6.65M network (expected backups from 6.4M) | 342,289 | 341,558 | 13.2% | 16.3% |
+| **6.65M + finisher with a work-area table** | **350,932** | **349,491** | **17.8%** | **22.0%** |
+
+- **How these are measured:** every player plays the same seeded games, so differences are paired game by game (`paired-games/compare.py`, with every player's games kept in [`paired-games/games`](paired-games/games) and the tables in [`paired-games/tables`](paired-games/tables)). The second seed set scores every player about 1.5k lower, so compare within a column. In this section ± is one standard error unless a line says 95%.
+- **For scale** ([RELATED_WORK.md](RELATED_WORK.md)): Guei's single-stage 8×6 scores 370,194 greedy with 32768 in 22.2% of games after 100M games, and his 2-stage network 412,785.
+
+### The methods batch: the best single network
+
+`scripts/methods.py` trains the 8×6 under different learning rules and schedules, each as its own run `methods-8x6-<arm>`. The table is 5,000 greedy games per network ([`final-5000`](final-5000/)).
+
+| Network | Games | Greedy | ≥16384 | ≥32768 |
+|---|---:|---:|---:|---:|
+| Round 1's TC reset (the earlier best) | 2M | 312,066 | 74.5% | 7.8% |
+| The same recipe carried on at 0.02 | 5M | 321,905 | 77.3% | 9.2% |
+| | 8M | 327,467 | 78.5% | 9.6% |
+| | 10M | 326,595 | 78.6% | 9.3% |
+| Carried on at 0.005 from 8M | 10M | 330,548 | 80.2% | 9.4% |
+| | 13M | 328,369 | 78.8% | 9.6% |
+| Carried on at 0.002 | 12M | 326,081 | 77.9% | 9.6% |
+| With a large-tile count term from the first game | 10M | 329,993 | 79.3% | 9.1% |
+| **From scratch, moving on at each stall** | **4.6M** | **335,011** | 79.7% | **12.1%** |
+| The same after a further phase at 0.00125 | 5.6M | 331,217 | 78.8% | 12.0% |
+| **A second reset from 4.6M** | **6.4M** | **338,547** | 79.9% | **12.9%** |
+| A second stage on the 2M network, trained on its own | 2M + 6.2M | 316,797 | 74.5% | 8.0% |
+| A second stage on the 10M network carried on at 0.005 | 10M + 8.6M | 331,948 | 80.2% | 10.2% |
+| Stage 1 ending at 16384 with a bonus of 160k | 12M | 241,409 | 79.6% | 0.0% |
+
+- **More games on the best recipe buy nothing.** From 2M to 8M it gains 15k, then it's flat to 13M at any rate tried.
+- **Moving on at each stall is the best schedule** (`scratch-stall`): 0.02 from zero until training stalls (2.4M), a reset of the temporal coherence sums at 0.02 (to 3.6M), then 0.005 (to 4.6M). It beats the 10M networks with under half their games, and reaches 32768 in a third more games.
+- **A second reset still pays a little** (`second-reset`): reset at 4.6M, 0.02 to 5.8M, then 0.005 to a stall at 6.4M, for +3.5k. This 6.4M network is the base for everything below.
+- **A second stage trained by TD only matches its base,** on the 2M network and on the 10M one, whatever its rate. That agrees with rounds 5 to 12B and stage 6.
+- **A first stage that ends at 16384** never learns anything past it, as downgrading from 32768 didn't.
+- **Other learning rules from scratch lose to temporal coherence at this budget.** At 3M games, on 1,000 games each: TC at 0.005 scores 288k, plain TD at 0.1 a board 276k, with a TC finish 285k, Yeh's stall rule 269k and with a TC finish 296k. Plain TD from optimistic weights reaches 308k at 5.5M. The stall schedule is at 321k by 3M.
+
+### Where games are lost
+
+- **The search-gain map** (`scripts/search_gain.py`, [`search-gain-stage1`](search-gain-stage1/report-g16384.md)): from boards at every point of the 4096 and 8192 stages of the 2M network's games, depth-3 search makes the 16384 in 91–95% where greedy play makes it in 76–86%. The gain is spread over the whole stretch, 12–23 points at every point but the last.
+- **Teaching the network that search in its own weights** (`scripts/teach_window.py`) made play collapse; `scripts/teach_diagnose.py` and [`teach-stage1/diagnose.txt`](teach-stage1/diagnose.txt) record why.
+- **The failure anatomy** (`scripts/failure_anatomy.py`, [`failure-anatomy`](failure-anatomy/)): of 5,000 greedy games of a 10M network, 96.1% reach 8192 and 83.2% of those go on to 16384. Of the games that end in the 8192 stage, the largest tile had left its corner in 73%, by a forced move in 28% and a chosen one in 45%.
+- **The arrival test** (`scripts/arrival_test.py`): a game arrives when it first holds 16384, 8192, 4096 and 2048. From well-placed arrivals (about 9 in 10 of them), how far greedy continuations get:
+
+  | Chain complete down to | 2M network | 6.4M network | Survival of that step (6.4M) |
+  |---|---:|---:|---:|
+  | 2048 (arrival) | 100% | 100% | — |
+  | 1024 | 90.7% | 91.1% | 91% |
+  | 512 | 77.5% | 78.7% | 86% |
+  | 256 | 66.8% | 69.3% | 88% |
+  | 128 | 58.6% | 60.6% | 87% |
+  | 32768 made | 24.4% | 29.4% | **49%** |
+
+  - **The last stretch is the outlier.** Every earlier step keeps 86–91% of what's left, and the stretch after the 128 keeps half.
+  - **Positions don't differ much in their chances.** On the 2M network, well-placed arrivals convert at 24.4% with a spread of only 1.7 points between positions, so the outcome is decided later.
+- **The deep finish** (`scripts/deep_finish.py`, [`deep-finish`](deep-finish/report.md)): searching 8 moves ahead only in the last 64 of tile sum before a 32768 lifts conversion from well-placed arrivals from 23.9% to 39.2%, and whole games of the 2M network by +11.8k ± 3.2k (95%), with 9 searched moves a game. Searching the last 256 instead gives no more (39.3%). So the teachable gain is all in the last 64.
+
+### The finisher
+
+A second set of weights that plays only one window of the game: boards whose largest tile is 16384 and whose tiles sum to within 64 of 32768 (`deep_2048/agents/ntuple/finisher.py`, `scripts/finisher.py`). It starts as a copy of the base, so an untrained finisher plays exactly as the base, and the base's weights are never touched. Search is used only to train it.
+
+- **The teacher** is the frozen base searching 8 moves ahead. Every attempt starts from a real board at the window's edge and plays to its end.
+- **Value matching** moves every legal move's value towards the teacher's at every decision. On the 6.4M network it scores 341,359 with 32768 in 15.0% of 10,000 games.
+- **Learning from mistakes only** (`--mistakes`) changes nothing where the finisher already picks the teacher's move. Where it picks another, it closes the gap between the two moves, half from each. It scores **344,197** with 32768 in 16.5%, +6,061 ± 563 over the base. Value matching undoes choices the base had right, through weights that boards share, and this leaves them alone.
+  - Half the attempts follow the finisher's own move and half the teacher's. All of either does worse.
+  - Stronger teachers, longer training, averaged patches and a play-time gate add nothing.
+- **A work-area table** (`--area`, `network.AreaLayout`): one more table, read only in the window, that takes the half of the board without the large tiles as a single 8-cell pattern (tiles up to 128, 16.7M weights). Late in a build the large tiles fill the other half, so those 8 cells are everything that changes, and each 6-cell tuple sees only part of them. A half like that is present on 98% of the window's boards.
+
+  | From the window's edge (2,169 boards × 16 continuations) | Makes 32768 | vs the base (± 1 se) |
+  |---|---:|---:|
+  | Base (6.4M) | 49.4% | — |
+  | Finisher | 60.3% | +10.9 ± 0.4 |
+  | The same trained to 100k attempts | 60.9% | +11.5 ± 0.4 |
+  | **Finisher with the work-area table** | **63.9%** | **+14.5 ± 0.4** |
+  | The teacher's search | 68.1% | |
+
+  - **The finisher was limited by what it could represent, not by its teacher.** It fitted its training boards no better than unseen ones, and four extra 6-cell shapes or Jaśkowski's small tuples changed nothing. With the table it goes from about 58% of the teacher's gain to about 78%.
+  - **In whole games** it adds +1,698 ± 253 over the plain finisher on 40,000 games (+311 ± 520 on the first 10,000, which was an unlucky draw), and +0.9 points of 32768.
+  - **Without a teacher it fails** (`--td`, the table learning alone by TD(0) from the finisher's own play): −10 to −19 points from the window at every rate tried. TD only revalues the afterstates that are played, the rejected moves keep the base's higher values, and play drifts to them. The teacher values every legal move.
+- **Before 16384 no finisher has worked in whole games.** Over the last 1,024 of tile sum before a 16384:
+  - Value matching makes play collapse, and mistakes mode with a depth-8 or depth-3 teacher ends at or below the base.
+  - **A rollout teacher** (`--rollout`) scores each move by the base's own greedy rollouts and overrides greedy play only above 2 standard errors, so its moves are good given that greedy play follows. As a player it makes the 16384 in 93.1% from the window against 88.9% (+4.2 ± 0.9). The finisher taught by it keeps +1.1 of that in the window, and in whole games gives −1.2k ± 1.3k alone and −2.0k ± 1.4k alongside the 32768 finisher.
+- **Supplementary, with search at play time:** the 6.4M network and its finisher, searching 3 moves ahead over the last 4,096 before a 16384 and 8 moves over the last 64 before a 32768, score 364,837 (+20.6k ± 1.5k), with about 1,750 searched moves a game. Depth 3 over the stretch before a 32768 costs 9.5k.
+
+### Expected backups
+
+Greedy play is about 80k behind depth-3 search on the same network (320k against 402k at 2M games), and about 65% of the TD error's variance is the luck of one spawn. With `NTUPLE_EXPECTED_BACKUP_EMPTY=K`, an afterstate with at most K empty cells learns towards the mean, over every spawn, of the best next move's value. Three arms carry the 6.4M network on to 6.9M at 0.005 with its sums kept, differing only in K. Each difference is against the control at the same games, on 50,000 paired games.
+
+| Arm | Speed | Training games' average | At 6.65M | At 6.9M |
+|---|---:|---:|---:|---:|
+| Control (K = 0) | 1× | 337,827 | +0.0k ± 0.8k vs 6.4M | +1.4k ± 0.8k vs 6.4M |
+| K = 4 | 0.45× | 339,496 | +1.6k ± 0.8k | +1.0k ± 0.8k |
+| K = 8 | 0.3× | 340,512 | **+4.8k ± 0.8k** | +0.4k ± 0.8k |
+
+- **The gain is real but small:** about +2.6k for K = 8 and +1.3k for K = 4 averaged over the two snapshots, in line with the leads in the training games (+2.7k and +1.7k over 500k games).
+- **Snapshots of one run wander by about ±2k,** as much as the effect, so single snapshots can't be compared at this scale.
+- **K = 8 at 6.65M is the best single network measured:** 341,558 on 40,000 fresh games against 336,604 for 6.4M. It costs compute but no games.
+- **A finisher fitted on it gains more than on 6.4M** (+7.9k ± 0.3k against +6.8k ± 0.3k), which gives the 350k player at the top of this section.
+
+### Averaging one lineage's snapshots
+
+Guei's thesis reports a single-stage 8×6 at 415,945 from resetting the coherence sums every 1M games and averaging the snapshots, over 400M games. Averaging the snapshots this lineage already has gives nothing (10,000 paired games against 6.4M):
+
+| Average | Greedy | vs 6.4M (± 1 se) |
+|---|---:|---:|
+| 4.6M + 6.4M | 336,960 | −1,175 ± 1,814 |
+| 4.6M + 5.8M + 6.4M | 339,510 | +1,374 ± 1,827 |
+| 3.6M + 4.6M + 5.6M + 5.8M + 6.4M | 334,036 | −4,099 ± 1,820 |
+
+The averages don't collapse, as averaging two unrelated runs did, but they add nothing: these snapshots are settled at a low rate, with little noise left to average out. Two reset cycles can't say what hundreds would do.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
@@ -1170,7 +1289,9 @@ The end goal is a single multi-day training run that produces the final model. T
 
 ## Next experiments
 
-Where things stand, as of these runs:
+This list predates the late-game diagnostics. [Finishing the late game](#finishing-the-late-game) has the current best agent and what has been tried since.
+
+Where things stood, as of the decision arms:
 - **The [long run](#the-long-run)** reached 300k greedy and 365k at 3-ply after 1.5M games. That's more sample-efficient than any n-tuple result in [RELATED_WORK.md](RELATED_WORK.md).
 - **[Faster search](#faster-search)** made evaluation cheap, but deeper search added only 3%.
 - **[TD(λ)](#tdλ-across-seeds)** hurts at this rate and budget in every variant, and is dropped.
