@@ -346,6 +346,35 @@ class ResidualLayout(NamedTuple):
     clamp: bool = False
 
 
+# Weights in a work-area table: 8 cells of 3 bits each (empty, or a tile up to 128)
+AREA_WEIGHTS = 1 << 24
+
+
+class AreaLayout(NamedTuple):
+    """A two-stage layout plus a work-area table for its second stage, in weights[area_offset:].
+
+    In the second stage (chosen by the board a move is made from, as the stage's tables are), an afterstate's value
+    adds one weight for each symmetry of the real board whose top two rows hold nothing above 128: those 8 cells read
+    as one pattern. Late in a build the large tiles fill one half of the board, so the other half is everything that
+    changes, and each 6-cell tuple sees only part of it.
+    """
+
+    base: TupleLayout
+    area_offset: int
+
+
+@njit
+def area_index(board: np.uint64) -> int:
+    """The board's top two rows as one index, 3 bits a cell, or -1 if any of them holds a tile above 128."""
+    half = board & np.uint64(0xFFFFFFFF)
+    if half & np.uint64(0x88888888):
+        return -1
+    index = 0
+    for i in range(8):
+        index |= int((half >> np.uint64(4 * i)) & np.uint64(7)) << (3 * i)
+    return index
+
+
 @njit(inline="always")
 def evaluate(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: np.uint64) -> float:
     """The afterstate's value: the network's sum of weights, plus the late-game correction for a ResidualLayout."""
@@ -361,12 +390,54 @@ def _is_residual(layout_type: types.Type) -> bool:
     return isinstance(layout_type, types.BaseNamedTuple) and "residual" in layout_type.fields
 
 
+def _is_area(layout_type: types.Type) -> bool:
+    return isinstance(layout_type, types.BaseNamedTuple) and "area_offset" in layout_type.fields
+
+
 @overload(_value, inline="always")
 def _value_overload(weights, layout, board, state):  # type: ignore[no-untyped-def]
+    if _is_area(layout):
+        return lambda weights, layout, board, state: _area_value(weights, layout, board, state)
     if not _is_residual(layout):
         return lambda weights, layout, board, state: _tuple_value(weights, layout, board, state)
 
     return lambda weights, layout, board, state: _corrected_value(weights, layout, board, state)
+
+
+@njit
+def _area_value(weights: np.ndarray, layout: AreaLayout, board: np.uint64, state: np.uint64) -> float:
+    """The two-stage value, plus the work-area weights in the second stage. A call rather than inlined, as
+    _corrected_value is."""
+    total = _tuple_value(weights, layout.base, board, state)
+    if _stage_offset(layout.base, state) != 0:
+        for symmetric_board in bb.symmetries(board):
+            index = area_index(symmetric_board)
+            if index >= 0:
+                total += weights[layout.area_offset + index]
+    return total
+
+
+def fill_indices(layout: "TupleLayout | AreaLayout", board: np.uint64, state: np.uint64, indices: np.ndarray) -> int:
+    """fill_weight_indices() for either layout: an AreaLayout's work-area weights follow its tuples'. Numba only."""
+    raise NotImplementedError
+
+
+@overload(fill_indices)
+def _fill_indices_overload(layout, board, state, indices):  # type: ignore[no-untyped-def]
+    if not _is_area(layout):
+        return lambda layout, board, state, indices: fill_weight_indices(layout, board, state, indices)
+
+    def with_area(layout, board, state, indices):  # type: ignore[no-untyped-def]
+        k = fill_weight_indices(layout.base, board, state, indices)
+        if _stage_offset(layout.base, state) != 0:
+            for symmetric_board in bb.symmetries(board):
+                index = area_index(symmetric_board)
+                if index >= 0:
+                    indices[k] = layout.area_offset + index
+                    k += 1
+        return k
+
+    return with_area
 
 
 @njit
