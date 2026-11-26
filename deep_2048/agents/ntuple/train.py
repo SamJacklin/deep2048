@@ -505,6 +505,8 @@ def _train(
     goal = None if settings.GOAL_TILE is None else Goal(settings.GOAL_TILE.bit_length() - 1, settings.GOAL_VALUE)
     if goal is not None:
         print(f"Every game ends on the move that makes {settings.GOAL_TILE}, worth {settings.GOAL_VALUE:,.0f} after its reward")
+    if settings.SMALL_TABLES and (tidbd is not None or guide is not None):
+        raise ValueError("SMALL_TABLES works with plain TD(0), TD(λ) or TC only")
     expected = settings.EXPECTED_BACKUP_EMPTY
     if expected > 0:
         if td_lambda is not None or tidbd is not None or guide is not None or goal is not None:
@@ -593,7 +595,8 @@ def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) ->
         "stage_tile": settings.STAGE_TILE,
     } | ({} if settings.STAGE_DOWNGRADE_TILE is None else {"stage_downgrade_tile": settings.STAGE_DOWNGRADE_TILE}) \
       | ({} if settings.SCALE_RATE == 1.0 else {"scale_rate": settings.SCALE_RATE}) | ({"scale_skip_empty": True} if settings.SCALE_SKIP_EMPTY else {}) \
-      | ({} if settings.SCALE_BELOW_TILE is None else {"scale_below_tile": settings.SCALE_BELOW_TILE}) | ({"scale_by_state": True} if settings.SCALE_BY_STATE else {})
+      | ({} if settings.SCALE_BELOW_TILE is None else {"scale_below_tile": settings.SCALE_BELOW_TILE}) | ({"scale_by_state": True} if settings.SCALE_BY_STATE else {}) \
+      | ({"downgrade_repeat": True} if settings.DOWNGRADE_REPEAT else {}) | ({"small_tables": True} if settings.SMALL_TABLES else {})
     if resume_from is None:
         network = NTupleNetwork(
             NETWORKS[settings.NETWORK],
@@ -606,10 +609,14 @@ def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) ->
             scale_skip_empty=settings.SCALE_SKIP_EMPTY,
             scale_below_tile=settings.SCALE_BELOW_TILE,
             scale_by_state=settings.SCALE_BY_STATE,
+            downgrade_repeat=settings.DOWNGRADE_REPEAT,
+            small_tables=settings.SMALL_TABLES,
         )
         return network, CheckpointMetadata(games_played=0, moves_played=0, **learning)
 
     network, metadata = NTupleNetwork.load(resume_from)
+    if settings.DOWNGRADE_REPEAT and not network.downgrade_repeat:  # the same tables, read for more boards
+        network = NTupleNetwork(network.tuples, network.weights, **network.features | {"downgrade_repeat": True})
     if network_name(network.tuples) != settings.NETWORK:
         raise ValueError(f"{resume_from} holds a {network_name(network.tuples) or 'custom'} network, not {settings.NETWORK}: set NTUPLE_NETWORK to match")
     if network.features != features:

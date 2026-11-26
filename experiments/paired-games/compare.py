@@ -1,5 +1,6 @@
 """Players over seeds 0-4999 and 20000-24999 (10,000 games), paired game by game. Arguments: name=path ... then
-optional pairs a-b to compare (default: each against the first). A player's games are cached in games/ beside this file. Run from the repository root."""
+optional pairs a-b to compare (default: each against the first). A player's games are cached in games/ beside this file.
+A name ending in -repeat plays with repeated halving (network.with_repeated_halving). Run from the repository root."""
 import os, sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -7,6 +8,7 @@ import numpy as np
 sys.path.insert(0, ".")
 from deep_2048.agents.ntuple import NTupleNetwork
 from deep_2048.agents.ntuple.finisher import FinisherNetwork, combine_windows
+from deep_2048.agents.ntuple.network import with_repeated_halving
 from deep_2048.agents.ntuple.search import play_seeded
 
 CACHE = Path(__file__).parent / "games"
@@ -31,6 +33,8 @@ for name, path in players.items():
         net = FinisherNetwork.load(path) if is_patch else NTupleNetwork.load(path)[0]
         w, lay = net.weights, net.layout
         del net
+    if name.endswith("-repeat"):
+        lay = with_repeated_halving(lay)
     g[name] = np.array(list(pool.map(lambda s: play_seeded(w, lay, 1, 0.0, np.random.default_rng(s)), seeds)), float)
     np.save(cached, g[name])
     del w

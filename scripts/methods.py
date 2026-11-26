@@ -27,6 +27,10 @@ in the learning rule. Each is its own run, methods-8x6-<arm>, drawn by scripts/w
     uv run python scripts/methods.py stage1-scale --scale-by-state      # the same, read from the board each move is made from
     uv run python scripts/methods.py scratch-scale                      # the best network's path from zero, with the count term from game 1
     uv run python scripts/methods.py scratch-stall                      # 8x6 from zero, moving to the next rate at stalls
+    uv run python scripts/methods.py scratch-stall --network 12x6       # the same schedule for a larger network, at the same step a board
+    NTUPLE_SEED=43 uv run python scripts/methods.py scratch-stall --network 12x6 --tag seed43   # another seed, its own run
+    NTUPLE_SMALL_TABLES=true uv run python scripts/methods.py scratch-stall --tag small   # with the two small-tile tables, its own run (set it again to resume)
+    uv run python scripts/methods.py second-reset --base FILE --network 12x6   # a network grown by add_tuples.py, on scratch-stall's schedule from its second phase
     uv run python scripts/methods.py second-reset                       # scratch-stall's 4.6M network: reset the sums again, then cut at the stall
     uv run python scripts/methods.py stage1-goal --goal-value 160000   # stage 1 tailored to building 16384
     uv run python scripts/methods.py stage1-focus             # the best network trained on from first-4096 boards, 2M more games
@@ -153,6 +157,8 @@ Moving on at stalls from scratch (scratch-stall)
   points over 500k). A stall in the last phase ends the run, as does --total (default 10M). A copy is kept at each
   stall. The control for whether the best network's fixed path (reset at 1.5M, cut at 8M) is the best route.
   --with-scale adds the count term as in scratch-scale. Run methods-8x6-scratch-stall.
+  --network NAME trains another network on the same schedule (run methods-8x6-scratch-stall-NAME), its rates a weight
+  scaled so a board's total step matches the 8x6's.
 - second-reset [--base FILE] [--total N] carries scratch-stall's 4.6M network on with the same stall rule through two
   phases: TC at 0.02 with the sums reset, then 0.005, each running at least 500k. A stall at 0.005 ends it, as does
   --total games added (default 3M). Run methods-8x6-second-reset.
@@ -860,23 +866,31 @@ SECOND_RESET_FLOORS = (500_000, 500_000)
 SECOND_RESET_BASE = CHECKPOINTS / "methods-8x6-scratch-stall" / "stall_4600000.npz"
 
 
-def run_scratch_stall(plan: Plan, total: int, until: int | None, scale_rate: float | None = None, base: Path | None = None) -> None:
+def run_scratch_stall(plan: Plan, total: int, until: int | None, scale_rate: float | None = None, base: Path | None = None, network: str | None = None, tag: str | None = None) -> None:
     """8x6 from zero with the long run's recipe (TC, downgrading from 16384, late starts), moving through STALL_PHASES at
     stalls instead of at fixed games: at least a long window into each phase, checked every step, a stall being under
     the long-run thresholds in both the score and the 32768 rate over the window. A stall in the last phase ends the
     run. With `scale_rate`, the large-tile count term trains from the first game as in scratch-scale. With `base`
-    (second-reset), it carries that network on through SECOND_RESET_PHASES instead, its sums reset as it starts."""
+    (second-reset), it carries that network on through SECOND_RESET_PHASES instead, its sums reset as it starts. With
+    `base` and `network` (a network grown by scripts/add_tuples.py from scratch-stall's first stall), it carries on
+    scratch-stall's own schedule from its second phase. `tag` is added to the run's name."""
+    if network is not None:
+        plan.network, plan.reads = network, len(NETWORKS[network]) * SYMMETRIES
+    grown = base is not None and network is not None
+    suffix = "" if tag is None else f"-{tag}"
     if base is not None:
-        run = Run(plan, "second-reset")
+        run = Run(plan, (f"grown-{network}" if grown else "second-reset") + suffix)
     else:
-        run = Run(plan, "scratch-stall" + ("" if scale_rate is None else "-scale" + ("" if scale_rate == 1 / 64 else f"-r{scale_rate:g}")))
+        run = Run(plan, "scratch-stall" + ("" if network is None else f"-{network}") + ("" if scale_rate is None else "-scale" + ("" if scale_rate == 1 / 64 else f"-r{scale_rate:g}")) + suffix)
     if "start" not in run.state:
         start = json.loads(str(np.load(base)["metadata"]))["games_played"] if base is not None else 0
-        phases = SECOND_RESET_PHASES if base is not None else STALL_PHASES
+        phases = STALL_PHASES[1:] if grown else SECOND_RESET_PHASES if base is not None else STALL_PHASES
+        if network is not None:  # the same step a board as the 8x6
+            phases = tuple((rate * len(NETWORKS["8x6"]) * SYMMETRIES / plan.reads, reset) for rate, reset in phases)
         run.state |= {"start": start, "total": start + total if base is not None else total, "phase": 0, "phase_starts": [start],
                       "phases": [list(phase) for phase in phases], "scale_rate": scale_rate, "ended_by": None, "base": str(base) if base is not None else None}
         if base is not None:
-            run.state |= {"floors": [int(floor * plan.long_window / 500_000) for floor in SECOND_RESET_FLOORS], "would_have": {}}
+            run.state |= {"floors": [int(floor * plan.long_window / 500_000) for floor in (STALL_FLOORS[1:] if grown else SECOND_RESET_FLOORS)], "would_have": {}}
         run.save_state()
     if "floors" not in run.state:  # a state saved before the floors existed gets them too
         scale = plan.long_window / 500_000  # the smoke test's floors shrink with its window
@@ -1056,6 +1070,7 @@ def main() -> None:
     parser.add_argument("--scale-below", type=int, help="stage1-scale: boards holding this tile or more read no count term, e.g. 16384 (run stage1-scale-below<tile>)")
     parser.add_argument("--scale-by-state", action="store_true", help="stage1-scale: read the count term from the board each move is made from (run stage1-scale-by-state)")
     parser.add_argument("--with-scale", action="store_true", help="scratch-stall: with the large-tile count term from the first game (run scratch-stall-scale)")
+    parser.add_argument("--network", choices=tuple(NETWORKS), help="scratch-stall: another network on the same schedule, at the 8x6's step a board (run scratch-stall-<network>)")
     parser.add_argument("--goal-value", type=float, help="stage1-goal: what making 16384 is worth (a fixed bonus standing in for stage 2), e.g. 160000")
     parser.add_argument("--keep-sums", action="store_true", help="stage2 with --tc-only --stage-downgrade 16384: stage 2 starts with a copy of stage 1's TC sums as well as its weights")
     parser.add_argument("--stage-downgrade", type=int, help="stage2: the tile stage 2 downgrades from (default 32768; 16384 makes its start an exact copy of stage 1, tagged dg16384)")
@@ -1082,10 +1097,10 @@ def main() -> None:
         run_stage2_finish(plan, args.source_run, args.rate, args.until)
         return
     if args.arm == "scratch-stall":
-        run_scratch_stall(plan, args.total or (6_000 if plan.smoke else 10_000_000), args.until, args.scale_rate if args.with_scale else None)
+        run_scratch_stall(plan, args.total or (6_000 if plan.smoke else 10_000_000), args.until, args.scale_rate if args.with_scale else None, network=args.network, tag=args.tag)
         return
     if args.arm == "second-reset":
-        run_scratch_stall(plan, args.total or (6_000 if plan.smoke else 3_000_000), args.until, base=args.base or SECOND_RESET_BASE)
+        run_scratch_stall(plan, args.total or (6_000 if plan.smoke else 3_000_000), args.until, base=args.base or SECOND_RESET_BASE, network=args.network, tag=args.tag)
         return
     if args.arm == "scratch-scale":
         run_scratch_scale(plan, args.scale_rate, args.until, args.scale_by_state)

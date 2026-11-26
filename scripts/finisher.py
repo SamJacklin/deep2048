@@ -48,7 +48,7 @@ from deep_2048.agents.ntuple import NTupleNetwork  # noqa: E402
 from deep_2048.agents.ntuple import arrival as ar  # noqa: E402
 from deep_2048.agents.ntuple.diagnostics import greedy_values  # noqa: E402
 from deep_2048.agents.ntuple.finisher import FinisherNetwork, fit_to_teacher, train_attempts  # noqa: E402
-from deep_2048.agents.ntuple.network import REDUNDANT_TUPLES  # noqa: E402
+from deep_2048.agents.ntuple.network import REDUNDANT_TUPLES, SHAPE_TUPLES  # noqa: E402
 from deep_2048.agents.ntuple.search import _play_from, play_seeded  # noqa: E402
 
 BASE = Path("checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz")
@@ -70,9 +70,7 @@ FIT_BOARDS = 400
 EXTRA = {
     "none": (),
     "redundant": REDUNDANT_TUPLES,  # Jaśkowski's small tuples: straight 4s, 2x2 squares, straight 3s
-    # Four 6-cell shapes no rotation or reflection of the 8x6 set covers, reaching from the edge into the middle:
-    # a central 3x2 block, the edge row with the two middle cells below, a staircase, a cross through the second row
-    "shapes": ((1, 2, 5, 6, 9, 10), (0, 1, 2, 3, 5, 6), (0, 1, 2, 5, 6, 7), (1, 4, 5, 6, 7, 9)),
+    "shapes": SHAPE_TUPLES,  # four 6-cell shapes the 8x6 set doesn't cover
 }
 HISTORY = ("attempts", "moves", "seconds", "teacher_made", "student_made", "patch_weights", "agrees", "regret", "value_error", "ranking_error", "dev_greedy", "dev_greedy_vs_base", "dev_depth3", "dev_depth3_vs_base", "arrival_greedy", "arrival_greedy_vs_base")
 

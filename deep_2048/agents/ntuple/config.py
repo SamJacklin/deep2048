@@ -51,6 +51,12 @@ class NTupleSettings(Settings):
     # with their tiles above the largest gap halved, and SCALE_FEATURE adds a large-tile count term,
     # for every board or, with SCALE_WHEN_DOWNGRADED, only for boards that were downgraded
     DOWNGRADE_TILE: int | None = None
+    # Halve again until no DOWNGRADE_TILE or larger is left, so boards with a 32768 read what the stage before learned.
+    # A checkpoint trained without it can be resumed with it: the tables are the same.
+    DOWNGRADE_REPEAT: bool = False
+    # Two more tables of 8 cells each, for cells holding nothing above 128: the top two rows and the middle two, read
+    # from the real board for every symmetry that qualifies (a single stage; not with autotidbd or search guidance)
+    SMALL_TABLES: bool = False
     SCALE_FEATURE: bool = False
     SCALE_WHEN_DOWNGRADED: bool = False
     # The scale weight's step as a share of the tuples' rate, and whether boards with no tile of 2048 or more skip it

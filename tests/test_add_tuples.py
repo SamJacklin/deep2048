@@ -23,3 +23,15 @@ def test_added_tuples_start_at_zero_so_values_are_unchanged() -> None:
     widened = add_tuples_to_traces(traces, network)
     assert widened.errors.size == redundant.weights.size
     assert widened.abs_errors[: network.weights.size].all() and not widened.abs_errors[network.weights.size :].any()
+
+
+def test_the_four_shapes_can_be_added_to_make_the_12x6() -> None:
+    network = NTupleNetwork(NETWORKS["8x6"], downgrade_tile=16384)
+    rng = np.random.default_rng(0)
+    for board in random_boards(50, seed=1):
+        network.update(bb.from_array(board), float(rng.normal()))
+    grown = add_tuples(network, "12x6")
+    assert grown.tuples == NETWORKS["12x6"]
+    for board in random_boards(50, seed=1):
+        packed = bb.from_array(board)
+        assert grown.value(packed) == network.value(packed)

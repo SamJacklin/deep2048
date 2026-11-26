@@ -1,9 +1,12 @@
 import json
+from pathlib import Path
 
 import numpy as np
+import pytest
 
 from deep_2048.agents.ntuple.models import CheckpointMetadata
-from deep_2048.agents.ntuple.network import NETWORKS, SCALE_WEIGHTS, TUPLES, CoherenceTraces, NTupleNetwork, load_traces, network_name, update_coherent
+from deep_2048.agents.ntuple.network import AREA_WEIGHTS, NETWORKS, SCALE_WEIGHTS, SMALL_TABLES, TUPLES, CoherenceTraces, NTupleNetwork, TupleLayout
+from deep_2048.agents.ntuple.network import load_traces, network_name, update, update_coherent, weight_indices
 from deep_2048.game import bitboard as bb
 
 from tests.helpers import SMALL_TUPLES, random_boards, symmetry_grids
@@ -207,3 +210,69 @@ def test_coherence_sums_keep_registering_small_errors_once_large() -> None:
     _update_coherent_weight(weights, traces, 0, 0.0, 111.0)  # the long run's median error size
     assert traces.abs_errors[0] == 3e11 + 111.0
     assert np.float32(3e11) + np.float32(111.0) == np.float32(3e11)  # what float32 sums lost
+
+
+def test_the_12x6_network_adds_four_shapes_no_symmetry_of_the_8x6_covers() -> None:
+    def images(cells: tuple[int, ...]) -> set[frozenset[int]]:
+        points, found = [divmod(cell, 4) for cell in cells], set()
+        for _ in range(4):
+            points = [(column, 3 - row) for row, column in points]  # a quarter turn
+            found |= {frozenset(4 * r + c for r, c in points), frozenset(4 * r + 3 - c for r, c in points)}
+        return found
+
+    assert len(NETWORKS["12x6"]) == 12
+    assert len({min(images(cells), key=sorted) for cells in NETWORKS["12x6"]}) == 12
+
+
+def test_small_tile_tables_read_the_top_and_middle_rows_of_each_symmetry_that_qualifies() -> None:
+    layout = TupleLayout.build(SMALL_TUPLES, small_tables=True)
+    plain = TupleLayout.build(SMALL_TUPLES)
+    assert layout.sharing.small_offset == plain.n_weights and layout.n_weights == plain.n_weights + SMALL_TABLES * AREA_WEIGHTS
+    state = np.uint64(0)
+
+    def small(rows: list[list[int]]) -> list[int]:
+        packed = np.uint64(bb.from_array(np.array(rows)))
+        indices = list(weight_indices(layout, packed, state))
+        assert indices[: len(indices) - len([i for i in indices if i >= plain.n_weights])] == list(weight_indices(plain, packed, state))
+        return [i - plain.n_weights for i in indices if i >= plain.n_weights]
+
+    # nothing above 128 anywhere: both tables for all 8 symmetries
+    read = small([[2, 4, 8, 16], [32, 64, 128, 2], [4, 8, 0, 0], [0, 2, 4, 128]])
+    assert len(read) == 16 and sum(i < AREA_WEIGHTS for i in read) == 8
+    # the identity's top two rows, 3 bits a cell from cell 0, and its middle two rows in the second table
+    assert read[0] == sum(e << (3 * c) for c, e in enumerate([1, 2, 3, 4, 5, 6, 7, 1]))
+    assert read[1] == AREA_WEIGHTS + sum(e << (3 * c) for c, e in enumerate([5, 6, 7, 1, 2, 3, 0, 0]))
+    # a 256 in a corner: the two edge strips away from it (2 symmetries each), and every middle strip, which no corner is in
+    read = small([[256, 4, 8, 16], [32, 64, 128, 2], [4, 8, 0, 0], [0, 2, 4, 128]])
+    assert sum(i < AREA_WEIGHTS for i in read) == 4 and sum(i >= AREA_WEIGHTS for i in read) == 8
+    # large tiles along the top row: the bottom strip (2 symmetries) and the horizontal middle strip (4)
+    read = small([[4096, 2048, 1024, 512], [32, 64, 128, 2], [4, 8, 0, 0], [0, 2, 4, 128]])
+    assert sum(i < AREA_WEIGHTS for i in read) == 2 and sum(i >= AREA_WEIGHTS for i in read) == 4
+    # large tiles in every strip: nothing is read
+    assert small([[4096, 0, 0, 0], [0, 512, 0, 0], [0, 0, 512, 0], [0, 0, 0, 256]]) == []
+
+
+def test_small_tile_tables_add_to_the_value_learn_and_round_trip(tmp_path: Path) -> None:
+    network = NTupleNetwork(SMALL_TUPLES, downgrade_tile=1024, small_tables=True)
+    rng = np.random.default_rng(0)
+    network.weights[:] = rng.normal(size=network.weights.shape).astype(np.float32)
+    boards = [np.uint64(bb.from_array(b)) for b in random_boards(30, seed=1)]
+    for packed in boards:
+        indices = weight_indices(network.layout, packed, packed)
+        assert network.value(packed) == pytest.approx(float(network.weights[indices].astype(np.float64).sum()), rel=1e-4, abs=1e-4)
+    # an update moves every weight read, small-tile ones included, under both rules
+    packed = np.uint64(bb.from_array(np.array([[2048, 1024, 4, 2], [8, 4, 2, 0], [2, 0, 0, 0], [0] * 4])))
+    indices = weight_indices(network.layout, packed, packed)
+    assert (indices >= network.layout.sharing.small_offset).sum() > 0
+    before = network.weights[indices].copy()
+    update(network.weights, network.layout, packed, packed, 0.5)
+    counts = np.array([(indices == i).sum() for i in indices])
+    assert network.weights[indices] == pytest.approx(before + 0.5 * counts, abs=1e-4)
+    traces = CoherenceTraces.zeros(network.weights.size)
+    before = network.weights[indices].copy()
+    update_coherent(network.weights, traces, network.layout, packed, packed, 0.1, 2.0)
+    assert (network.weights[indices] != before).all() and (traces.abs_errors[indices] > 0).all()
+    network.save(tmp_path / "n.npz", CheckpointMetadata(games_played=0, moves_played=0, learning_rate=0.1, temporal_coherence=False, optimizer="td"))
+    loaded, _ = NTupleNetwork.load(tmp_path / "n.npz")
+    assert loaded.small_tables and loaded.value(packed) == network.value(packed)
+    assert "small_tables" not in NTupleNetwork(SMALL_TUPLES).features

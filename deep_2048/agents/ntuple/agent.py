@@ -33,7 +33,9 @@ class NTupleAgent(Agent):
         name = network_name(self.network.tuples)
         details = [f"{name} network"] if name not in (None, DEFAULT_NETWORK) else []
         if self.network.downgrade_tile is not None:
-            details.append(f"downgraded from {self.network.downgrade_tile}")
+            details.append(f"downgraded from {self.network.downgrade_tile}" + (", repeatedly" if getattr(self.network, "downgrade_repeat", False) else ""))
+        if getattr(self.network, "small_tables", False):
+            details.append("small-tile tables")
         if self.network.stage_tile is not None:
             details.append(f"second stage from {self.network.stage_tile}")
             if self.network.stage_downgrade_tile is not None:

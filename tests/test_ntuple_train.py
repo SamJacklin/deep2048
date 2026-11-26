@@ -36,6 +36,31 @@ def test_learning_improves_play() -> None:
     assert after.scores.mean() > 1.5 * before.scores.mean()
 
 
+def test_a_checkpoint_can_take_up_repeated_halving_but_not_drop_it(tmp_path) -> None:
+    settings = NTupleSettings(LOG_EVERY=100, CHECKPOINT_EVERY=100, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"), DOWNGRADE_TILE=64)
+    first = train(total_games=100, settings=settings)
+    assert not NTupleNetwork.load(first.checkpoint_path)[0].downgrade_repeat
+
+    second = train(resume_from=first.checkpoint_path, total_games=200, settings=settings.model_copy(update={"DOWNGRADE_REPEAT": True}))
+    assert NTupleNetwork.load(second.checkpoint_path)[0].downgrade_repeat
+    with pytest.raises(ValueError, match="set the settings to match"):
+        train(resume_from=second.checkpoint_path, total_games=300, settings=settings)
+
+
+def test_small_tile_tables_train_from_the_first_game_and_resume(tmp_path) -> None:
+    settings = NTupleSettings(LOG_EVERY=100, CHECKPOINT_EVERY=100, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"),
+                              TEMPORAL_COHERENCE=True, SMALL_TABLES=True)
+    first = train(total_games=100, settings=settings)
+    network, _ = NTupleNetwork.load(first.checkpoint_path)
+    small = network.layout.sharing.small_offset
+    assert network.small_tables and network.weights[small:].any() and network.weights[:small].any()
+    assert load_traces(first.checkpoint_path).abs_errors[small:].any()
+    second = train(resume_from=first.checkpoint_path, total_games=200, settings=settings)
+    assert second.games_played == 200
+    with pytest.raises(ValueError, match="set the settings to match"):
+        train(resume_from=first.checkpoint_path, total_games=300, settings=settings.model_copy(update={"SMALL_TABLES": False}))
+
+
 def test_train_checkpoints_and_resumes(tmp_path) -> None:
     settings = NTupleSettings(
         LOG_EVERY=100,
