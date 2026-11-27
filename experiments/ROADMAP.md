@@ -144,6 +144,74 @@ A4 goes into the final base's last phase, with expected backups. A3 and A5 don't
 | B5 | The final base | The winning network on the stall schedule, a second reset, expected backups in the last phase, and whatever passed in track A. | About 7–10M games | Beats 341.7k by the margins measured above | — |
 | B6 | Is the result the seed? | B5's first phase again from another seed, compared at its first stall. | About 2.5M games | Within 3k means the seed doesn't matter | Unknown. It has never been measured at the plateau. |
 
+**B2 at its first stall (27 November).** The run stalled at 3.6M games, against 2.4M for the 8 tuples, and carried on into the reset phase. Over 50,000 paired games, greedy, no finishers:
+
+| Player | Avg score | ≥16384 | ≥32768 | 16384→32768 | Small-tile first stall minus it (± 1 se) |
+|---|---|---|---|---|---|
+| **8 tuples + small-tile tables, first stall (3.6M)** | **356,756** | 81.5% | 20.1% | 24.6% | — |
+| **The same, halving repeatedly at play** | **370,221** | 81.5% | 20.1% | 24.6% | −13,465 ± 211 |
+| 8 tuples, first stall (2.4M) | 305,681 | 73.3% | 7.3% | 10.0% | +51,075 ± 834 |
+| 8 tuples at the same games (3.6M, second stall) | 324,374 | 77.3% | 10.6% | 13.8% | +32,383 ± 851 |
+| 8 tuples, finished control base (6.65M) | 336,911 | 79.9% | 12.7% | 15.9% | +19,846 ± 849 |
+| 8 tuples, finished base with expected backups (6.65M) | 341,704 | 80.9% | 13.3% | 16.4% | +15,052 ± 847 |
+| That base with both finishers | 351,390 | 81.8% | 17.9% | 21.9% | +5,366 ± 870 |
+
+- **It passes at the first stall** by ten times the +5k mark, stall against stall, and by six times at matched games. The second stall is still to come.
+- **With repeated halving at play it scores 370,221**, above the previous best player's 362,514 (the 6.65M base with both finishers and A1 and A2; different players' games, not paired here). No finisher is involved.
+- **The gain is conversion:** 24.6% against 10.0% at the first stalls, with 16384 reached in 8.3 points more games.
+- An earlier copy of the run at 2.47M scored 347,469 over 10,000 games (+41,436 ± 1,846 on the 8 tuples' first stall).
+
+**B2 at its second stall (27 November).** The reset phase ran from 3.6M to a stall at 4.8M (the 8 tuples: 2.4M to 3.6M), and the run went on to the 0.005 phase. Over the same 50,000 paired games:
+
+| Player | Avg score | ≥16384 | ≥32768 | 16384→32768 | Small-tile second stall minus it (± 1 se) |
+|---|---|---|---|---|---|
+| **8 tuples + small-tile tables, second stall (4.8M)** | **362,729** | 82.8% | 21.1% | 25.4% | — |
+| **The same, halving repeatedly at play** | **377,252** | 82.8% | 21.1% | 25.4% | −14,523 |
+| Its own first stall (3.6M) | 356,756 | 81.5% | 20.1% | 24.6% | +5,973 ± 882 |
+| 8 tuples, second stall (3.6M) | 324,374 | 77.3% | 10.6% | 13.8% | +38,355 ± 838 |
+| 8 tuples, nearest in games (4.6M, third stall) | 334,115 | 79.2% | 12.5% | 15.7% | +28,614 ± 842 |
+| 8 tuples, finished base with expected backups (6.65M) | 341,704 | 80.9% | 13.3% | 16.4% | +21,024 ± 840 |
+| That base with both finishers | 351,390 | 81.8% | 17.9% | 21.9% | +11,338 ± 861 |
+
+- **B2 passes at the second stall too:** +38k stall against stall and +29k at the nearest game count, against a +5k mark. B1's lead had gone by this point; this one has not.
+- **The lead is smaller than at the first stall** (+51k stall against stall there). The reset phase added 6.0k to this network and 18.7k to the 8 tuples, whose first phase was 1.2M games shorter.
+- **377,252 with repeated halving at play** is the best greedy player so far, with no finisher: +7,030 ± 1,037 on its own first stall played the same way.
+
+**B2 at its third stall (27 November).** The 0.005 phase ran from 4.8M to a stall at 5.8M (the 8 tuples: 3.6M to 4.6M), and the run went on to its last phase at 0.00125. Over the same 50,000 paired games:
+
+| Player | Avg score | ≥16384 | ≥32768 | 16384→32768 | Small-tile third stall minus it (± 1 se) |
+|---|---|---|---|---|---|
+| **8 tuples + small-tile tables, third stall (5.8M)** | **370,992** | 84.5% | 22.3% | 26.5% | — |
+| **The same, halving repeatedly at play** | **386,505** | 84.5% | 22.3% | 26.5% | −15,513 |
+| Its own second stall (4.8M) | 362,729 | 82.8% | 21.1% | 25.4% | +8,264 ± 873 |
+| 8 tuples, third stall (4.6M) | 334,115 | 79.2% | 12.5% | 15.7% | +36,878 ± 841 |
+| 8 tuples, nearest in games (5.6M, its fourth stall) | 330,357 | 78.6% | 11.7% | 14.9% | +40,635 ± 840 |
+| 8 tuples, finished base with expected backups (6.65M) | 341,704 | 80.9% | 13.3% | 16.4% | +29,288 ± 838 |
+| That base with both finishers | 351,390 | 81.8% | 17.9% | 21.9% | +19,602 ± 861 |
+
+- **The lead holds through the lower rate:** +37k stall against stall, the same as at the second stall (+38k). The 0.005 phase added 8.3k to this network and 9.7k to the 8 tuples.
+- **386,505 with repeated halving at play** is the best greedy player so far, with no finisher: +9,253 ± 1,036 on its own second stall played the same way.
+- **Against 400k:** 16384 in 84.5% of games is at the roughly 85% needed; conversion is 26.5% against roughly 35%. Games that reach 32768 average 639,620 and games that stop at 16384 average 357,026.
+
+**B2 finished (27 November).** The 0.00125 phase ran from 5.8M to a stall at 7.0M and the run ended there, 3M games under its budget (the 8 tuples ended at 5.6M). Over the same 50,000 paired games:
+
+| Player | Avg score | ≥16384 | ≥32768 | 16384→32768 | Small-tile final minus it (± 1 se) |
+|---|---|---|---|---|---|
+| **8 tuples + small-tile tables, final (7.0M)** | **370,749** | 84.0% | 22.8% | 27.1% | — |
+| **The same, halving repeatedly at play** | **386,652** | 84.0% | 22.8% | 27.1% | −15,903 |
+| Its own third stall (5.8M) | 370,992 | 84.5% | 22.3% | 26.5% | −244 ± 871 |
+| Its own first stall (3.6M) | 356,756 | 81.5% | 20.1% | 24.6% | +13,993 ± 887 |
+| 8 tuples, final stall (5.6M) | 330,357 | 78.6% | 11.7% | 14.9% | +40,392 ± 848 |
+| 8 tuples, best stall (4.6M) | 334,115 | 79.2% | 12.5% | 15.7% | +36,634 ± 846 |
+| 8 tuples, after the second reset (6.4M) | 336,910 | 79.8% | 12.9% | 16.1% | +33,839 ± 843 |
+| 8 tuples, finished base with expected backups (6.65M) | 341,704 | 80.9% | 13.3% | 16.4% | +29,044 ± 842 |
+| That base with both finishers | 351,390 | 81.8% | 17.9% | 21.9% | +19,358 ± 862 |
+
+- **B2 passes:** +40k at the end of the schedule and +37k against the 8 tuples' best stall, with no finisher and no expected backups.
+- **The last phase added nothing:** −244 ± 871 on the third stall, and +147 ± 1,040 with repeated halving (386,652 against 386,505). The 8 tuples lost 3.8k in the same phase. The base to carry forward is either checkpoint; 5.8M costs 1.2M fewer games.
+- **Against 400k:** 16384 in 84.0% of games and conversion 27.1%, against roughly 85% and 35%. With repeated halving, games that reach 32768 average 639,845 and games that stop at 16384 average 356,619.
+- **Still one seed**, and the finishers and expected backups have not been tried on this base: the finishers need a code change to accept the small-tile tables.
+
 B2 and B3 run whether or not B1 passes: tuple count, tuple size and small-tile tables are separate questions. If B1 to B4 all fail, the base is at its ceiling for this design.
 
 ### Track C: the late game on the final base
