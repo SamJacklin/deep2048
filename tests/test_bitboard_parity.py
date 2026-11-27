@@ -82,6 +82,23 @@ def test_32768_tiles_do_not_merge() -> None:
     assert after == packed and reward == 0
 
 
+def test_16384s_merge_into_the_largest_tile_the_bitboard_holds() -> None:
+    board = np.zeros((4, 4), dtype=np.int32)
+    board[0, :3] = [16384, 16384, 32768]
+    after, reward = bb.move(bb.from_array(board), int(Action.LEFT))
+    assert reward == 32768
+    assert bb.to_array(after)[0].tolist() == [32768, 32768, 0, 0]
+    # The two 32768s it leaves can't merge, which is where seeded games stop (search.has_two_top_tiles)
+    assert bb.move(after, int(Action.LEFT)) == (after, 0)
+
+
+def test_downgrading_halves_a_32768_above_the_largest_gap() -> None:
+    board = np.zeros((4, 4), dtype=np.int32)
+    board[0] = [32768, 16384, 4096, 2]  # 8192 missing
+    downgraded = bb.to_array(bb.downgrade(bb.from_array(board), 14))
+    assert downgraded[0].tolist() == [16384, 8192, 4096, 2]
+
+
 def test_spawn_distribution() -> None:
     bb.seed(123)
     n = 100_000

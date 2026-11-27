@@ -1,0 +1,14 @@
+{
+  "margin": 64,
+  "rate": 0.01,
+  "depth": 8,
+  "cutoff": 0.02,
+  "threads": 8,
+  "student_share": 0.5,
+  "centred": false,
+  "natural": true,
+  "mistakes": true,
+  "base": "checkpoints/ntuple/methods-8x6-scratch-stall-small/stall_7000000.npz",
+  "base_sha256": "2a58a64dbed3b9b25ed19f8c8c96ff6c98d687bc92a015c6a09a315e0962b6d4",
+  "top": 14
+}

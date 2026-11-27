@@ -10,13 +10,16 @@ class CheckpointMetadata(BaseModel):
     moves_played: int
     learning_rate: float
     temporal_coherence: bool = False
+    # "autotidbd" for a network trained with AutoStep TIDBD, whose learning_rate is each weight's initial rate
+    optimizer: str | None = None
 
 
 class GameResults(NamedTuple):
     """Per-game results from a batch of training games. A NamedTuple so numba can build it.
 
     `synthetic` marks games started from a synthetic late-game position, and `harvested` holds the
-    position each normal game donated for making those starts (0 if none).
+    position each normal game donated for making those starts (0 if none). `stats` holds the optimiser's
+    counters for the batch (autotidbd.STATS, one row per thread's share of games), empty for other learning rules.
     """
 
     scores: np.ndarray
@@ -24,6 +27,7 @@ class GameResults(NamedTuple):
     moves: np.ndarray
     synthetic: np.ndarray
     harvested: np.ndarray
+    stats: np.ndarray
 
 
 class LateStarts(NamedTuple):
@@ -35,6 +39,39 @@ class LateStarts(NamedTuple):
     pool: np.ndarray
     fraction: float
     harvest_exponent: int
+
+
+class Goal(NamedTuple):
+    """A tile that ends a training game (a tailored first stage). A NamedTuple so numba can use it.
+
+    The move that makes a 2**exponent tile ends the game, and its afterstate is worth `value` (a fixed bonus standing in
+    for whatever comes after): moves are chosen with that value exactly, and the afterstate learns towards it.
+    """
+
+    exponent: int
+    value: float
+
+
+class SearchGuide(NamedTuple):
+    """Search during training. A NamedTuple so numba can use it.
+
+    Late decisions (largest tile 2**min_exponent or more) whose greedy relative margin between the top two moves lies in
+    [margin_low, margin_high) are searched `depth` moves ahead, and the searched move is played. If rank_step > 0 and
+    search prefers another move than greedy play by at least rank_min_gap of its value, a ranking update closes
+    rank_step of the gap between the two moves' reward + value (plus rank_margin) directly. `reads` is how many weights
+    a board reads. `counts` accumulates, across threads: decisions, searched, disagreements, ranking updates, chance
+    nodes expanded, afterstates valued at the horizon.
+    """
+
+    depth: int
+    min_exponent: int
+    margin_low: float
+    margin_high: float
+    rank_step: float
+    rank_margin: float
+    rank_min_gap: float
+    reads: int
+    counts: np.ndarray
 
 
 class LambdaReturn(NamedTuple):
@@ -63,6 +100,9 @@ class TrainingHistoryRow(BaseModel):
     @classmethod
     def from_results(cls, games_played: int, moves_played: int, results: GameResults, seconds: float) -> "TrainingHistoryRow":
         normal = ~results.synthetic
+        if not normal.any():
+            # Every game started from a fixed pool (START_POOL): summarise them all, scores being what each added
+            normal = np.ones_like(normal)
         tiles = np.left_shift(1, results.max_exponents[normal])
         return cls(
             games=games_played,

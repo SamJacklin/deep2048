@@ -1,0 +1,91 @@
+Training residual-own-0.01 (games played by the corrected network's choices) from 0 to 20,000 games from 606 first-16384 positions, rate 0.00031 per weight (0.01 per board)
+   1,000 games: score added   147,714, 32768 in   8.1%, mean |TD error|      583, 186 games/s
+   2,000 games: score added   140,102, 32768 in   4.2%, mean |TD error|      610, 372 games/s
+   3,000 games: score added   132,403, 32768 in   2.6%, mean |TD error|      633, 384 games/s
+   4,000 games: score added   129,896, 32768 in   2.8%, mean |TD error|      640, 389 games/s
+   5,000 games: score added   126,994, 32768 in   1.5%, mean |TD error|      648, 394 games/s
+   6,000 games: score added   126,511, 32768 in   1.8%, mean |TD error|      643, 437 games/s
+   7,000 games: score added   123,776, 32768 in   1.4%, mean |TD error|      660, 447 games/s
+   8,000 games: score added   123,741, 32768 in   1.1%, mean |TD error|      657, 427 games/s
+   9,000 games: score added   123,802, 32768 in   1.6%, mean |TD error|      666, 433 games/s
+  10,000 games: score added   122,071, 32768 in   1.0%, mean |TD error|      665, 444 games/s
+  11,000 games: score added   122,525, 32768 in   0.6%, mean |TD error|      675, 449 games/s
+  12,000 games: score added   121,887, 32768 in   0.6%, mean |TD error|      679, 427 games/s
+  13,000 games: score added   122,585, 32768 in   0.8%, mean |TD error|      675, 446 games/s
+  14,000 games: score added   119,600, 32768 in   0.6%, mean |TD error|      690, 458 games/s
+  15,000 games: score added   119,538, 32768 in   0.8%, mean |TD error|      686, 432 games/s
+  16,000 games: score added   117,680, 32768 in   0.7%, mean |TD error|      677, 458 games/s
+  17,000 games: score added   119,867, 32768 in   0.8%, mean |TD error|      686, 463 games/s
+  18,000 games: score added   115,162, 32768 in   1.0%, mean |TD error|      705, 462 games/s
+  19,000 games: score added   117,272, 32768 in   0.8%, mean |TD error|      699, 467 games/s
+  20,000 games: score added   115,556, 32768 in   0.3%, mean |TD error|      696, 447 games/s
+Training residual-base-0.1 (games played by the base network's choices) from 0 to 20,000 games from 606 first-16384 positions, rate 0.00313 per weight (0.1 per board)
+   1,000 games: score added   163,788, 32768 in  12.7%, mean |TD error|      667, 206 games/s
+   2,000 games: score added   159,917, 32768 in  10.8%, mean |TD error|      675, 445 games/s
+   3,000 games: score added   160,811, 32768 in  10.8%, mean |TD error|      692, 403 games/s
+   4,000 games: score added   168,212, 32768 in  13.5%, mean |TD error|      687, 422 games/s
+   5,000 games: score added   161,286, 32768 in  10.7%, mean |TD error|      696, 427 games/s
+   6,000 games: score added   164,031, 32768 in  13.3%, mean |TD error|      697, 428 games/s
+   7,000 games: score added   161,646, 32768 in  12.0%, mean |TD error|      694, 435 games/s
+   8,000 games: score added   158,107, 32768 in  10.4%, mean |TD error|      694, 444 games/s
+   9,000 games: score added   163,956, 32768 in  12.7%, mean |TD error|      700, 432 games/s
+  10,000 games: score added   160,537, 32768 in  10.7%, mean |TD error|      691, 443 games/s
+  11,000 games: score added   165,899, 32768 in  12.7%, mean |TD error|      702, 434 games/s
+  12,000 games: score added   158,628, 32768 in  10.3%, mean |TD error|      682, 433 games/s
+  13,000 games: score added   158,515, 32768 in   9.7%, mean |TD error|      678, 448 games/s
+  14,000 games: score added   163,194, 32768 in  11.6%, mean |TD error|      687, 436 games/s
+  15,000 games: score added   164,773, 32768 in  12.2%, mean |TD error|      683, 435 games/s
+  16,000 games: score added   160,921, 32768 in  11.6%, mean |TD error|      688, 435 games/s
+  17,000 games: score added   162,166, 32768 in  11.2%, mean |TD error|      673, 431 games/s
+  18,000 games: score added   159,162, 32768 in  10.8%, mean |TD error|      687, 441 games/s
+  19,000 games: score added   159,083, 32768 in  10.4%, mean |TD error|      675, 437 games/s
+  20,000 games: score added   164,087, 32768 in  12.2%, mean |TD error|      706, 428 games/s
+Training residual-base-0.01 (games played by the base network's choices) from 0 to 20,000 games from 606 first-16384 positions, rate 0.00031 per weight (0.01 per board)
+   1,000 games: score added   163,788, 32768 in  12.7%, mean |TD error|      500, 215 games/s
+   2,000 games: score added   159,917, 32768 in  10.8%, mean |TD error|      516, 437 games/s
+   3,000 games: score added   160,811, 32768 in  10.8%, mean |TD error|      529, 433 games/s
+   4,000 games: score added   168,212, 32768 in  13.5%, mean |TD error|      532, 390 games/s
+   5,000 games: score added   161,286, 32768 in  10.7%, mean |TD error|      543, 428 games/s
+   6,000 games: score added   164,031, 32768 in  13.3%, mean |TD error|      544, 411 games/s
+   7,000 games: score added   161,646, 32768 in  12.0%, mean |TD error|      543, 422 games/s
+   8,000 games: score added   158,107, 32768 in  10.4%, mean |TD error|      539, 440 games/s
+   9,000 games: score added   163,956, 32768 in  12.7%, mean |TD error|      547, 416 games/s
+  10,000 games: score added   160,537, 32768 in  10.7%, mean |TD error|      545, 429 games/s
+  11,000 games: score added   165,899, 32768 in  12.7%, mean |TD error|      554, 415 games/s
+  12,000 games: score added   158,628, 32768 in  10.3%, mean |TD error|      536, 426 games/s
+  13,000 games: score added   158,515, 32768 in   9.7%, mean |TD error|      534, 431 games/s
+  14,000 games: score added   163,194, 32768 in  11.6%, mean |TD error|      543, 428 games/s
+  15,000 games: score added   164,773, 32768 in  12.2%, mean |TD error|      541, 431 games/s
+  16,000 games: score added   160,921, 32768 in  11.6%, mean |TD error|      543, 415 games/s
+  17,000 games: score added   162,166, 32768 in  11.2%, mean |TD error|      534, 434 games/s
+  18,000 games: score added   159,162, 32768 in  10.8%, mean |TD error|      549, 433 games/s
+  19,000 games: score added   159,083, 32768 in  10.4%, mean |TD error|      539, 439 games/s
+  20,000 games: score added   164,087, 32768 in  12.2%, mean |TD error|      570, 426 games/s
+Evaluated residual-own-0.01
+Evaluated residual-base-0.1
+Evaluated residual-base-0.01
+### Conversion from the test split's 196 first-16384 positions (differences paired by position, ± 95%)
+
+| Arm | Continued by | Makes 32768 | vs baseline | Score added | vs baseline |
+|---|---|---:|---:|---:|---:|
+| baseline | greedy, 32 each | 10.7% | — | 160,638 | — |
+| baseline | depth3, 8 each | 19.5% | — | 203,057 | — |
+| late-constant | greedy, 32 each | 10.7% | +0.0% ± 0.0% | 160,638 | +0 ± 0 |
+| late-constant | depth3, 8 each | 15.1% | -4.5% ± 2.4% | 183,015 | -20,043 ± 5,049 |
+| late-residual | greedy, 32 each | 0.0% | -10.7% ± 0.8% | 41,614 | -119,024 ± 1,964 |
+| late-residual | depth3, 8 each | 0.0% | -19.5% ± 1.9% | 43,236 | -159,821 ± 4,482 |
+| residual-base-0.01 | greedy, 32 each | 0.3% | -10.4% ± 0.7% | 111,242 | -49,396 ± 2,220 |
+| residual-base-0.1 | greedy, 32 each | 0.0% | -10.7% ± 0.8% | 56,659 | -103,979 ± 2,124 |
+| residual-own-0.01 | greedy, 32 each | 0.6% | -10.1% ± 0.8% | 115,566 | -45,072 ± 2,317 |
+
+### Estimates and choices
+
+| Arm | Estimate of the score to come at a first 16384 | Its own greedy play's | Estimate ÷ actual | Late positions with a different greedy move from the base | Boundary positions with a different move | Boundary positions where it makes the 16384 |
+|---|---:|---:|---:|---:|---:|---:|
+| baseline | 237,487 | 160,638 | 1.48 | 0.0% of 26,890 | 0.0% of 332 | 60.8% |
+| late-constant | 130,974 | 160,638 | 0.82 | 0.0% of 26,890 | 60.8% of 332 | 0.0% |
+| late-residual | 65,123 | 41,614 | 1.56 | 38.1% of 26,890 | 60.8% of 332 | 0.0% |
+| residual-base-0.01 | 129,164 | 111,242 | 1.16 | 20.4% of 26,890 | 60.8% of 332 | 0.0% |
+| residual-base-0.1 | 129,861 | 56,659 | 2.29 | 31.6% of 26,890 | 60.8% of 332 | 0.0% |
+| residual-own-0.01 | 121,692 | 115,566 | 1.05 | 23.4% of 26,890 | 60.8% of 332 | 0.0% |
+screen exited with 0

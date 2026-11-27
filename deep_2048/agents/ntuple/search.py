@@ -24,20 +24,24 @@ class Transpositions(NamedTuple):
 
     Each entry is stamped with the search that wrote it, so a new search starts empty without clearing
     the table. With a cutoff, a value reached by a likelier path is reused for less likely ones, which is
-    approximate but deterministic, so act() and play() still agree.
+    approximate but deterministic, so act() and play() still agree. With `reuse` off, nothing is looked up,
+    which gives the exact pruned search to measure that approximation against.
     """
 
     boards: np.ndarray
     depths: np.ndarray
     values: np.ndarray
     searches: np.ndarray
-    current: np.ndarray  # one element: the search being run
+    # The search being run, then counts across searches: chance nodes expanded, and afterstates valued by the network
+    current: np.ndarray
+    reuse: bool
 
 
 @njit
-def new_transpositions() -> Transpositions:
-    size = 1 << _TABLE_BITS
-    return Transpositions(np.zeros(size, np.uint64), np.zeros(size, np.int64), np.zeros(size), np.zeros(size, np.int64), np.zeros(1, np.int64))
+def new_transpositions(reuse: bool = True, bits: int = _TABLE_BITS) -> Transpositions:
+    """An empty table. A smaller `bits` only suits a table that's never searched with, such as unguided training's."""
+    size = 1 << bits
+    return Transpositions(np.zeros(size, np.uint64), np.zeros(size, np.int64), np.zeros(size), np.zeros(size, np.int64), np.zeros(3, np.int64), reuse)
 
 
 @njit
@@ -60,13 +64,15 @@ def _afterstate_value(weights: np.ndarray, layout: TupleLayout, afterstate: np.u
     """
     if depth == 0 or probability < cutoff:
         # At the horizon the network values it in the stage of `state`, the board the move was made from
+        table.current[2] += 1
         return evaluate(weights, layout, afterstate, state)
 
     slot = (afterstate * _HASH_MULTIPLIER + np.uint64(depth)) >> np.uint64(64 - _TABLE_BITS)
     search = table.current[0]
-    if table.searches[slot] == search and table.boards[slot] == afterstate and table.depths[slot] == depth:
+    if table.reuse and table.searches[slot] == search and table.boards[slot] == afterstate and table.depths[slot] == depth:
         return table.values[slot]
 
+    table.current[1] += 1
     n_empty = bb.count_empty(afterstate)
     cell_probability = 1.0 / n_empty
     expected = 0.0
@@ -95,7 +101,31 @@ def play_seeded(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff: fl
     # The runner resets Game2048 after creating it, so the seed's first board is dealt and thrown away
     bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
     board = bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    return play_from(weights, layout, board, depth, cutoff, rng)
+
+
+@njit(nogil=True)
+def play_seeded_counted(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff: float, rng: np.random.Generator) -> tuple[int, int, int]:
+    """play_seeded, also returning how many moves the game lasted: (score, max tile, moves)."""
+    bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    board = bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    return _play_from(weights, layout, board, depth, cutoff, rng)
+
+
+@njit(nogil=True)
+def play_from(weights: np.ndarray, layout: TupleLayout, start: np.uint64, depth: int, cutoff: float, rng: np.random.Generator) -> tuple[int, int]:
+    """Play on from `start` to the end, as play_seeded does, and return (score gained, max tile)."""
+    score, max_tile, _ = _play_from(weights, layout, start, depth, cutoff, rng)
+    return score, max_tile
+
+
+@njit(nogil=True)
+def _play_from(weights: np.ndarray, layout: TupleLayout, start: np.uint64, depth: int, cutoff: float, rng: np.random.Generator) -> tuple[int, int, int]:
+    """play_from, also returning how many moves were made."""
+    # A board passed from Python arrives as an int64, which numba would merge with the uint64 boards below as a float
+    board = np.uint64(start)
     score = 0
+    moves = 0
     table = new_transpositions()
     while True:
         values = _search(weights, layout, board, depth, cutoff, table)
@@ -104,12 +134,13 @@ def play_seeded(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff: fl
             if not np.isnan(values[action]) and (best < 0 or values[action] > values[best]):
                 best = action
         if best < 0:
-            return score, 1 << bb.max_exponent(board)
+            return score, 1 << bb.max_exponent(board), moves
         board, reward = bb.move(board, best)
         score += reward
+        moves += 1
         board = bb.spawn_tile_seeded(board, rng)
         if has_two_top_tiles(board):
-            return score, 1 << (bb.MAX_EXPONENT + 1)
+            return score, 1 << (bb.MAX_EXPONENT + 1), moves
 
 
 @njit
@@ -124,12 +155,14 @@ def has_two_top_tiles(board: np.uint64) -> bool:
 
 
 @njit
-def action_values(weights: np.ndarray, layout: TupleLayout, board: np.uint64, depth: int, cutoff: float = 0.0) -> np.ndarray:
+def action_values(weights: np.ndarray, layout: TupleLayout, board: np.uint64, depth: int, cutoff: float = 0.0, reuse: bool = True) -> np.ndarray:
     """Return each action's value searching `depth` moves ahead, or NaN if it doesn't change the board.
 
     Spawn branches less likely than `cutoff` from the root stop at the network's value instead (0 searches everything).
+    `reuse` off turns off the transposition table, for measuring what it changes.
     """
-    return _search(weights, layout, board, depth, cutoff, new_transpositions())
+    # A board passed from Python arrives as an int64, which numba would merge with uint64 boards as a float
+    return _search(weights, layout, np.uint64(board), depth, cutoff, new_transpositions(reuse))
 
 
 @njit
@@ -141,3 +174,42 @@ def _search(weights: np.ndarray, layout: TupleLayout, board: np.uint64, depth: i
         if afterstate != board:
             values[action] = reward + _afterstate_value(weights, layout, afterstate, board, depth - 1, 1.0, cutoff, table)
     return values
+
+
+@njit
+def tile_sum(board: np.uint64) -> int:
+    """The sum of the board's tiles."""
+    total = 0
+    for i in range(bb.NUM_CELLS):
+        exponent = bb.get_cell(board, i)
+        if exponent > 0:
+            total += 1 << exponent
+    return total
+
+
+@njit(nogil=True)
+def play_prefix(weights: np.ndarray, layout: TupleLayout, depth: int, cutoff: float, limit: int, rng: np.random.Generator) -> tuple[np.uint64, int, bool, int]:
+    """Play a seeded game as play_seeded does, but stop at the first decision whose search could reach a board
+    holding a `limit` tile, and return (that board, score so far, whether the game already ended, its max tile if so).
+
+    A search `depth` moves ahead from a board adds at most depth - 1 spawns (4 each) before the deepest board a move is
+    made from, and tiles only ever sum to more, so below that bound every value it reads is from boards without a
+    `limit` tile. For a two-stage network split at `limit`, this prefix is the same for every second stage: play_from
+    from the returned board, with the rng as this left it, finishes the game exactly as play_seeded would.
+    """
+    bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    board = bb.spawn_tile_seeded(bb.spawn_tile_seeded(np.uint64(0), rng), rng)
+    score = 0
+    table = new_transpositions()
+    while tile_sum(board) + 4 * (depth - 1) < limit:
+        values = _search(weights, layout, board, depth, cutoff, table)
+        best = -1
+        for action in range(bb.NUM_ACTIONS):
+            if not np.isnan(values[action]) and (best < 0 or values[action] > values[best]):
+                best = action
+        if best < 0:
+            return board, score, True, 1 << bb.max_exponent(board)
+        board, reward = bb.move(board, best)
+        score += reward
+        board = bb.spawn_tile_seeded(board, rng)
+    return board, score, False, 0

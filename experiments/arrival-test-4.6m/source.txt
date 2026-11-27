@@ -1,0 +1,3 @@
+checkpoints/ntuple/methods-8x6-scratch-stall/stall_4600000.npz
+sha256 8dd41f88e0faa073773c3bd27888828d0d79e7b2c07f77206d96d0235b763abb
+chain top 2**14, length 4

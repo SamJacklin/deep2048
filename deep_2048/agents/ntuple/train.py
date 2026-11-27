@@ -19,10 +19,16 @@ With THREADS > 1, a batch's games are shared across threads that update the shar
 locks, as in Jaśkowski (2018). Updates are sparse, so threads rarely touch the same weight at once, but runs are
 no longer bit-reproducible. The first THREADS_AFTER games stay single-threaded, because a fresh
 network's few common positions make collisions frequent.
+
+With OPTIMIZER=autotidbd, each weight learns its own rate by AutoStep TIDBD(0) instead (autotidbd.py). Its
+checkpoints carry the optimiser's whole state, and each batch's optimiser counters go to optimizer_history.csv.
 """
 
 import csv
+import json
 import os
+import resource
+import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -30,14 +36,25 @@ from pathlib import Path
 import numpy as np
 from numba import njit
 
+from deep_2048.agents.ntuple import autotidbd
+from deep_2048.agents.ntuple.autotidbd import Tidbd
 from deep_2048.agents.ntuple.config import NTupleSettings, get_ntuple_settings
-from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, LambdaReturn, LateStarts, TrainingHistoryRow, TrainingSummary
+from deep_2048.agents.ntuple.guidance import guided_move
+from deep_2048.agents.ntuple.models import CheckpointMetadata, GameResults, Goal, LambdaReturn, LateStarts, SearchGuide, TrainingHistoryRow, TrainingSummary
+from deep_2048.agents.ntuple.search import new_transpositions
 from deep_2048.agents.ntuple.network import NETWORKS, CoherenceTraces, NTupleNetwork, TupleLayout, evaluate, load_traces, network_name, update, update_coherent
+from deep_2048.bench import file_sha256
 from deep_2048.experiments import Environment, RunManifest, TrainingSession, command_line, now, run_lock
 from deep_2048.game import bitboard as bb
 
 CHECKPOINT_NAME = "latest.npz"
 HISTORY_NAME = "training_history.csv"
+GUIDE_HISTORY_NAME = "guide_history.csv"
+OPTIMIZER_HISTORY_NAME = "optimizer_history.csv"
+OPTIMIZER_STATS_DIR = "optimizer_stats"
+# Every this-many-th weight is read for the step sizes logged with each batch
+RATE_SAMPLE_EVERY = 997
+GUIDE_COLUMNS = ("decisions", "searched", "disagreed", "ranked", "chance_nodes", "leaf_values")
 
 
 @njit
@@ -73,6 +90,44 @@ def _best_move(weights: np.ndarray, layout: TupleLayout, board: np.uint64) -> tu
     return best_afterstate, best_reward, best_value
 
 
+@njit(inline="always")
+def _best_move_goal(weights: np.ndarray, layout: TupleLayout, board: np.uint64, goal: Goal) -> tuple[np.uint64, int, float]:
+    """_best_move, but a move that makes the goal tile is worth its reward plus the goal's value exactly."""
+    best_afterstate = board
+    best_reward = 0
+    best_value = -np.inf
+    for action in range(bb.NUM_ACTIONS):
+        afterstate, reward = bb.move(board, action)
+        if afterstate == board:
+            continue
+        if bb.max_exponent(afterstate) >= goal.exponent:
+            value = reward + goal.value
+        else:
+            value = reward + evaluate(weights, layout, afterstate, board)
+        if value > best_value:
+            best_afterstate, best_reward, best_value = afterstate, reward, value
+    return best_afterstate, best_reward, best_value
+
+
+@njit
+def expected_target(weights: np.ndarray, layout: TupleLayout, afterstate: np.uint64) -> float:
+    """The mean over every spawn on the afterstate (each empty cell, 2 or 4 by their chances) of the best next move's
+    reward plus value, 0 where the game is over: the TD(0) target with the spawn's luck taken out."""
+    empty = bb._empty_cells(afterstate)
+    cells = empty
+    total = 0.0
+    count = 0
+    while cells:
+        lowest = cells & (~cells + np.uint64(1))
+        for exponent, chance in ((np.uint64(1), 1.0 - bb.SPAWN_FOUR_PROBABILITY), (np.uint64(2), bb.SPAWN_FOUR_PROBABILITY)):
+            _, _, value = _best_move(weights, layout, afterstate | (exponent * lowest))
+            if value > -np.inf:
+                total += chance * value
+        count += 1
+        cells &= cells - np.uint64(1)
+    return total / count if count else 0.0
+
+
 @njit
 def play_game(
     weights: np.ndarray,
@@ -82,13 +137,22 @@ def play_game(
     learn: bool,
     start: np.uint64,
     harvest_exponent: int,
+    guide: SearchGuide | None = None,
+    goal: Goal | None = None,
+    expected_empty: int = 0,
 ) -> tuple[int, int, int, np.uint64]:
     """Play one greedy game, learning from it if `learn`, and return (score, max exponent, moves, harvested).
 
     The game starts from `start`, or a fresh board if it's 0. If `harvest_exponent` is set, `harvested`
-    is the position where the game first made a 2**harvest_exponent tile, otherwise 0.
+    is the position where the game first made a 2**harvest_exponent tile, otherwise 0. With a `guide`, some
+    late decisions are searched instead (guidance.guided_move); numba compiles the plain path without it. With a
+    `goal`, the move that makes the goal tile ends the game: its afterstate learns towards the goal's value, which is
+    also what the move before learns from. An afterstate with at most `expected_empty` empty cells (if positive)
+    learns towards expected_target rather than the spawn that happened.
     """
     board = bb.initial_board() if start == np.uint64(0) else start
+    # Only guided games search, so unguided ones get a one-entry table rather than allocating a full one per game
+    table = new_transpositions(True, 0 if guide is None else 16)
     harvested = np.uint64(0)
     harvest_reward = 1 << harvest_exponent if harvest_exponent > 0 else 0
     score = 0
@@ -97,12 +161,28 @@ def play_game(
     previous_state = np.uint64(0)
 
     while True:
-        best_afterstate, best_reward, best_value = _best_move(weights, layout, board)
+        if goal is not None:
+            best_afterstate, best_reward, best_value = _best_move_goal(weights, layout, board, goal)
+        elif guide is None:
+            best_afterstate, best_reward, best_value = _best_move(weights, layout, board)
+        else:
+            best_afterstate, best_reward, best_value = guided_move(weights, layout, board, guide, table)
         game_over = best_value == -np.inf
         if learn and moves > 0:
-            _learn(weights, traces, layout, previous_afterstate, previous_state, 0.0 if game_over else best_value, learning_rate)
+            target = 0.0 if game_over else best_value
+            if expected_empty > 0 and bb._count_cells(bb._empty_cells(previous_afterstate)) <= expected_empty:
+                target = expected_target(weights, layout, previous_afterstate)
+            _learn(weights, traces, layout, previous_afterstate, previous_state, target, learning_rate)
+
+        if goal is not None and not game_over and bb.max_exponent(best_afterstate) >= goal.exponent:
+            if learn:  # the goal's afterstates learn their fixed value, so play with the network alone values them the same way
+                _learn(weights, traces, layout, best_afterstate, board, goal.value, learning_rate)
+            return score + best_reward, bb.max_exponent(best_afterstate), moves + 1, harvested
 
         if game_over:
+            if guide is not None:
+                guide.counts[4] += table.current[1]
+                guide.counts[5] += table.current[2]
             return score, bb.max_exponent(board), moves, harvested
 
         previous_afterstate, previous_state = best_afterstate, board
@@ -110,6 +190,52 @@ def play_game(
         moves += 1
         board = bb.spawn_tile(best_afterstate)
         # Only a merge scoring at least the harvest tile can make it, so most moves skip the board scan
+        if harvest_reward > 0 and harvested == np.uint64(0) and best_reward >= harvest_reward and bb.max_exponent(board) >= harvest_exponent:
+            harvested = board
+
+
+@njit
+def play_game_tidbd(weights: np.ndarray, optimiser: Tidbd, layout: TupleLayout, start: np.uint64, harvest_exponent: int, stats: np.ndarray) -> tuple[int, int, int, np.uint64]:
+    """As play_game, learning by AutoStep TIDBD(0): each afterstate is updated once the next move is chosen, as in
+    play_game, from its own features, the chosen afterstate's (none when the game is over) and that move's reward.
+
+    Three sets of features are kept and rotated: the trace (the afterstate before the one being updated, empty at a
+    game's first update), the afterstate being updated, and the one just chosen. Each is read in the stage of the
+    board its move was made from, as when it was chosen.
+    """
+    board = bb.initial_board() if start == np.uint64(0) else start
+    harvested = np.uint64(0)
+    harvest_reward = 1 << harvest_exponent if harvest_exponent > 0 else 0
+    score = 0
+    moves = 0
+    reads = len(layout.offsets) * bb.NUM_SYMMETRIES + 1
+    indices = np.empty((3, reads), np.int64)
+    counts = np.empty((3, reads))
+    sizes = np.zeros(3, np.int64)
+    work = (np.empty(2 * reads, np.int64), np.empty(2 * reads), np.empty(2 * reads), np.empty(2 * reads))
+    trace, current, successor = 0, 1, 2
+
+    while True:
+        best_afterstate, best_reward, best_value = _best_move(weights, layout, board)
+        game_over = best_value == -np.inf
+        sizes[successor] = 0
+        if not game_over:
+            sizes[successor] = autotidbd.features(layout, best_afterstate, board, indices[successor], counts[successor])
+        if moves > 0:
+            autotidbd.sparse_step(
+                weights, optimiser, 1.0, float(best_reward),
+                (indices[current], counts[current], sizes[current]),
+                (indices[successor], counts[successor], sizes[successor]),
+                (indices[trace], counts[trace], sizes[trace]),
+                work, stats,
+            )  # fmt: skip
+        if game_over:
+            return score, bb.max_exponent(board), moves, harvested
+
+        trace, current, successor = current, successor, trace
+        score += best_reward
+        moves += 1
+        board = bb.spawn_tile(best_afterstate)
         if harvest_reward > 0 and harvested == np.uint64(0) and best_reward >= harvest_reward and bb.max_exponent(board) >= harvest_exponent:
             harvested = board
 
@@ -200,8 +326,14 @@ def play_games(
     learn: bool,
     late_starts: LateStarts | None = None,
     td_lambda: LambdaReturn | None = None,
+    guide: SearchGuide | None = None,
+    tidbd: Tidbd | None = None,
+    goal: Goal | None = None,
+    expected_empty: int = 0,
 ) -> GameResults:
-    """Play n games, starting a share of them from `late_starts` if given, and learning by TD(λ) if `td_lambda` is.
+    """Play n games, starting a share of them from `late_starts` if given, learning by TD(λ) if `td_lambda` is,
+    searching some late decisions if `guide` is, learning by AutoStep TIDBD if `tidbd` is (and `learn`), and ending
+    each game on the move that makes the `goal` tile if one is given.
 
     Releases the GIL, so several threads can run it at once on the same weights.
     """
@@ -210,6 +342,7 @@ def play_games(
     moves = np.zeros(n, np.int64)
     synthetic = np.zeros(n, np.bool_)
     harvested = np.zeros(n, np.uint64)
+    stats = np.zeros(len(autotidbd.STATS))
     for i in range(n):
         start = np.uint64(0)
         harvest_exponent = 0
@@ -220,12 +353,14 @@ def play_games(
                 # Synthetic games don't donate positions, so starts aren't upgraded again and again
                 harvest_exponent = 0
                 synthetic[i] = True
-        if td_lambda is None:
-            game = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent)
+        if tidbd is not None and learn:
+            game = play_game_tidbd(weights, tidbd, layout, start, harvest_exponent, stats)
+        elif td_lambda is None:
+            game = play_game(weights, traces, layout, learning_rate, learn, start, harvest_exponent, guide, goal, expected_empty)
         else:
             game = play_game_lambda(weights, traces, layout, learning_rate, learn, start, harvest_exponent, td_lambda)
         scores[i], max_exponents[i], moves[i], harvested[i] = game
-    return GameResults(scores, max_exponents, moves, synthetic, harvested)
+    return GameResults(scores, max_exponents, moves, synthetic, harvested, stats)
 
 
 def play_games_threaded(
@@ -238,12 +373,16 @@ def play_games_threaded(
     late_starts: LateStarts | None,
     threads: int,
     td_lambda: LambdaReturn | None = None,
+    guide: SearchGuide | None = None,
+    tidbd: Tidbd | None = None,
+    goal: Goal | None = None,
+    expected_empty: int = 0,
 ) -> GameResults:
     """Play n games split across `threads` threads, which update the shared weights without locks."""
     # Game lengths vary a lot, so small shares handed out as threads free up keep every thread busy
     shares = [len(games) for games in np.array_split(np.arange(n), 8 * threads)]
     with ThreadPoolExecutor(max_workers=threads) as pool:
-        parts = list(pool.map(lambda share: play_games(share, weights, traces, layout, learning_rate, learn, late_starts, td_lambda), shares))
+        parts = list(pool.map(lambda share: play_games(share, weights, traces, layout, learning_rate, learn, late_starts, td_lambda, guide, tidbd, goal, expected_empty), shares))
     return GameResults(*(np.concatenate(field) for field in zip(*parts)))
 
 
@@ -267,8 +406,14 @@ def train(
     settings: NTupleSettings | None = None,
     coherence_scale: float | None = None,
     optimistic_unvisited: float | None = None,
+    fork_normalisation: bool = False,
 ) -> TrainingSummary:
     """Train until total_games have been played, including any in the resumed checkpoint.
+
+    fork_normalisation lets a checkpoint trained with AutoTIDBD's published global normalisation carry on under a
+    local rule (TIDBD_NORMALISATION), keeping every step size as it stands, and with it another normaliser decay or
+    meta-rate if the settings ask for them. Without it, and in the other direction always, a checkpoint only resumes
+    with the rules and settings it was trained with.
 
     coherence_scale multiplies the resumed temporal coherence sums. 0 resets them, giving every weight back
     its full rate. A fraction keeps each weight's rate for now but lets new errors move it sooner, since
@@ -283,7 +428,7 @@ def train(
     """
     settings = settings or get_ntuple_settings()
     with run_lock(Path(settings.OUTPUT_DIR)):
-        return _train(resume_from, total_games, snapshot_at, settings, coherence_scale, optimistic_unvisited)
+        return _train(resume_from, total_games, snapshot_at, settings, coherence_scale, optimistic_unvisited, fork_normalisation)
 
 
 def _train(
@@ -293,6 +438,7 @@ def _train(
     settings: NTupleSettings,
     coherence_scale: float | None,
     optimistic_unvisited: float | None,
+    fork_normalisation: bool = False,
 ) -> TrainingSummary:
     total_games = settings.TRAINING_GAMES if total_games is None else total_games
     snapshots = sorted(set(settings.SNAPSHOT_AT if snapshot_at is None else snapshot_at))
@@ -303,6 +449,7 @@ def _train(
 
     network, progress = _load_or_create(resume_from, settings)
     traces = _load_or_create_traces(resume_from, network, settings)
+    tidbd, tidbd_totals = _load_or_create_tidbd(resume_from, network, settings, coherence_scale, optimistic_unvisited, fork_normalisation)
     if optimistic_unvisited is not None:
         unvisited = network.weights == 0
         network.weights[unvisited] = optimistic_unvisited
@@ -319,10 +466,12 @@ def _train(
         command=command_line(),
         settings=settings.model_dump(mode="json") | {"TRAINING_GAMES": total_games, "SNAPSHOT_AT": snapshots},
         resumed_from=None if resume_from is None else str(resume_from),
+        resumed_from_sha256=None if resume_from is None else file_sha256(Path(resume_from)),
         environment=Environment.capture(),
         started_at=now(),
         started_with=_counts(progress),
     )
+    cpu_start = time.process_time()
     manifest.sessions.append(session)
     manifest.save(output_dir)
 
@@ -336,13 +485,34 @@ def _train(
         schedule_end = f" to {settings.LAMBDA_END}" if settings.LAMBDA_END is not None else ""
         coherence += f", TD(λ={settings.LAMBDA}{schedule_end}) over {settings.LAMBDA_HORIZON} moves"
     threads = f", {settings.THREADS} threads after {settings.THREADS_AFTER:,} games" if settings.THREADS > 1 else ""
-    print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, lr {settings.LEARNING_RATE}{schedule}{coherence}{threads}")
+    rule = f"lr {settings.LEARNING_RATE}{schedule}{coherence}"
+    if tidbd is not None:
+        rule = f"AutoStep TIDBD(0) from rate {settings.TIDBD_INITIAL_ALPHA}, θ {tidbd.theta}, τ {tidbd.tau:g}, {settings.TIDBD_NORMALISATION} normalisation"
+        if tidbd.mean_decay > 0:
+            rule += f", mean normaliser with decay {tidbd.mean_decay:g}"
+    print(f"Training {settings.NETWORK} n-tuple network ({network.weights.size:,} weights) to {total_games:,} games, {rule}{threads}")
     late_starts = _late_starts(settings)
     td_lambda = _td_lambda(settings)
+    guide = _search_guide(settings, network)
+    if guide is not None:
+        if td_lambda is not None:
+            raise ValueError("search guidance works with TD(0) only, so LAMBDA must be 0")
+        print(f"Searching {guide.depth} moves ahead at decisions from boards with {settings.GUIDE_TILE} or more and a greedy margin in "
+              f"[{guide.margin_low:.3g}, {guide.margin_high:.3g})" + (f", with ranking updates of {guide.rank_step} from a preference of {guide.rank_min_gap:.3g}" if guide.rank_step > 0 else ""))
     if not 1 <= settings.THREADS <= (os.cpu_count() or 1):
         raise ValueError(f"THREADS must be between 1 and {os.cpu_count()}, not {settings.THREADS}")
     # Compile before timing starts, otherwise the first batch's games/s includes compilation
-    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts, td_lambda)
+    goal = None if settings.GOAL_TILE is None else Goal(settings.GOAL_TILE.bit_length() - 1, settings.GOAL_VALUE)
+    if goal is not None:
+        print(f"Every game ends on the move that makes {settings.GOAL_TILE}, worth {settings.GOAL_VALUE:,.0f} after its reward")
+    if settings.SMALL_TABLES and (tidbd is not None or guide is not None):
+        raise ValueError("SMALL_TABLES works with plain TD(0), TD(λ) or TC only")
+    expected = settings.EXPECTED_BACKUP_EMPTY
+    if expected > 0:
+        if td_lambda is not None or tidbd is not None or guide is not None or goal is not None:
+            raise ValueError("EXPECTED_BACKUP_EMPTY works with plain TD(0) or TC only")
+        print(f"Afterstates with at most {expected} empty cells learn towards the expectation over every spawn")
+    play_games(0, network.weights, traces, network.layout, settings.LEARNING_RATE, True, late_starts, td_lambda, guide, tidbd, goal, expected)
 
     interrupted = False
     try:
@@ -357,10 +527,16 @@ def _train(
             threaded = settings.THREADS > 1 and progress.games_played >= settings.THREADS_AFTER
             started = time.monotonic()
             if threaded:
-                results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS, td_lambda)
+                results = play_games_threaded(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, settings.THREADS, td_lambda, guide, tidbd, goal, expected)
             else:
-                results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, td_lambda)
-            if late_starts is not None:
+                results = play_games(batch, network.weights, traces, network.layout, progress.learning_rate, True, late_starts, td_lambda, guide, tidbd, goal, expected)
+            if tidbd is not None:
+                batch_stats = autotidbd.combine_stats(results.stats)
+                if batch_stats[autotidbd.NON_FINITE] > 0:
+                    # Stop before a checkpoint is written, so the last one saved is still sound
+                    raise FloatingPointError(f"{int(batch_stats[autotidbd.NON_FINITE])} updates had a non-finite TD error in the batch after {progress.games_played:,} games")
+                tidbd_totals[:] = autotidbd.combine_stats(np.stack([tidbd_totals, batch_stats]))
+            if late_starts is not None and settings.START_POOL is None:
                 late_starts = late_starts._replace(pool=_grow_pool(late_starts.pool, results, settings.LATE_START_POOL))
             progress.games_played += batch
             progress.moves_played += int(results.moves.sum())
@@ -368,36 +544,59 @@ def _train(
             row = TrainingHistoryRow.from_results(progress.games_played, progress.moves_played, results, time.monotonic() - started)
             print(row, flush=True)
             _append_history(history_path, row)
+            if guide is not None:
+                _append_guide_history(output_dir / GUIDE_HISTORY_NAME, progress.games_played, guide.counts)
+                guide.counts[:] = 0
+            if tidbd is not None:
+                _append_optimizer_history(output_dir / OPTIMIZER_HISTORY_NAME, progress, results, batch_stats, tidbd, settings, time.monotonic() - started, threaded)
 
+            extra = None if tidbd is None else autotidbd.checkpoint_arrays(tidbd, settings.TIDBD_INITIAL_ALPHA, tidbd_totals)
             if progress.games_played in snapshots:
-                _save_checkpoint(network, checkpoint_dir / f"games_{progress.games_played}.npz", progress, traces)
+                # A TIDBD snapshot carries four more arrays the size of the weights, so it's compressed: slower, but kept for good
+                _save_checkpoint(network, checkpoint_dir / f"games_{progress.games_played}.npz", progress, traces, extra, compress=tidbd is not None)
+                if tidbd is not None:
+                    _save_rate_diagnostics(output_dir / OPTIMIZER_STATS_DIR, progress, tidbd, tidbd_totals, settings)
             if progress.games_played % settings.CHECKPOINT_EVERY == 0 and progress.games_played < total_games:
-                _save_checkpoint(network, checkpoint_path, progress, traces)
+                _save_checkpoint(network, checkpoint_path, progress, traces, extra)
     except KeyboardInterrupt:
         interrupted = True
         print(f"\nStopped at {progress.games_played:,} games")
 
-    _save_checkpoint(network, checkpoint_path, progress, traces)
+    extra = None if tidbd is None else autotidbd.checkpoint_arrays(tidbd, settings.TIDBD_INITIAL_ALPHA, tidbd_totals)
+    _save_checkpoint(network, checkpoint_path, progress, traces, extra)
     session.finished_at, session.finished_with, session.interrupted = now(), _counts(progress), interrupted
+    session.cpu_seconds = time.process_time() - cpu_start
+    session.peak_memory_gb = _peak_memory_gb()
     manifest.save(output_dir)
     return TrainingSummary(games_played=progress.games_played, checkpoint_path=checkpoint_path, interrupted=interrupted)
 
 
 def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) -> tuple[NTupleNetwork, CheckpointMetadata]:
     """Return the network and how much training it has had, recording the learning setup used from now on."""
-    learning = {"learning_rate": settings.LEARNING_RATE, "temporal_coherence": settings.TEMPORAL_COHERENCE}
+    learning = {"learning_rate": settings.LEARNING_RATE, "temporal_coherence": settings.TEMPORAL_COHERENCE, "optimizer": settings.OPTIMIZER}
+    if settings.OPTIMIZER == "autotidbd":
+        learning["learning_rate"] = settings.TIDBD_INITIAL_ALPHA
+        if settings.TIDBD_NORMALISATION != "global":
+            learning["optimizer"] = f"autotidbd-{settings.TIDBD_NORMALISATION}"
+        if settings.TIDBD_NORMALISER_DECAY > 0:
+            learning["optimizer"] = str(learning["optimizer"]) + "-mean"
     if settings.DOWNGRADE_TILE is not None and settings.DOWNGRADE_TILE & (settings.DOWNGRADE_TILE - 1):
         raise ValueError(f"DOWNGRADE_TILE must be a power of two, not {settings.DOWNGRADE_TILE}")
     if settings.SCALE_WHEN_DOWNGRADED and not (settings.SCALE_FEATURE and settings.DOWNGRADE_TILE):
         raise ValueError("SCALE_WHEN_DOWNGRADED needs SCALE_FEATURE and DOWNGRADE_TILE")
     if settings.STAGE_TILE is not None and settings.STAGE_TILE & (settings.STAGE_TILE - 1):
         raise ValueError(f"STAGE_TILE must be a power of two, not {settings.STAGE_TILE}")
+    if settings.STAGE_DOWNGRADE_TILE is not None and settings.STAGE_TILE is None:
+        raise ValueError("STAGE_DOWNGRADE_TILE needs STAGE_TILE")
     features = {
         "downgrade_tile": settings.DOWNGRADE_TILE,
         "scale_feature": settings.SCALE_FEATURE,
         "scale_when_downgraded": settings.SCALE_WHEN_DOWNGRADED,
         "stage_tile": settings.STAGE_TILE,
-    }
+    } | ({} if settings.STAGE_DOWNGRADE_TILE is None else {"stage_downgrade_tile": settings.STAGE_DOWNGRADE_TILE}) \
+      | ({} if settings.SCALE_RATE == 1.0 else {"scale_rate": settings.SCALE_RATE}) | ({"scale_skip_empty": True} if settings.SCALE_SKIP_EMPTY else {}) \
+      | ({} if settings.SCALE_BELOW_TILE is None else {"scale_below_tile": settings.SCALE_BELOW_TILE}) | ({"scale_by_state": True} if settings.SCALE_BY_STATE else {}) \
+      | ({"downgrade_repeat": True} if settings.DOWNGRADE_REPEAT else {}) | ({"small_tables": True} if settings.SMALL_TABLES else {})
     if resume_from is None:
         network = NTupleNetwork(
             NETWORKS[settings.NETWORK],
@@ -405,10 +604,19 @@ def _load_or_create(resume_from: str | Path | None, settings: NTupleSettings) ->
             scale_feature=settings.SCALE_FEATURE,
             scale_when_downgraded=settings.SCALE_WHEN_DOWNGRADED,
             stage_tile=settings.STAGE_TILE,
+            stage_downgrade_tile=settings.STAGE_DOWNGRADE_TILE,
+            scale_rate=settings.SCALE_RATE,
+            scale_skip_empty=settings.SCALE_SKIP_EMPTY,
+            scale_below_tile=settings.SCALE_BELOW_TILE,
+            scale_by_state=settings.SCALE_BY_STATE,
+            downgrade_repeat=settings.DOWNGRADE_REPEAT,
+            small_tables=settings.SMALL_TABLES,
         )
         return network, CheckpointMetadata(games_played=0, moves_played=0, **learning)
 
     network, metadata = NTupleNetwork.load(resume_from)
+    if settings.DOWNGRADE_REPEAT and not network.downgrade_repeat:  # the same tables, read for more boards
+        network = NTupleNetwork(network.tuples, network.weights, **network.features | {"downgrade_repeat": True})
     if network_name(network.tuples) != settings.NETWORK:
         raise ValueError(f"{resume_from} holds a {network_name(network.tuples) or 'custom'} network, not {settings.NETWORK}: set NTUPLE_NETWORK to match")
     if network.features != features:
@@ -426,6 +634,124 @@ def _load_or_create_traces(resume_from: str | Path | None, network: NTupleNetwor
     resumed = load_traces(resume_from) if resume_from is not None else None
     traces = resumed if resumed is not None else CoherenceTraces.zeros(network.weights.size)
     return traces._replace(decay=settings.TC_DECAY)
+
+
+def _load_or_create_tidbd(
+    resume_from: str | Path | None,
+    network: NTupleNetwork,
+    settings: NTupleSettings,
+    coherence_scale: float | None,
+    optimistic_unvisited: float | None,
+    fork_normalisation: bool = False,
+) -> tuple[Tidbd | None, np.ndarray]:
+    """Return AutoStep TIDBD's state and the run's optimiser counters so far, resumed or fresh, or (None, zeros) for other rules.
+
+    A resumed checkpoint must hold the optimiser's state, made with these settings: there's no starting it afresh
+    part-way, which would be a reset of every learned rate.
+    """
+    totals = np.zeros(len(autotidbd.STATS))
+    if settings.OPTIMIZER != "autotidbd":
+        return None, totals
+    clashes = {
+        "LAMBDA": settings.LAMBDA > 0,
+        "GUIDE_DEPTH": settings.GUIDE_DEPTH > 0,
+        "LEARNING_RATE_END": settings.LEARNING_RATE_END is not None,
+        "--reset-coherence/--coherence-scale": coherence_scale is not None,
+        "--optimistic-unvisited": optimistic_unvisited is not None,
+    }
+    if any(clashes.values()):
+        raise ValueError(f"OPTIMIZER=autotidbd doesn't work with {', '.join(name for name, set_ in clashes.items() if set_)}")
+    local, proportional = settings.TIDBD_NORMALISATION != "global", settings.TIDBD_NORMALISATION == "proportional"
+    asked = {"initial_alpha": settings.TIDBD_INITIAL_ALPHA, "theta": settings.TIDBD_META_RATE, "tau": settings.TIDBD_TAU, "normalisation": settings.TIDBD_NORMALISATION, "normaliser_decay": settings.TIDBD_NORMALISER_DECAY}  # noqa: E501
+    if resume_from is None:
+        if fork_normalisation:
+            raise ValueError("fork_normalisation needs a checkpoint to fork from")
+        return Tidbd.create(network.weights.size, settings.TIDBD_INITIAL_ALPHA, settings.TIDBD_META_RATE, settings.TIDBD_TAU, local=local, proportional=proportional, mean_decay=settings.TIDBD_NORMALISER_DECAY), totals  # noqa: E501
+    loaded = autotidbd.load(resume_from)
+    if loaded is None:
+        raise ValueError(f"{resume_from} holds no AutoTIDBD state, so training can't resume from it with OPTIMIZER=autotidbd")
+    optimiser, initial_alpha, totals = loaded
+    saved = {"initial_alpha": initial_alpha, "theta": optimiser.theta, "tau": optimiser.tau, "normalisation": autotidbd.normalisation(optimiser), "normaliser_decay": optimiser.mean_decay}
+    if fork_normalisation:
+        # The published rules (global normalisation, the listing's normaliser) can be left for the experimental ones, not the reverse
+        if saved | {"theta": asked["theta"]} != asked | {"normalisation": "global", "normaliser_decay": 0.0} or not local:
+            raise ValueError(f"a fork goes from global to local normalisation, with at most the normaliser's decay and the meta-rate changed besides, not from {saved} to {asked}")
+        # Every step size stays exactly as it is: the shared offset is kept, and from here on is never moved
+        optimiser = optimiser._replace(local=True, proportional=proportional, mean_decay=settings.TIDBD_NORMALISER_DECAY, theta=settings.TIDBD_META_RATE)
+        if saved["theta"] != asked["theta"]:
+            print(f"Meta-rate θ changed from {saved['theta']} to {asked['theta']}")
+        print(f"Forked to {settings.TIDBD_NORMALISATION} normalisation, keeping the shared offset of {optimiser.shared[0]:.4f} fixed from here on")
+    elif saved != asked:
+        raise ValueError(f"{resume_from} was trained with AutoTIDBD settings {saved}, not {asked}: set the settings to match")
+    if optimiser.rates.shape[0] != network.weights.size:
+        raise ValueError(f"{resume_from}'s AutoTIDBD state doesn't match its weights")
+    return optimiser, totals
+
+
+def _peak_memory_gb() -> float:
+    """The process's peak resident memory. macOS reports it in bytes, Linux in kilobytes."""
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * (1 if sys.platform == "darwin" else 1024) / 1e9
+
+
+def _append_optimizer_history(
+    path: Path, progress: CheckpointMetadata, results: GameResults, stats: np.ndarray, optimiser: Tidbd, settings: NTupleSettings, seconds: float, threaded: bool
+) -> None:
+    """Add a batch's game lengths, speed, memory, optimiser counters and sampled step sizes to the run's optimiser history."""
+    rates = autotidbd.rate_diagnostics(optimiser, settings.TIDBD_INITIAL_ALPHA, RATE_SAMPLE_EVERY)
+    visited = rates["alpha_visited"]
+    moves_p10, moves_p50, moves_p90 = np.percentile(results.moves, [10, 50, 90])
+    row = {
+        "games": progress.games_played,
+        "moves": progress.moves_played,
+        "ordinary_games": int((~results.synthetic).sum()),
+        "synthetic_games": int(results.synthetic.sum()),
+        "threads": settings.THREADS if threaded else 1,
+        "seconds": round(seconds, 3),
+        "moves_per_second": round(float(results.moves.sum()) / max(seconds, 1e-9)),
+        "moves_p10": int(moves_p10),
+        "moves_p50": int(moves_p50),
+        "moves_p90": int(moves_p90),
+        "peak_memory_gb": round(_peak_memory_gb(), 3),
+        **{name: float(value) for name, value in zip(autotidbd.STATS, stats)},
+        "log_offset": float(optimiser.shared[0]),
+        "sampled_visited_share": rates["visited"] / rates["weights"],
+        "sampled_alpha_p10": visited.get("p10"),
+        "sampled_alpha_median": visited.get("median"),
+        "sampled_alpha_p90": visited.get("p90"),
+        "sampled_increased": rates.get("visited_increased"),
+        "sampled_decreased": rates.get("visited_decreased"),
+    }
+    new = not path.exists()
+    with path.open("a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=list(row))
+        if new:
+            writer.writeheader()
+        writer.writerow(row)
+
+
+def _save_rate_diagnostics(directory: Path, progress: CheckpointMetadata, optimiser: Tidbd, totals: np.ndarray, settings: NTupleSettings) -> None:
+    """Save the distribution of every weight's step size at a snapshot, with the run's optimiser counters so far."""
+    directory.mkdir(parents=True, exist_ok=True)
+    report = {"games": progress.games_played, "moves": progress.moves_played, "totals": dict(zip(autotidbd.STATS, totals.tolist()))}
+    report |= autotidbd.rate_diagnostics(optimiser, settings.TIDBD_INITIAL_ALPHA)
+    (directory / f"games_{progress.games_played}.json").write_text(json.dumps(report, indent=2) + "\n")
+
+
+def _search_guide(settings: NTupleSettings, network: NTupleNetwork) -> SearchGuide | None:
+    """Return the search guidance for training, or None if GUIDE_DEPTH is 0."""
+    if settings.GUIDE_DEPTH == 0:
+        return None
+    return SearchGuide(settings.GUIDE_DEPTH, settings.GUIDE_TILE.bit_length() - 1, settings.GUIDE_MARGIN_LOW, settings.GUIDE_MARGIN_HIGH,
+                       settings.RANK_STEP, settings.RANK_MARGIN, settings.RANK_MIN_GAP, network.n_features, np.zeros(len(GUIDE_COLUMNS), np.int64))
+
+
+def _append_guide_history(path: Path, games: int, counts: np.ndarray) -> None:
+    """Add a batch's search counts to the run's guide history, with a header if it's new."""
+    new = not path.exists()
+    with open(path, "a") as f:
+        if new:
+            f.write(",".join(("games", *GUIDE_COLUMNS)) + "\n")
+        f.write(",".join(str(int(v)) for v in (games, *counts)) + "\n")
 
 
 def learning_rate_at(settings: NTupleSettings, start_games: int, total_games: int, games_played: int) -> float:
@@ -453,7 +779,16 @@ def lambda_at(settings: NTupleSettings, start_games: int, total_games: int, game
 
 
 def _late_starts(settings: NTupleSettings) -> LateStarts | None:
-    """Return an empty pool of synthetic starts if they're enabled. The pool isn't checkpointed: a resumed run refills it."""
+    """Return an empty pool of synthetic starts if they're enabled, or the fixed START_POOL that every game starts from.
+    The synthetic pool isn't checkpointed: a resumed run refills it."""
+    if settings.START_POOL is not None:
+        if settings.LATE_START_FRACTION > 0:
+            raise ValueError("START_POOL replaces synthetic late starts, so LATE_START_FRACTION must be 0")
+        pool = np.load(settings.START_POOL).astype(np.uint64)
+        if pool.size == 0 or (pool == 0).any():
+            raise ValueError(f"{settings.START_POOL} must hold boards, none of them empty")
+        # Every game starts from the pool and none donates, so it stays exactly as loaded
+        return LateStarts(pool, 1.0, 0)
     if settings.LATE_START_FRACTION <= 0:
         return None
     if settings.LATE_START_TILE & (settings.LATE_START_TILE - 1):
@@ -486,6 +821,9 @@ def _append_history(path: Path, row: TrainingHistoryRow) -> None:
         writer.writerow(row.model_dump())
 
 
-def _save_checkpoint(network: NTupleNetwork, path: Path, metadata: CheckpointMetadata, traces: CoherenceTraces | None) -> None:
-    network.save(path, metadata, traces)
-    print(f"  saved {path} ({metadata.games_played:,} games)", flush=True)
+def _save_checkpoint(
+    network: NTupleNetwork, path: Path, metadata: CheckpointMetadata, traces: CoherenceTraces | None, extra: dict[str, np.ndarray] | None = None, compress: bool = False
+) -> None:
+    started = time.monotonic()
+    network.save(path, metadata, traces, extra, compress)
+    print(f"  saved {path} ({metadata.games_played:,} games, {path.stat().st_size / 1e9:.2f} GB in {time.monotonic() - started:.1f} s)", flush=True)

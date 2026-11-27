@@ -12,6 +12,7 @@ history and manifest go to experiments/<run>/, to be committed, and checkpoints 
 """
 
 import argparse
+import signal
 import sys
 from pathlib import Path
 
@@ -70,8 +71,15 @@ def main() -> None:
         metavar="VALUE",
         help="Set every weight training has never updated to VALUE, so greedy play explores unfamiliar patterns",
     )
+    parser.add_argument(
+        "--fork-normalisation",
+        action="store_true",
+        help="Carry an AutoTIDBD checkpoint trained with global normalisation on under NTUPLE_TIDBD_NORMALISATION=local, keeping its step sizes",
+    )
     args = parser.parse_args()
 
+    # A plain `kill` then stops training as Ctrl-C does: at the end of the batch, saving a checkpoint
+    signal.signal(signal.SIGTERM, signal.default_int_handler)
     settings = get_ntuple_settings()
     if args.run:
         run_dirs = {"OUTPUT_DIR": str(EXPERIMENTS_DIR / args.run), "CHECKPOINT_DIR": str(Path(settings.CHECKPOINT_DIR) / args.run)}
@@ -84,6 +92,7 @@ def main() -> None:
         settings=settings,
         coherence_scale=args.coherence_scale,
         optimistic_unvisited=args.optimistic_unvisited,
+        fork_normalisation=args.fork_normalisation,
     )
 
     print("\nTraining stopped" if summary.interrupted else "\nTraining complete")

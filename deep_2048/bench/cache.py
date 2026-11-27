@@ -27,7 +27,7 @@ class RunKey(BaseModel):
     def for_agent(cls, agent: Agent, n_games: int, seed_offset: int = 0) -> "RunKey":
         return cls(
             label=agent.label,
-            checkpoint_sha256=_sha256(agent.checkpoint) if agent.checkpoint else None,
+            checkpoint_sha256=file_sha256(agent.checkpoint) if agent.checkpoint else None,
             n_games=n_games,
             seed_offset=seed_offset,
         )
@@ -66,6 +66,6 @@ class ResultCache:
         return self.directory / f"{key.digest()}.json"
 
 
-def _sha256(path: Path) -> str:
+def file_sha256(path: Path) -> str:
     with open(path, "rb") as f:
         return hashlib.file_digest(f, "sha256").hexdigest()

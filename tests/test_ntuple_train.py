@@ -36,6 +36,31 @@ def test_learning_improves_play() -> None:
     assert after.scores.mean() > 1.5 * before.scores.mean()
 
 
+def test_a_checkpoint_can_take_up_repeated_halving_but_not_drop_it(tmp_path) -> None:
+    settings = NTupleSettings(LOG_EVERY=100, CHECKPOINT_EVERY=100, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"), DOWNGRADE_TILE=64)
+    first = train(total_games=100, settings=settings)
+    assert not NTupleNetwork.load(first.checkpoint_path)[0].downgrade_repeat
+
+    second = train(resume_from=first.checkpoint_path, total_games=200, settings=settings.model_copy(update={"DOWNGRADE_REPEAT": True}))
+    assert NTupleNetwork.load(second.checkpoint_path)[0].downgrade_repeat
+    with pytest.raises(ValueError, match="set the settings to match"):
+        train(resume_from=second.checkpoint_path, total_games=300, settings=settings)
+
+
+def test_small_tile_tables_train_from_the_first_game_and_resume(tmp_path) -> None:
+    settings = NTupleSettings(LOG_EVERY=100, CHECKPOINT_EVERY=100, CHECKPOINT_DIR=str(tmp_path / "checkpoints"), OUTPUT_DIR=str(tmp_path / "output"),
+                              TEMPORAL_COHERENCE=True, SMALL_TABLES=True)
+    first = train(total_games=100, settings=settings)
+    network, _ = NTupleNetwork.load(first.checkpoint_path)
+    small = network.layout.sharing.small_offset
+    assert network.small_tables and network.weights[small:].any() and network.weights[:small].any()
+    assert load_traces(first.checkpoint_path).abs_errors[small:].any()
+    second = train(resume_from=first.checkpoint_path, total_games=200, settings=settings)
+    assert second.games_played == 200
+    with pytest.raises(ValueError, match="set the settings to match"):
+        train(resume_from=first.checkpoint_path, total_games=300, settings=settings.model_copy(update={"SMALL_TABLES": False}))
+
+
 def test_train_checkpoints_and_resumes(tmp_path) -> None:
     settings = NTupleSettings(
         LOG_EVERY=100,
@@ -63,6 +88,8 @@ def test_train_checkpoints_and_resumes(tmp_path) -> None:
     assert first_session.resumed_from is None and second_session.resumed_from == str(first.checkpoint_path)
     assert first_session.finished_with == second_session.started_with == {"games_played": 200, "moves_played": metadata.moves_played}
     assert second_session.settings["TRAINING_GAMES"] == 300 and second_session.interrupted is False
+    assert first_session.resumed_from_sha256 is None and len(second_session.resumed_from_sha256 or "") == 64
+    assert first_session.cpu_seconds and second_session.cpu_seconds and second_session.cpu_seconds > 0
 
 
 def test_train_saves_snapshots_and_starts_a_fresh_history(tmp_path) -> None:
@@ -333,3 +360,28 @@ def test_history_keeps_an_older_files_columns(tmp_path) -> None:
     _append_history(new_path, row)
     with open(new_path) as f:
         assert next(csv.DictReader(f))["rate_32768"] == "11.0"
+
+
+def test_expected_target_averages_the_best_next_value_over_every_spawn() -> None:
+    from deep_2048.agents.ntuple.network import evaluate
+    from deep_2048.agents.ntuple.train import expected_target
+
+    network = NTupleNetwork(tuples=SMALL_TUPLES)
+    network.weights[:] = np.random.default_rng(0).normal(0, 10, network.weights.size).astype(network.weights.dtype)
+    afterstate = np.uint64(bb.from_array(np.array([[2, 4, 8, 16], [32, 64, 128, 256], [2, 4, 8, 0], [0, 0, 32, 64]])))
+    expected = 0.0
+    for cell in (11, 12, 13):
+        for exponent, chance in ((1, 0.9), (2, 0.1)):
+            board = afterstate | np.uint64(exponent << (4 * cell))
+            values = [r + evaluate(network.weights, network.layout, np.uint64(a), board) for a, r in (bb.move(board, m) for m in range(4)) if np.uint64(a) != board]
+            expected += chance * (max(values) if values else 0.0) / 3
+    assert expected_target(network.weights, network.layout, afterstate) == pytest.approx(expected)
+
+
+def test_expected_backups_learn_and_improve_play() -> None:
+    network = NTupleNetwork(tuples=SMALL_TUPLES)
+    before = play(network, 200, learn=False, seed=0)
+    bb.seed(1)
+    play_games(2_000, network.weights, None, network.layout, 0.01, True, expected_empty=16)
+    after = play(network, 200, learn=False, seed=0)
+    assert after.scores.mean() > 1.5 * before.scores.mean()

@@ -1,0 +1,786 @@
+{
+  "name": "late-network-scratch-0.02-reset",
+  "sessions": [
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "late-network-scratch-0.02-reset",
+        "--resume",
+        "checkpoints/ntuple/late-network-scratch-0.02/latest.npz",
+        "--games",
+        "2100000",
+        "--snapshot-at",
+        "2500000",
+        "--reset-coherence"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.0,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": "experiments/late-network/train-pool.npy",
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": 16384,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 0,
+        "TRAINING_GAMES": 2100000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 1000000000,
+        "SNAPSHOT_AT": [
+          2500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/late-network-scratch-0.02-reset",
+        "OUTPUT_DIR": "experiments/late-network-scratch-0.02-reset"
+      },
+      "resumed_from": "checkpoints/ntuple/late-network-scratch-0.02/latest.npz",
+      "resumed_from_sha256": "78c258ff87edd2737db0d186ac7b6fcc9cccb927e000eb9198764394c035ebcf",
+      "environment": {
+        "git_commit": "71b985abefbef8748f50cf6ab824d6ed7c1a2c2c",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T22:30:13.309149Z",
+      "started_with": {
+        "games_played": 2000000,
+        "moves_played": 10876388603
+      },
+      "finished_at": "2026-11-14T22:34:33.082049Z",
+      "finished_with": {
+        "games_played": 2100000,
+        "moves_played": 11450776058
+      },
+      "interrupted": false,
+      "cpu_seconds": 1891.694206
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "late-network-scratch-0.02-reset",
+        "--resume",
+        "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+        "--games",
+        "2200000",
+        "--snapshot-at",
+        "2500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.0,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": "experiments/late-network/train-pool.npy",
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": 16384,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 0,
+        "TRAINING_GAMES": 2200000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 1000000000,
+        "SNAPSHOT_AT": [
+          2500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/late-network-scratch-0.02-reset",
+        "OUTPUT_DIR": "experiments/late-network-scratch-0.02-reset"
+      },
+      "resumed_from": "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+      "resumed_from_sha256": "8c33bee653f16d24b2c1002157f38741cc52f9743826cbf13c8cef857e5544af",
+      "environment": {
+        "git_commit": "71b985abefbef8748f50cf6ab824d6ed7c1a2c2c",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T22:35:06.064367Z",
+      "started_with": {
+        "games_played": 2100000,
+        "moves_played": 11450776058
+      },
+      "finished_at": "2026-11-14T22:39:33.853614Z",
+      "finished_with": {
+        "games_played": 2200000,
+        "moves_played": 12053377841
+      },
+      "interrupted": false,
+      "cpu_seconds": 1948.148334
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "late-network-scratch-0.02-reset",
+        "--resume",
+        "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+        "--games",
+        "2300000",
+        "--snapshot-at",
+        "2500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.0,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": "experiments/late-network/train-pool.npy",
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": 16384,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 0,
+        "TRAINING_GAMES": 2300000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 1000000000,
+        "SNAPSHOT_AT": [
+          2500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/late-network-scratch-0.02-reset",
+        "OUTPUT_DIR": "experiments/late-network-scratch-0.02-reset"
+      },
+      "resumed_from": "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+      "resumed_from_sha256": "f1a52fc9f5edfde99952d7f77febc74029e3ebe55c48204681a109837fbbdb1b",
+      "environment": {
+        "git_commit": "71b985abefbef8748f50cf6ab824d6ed7c1a2c2c",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T22:40:06.613033Z",
+      "started_with": {
+        "games_played": 2200000,
+        "moves_played": 12053377841
+      },
+      "finished_at": "2026-11-14T22:44:35.174497Z",
+      "finished_with": {
+        "games_played": 2300000,
+        "moves_played": 12665161677
+      },
+      "interrupted": false,
+      "cpu_seconds": 1969.7147089999999
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "late-network-scratch-0.02-reset",
+        "--resume",
+        "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+        "--games",
+        "2400000",
+        "--snapshot-at",
+        "2500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.0,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": "experiments/late-network/train-pool.npy",
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": 16384,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 0,
+        "TRAINING_GAMES": 2400000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 1000000000,
+        "SNAPSHOT_AT": [
+          2500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/late-network-scratch-0.02-reset",
+        "OUTPUT_DIR": "experiments/late-network-scratch-0.02-reset"
+      },
+      "resumed_from": "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+      "resumed_from_sha256": "e6bdc9579cf2e2ff0beb9bdf9d194625f2821568c4e33fa98a990fcb97267240",
+      "environment": {
+        "git_commit": "71b985abefbef8748f50cf6ab824d6ed7c1a2c2c",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T22:45:07.662963Z",
+      "started_with": {
+        "games_played": 2300000,
+        "moves_played": 12665161677
+      },
+      "finished_at": "2026-11-14T22:49:51.413756Z",
+      "finished_with": {
+        "games_played": 2400000,
+        "moves_played": 13276705809
+      },
+      "interrupted": false,
+      "cpu_seconds": 2082.490417
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "late-network-scratch-0.02-reset",
+        "--resume",
+        "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+        "--games",
+        "2500000",
+        "--snapshot-at",
+        "2500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.0,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": "experiments/late-network/train-pool.npy",
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": 16384,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 0,
+        "TRAINING_GAMES": 2500000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 1000000000,
+        "SNAPSHOT_AT": [
+          2500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/late-network-scratch-0.02-reset",
+        "OUTPUT_DIR": "experiments/late-network-scratch-0.02-reset"
+      },
+      "resumed_from": "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+      "resumed_from_sha256": "5eaa6af35ff951e3d50926396d572f3da986e31dda2f6f6d66ba8eae969d56b8",
+      "environment": {
+        "git_commit": "71b985abefbef8748f50cf6ab824d6ed7c1a2c2c",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T22:50:27.681935Z",
+      "started_with": {
+        "games_played": 2400000,
+        "moves_played": 13276705809
+      },
+      "finished_at": "2026-11-14T22:55:21.723340Z",
+      "finished_with": {
+        "games_played": 2500000,
+        "moves_played": 13888779582
+      },
+      "interrupted": false,
+      "cpu_seconds": 2109.934897
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "late-network-scratch-0.02-reset",
+        "--resume",
+        "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+        "--games",
+        "2600000",
+        "--snapshot-at",
+        "2500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.0,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": "experiments/late-network/train-pool.npy",
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": 16384,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 0,
+        "TRAINING_GAMES": 2600000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 1000000000,
+        "SNAPSHOT_AT": [
+          2500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/late-network-scratch-0.02-reset",
+        "OUTPUT_DIR": "experiments/late-network-scratch-0.02-reset"
+      },
+      "resumed_from": "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+      "resumed_from_sha256": "d47cc0adb53ec7bc8b8c2476cd7d0cba987d112cfb7e904f2113408b64e7572f",
+      "environment": {
+        "git_commit": "8258b50b9a74b7e4532e1af83645dfab0abd8cc4",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T22:55:57.050630Z",
+      "started_with": {
+        "games_played": 2500000,
+        "moves_played": 13888779582
+      },
+      "finished_at": "2026-11-14T23:00:47.497674Z",
+      "finished_with": {
+        "games_played": 2600000,
+        "moves_played": 14507453105
+      },
+      "interrupted": false,
+      "cpu_seconds": 2118.2900059999997
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "late-network-scratch-0.02-reset",
+        "--resume",
+        "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+        "--games",
+        "2700000",
+        "--snapshot-at",
+        "2500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.0,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": "experiments/late-network/train-pool.npy",
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": 16384,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 0,
+        "TRAINING_GAMES": 2700000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 1000000000,
+        "SNAPSHOT_AT": [
+          2500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/late-network-scratch-0.02-reset",
+        "OUTPUT_DIR": "experiments/late-network-scratch-0.02-reset"
+      },
+      "resumed_from": "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+      "resumed_from_sha256": "97140c9b102570029c3e588c41ed2763c8793f05a447ae17676ce883704c1eab",
+      "environment": {
+        "git_commit": "8258b50b9a74b7e4532e1af83645dfab0abd8cc4",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T23:01:23.289309Z",
+      "started_with": {
+        "games_played": 2600000,
+        "moves_played": 14507453105
+      },
+      "finished_at": "2026-11-14T23:06:13.858437Z",
+      "finished_with": {
+        "games_played": 2700000,
+        "moves_played": 15129935221
+      },
+      "interrupted": false,
+      "cpu_seconds": 2120.853968
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "late-network-scratch-0.02-reset",
+        "--resume",
+        "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+        "--games",
+        "2800000",
+        "--snapshot-at",
+        "2500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.0,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": "experiments/late-network/train-pool.npy",
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": 16384,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 0,
+        "TRAINING_GAMES": 2800000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 1000000000,
+        "SNAPSHOT_AT": [
+          2500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/late-network-scratch-0.02-reset",
+        "OUTPUT_DIR": "experiments/late-network-scratch-0.02-reset"
+      },
+      "resumed_from": "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+      "resumed_from_sha256": "5e000104daceb7db79afedfddafc03702ef3d0c285b337878356acf263ab42a4",
+      "environment": {
+        "git_commit": "8258b50b9a74b7e4532e1af83645dfab0abd8cc4",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T23:06:50.306039Z",
+      "started_with": {
+        "games_played": 2700000,
+        "moves_played": 15129935221
+      },
+      "finished_at": "2026-11-14T23:11:30.011701Z",
+      "finished_with": {
+        "games_played": 2800000,
+        "moves_played": 15756860027
+      },
+      "interrupted": false,
+      "cpu_seconds": 2014.3609450000001
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "late-network-scratch-0.02-reset",
+        "--resume",
+        "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+        "--games",
+        "2900000",
+        "--snapshot-at",
+        "2500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.0,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": "experiments/late-network/train-pool.npy",
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": 16384,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 0,
+        "TRAINING_GAMES": 2900000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 1000000000,
+        "SNAPSHOT_AT": [
+          2500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/late-network-scratch-0.02-reset",
+        "OUTPUT_DIR": "experiments/late-network-scratch-0.02-reset"
+      },
+      "resumed_from": "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+      "resumed_from_sha256": "5cbcf7aacaf7d8899ae8fdd481f878585c3ae23466aead4b8de75dbfa09afc4f",
+      "environment": {
+        "git_commit": "8258b50b9a74b7e4532e1af83645dfab0abd8cc4",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T23:12:03.648680Z",
+      "started_with": {
+        "games_played": 2800000,
+        "moves_played": 15756860027
+      },
+      "finished_at": "2026-11-14T23:16:38.330091Z",
+      "finished_with": {
+        "games_played": 2900000,
+        "moves_played": 16388933234
+      },
+      "interrupted": false,
+      "cpu_seconds": 2003.392422
+    },
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "late-network-scratch-0.02-reset",
+        "--resume",
+        "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+        "--games",
+        "3000000",
+        "--snapshot-at",
+        "2500000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.0,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": "experiments/late-network/train-pool.npy",
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": 16384,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 0,
+        "TRAINING_GAMES": 3000000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 1000000000,
+        "SNAPSHOT_AT": [
+          2500000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/late-network-scratch-0.02-reset",
+        "OUTPUT_DIR": "experiments/late-network-scratch-0.02-reset"
+      },
+      "resumed_from": "checkpoints/ntuple/late-network-scratch-0.02-reset/latest.npz",
+      "resumed_from_sha256": "ba12d8058b63d5d39722118e89f3d6f44eb0af3868fda01a2eb55f43ff88a8ab",
+      "environment": {
+        "git_commit": "8258b50b9a74b7e4532e1af83645dfab0abd8cc4",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T23:17:11.347511Z",
+      "started_with": {
+        "games_played": 2900000,
+        "moves_played": 16388933234
+      },
+      "finished_at": "2026-11-14T23:21:53.918094Z",
+      "finished_with": {
+        "games_played": 3000000,
+        "moves_played": 17021276914
+      },
+      "interrupted": false,
+      "cpu_seconds": 2055.977899
+    }
+  ]
+}

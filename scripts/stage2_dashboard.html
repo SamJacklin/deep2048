@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stage 2</title>
+<style>
+.viz-root {
+  color-scheme: light;
+  --page: #f4f4f1; --surface-1: #fcfcfb; --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #8a8984;
+  --hairline: #e6e5e0; --ref-1: #0b0b0b; --ref-2: #9a9993;
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
+  --series-5: #e87ba4; --series-6: #008300; --series-7: #6250d6; --series-8: #e34948;
+}
+@media (prefers-color-scheme: dark) {
+  .viz-root {
+    color-scheme: dark;
+    --page: #111110; --surface-1: #1a1a19; --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
+    --hairline: #2c2c2a; --ref-1: #f0efec; --ref-2: #7d7c75;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+    --series-5: #d55181; --series-6: #0ca30c; --series-7: #9085e9; --series-8: #e66767;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text-primary); font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; padding: 18px 24px 4px; }
+h1 { font-size: 20px; margin: 0; font-weight: 650; }
+#meta { color: var(--text-secondary); }
+#sub { color: var(--text-secondary); font-size: 12.5px; margin: 0 24px 8px; }
+.card { background: var(--surface-1); border-radius: 10px; padding: 14px 16px 12px; }
+#runs { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; margin: 10px 24px 0; }
+.run h2 { font-size: 15px; margin: 0; font-weight: 650; display: flex; align-items: center; gap: 2px; }
+.run .state { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+.run .phase { color: var(--text-secondary); font-size: 12.5px; margin: 4px 0 6px; }
+.bar { height: 4px; background: var(--hairline); border-radius: 2px; margin: 2px 0 10px; position: relative; }
+.bar i { display: block; height: 100%; border-radius: 2px; background: var(--text-secondary); }
+.bar b { position: absolute; top: -3px; width: 2px; height: 10px; background: var(--text-muted); }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.stat .label { color: var(--text-secondary); font-size: 12px; }
+.stat .value { font-size: 20px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.stat .detail { color: var(--text-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.next { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--hairline); font-size: 13px; }
+.next b { font-weight: 600; }
+.stage1 { color: var(--text-secondary); }
+.stage1 .value { color: var(--text-primary); }
+.key { display: inline-block; width: 18px; height: 0; border-top: 3px solid; border-radius: 2px; vertical-align: middle; margin-right: 8px; }
+.key.dashed { border-top-style: dashed; }
+#charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 14px 24px 28px; }
+@media (max-width: 1000px) { #charts { grid-template-columns: minmax(0, 1fr); } }
+.chart.wide, .chart.big { grid-column: 1 / -1; }
+.card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.chart h2 { font-size: 15px; margin: 0; font-weight: 650; }
+.chart p { margin: 2px 0 6px; color: var(--text-secondary); font-size: 12.5px; }
+button.enlarge { font: inherit; font-size: 12px; color: var(--text-secondary); background: transparent; border: 1px solid var(--hairline); border-radius: 6px; padding: 2px 9px; cursor: pointer; flex: none; }
+button.enlarge:hover { color: var(--text-primary); }
+button.enlarge:focus-visible { outline: 2px solid var(--series-1); outline-offset: 1px; }
+svg { display: block; width: 100%; overflow: visible; }
+svg text { fill: var(--text-secondary); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+svg .grid { stroke: var(--hairline); stroke-width: 1; }
+svg .axis-title { fill: var(--text-muted); }
+svg .end-label { fill: var(--text-primary); font-size: 12px; }
+#tooltip { position: fixed; pointer-events: none; background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 8px; padding: 8px 10px; box-shadow: 0 4px 16px rgba(0,0,0,.14); font-size: 12.5px; display: none; z-index: 5; min-width: 150px; }
+#tooltip .x { color: var(--text-secondary); margin-bottom: 4px; }
+#tooltip .row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+#tooltip .row b { font-variant-numeric: tabular-nums; min-width: 56px; text-align: right; font-weight: 650; }
+#tooltip .row span.name { color: var(--text-secondary); }
+.empty { color: var(--text-muted); padding: 40px 0; text-align: center; }
+</style>
+</head>
+<body class="viz-root">
+<header><h1>Stage 2: the late game from 16384</h1><div id="meta"></div></header>
+<div id="sub"></div>
+<div id="runs"></div>
+<main id="charts"></main>
+<div id="tooltip"></div>
+<script>
+"use strict";
+const EMBEDDED = /*__DATA__*/null;
+const REFRESH_SECONDS = 15;
+const NS = "http://www.w3.org/2000/svg";
+const root = document.body;
+const tooltip = document.getElementById("tooltip");
+let DATA = null;
+const view = { big: new Set() };
+try {
+  const saved = JSON.parse(localStorage.getItem("stage2-dashboard") || "null");
+  if (saved) view.big = new Set(saved.big || []);
+} catch (error) { /* storage is a convenience only */ }
+function remember() {
+  try { localStorage.setItem("stage2-dashboard", JSON.stringify({ big: [...view.big] })); } catch (error) { /* ignore */ }
+}
+
+function el(tag, attributes, text) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(attributes || {})) node.setAttribute(key, value);
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+function svg(tag, attributes) {
+  const node = document.createElementNS(NS, tag);
+  for (const [key, value] of Object.entries(attributes || {})) node.setAttribute(key, value);
+  return node;
+}
+function css(name) { return getComputedStyle(root).getPropertyValue(name).trim(); }
+
+// ---------------------------------------------------------------- formats
+function thousands(value, digits) {
+  if (value === null || value === undefined) return "–";
+  return (value / 1e3).toFixed(digits === undefined ? 1 : digits) + "k";
+}
+function signedThousands(value) {
+  if (value === null || value === undefined) return "–";
+  return (value >= 0 ? "+" : "−") + (Math.abs(value) / 1e3).toFixed(1) + "k";
+}
+function gamesText(games) {
+  if (games === null || games === undefined) return "–";
+  return games >= 1e6 ? (games / 1e6).toFixed(2) + "M" : Math.round(games / 1e3) + "k";
+}
+function movesText(moves) { return (moves / 1e9).toFixed(2) + "B"; }
+function percent(value) { return value === null || value === undefined ? "–" : value.toFixed(1) + "%"; }
+function rateText(rate) {
+  if (rate === null || rate === undefined) return "–";
+  return String(+rate.toPrecision(2));
+}
+function hoursText(hours) {
+  if (hours === null || hours === undefined) return "–";
+  return hours >= 1 ? hours.toFixed(1) + " h" : Math.round(hours * 60) + " min";
+}
+const STATUS = { training: "▶ training", waiting: "… preparing", stopped: "■ stopped", finished: "✓ finished" };
+function color(run) { return css("--series-" + (run.slot + 1)); }
+function signedPoints(value) { return value === null || value === undefined ? "–" : (value >= 0 ? "+" : "−") + Math.abs(value).toFixed(2) + " pts"; }
+
+// ---------------------------------------------------------------- the run cards
+function phaseText(run) {
+  if (run.tc_from !== null && run.tc_from !== undefined) return `TC finish since ${gamesText(run.tc_from)}, to ${gamesText(run.goal)}`;
+  const latest = run.latest ? run.latest.games : 0;
+  const cuts = run.cuts.length ? " · cut at " + run.cuts.map(gamesText).join(", ") : "";
+  const held = run.hold && latest < run.hold ? ` · held to ${gamesText(run.hold)}` : "";
+  return `TD at ${rateText(run.rate)} a board${held}${cuts}`;
+}
+function nextText(run) {
+  const c = run.checks;
+  if (!c) return "Starting: the first session builds its network" + (DATA.pool ? "" : " and the shared 16384 pool") + ".";
+  if (c.phase === "tc") return `TC finish: no more checks. Ends at ${gamesText(c.total)}.`;
+  const action = c.cuts.length < c.max_cuts ? `cut to ${rateText(run.rate / 10)} a board` : "switch to the TC finish";
+  if (c.now.held) return `Held at ${rateText(run.rate)} until ${gamesText(c.hold_until)}, then it will ${action}.`;
+  const holding = [!c.now.enough && "too soon after a cut", !c.now.score_met && `score still rising (${signedThousands(c.now.score)} in 500k)`,
+                   !c.now.r32768_met && `32768 rate still rising (${signedPoints(c.now.r32768)})`].filter(Boolean);
+  if (!holding.length) return `Stalled: it will ${action} at ${gamesText(c.next)} if this holds.`;
+  return `Next: ${action} when it stalls, or at ${gamesText(c.deadline)} at the latest. Not yet: ${holding.join(", ")}.`;
+}
+function stat(label, value, detail) {
+  const node = el("div", { class: "stat" });
+  node.appendChild(el("div", { class: "label" }, label));
+  node.appendChild(el("div", { class: "value" }, value));
+  node.appendChild(el("div", { class: "detail" }, detail));
+  return node;
+}
+function runCards() {
+  const host = document.getElementById("runs");
+  host.textContent = "";
+  DATA.runs.forEach((run) => {
+    const card = el("div", { class: "card run" });
+    const title = el("h2");
+    const key = el("span", { class: "key" });
+    key.style.borderTopColor = color(run);
+    title.appendChild(key);
+    title.appendChild(document.createTextNode(run.name));
+    title.appendChild(el("span", { class: "state" }, STATUS[run.status] || run.status));
+    card.appendChild(title);
+    card.appendChild(el("div", { class: "phase" }, phaseText(run)));
+    const latest = run.latest;
+    const bar = el("div", { class: "bar", title: "Games played of the budget; ticks mark the hold's end and the latest TC start" });
+    const fill = el("i");
+    fill.style.width = latest && run.goal ? Math.min(100, 100 * latest.games / run.goal) + "%" : "0%";
+    bar.appendChild(fill);
+    [run.hold].filter((tick) => tick && run.goal && tick < run.goal).forEach((tick) => { const mark = el("b"); mark.style.left = (100 * tick / run.goal) + "%"; bar.appendChild(mark); });
+    card.appendChild(bar);
+    const stats = el("div", { class: "stats" });
+    stats.appendChild(stat("Games", latest ? gamesText(latest.games) : "–", run.goal ? `of ${gamesText(run.goal)}` + (run.eta_hours ? ` · ${hoursText(run.eta_hours)} left` : "") + (latest ? ` · ${latest.speed}/s` : "") : ""));
+    stats.appendChild(stat("Converts 16384 → 32768", latest ? latest.conversion.toFixed(1) + "%" : "–", latest ? signedPoints(latest.conversion_change) + " over 500k" : "training games"));
+    stats.appendChild(stat("Score from 16384", latest ? thousands(latest.score) : "–", latest ? signedThousands(latest.score_change) + " over 500k" : "training games"));
+    const evaluation = run.evaluations.length ? run.evaluations[run.evaluations.length - 1] : null;
+    stats.appendChild(stat("Whole games (seeded)", evaluation ? thousands(evaluation.mean) : "–",
+      evaluation ? `at ${gamesText(evaluation.games)} · 32768 ${percent(evaluation.r32768)}` + (evaluation.vs_stage1 !== undefined ? ` · ${signedThousands(evaluation.vs_stage1)} ± ${thousands(evaluation.vs_stage1_ci)} vs stage 1` : "") : "first at 500k"));
+    card.appendChild(stats);
+    const next = el("div", { class: "next" });
+    next.appendChild(el("b", {}, "Next: "));
+    next.appendChild(document.createTextNode(nextText(run).replace(/^Next: /, "")));
+    card.appendChild(next);
+    host.appendChild(card);
+  });
+  if (DATA.stage1) {
+    const s = DATA.stage1, card = el("div", { class: "card run stage1" });
+    const title = el("h2");
+    const key = el("span", { class: "key dashed" });
+    key.style.borderTopColor = css("--ref-1");
+    title.appendChild(key);
+    title.appendChild(document.createTextNode("Stage 1 alone (the bar to beat)"));
+    card.appendChild(title);
+    card.appendChild(el("div", { class: "phase" }, "The best network at 2M games, on the same 1,000 seeds"));
+    const stats = el("div", { class: "stats" });
+    stats.appendChild(stat("Whole games", thousands(s.mean), `± ${thousands(s.ci)}`));
+    stats.appendChild(stat("Converts 16384 → 32768", percent(s.conversion), `${percent(s.r16384)} reach 16384 · ${percent(s.r32768)} reach 32768`));
+    card.appendChild(stats);
+    host.appendChild(card);
+  }
+}
+
+// ---------------------------------------------------------------- charts
+function niceStep(span, count) {
+  const raw = span / Math.max(count, 1), power = Math.pow(10, Math.floor(Math.log10(raw))), unit = raw / power;
+  return (unit >= 5 ? 10 : unit >= 2 ? 5 : unit >= 1 ? 2 : 1) * power;
+}
+function linearTicks(low, high, count) {
+  if (!(high > low)) return [low];
+  const step = niceStep(high - low, count), ticks = [];
+  for (let tick = Math.ceil(low / step - 1e-9) * step; tick <= high + step * 1e-9; tick += step) ticks.push(Math.abs(tick) < step * 1e-9 ? 0 : tick);
+  return ticks;
+}
+function nearest(points, x) {
+  let low = 0, high = points.length - 1;
+  while (high - low > 1) { const middle = (low + high) >> 1; if (points[middle][0] <= x) low = middle; else high = middle; }
+  return Math.abs(points[high][0] - x) < Math.abs(points[low][0] - x) ? high : low;
+}
+
+// One chart: lines on a single axis, a crosshair that lists every line's value, a label at the end of each line
+// when there are four or fewer. config: {series:[{name,color,points:[[x,y,ci?]],dots,width}], xText, yText, domain, log, threshold, marks}
+function drawChart(card, config) {
+  const host = card.querySelector(".plot");
+  host.textContent = "";
+  const lines = config.series.filter((series) => series.points.length);
+  if (!lines.length) { host.appendChild(el("div", { class: "empty" }, config.empty || "Nothing to show yet")); return; }
+  const labelled = lines.length <= 4 && !config.noEndLabels;
+  const width = Math.max(host.clientWidth, 320), height = Math.round((config.height || 290) * (card.classList.contains("big") ? 1.8 : 1));
+  const margin = { left: 58, right: labelled ? 200 : 18, top: 10, bottom: 38 };
+  const innerWidth = width - margin.left - margin.right, innerHeight = height - margin.top - margin.bottom;
+  const xs = lines.flatMap((series) => [series.points[0][0], series.points[series.points.length - 1][0]]);
+  const xLow = config.xLow !== undefined ? config.xLow : 0, xHigh = Math.max(config.xHigh || 0, ...xs);
+  let ys = lines.flatMap((series) => series.points.flatMap((point) => point[2] ? [point[1] - point[2], point[1] + point[2]] : [point[1]]));
+  if (config.threshold) ys.push(config.threshold.y);
+  let yLow, yHigh;
+  if (config.domain) [yLow, yHigh] = config.domain(Math.min(...ys), Math.max(...ys));
+  else { const pad = (Math.max(...ys) - Math.min(...ys)) * 0.05 || 1; yLow = Math.min(...ys) - pad; yHigh = Math.max(...ys) + pad; if (config.fromZero) yLow = 0; }
+  const transform = config.log ? Math.log10 : (value) => value;
+  const x = (value) => margin.left + (value - xLow) / (xHigh - xLow || 1) * innerWidth;
+  const y = (value) => margin.top + (1 - (transform(config.log ? Math.max(value, yLow / 10) : value) - transform(yLow)) / (transform(yHigh) - transform(yLow) || 1)) * innerHeight;
+  const chart = svg("svg", { viewBox: `0 0 ${width} ${height}`, height, role: "img", "aria-label": card.querySelector("h2").textContent });
+  // Lines that leave the plotted range are cut at its edge, not flattened along it
+  const clipId = "clip-" + card.id;
+  const clip = svg("clipPath", { id: clipId });
+  clip.appendChild(svg("rect", { x: margin.left, y: margin.top - 2, width: innerWidth + 2, height: innerHeight + 4 }));
+  chart.appendChild(clip);
+  const plotted = svg("g", { "clip-path": `url(#${clipId})` });
+
+  const yTicks = config.log ? (() => { const ticks = []; for (let power = Math.ceil(Math.log10(yLow) - 1e-9); power <= Math.log10(yHigh) + 1e-9; power++) ticks.push(Math.pow(10, power)); return ticks; })() : linearTicks(yLow, yHigh, 5);
+  yTicks.forEach((tick) => {
+    chart.appendChild(svg("line", { class: "grid", x1: margin.left, x2: margin.left + innerWidth, y1: y(tick), y2: y(tick) }));
+    const text = svg("text", { x: margin.left - 8, y: y(tick) + 4, "text-anchor": "end" });
+    text.textContent = config.yText(tick);
+    chart.appendChild(text);
+  });
+  linearTicks(xLow, xHigh, Math.max(3, Math.floor(innerWidth / 85))).forEach((tick) => {
+    const text = svg("text", { x: x(tick), y: margin.top + innerHeight + 16, "text-anchor": "middle" });
+    text.textContent = config.xText(tick);
+    chart.appendChild(text);
+  });
+  const title = svg("text", { class: "axis-title", x: margin.left + innerWidth / 2, y: height - 4, "text-anchor": "middle" });
+  title.textContent = config.xTitle;
+  chart.appendChild(title);
+
+  if (config.threshold) {
+    chart.appendChild(svg("line", { x1: margin.left, x2: margin.left + innerWidth, y1: y(config.threshold.y), y2: y(config.threshold.y), stroke: css("--text-muted"), "stroke-width": 1, "stroke-dasharray": "5 4" }));
+    const text = svg("text", { x: margin.left + 6, y: y(config.threshold.y) + 14, stroke: css("--surface-1"), "stroke-width": 4, "paint-order": "stroke" });
+    text.textContent = config.threshold.label;
+    config.thresholdLabel = text;
+  }
+
+  const surface = css("--surface-1");
+  chart.appendChild(plotted);
+  lines.forEach((series) => {
+    if (!series.dots) {
+      let path = "", pen = false;
+      series.points.forEach((point) => {
+        if (point[1] === null) { pen = false; return; }
+        path += (pen ? "L" : "M") + x(point[0]).toFixed(1) + " " + y(point[1]).toFixed(1);
+        pen = true;
+      });
+      plotted.appendChild(svg("path", { d: path, fill: "none", stroke: series.color, "stroke-width": series.width || 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    } else {
+      const path = series.points.map((point, index) => (index ? "L" : "M") + x(point[0]).toFixed(1) + " " + y(point[1]).toFixed(1)).join("");
+      plotted.appendChild(svg("path", { d: path, fill: "none", stroke: series.color, "stroke-width": 1.5, "stroke-opacity": 0.55 }));
+      series.points.forEach((point) => {
+        if (point[2]) plotted.appendChild(svg("line", { x1: x(point[0]), x2: x(point[0]), y1: y(point[1] - point[2]), y2: y(point[1] + point[2]), stroke: series.color, "stroke-width": 2, "stroke-linecap": "round" }));
+        plotted.appendChild(svg("circle", { cx: x(point[0]), cy: y(point[1]), r: 4.5, fill: series.color, stroke: surface, "stroke-width": 2 }));
+      });
+    }
+  });
+  (config.marks || []).forEach((mark) => {
+    const cx = x(mark.x), cy = y(mark.y), size = 5.5;
+    plotted.appendChild(svg("path", { d: `M${cx} ${cy - size}L${cx + size} ${cy}L${cx} ${cy + size}L${cx - size} ${cy}Z`, fill: mark.color, stroke: surface, "stroke-width": 2 }));
+  });
+
+  if (config.thresholdLabel) chart.appendChild(config.thresholdLabel);
+  if (labelled) {
+    const ends = lines.map((series) => { const last = [...series.points].reverse().find((point) => point[1] !== null); return { series, at: y(last[1]), x: x(last[0]) }; }).sort((a, b) => a.at - b.at);
+    for (let index = 1; index < ends.length; index++) ends[index].at = Math.max(ends[index].at, ends[index - 1].at + 14);
+    ends.forEach((end) => {
+      const text = svg("text", { class: "end-label", x: Math.min(end.x + 8, margin.left + innerWidth + 8), y: end.at + 4 });
+      text.textContent = end.series.name.length > 34 ? end.series.name.slice(0, 33) + "…" : end.series.name;
+      chart.appendChild(text);
+    });
+  }
+
+  // The hover layer: the crosshair snaps to the nearest point in x and one readout lists every line there
+  const crosshair = svg("line", { y1: margin.top, y2: margin.top + innerHeight, stroke: css("--text-muted"), "stroke-width": 1, visibility: "hidden" });
+  chart.appendChild(crosshair);
+  const dots = lines.map((series) => { const dot = svg("circle", { r: 4, fill: series.color, stroke: surface, "stroke-width": 2, visibility: "hidden" }); chart.appendChild(dot); return dot; });
+  const pad = svg("rect", { x: margin.left, y: margin.top, width: innerWidth, height: innerHeight, fill: "transparent" });
+  chart.appendChild(pad);
+  function hide() { crosshair.setAttribute("visibility", "hidden"); dots.forEach((dot) => dot.setAttribute("visibility", "hidden")); tooltip.style.display = "none"; }
+  pad.addEventListener("pointerleave", hide);
+  pad.addEventListener("pointermove", (event) => {
+    const box = chart.getBoundingClientRect();
+    const pointer = xLow + ((event.clientX - box.left) * (width / box.width) - margin.left) / innerWidth * (xHigh - xLow);
+    let anchor = null;
+    lines.forEach((series) => { const point = series.points[nearest(series.points, pointer)]; if (anchor === null || Math.abs(point[0] - pointer) < Math.abs(anchor - pointer)) anchor = point[0]; });
+    crosshair.setAttribute("x1", x(anchor)); crosshair.setAttribute("x2", x(anchor)); crosshair.setAttribute("visibility", "visible");
+    tooltip.textContent = "";
+    tooltip.appendChild(el("div", { class: "x" }, config.xText(anchor, true) + " " + config.xUnit));
+    const rows = [];
+    lines.forEach((series, index) => {
+      const point = series.points[nearest(series.points, anchor)];
+      const reach = (xHigh - xLow) * (series.dots ? 0.06 : 0.02);
+      if (point[1] === null || Math.abs(point[0] - anchor) > reach) { dots[index].setAttribute("visibility", "hidden"); return; }
+      const inside = y(point[1]) >= margin.top - 2 && y(point[1]) <= margin.top + innerHeight + 2;
+      dots[index].setAttribute("cx", x(point[0])); dots[index].setAttribute("cy", y(point[1])); dots[index].setAttribute("visibility", inside ? "visible" : "hidden");
+      rows.push({ series, point });
+    });
+    rows.sort((a, b) => b.point[1] - a.point[1]).forEach(({ series, point }) => {
+      const row = el("div", { class: "row" });
+      row.appendChild(el("b", {}, config.yText(point[1], true) + (point[2] ? " ± " + config.yText(point[2], true) : "")));
+      const key = el("span", { class: "key" });
+      key.style.borderTopColor = series.color;
+      row.appendChild(key);
+      row.appendChild(el("span", { class: "name" }, series.name));
+      tooltip.appendChild(row);
+    });
+    tooltip.style.display = "block";
+    const left = event.clientX + 16, overflow = left + tooltip.offsetWidth > window.innerWidth - 8;
+    tooltip.style.left = (overflow ? event.clientX - tooltip.offsetWidth - 16 : left) + "px";
+    tooltip.style.top = Math.min(event.clientY + 12, window.innerHeight - tooltip.offsetHeight - 8) + "px";
+  });
+  host.appendChild(chart);
+}
+
+function line(run, key) {
+  if (!run.lines) return [];
+  return run.lines.games.map((games, index) => [games, run.lines[key][index]]).filter((point) => point[1] !== null);
+}
+function marks(run, key) {
+  const at = [...run.cuts, ...(run.tc_from !== null && run.tc_from !== undefined ? [run.tc_from] : [])];
+  return at.map((games) => { const points = line(run, key); if (!points.length) return null; const point = points[nearest(points, games)]; return { x: point[0], y: point[1], color: color(run) }; }).filter(Boolean);
+}
+function flat(name, value, xHigh) { return { name, color: css("--ref-1"), width: 1.5, points: [[0, value], [xHigh, value]] }; }
+const CHARTS = [
+  { id: "conversion", title: "Converts 16384 → 32768", note: () => `Share of training games (each starts from a first-16384 board) that reach 32768, over the last ${DATA.smooth}k games. Diamonds mark rate cuts and the TC switch.` },
+  { id: "score", title: "Training score from 16384", note: () => "Score gained after the starting board, same smoothing." },
+  { id: "evaluations", title: "Whole games, seeded", wide: true, note: () => "Stage 1 then stage 2 on the usual 1,000 seeds, every 500k games, with 95% intervals. The flat line is stage 1 alone." },
+];
+function chartConfig(id) {
+  const runs = DATA.runs.filter((run) => run.lines || run.evaluations.length);
+  const xHigh = Math.max(1e6, ...runs.map((run) => run.latest ? run.latest.games : 0));
+  const common = { xHigh, xText: gamesText, xUnit: "games", xTitle: "Games of stage 2 training" };
+  if (id === "conversion") {
+    const series = runs.map((run) => ({ name: run.name, color: color(run), points: line(run, "conversion") }));
+    if (DATA.stage1 && DATA.stage1.conversion !== null) series.push(flat("Stage 1 alone (seeded games)", DATA.stage1.conversion, xHigh));
+    return { ...common, series, yText: (v) => v.toFixed(v < 10 ? 1 : 0) + "%", fromZero: true, marks: runs.flatMap((run) => marks(run, "conversion")) };
+  }
+  if (id === "score") return { ...common, series: runs.map((run) => ({ name: run.name, color: color(run), points: line(run, "score") })), yText: (v) => thousands(v, 0), marks: runs.flatMap((run) => marks(run, "score")) };
+  const series = runs.map((run) => ({ name: run.name, color: color(run), dots: true, points: run.evaluations.map((e) => [e.games, e.mean, e.ci]) }));
+  if (DATA.stage1) series.push(flat("Stage 1 alone", DATA.stage1.mean, xHigh));
+  return { ...common, series, yText: (v) => thousands(v, 0), empty: "The first evaluation comes at 500k games" };
+}
+function charts() {
+  const host = document.getElementById("charts");
+  if (!host.children.length) {
+    CHARTS.forEach((definition) => {
+      const card = el("div", { class: "card chart" + (definition.wide ? " wide" : ""), id: "chart-" + definition.id });
+      const head = el("div", { class: "card-head" });
+      head.appendChild(el("h2", {}, definition.title));
+      const button = el("button", { class: "enlarge", type: "button" });
+      button.addEventListener("click", () => {
+        if (view.big.has(definition.id)) view.big.delete(definition.id); else view.big.add(definition.id);
+        remember();
+        charts();
+        card.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      });
+      head.appendChild(button);
+      card.appendChild(head);
+      card.appendChild(el("p"));
+      card.appendChild(el("div", { class: "plot" }));
+      host.appendChild(card);
+    });
+  }
+  CHARTS.forEach((definition) => {
+    const card = document.getElementById("chart-" + definition.id);
+    const big = view.big.has(definition.id), button = card.querySelector("button.enlarge");
+    card.classList.toggle("big", big);
+    button.textContent = big ? "Shrink" : "Enlarge";
+    button.setAttribute("aria-pressed", String(big));
+    button.setAttribute("aria-label", (big ? "Shrink " : "Enlarge ") + definition.title);
+    card.querySelector("p").textContent = definition.note();
+    drawChart(card, chartConfig(definition.id));
+  });
+}
+
+function render() {
+  if (!DATA) return;
+  document.getElementById("sub").textContent = (DATA.runs.length ? "" : "No stage 2 runs yet. ") + (DATA.pool ? "Starting pool: " + DATA.pool : "");
+  runCards();
+  charts();
+}
+function status(text) { document.getElementById("meta").textContent = text; }
+async function refresh() {
+  try {
+    const response = await fetch("/api/data", { cache: "no-store" });
+    DATA = await response.json();
+    status(`Updated ${DATA.updated} · refreshes every ${REFRESH_SECONDS} s`);
+    render();
+  } catch (error) {
+    status("Can't reach the dashboard script. Is it still running? Showing the last data received.");
+  }
+}
+let resizing = null;
+window.addEventListener("resize", () => { clearTimeout(resizing); resizing = setTimeout(charts, 150); });
+if (EMBEDDED) { DATA = EMBEDDED; status(`Snapshot taken at ${DATA.updated}`); render(); }
+else { refresh(); setInterval(refresh, REFRESH_SECONDS * 1000); }
+</script>
+</body>
+</html>

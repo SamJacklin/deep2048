@@ -1,0 +1,83 @@
+Resuming from checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz at 2,000,000 games
+Temporal coherence sums reset: every weight starts back at the full rate
+Training 8x6 n-tuple network (134,217,728 weights) to 2,050,000 games, lr 0.02, temporal coherence, 8 threads after 10,000 games
+Searching 3 moves ahead at decisions from boards with 16384 or more and a greedy margin in [0, 0.00189)
+  games 2,001,000  moves  19137.1M  avg score   233110  max  623424  ≥2048  97.1%  ≥4096  93.8%  ≥8192  85.3%  ≥16384  47.4%  ≥32768  2.7%  |   13.7 games/s
+  games 2,002,000  moves  19146.6M  avg score   261823  max  608796  ≥2048  96.9%  ≥4096  95.5%  ≥8192  88.0%  ≥16384  56.4%  ≥32768  5.4%  |    8.7 games/s
+  games 2,003,000  moves  19155.8M  avg score   259722  max  608104  ≥2048  98.3%  ≥4096  96.0%  ≥8192  89.1%  ≥16384  56.2%  ≥32768  4.7%  |    8.2 games/s
+  games 2,004,000  moves  19165.0M  avg score   263517  max  610956  ≥2048  98.1%  ≥4096  96.0%  ≥8192  88.4%  ≥16384  56.5%  ≥32768  4.6%  |    7.6 games/s
+  games 2,005,000  moves  19174.8M  avg score   274227  max  616832  ≥2048  98.4%  ≥4096  97.4%  ≥8192  90.5%  ≥16384  58.6%  ≥32768  7.1%  |    7.2 games/s
+  games 2,006,000  moves  19184.3M  avg score   271345  max  608360  ≥2048  98.5%  ≥4096  97.0%  ≥8192  90.3%  ≥16384  57.9%  ≥32768  6.7%  |    7.4 games/s
+  games 2,007,000  moves  19194.2M  avg score   281540  max  585708  ≥2048  97.6%  ≥4096  96.8%  ≥8192  89.7%  ≥16384  63.8%  ≥32768  6.3%  |    6.5 games/s
+  games 2,008,000  moves  19204.0M  avg score   279266  max  614836  ≥2048  98.1%  ≥4096  96.6%  ≥8192  89.6%  ≥16384  61.8%  ≥32768  7.3%  |    6.6 games/s
+  games 2,009,000  moves  19213.8M  avg score   279138  max  605428  ≥2048  98.2%  ≥4096  96.6%  ≥8192  89.3%  ≥16384  62.3%  ≥32768  7.2%  |    6.5 games/s
+  games 2,010,000  moves  19223.6M  avg score   276493  max  620000  ≥2048  98.1%  ≥4096  97.0%  ≥8192  91.8%  ≥16384  57.9%  ≥32768  7.7%  |    6.8 games/s
+  saved checkpoints/ntuple/search-teacher-B/latest.npz (2,010,000 games)
+  games 2,011,000  moves  19233.6M  avg score   281402  max  628056  ≥2048  98.5%  ≥4096  96.4%  ≥8192  92.7%  ≥16384  61.8%  ≥32768  7.3%  |    6.5 games/s
+  games 2,012,000  moves  19243.5M  avg score   282455  max  628252  ≥2048  98.3%  ≥4096  96.5%  ≥8192  90.4%  ≥16384  63.6%  ≥32768  6.0%  |    6.4 games/s
+  games 2,013,000  moves  19253.4M  avg score   284815  max  611248  ≥2048  98.8%  ≥4096  96.8%  ≥8192  90.9%  ≥16384  63.2%  ≥32768  7.6%  |    6.2 games/s
+  games 2,014,000  moves  19263.5M  avg score   284316  max  608752  ≥2048  98.8%  ≥4096  97.8%  ≥8192  91.6%  ≥16384  62.3%  ≥32768  7.1%  |    6.4 games/s
+  games 2,015,000  moves  19273.6M  avg score   286822  max  608896  ≥2048  99.1%  ≥4096  96.9%  ≥8192  90.8%  ≥16384  64.1%  ≥32768  8.3%  |    6.1 games/s
+  games 2,016,000  moves  19283.6M  avg score   284767  max  614628  ≥2048  98.4%  ≥4096  96.7%  ≥8192  90.1%  ≥16384  61.6%  ≥32768  9.3%  |    6.2 games/s
+  games 2,017,000  moves  19293.6M  avg score   281440  max  619464  ≥2048  98.9%  ≥4096  97.4%  ≥8192  88.8%  ≥16384  60.5%  ≥32768  9.0%  |    6.2 games/s
+  games 2,018,000  moves  19303.8M  avg score   291378  max  627684  ≥2048  98.5%  ≥4096  97.2%  ≥8192  90.9%  ≥16384  64.4%  ≥32768 10.0%  |    6.0 games/s
+  games 2,019,000  moves  19314.2M  avg score   293667  max  620912  ≥2048  98.6%  ≥4096  97.2%  ≥8192  90.8%  ≥16384  67.3%  ≥32768  8.3%  |    5.9 games/s
+  games 2,020,000  moves  19324.1M  avg score   283795  max  616416  ≥2048  99.2%  ≥4096  97.7%  ≥8192  90.3%  ≥16384  60.8%  ≥32768  9.3%  |    6.0 games/s
+  saved checkpoints/ntuple/search-teacher-B/latest.npz (2,020,000 games)
+  games 2,021,000  moves  19334.3M  avg score   290585  max  616900  ≥2048  98.7%  ≥4096  97.8%  ≥8192  91.3%  ≥16384  64.3%  ≥32768  9.0%  |    5.9 games/s
+  games 2,022,000  moves  19344.9M  avg score   297648  max  627584  ≥2048  99.0%  ≥4096  97.3%  ≥8192  91.2%  ≥16384  67.1%  ≥32768  8.8%  |    5.6 games/s
+  games 2,023,000  moves  19355.2M  avg score   298389  max  625196  ≥2048  99.1%  ≥4096  98.4%  ≥8192  92.1%  ≥16384  64.8%  ≥32768 10.7%  |    5.6 games/s
+  games 2,024,000  moves  19365.5M  avg score   292021  max  607840  ≥2048  98.5%  ≥4096  96.8%  ≥8192  91.2%  ≥16384  64.3%  ≥32768  8.9%  |    5.8 games/s
+  games 2,025,000  moves  19375.7M  avg score   290356  max  609768  ≥2048  98.5%  ≥4096  97.0%  ≥8192  90.4%  ≥16384  63.4%  ≥32768  9.9%  |    5.6 games/s
+  games 2,026,000  moves  19386.0M  avg score   294073  max  603396  ≥2048  98.6%  ≥4096  97.3%  ≥8192  91.4%  ≥16384  64.3%  ≥32768  9.5%  |    5.7 games/s
+  games 2,027,000  moves  19396.5M  avg score   296970  max  608424  ≥2048  98.8%  ≥4096  97.7%  ≥8192  90.5%  ≥16384  65.8%  ≥32768 11.0%  |    5.5 games/s
+  games 2,028,000  moves  19406.9M  avg score   295304  max  624444  ≥2048  98.8%  ≥4096  98.3%  ≥8192  92.5%  ≥16384  64.1%  ≥32768  9.8%  |    5.6 games/s
+  games 2,029,000  moves  19417.3M  avg score   296932  max  623344  ≥2048  98.7%  ≥4096  97.6%  ≥8192  91.8%  ≥16384  63.9%  ≥32768 10.1%  |    5.4 games/s
+  games 2,030,000  moves  19427.6M  avg score   296376  max  607820  ≥2048  98.9%  ≥4096  97.2%  ≥8192  91.3%  ≥16384  64.5%  ≥32768 11.6%  |    5.4 games/s
+  saved checkpoints/ntuple/search-teacher-B/latest.npz (2,030,000 games)
+  games 2,031,000  moves  19438.0M  avg score   297961  max  628396  ≥2048  98.9%  ≥4096  97.4%  ≥8192  90.2%  ≥16384  66.2%  ≥32768 10.4%  |    5.3 games/s
+  games 2,032,000  moves  19448.3M  avg score   296082  max  618628  ≥2048  98.1%  ≥4096  96.9%  ≥8192  91.7%  ≥16384  64.1%  ≥32768 10.9%  |    5.5 games/s
+  games 2,033,000  moves  19458.5M  avg score   291606  max  610420  ≥2048  99.1%  ≥4096  97.3%  ≥8192  91.3%  ≥16384  65.3%  ≥32768  8.6%  |    5.6 games/s
+  games 2,034,000  moves  19468.8M  avg score   296556  max  615300  ≥2048  99.0%  ≥4096  97.8%  ≥8192  91.7%  ≥16384  66.3%  ≥32768  9.7%  |    5.4 games/s
+  games 2,035,000  moves  19479.3M  avg score   298271  max  609124  ≥2048  99.4%  ≥4096  98.5%  ≥8192  93.5%  ≥16384  66.5%  ≥32768  8.9%  |    5.5 games/s
+  games 2,036,000  moves  19489.5M  avg score   293658  max  625252  ≥2048  99.2%  ≥4096  97.9%  ≥8192  90.7%  ≥16384  63.8%  ≥32768 10.2%  |    5.5 games/s
+  games 2,037,000  moves  19499.9M  avg score   295093  max  621000  ≥2048  99.1%  ≥4096  97.8%  ≥8192  90.7%  ≥16384  65.8%  ≥32768  9.0%  |    5.3 games/s
+  games 2,038,000  moves  19510.3M  avg score   293473  max  608680  ≥2048  97.9%  ≥4096  97.1%  ≥8192  91.4%  ≥16384  63.0%  ≥32768  9.9%  |    5.4 games/s
+  games 2,039,000  moves  19520.9M  avg score   298156  max  624744  ≥2048  99.6%  ≥4096  98.3%  ≥8192  92.8%  ≥16384  66.2%  ≥32768 10.5%  |    5.3 games/s
+  games 2,040,000  moves  19531.3M  avg score   298439  max  629960  ≥2048  98.6%  ≥4096  97.7%  ≥8192  93.3%  ≥16384  65.0%  ≥32768 10.2%  |    5.3 games/s
+  saved checkpoints/ntuple/search-teacher-B/latest.npz (2,040,000 games)
+  games 2,041,000  moves  19541.9M  avg score   304803  max  624040  ≥2048  98.4%  ≥4096  96.8%  ≥8192  90.0%  ≥16384  68.7%  ≥32768 11.6%  |    5.1 games/s
+  games 2,042,000  moves  19552.3M  avg score   294619  max  616936  ≥2048  99.2%  ≥4096  98.4%  ≥8192  93.0%  ≥16384  64.3%  ≥32768  9.2%  |    5.4 games/s
+  games 2,043,000  moves  19562.6M  avg score   293048  max  627608  ≥2048  98.1%  ≥4096  96.2%  ≥8192  89.2%  ≥16384  63.7%  ≥32768 10.8%  |    5.3 games/s
+  games 2,044,000  moves  19573.1M  avg score   298637  max  616744  ≥2048  99.1%  ≥4096  98.5%  ≥8192  93.0%  ≥16384  66.6%  ≥32768  7.7%  |    5.2 games/s
+  games 2,045,000  moves  19583.8M  avg score   302479  max  616992  ≥2048  99.3%  ≥4096  97.8%  ≥8192  92.3%  ≥16384  66.3%  ≥32768 10.3%  |    5.2 games/s
+  games 2,046,000  moves  19594.5M  avg score   301702  max  608256  ≥2048  99.0%  ≥4096  97.2%  ≥8192  92.6%  ≥16384  68.2%  ≥32768  9.0%  |    5.2 games/s
+  games 2,047,000  moves  19604.9M  avg score   299956  max  608176  ≥2048  98.6%  ≥4096  97.7%  ≥8192  92.6%  ≥16384  66.5%  ≥32768 10.2%  |    5.3 games/s
+  games 2,048,000  moves  19615.5M  avg score   300843  max  608232  ≥2048  98.8%  ≥4096  97.5%  ≥8192  92.7%  ≥16384  66.3%  ≥32768  9.7%  |    5.1 games/s
+  games 2,049,000  moves  19626.1M  avg score   302255  max  628384  ≥2048  99.4%  ≥4096  98.5%  ≥8192  92.4%  ≥16384  65.8%  ≥32768 10.8%  |    5.2 games/s
+  games 2,050,000  moves  19636.6M  avg score   296792  max  607212  ≥2048  98.9%  ≥4096  97.1%  ≥8192  91.0%  ≥16384  66.1%  ≥32768  8.6%  |    5.2 games/s
+  saved checkpoints/ntuple/search-teacher-B/games_2050000.npz (2,050,000 games)
+Traceback (most recent call last):
+  File "/Users/samjacklin/Documents/deep2048/scripts/train_ntuple.py", line 94, in <module>
+    main()
+  File "/Users/samjacklin/Documents/deep2048/scripts/train_ntuple.py", line 80, in main
+    summary = train(
+              ^^^^^^
+  File "/Users/samjacklin/Documents/deep2048/deep_2048/agents/ntuple/train.py", line 304, in train
+    return _train(resume_from, total_games, snapshot_at, settings, coherence_scale, optimistic_unvisited)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/samjacklin/Documents/deep2048/deep_2048/agents/ntuple/train.py", line 409, in _train
+    _save_checkpoint(network, checkpoint_path, progress, traces)
+  File "/Users/samjacklin/Documents/deep2048/deep_2048/agents/ntuple/train.py", line 537, in _save_checkpoint
+    network.save(path, metadata, traces)
+  File "/Users/samjacklin/Documents/deep2048/deep_2048/agents/ntuple/network.py", line 444, in save
+    np.savez(f, **arrays)
+  File "/Users/samjacklin/Documents/deep2048/.venv/lib/python3.11/site-packages/numpy/lib/_npyio_impl.py", line 673, in savez
+    _savez(file, args, kwds, False, allow_pickle=allow_pickle)
+  File "/Users/samjacklin/Documents/deep2048/.venv/lib/python3.11/site-packages/numpy/lib/_npyio_impl.py", line 786, in _savez
+    format.write_array(fid, val,
+  File "/Users/samjacklin/Documents/deep2048/.venv/lib/python3.11/site-packages/numpy/lib/_format_impl.py", line 777, in write_array
+    fp.write(chunk.tobytes('C'))
+  File "/Users/samjacklin/.local/share/uv/python/cpython-3.11.13-macos-aarch64-none/lib/python3.11/zipfile.py", line 1180, in write
+    self._fileobj.write(data)
+OSError: [Errno 28] No space left on device

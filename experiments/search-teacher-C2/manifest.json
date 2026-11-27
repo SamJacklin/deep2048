@@ -1,0 +1,80 @@
+{
+  "name": "search-teacher-C2",
+  "sessions": [
+    {
+      "command": [
+        "train_ntuple.py",
+        "--run",
+        "search-teacher-C2",
+        "--resume",
+        "checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz",
+        "--reset-coherence",
+        "--games",
+        "2050000",
+        "--snapshot-at",
+        "2050000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.02,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": true,
+        "TC_DECAY": 1.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.2,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": null,
+        "GUIDE_DEPTH": 3,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": 0.0018888106826884833,
+        "RANK_STEP": 0.25,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0002682593407889979,
+        "THREADS": 8,
+        "THREADS_AFTER": 10000,
+        "TRAINING_GAMES": 2050000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 10000,
+        "SNAPSHOT_AT": [
+          2050000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/search-teacher-C2",
+        "OUTPUT_DIR": "experiments/search-teacher-C2"
+      },
+      "resumed_from": "checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz",
+      "resumed_from_sha256": "8f117f2b449ddba0c48e8a1d71b1afe4720b7b8d5c168b88ac9fbfe8b0dde513",
+      "environment": {
+        "git_commit": "8fcc38b3aa7a8c74717c6175d682ec22dcd29672",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T04:01:15.140343Z",
+      "started_with": {
+        "games_played": 2000000,
+        "moves_played": 19128016850
+      },
+      "finished_at": null,
+      "finished_with": null,
+      "interrupted": null,
+      "cpu_seconds": null
+    }
+  ]
+}

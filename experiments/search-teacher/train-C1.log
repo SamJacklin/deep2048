@@ -1,0 +1,38 @@
+Resuming from checkpoints/ntuple/decision-8x6-tc-reset/games_2000000.npz at 2,000,000 games
+Temporal coherence sums reset: every weight starts back at the full rate
+Training 8x6 n-tuple network (134,217,728 weights) to 2,050,000 games, lr 0.02, temporal coherence, 8 threads after 10,000 games
+Searching 3 moves ahead at decisions from boards with 16384 or more and a greedy margin in [0, 0.00189), with ranking updates of 0.1 from a preference of 0.000268
+  games 2,001,000  moves  19136.7M  avg score   221795  max  585200  ≥2048  97.0%  ≥4096  95.0%  ≥8192  83.6%  ≥16384  43.9%  ≥32768  1.6%  |   16.9 games/s
+  games 2,002,000  moves  19145.3M  avg score   240591  max  629308  ≥2048  98.6%  ≥4096  96.2%  ≥8192  86.9%  ≥16384  49.9%  ≥32768  4.0%  |   12.1 games/s
+  games 2,003,000  moves  19153.9M  avg score   243000  max  617616  ≥2048  97.4%  ≥4096  95.8%  ≥8192  86.7%  ≥16384  50.7%  ≥32768  5.1%  |   11.3 games/s
+  games 2,004,000  moves  19162.7M  avg score   247090  max  606228  ≥2048  98.2%  ≥4096  95.7%  ≥8192  88.6%  ≥16384  51.8%  ≥32768  3.7%  |   10.8 games/s
+  games 2,005,000  moves  19171.4M  avg score   245304  max  605740  ≥2048  97.6%  ≥4096  95.6%  ≥8192  86.7%  ≥16384  51.3%  ≥32768  4.9%  |   10.7 games/s
+  games 2,006,000  moves  19180.3M  avg score   248809  max  604208  ≥2048  98.1%  ≥4096  96.1%  ≥8192  87.5%  ≥16384  52.4%  ≥32768  5.1%  |   10.3 games/s
+  games 2,007,000  moves  19189.0M  avg score   245393  max  624036  ≥2048  98.7%  ≥4096  96.3%  ≥8192  85.7%  ≥16384  52.9%  ≥32768  3.3%  |   10.6 games/s
+  games 2,008,000  moves  19197.9M  avg score   245998  max  600968  ≥2048  97.6%  ≥4096  95.5%  ≥8192  86.8%  ≥16384  52.0%  ≥32768  4.8%  |   10.6 games/s
+  games 2,009,000  moves  19206.5M  avg score   243201  max  616680  ≥2048  98.4%  ≥4096  96.4%  ≥8192  87.2%  ≥16384  50.3%  ≥32768  5.0%  |   10.6 games/s
+  games 2,010,000  moves  19215.4M  avg score   248281  max  601016  ≥2048  98.1%  ≥4096  95.9%  ≥8192  87.9%  ≥16384  52.0%  ≥32768  4.8%  |   10.1 games/s
+Traceback (most recent call last):
+  File "/Users/samjacklin/Documents/deep2048/scripts/train_ntuple.py", line 94, in <module>
+    main()
+  File "/Users/samjacklin/Documents/deep2048/scripts/train_ntuple.py", line 80, in main
+    summary = train(
+              ^^^^^^
+  File "/Users/samjacklin/Documents/deep2048/deep_2048/agents/ntuple/train.py", line 304, in train
+    return _train(resume_from, total_games, snapshot_at, settings, coherence_scale, optimistic_unvisited)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/samjacklin/Documents/deep2048/deep_2048/agents/ntuple/train.py", line 404, in _train
+    _save_checkpoint(network, checkpoint_path, progress, traces)
+  File "/Users/samjacklin/Documents/deep2048/deep_2048/agents/ntuple/train.py", line 537, in _save_checkpoint
+    network.save(path, metadata, traces)
+  File "/Users/samjacklin/Documents/deep2048/deep_2048/agents/ntuple/network.py", line 444, in save
+    np.savez(f, **arrays)
+  File "/Users/samjacklin/Documents/deep2048/.venv/lib/python3.11/site-packages/numpy/lib/_npyio_impl.py", line 673, in savez
+    _savez(file, args, kwds, False, allow_pickle=allow_pickle)
+  File "/Users/samjacklin/Documents/deep2048/.venv/lib/python3.11/site-packages/numpy/lib/_npyio_impl.py", line 786, in _savez
+    format.write_array(fid, val,
+  File "/Users/samjacklin/Documents/deep2048/.venv/lib/python3.11/site-packages/numpy/lib/_format_impl.py", line 777, in write_array
+    fp.write(chunk.tobytes('C'))
+  File "/Users/samjacklin/.local/share/uv/python/cpython-3.11.13-macos-aarch64-none/lib/python3.11/zipfile.py", line 1180, in write
+    self._fileobj.write(data)
+OSError: [Errno 28] No space left on device

@@ -4,6 +4,7 @@ import numpy as np
 
 from deep_2048.agents.base import Agent, Decision
 from deep_2048.agents.ntuple.network import DEFAULT_NETWORK, NTupleNetwork, network_name
+from deep_2048.agents.ntuple.residual import CorrectedNetwork, correction_label, is_corrected_checkpoint
 from deep_2048.agents.ntuple.search import action_values, play_seeded
 from deep_2048.game import bitboard as bb
 from deep_2048.game.constants import Action
@@ -16,20 +17,32 @@ class NTupleAgent(Agent):
     """
 
     def __init__(self, checkpoint: str | Path, depth: int = 1, cutoff: float = 0.0) -> None:
-        self.network, metadata = NTupleNetwork.load(checkpoint)
+        correction = ""
+        if is_corrected_checkpoint(checkpoint):
+            self.network: NTupleNetwork | CorrectedNetwork = CorrectedNetwork.load(checkpoint)
+            metadata = self.network.base_metadata
+            correction = correction_label(self.network.correction)
+        else:
+            self.network, metadata = NTupleNetwork.load(checkpoint)
         self.checkpoint = Path(checkpoint)
         self.depth = depth
         self.cutoff = cutoff
         rule = "TC " if metadata.temporal_coherence else ""
+        if metadata.optimizer is not None and metadata.optimizer.startswith("autotidbd"):
+            rule = "AutoTIDBD " + metadata.optimizer[len("autotidbd-") :].replace("-", " ") + " " * ("-" in metadata.optimizer)
         name = network_name(self.network.tuples)
         details = [f"{name} network"] if name not in (None, DEFAULT_NETWORK) else []
         if self.network.downgrade_tile is not None:
-            details.append(f"downgraded from {self.network.downgrade_tile}")
+            details.append(f"downgraded from {self.network.downgrade_tile}" + (", repeatedly" if getattr(self.network, "downgrade_repeat", False) else ""))
+        if getattr(self.network, "small_tables", False):
+            details.append("small-tile tables")
         if self.network.stage_tile is not None:
             details.append(f"second stage from {self.network.stage_tile}")
+            if self.network.stage_downgrade_tile is not None:
+                details.append(f"its own downgrading from {self.network.stage_downgrade_tile}" if self.network.stage_downgrade_tile else "no downgrading in it")
         if self.network.scale_feature:
             details.append("scale term when downgraded" if self.network.scale_when_downgraded else "scale term")
-        extras = "".join(f", {detail}" for detail in details)
+        extras = "".join(f", {detail}" for detail in details) + correction
         search = f" + search depth={depth}" if depth > 1 else ""
         search += f", cutoff {cutoff:g}" if depth > 1 and cutoff > 0 else ""
         self.label = f"N-tuple TD ({metadata.games_played:,} games, {rule}lr {metadata.learning_rate:.2g}{extras}){search}"

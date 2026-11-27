@@ -1,0 +1,372 @@
+{
+  "positions": 240,
+  "held-out positions": 101,
+  "greedy rollouts": 64,
+  "median base margin": 2.1696395874023438,
+  "variants": {
+    "baseline": {
+      "all": {
+        "changed": 0.0,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 0,
+        "changes": 0,
+        "score change from changes, per position": 0.0,
+        "interval": 0.0,
+        "clearly worse than the best": 0.025,
+        "cross-validated loss": -1628.4015625,
+        "median correction swing between the base's top two": 0.0,
+        "swing larger than the base's margin": 0.0
+      },
+      "held-out": {
+        "changed": 0.0,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 0,
+        "changes": 0,
+        "score change from changes, per position": 0.0,
+        "interval": 0.0,
+        "clearly worse than the best": 0.019801980198019802,
+        "cross-validated loss": -1284.1955445544554,
+        "median correction swing between the base's top two": 0.0,
+        "swing larger than the base's margin": 0.0
+      }
+    },
+    "constant": {
+      "all": {
+        "changed": 0.0,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 0,
+        "changes": 0,
+        "score change from changes, per position": 0.0,
+        "interval": 0.0,
+        "clearly worse than the best": 0.025,
+        "cross-validated loss": -1628.4015625,
+        "median correction swing between the base's top two": 0.0,
+        "swing larger than the base's margin": 0.0
+      },
+      "held-out": {
+        "changed": 0.0,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 0,
+        "changes": 0,
+        "score change from changes, per position": 0.0,
+        "interval": 0.0,
+        "clearly worse than the best": 0.019801980198019802,
+        "cross-validated loss": -1284.1955445544554,
+        "median correction swing between the base's top two": 0.0,
+        "swing larger than the base's margin": 0.0
+      }
+    },
+    "constant, pre-move gate": {
+      "all": {
+        "changed": 0.0,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 0,
+        "changes": 0,
+        "score change from changes, per position": 0.0,
+        "interval": 0.0,
+        "clearly worse than the best": 0.025,
+        "cross-validated loss": -1628.4015625,
+        "median correction swing between the base's top two": 0.0,
+        "swing larger than the base's margin": 0.0
+      },
+      "held-out": {
+        "changed": 0.0,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 0,
+        "changes": 0,
+        "score change from changes, per position": 0.0,
+        "interval": 0.0,
+        "clearly worse than the best": 0.019801980198019802,
+        "cross-validated loss": -1284.1955445544554,
+        "median correction swing between the base's top two": 0.0,
+        "swing larger than the base's margin": 0.0
+      }
+    },
+    "constant, clamped": {
+      "all": {
+        "changed": 0.0125,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 0,
+        "changes": 3,
+        "score change from changes, per position": -4.70625,
+        "interval": 5.821815702889289,
+        "clearly worse than the best": 0.025,
+        "cross-validated loss": -1623.6953125,
+        "median correction swing between the base's top two": 0.0,
+        "swing larger than the base's margin": 0.004166666666666667
+      },
+      "held-out": {
+        "changed": 0.0,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 0,
+        "changes": 0,
+        "score change from changes, per position": 0.0,
+        "interval": 0.0,
+        "clearly worse than the best": 0.019801980198019802,
+        "cross-validated loss": -1284.1955445544554,
+        "median correction swing between the base's top two": 0.0,
+        "swing larger than the base's margin": 0.0
+      }
+    },
+    "residual 0.01, strength 0.05": {
+      "all": {
+        "changed": 0.225,
+        "changes better by > 2 SE": 1,
+        "changes worse by > 2 SE": 1,
+        "changes": 54,
+        "score change from changes, per position": 44.0828125,
+        "interval": 588.9158646936635,
+        "clearly worse than the best": 0.025,
+        "cross-validated loss": -1672.484375,
+        "median correction swing between the base's top two": 12.858133047819138,
+        "swing larger than the base's margin": 0.5
+      },
+      "held-out": {
+        "changed": 0.2871287128712871,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 1,
+        "changes": 29,
+        "score change from changes, per position": 40.80074257425743,
+        "interval": 1121.7893319084221,
+        "clearly worse than the best": 0.0297029702970297,
+        "cross-validated loss": -1324.9962871287128,
+        "median correction swing between the base's top two": 10.66722202001256,
+        "swing larger than the base's margin": 0.5346534653465347
+      }
+    },
+    "residual 0.01, strength 0.1": {
+      "all": {
+        "changed": 0.23333333333333334,
+        "changes better by > 2 SE": 1,
+        "changes worse by > 2 SE": 1,
+        "changes": 56,
+        "score change from changes, per position": 27.904427083333335,
+        "interval": 589.7416857580623,
+        "clearly worse than the best": 0.025,
+        "cross-validated loss": -1656.3059895833333,
+        "median correction swing between the base's top two": 25.716266095638275,
+        "swing larger than the base's margin": 0.5125
+      },
+      "held-out": {
+        "changed": 0.297029702970297,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 1,
+        "changes": 30,
+        "score change from changes, per position": 39.72215346534654,
+        "interval": 1121.7928309140063,
+        "clearly worse than the best": 0.0297029702970297,
+        "cross-validated loss": -1323.917698019802,
+        "median correction swing between the base's top two": 21.334444040054223,
+        "swing larger than the base's margin": 0.5445544554455446
+      }
+    },
+    "residual 0.01, strength 0.25": {
+      "all": {
+        "changed": 0.25,
+        "changes better by > 2 SE": 1,
+        "changes worse by > 2 SE": 1,
+        "changes": 60,
+        "score change from changes, per position": -64.71354166666667,
+        "interval": 605.9088710038486,
+        "clearly worse than the best": 0.025,
+        "cross-validated loss": -1563.6880208333334,
+        "median correction swing between the base's top two": 64.29066523909569,
+        "swing larger than the base's margin": 0.5416666666666666
+      },
+      "held-out": {
+        "changed": 0.31683168316831684,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 1,
+        "changes": 32,
+        "score change from changes, per position": 30.478341584158414,
+        "interval": 1124.605784615942,
+        "clearly worse than the best": 0.0297029702970297,
+        "cross-validated loss": -1314.6738861386139,
+        "median correction swing between the base's top two": 53.33611010015011,
+        "swing larger than the base's margin": 0.5742574257425742
+      }
+    },
+    "residual 0.01, strength 0.5": {
+      "all": {
+        "changed": 0.30416666666666664,
+        "changes better by > 2 SE": 1,
+        "changes worse by > 2 SE": 2,
+        "changes": 73,
+        "score change from changes, per position": -332.48203125,
+        "interval": 677.0774380707724,
+        "clearly worse than the best": 0.0375,
+        "cross-validated loss": -1295.91953125,
+        "median correction swing between the base's top two": 128.58133047819138,
+        "swing larger than the base's margin": 0.6041666666666666
+      },
+      "held-out": {
+        "changed": 0.37623762376237624,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 2,
+        "changes": 38,
+        "score change from changes, per position": -479.5581683168317,
+        "interval": 1263.3795128862726,
+        "clearly worse than the best": 0.0594059405940594,
+        "cross-validated loss": -804.6373762376238,
+        "median correction swing between the base's top two": 106.67222020030022,
+        "swing larger than the base's margin": 0.6435643564356436
+      }
+    },
+    "residual 0.01, strength 1": {
+      "all": {
+        "changed": 0.3416666666666667,
+        "changes better by > 2 SE": 2,
+        "changes worse by > 2 SE": 2,
+        "changes": 82,
+        "score change from changes, per position": -84.9921875,
+        "interval": 737.7513039597858,
+        "clearly worse than the best": 0.03333333333333333,
+        "cross-validated loss": -1543.409375,
+        "median correction swing between the base's top two": 257.16266095638275,
+        "swing larger than the base's margin": 0.6458333333333334
+      },
+      "held-out": {
+        "changed": 0.39603960396039606,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 2,
+        "changes": 40,
+        "score change from changes, per position": -475.15037128712873,
+        "interval": 1295.6211050009267,
+        "clearly worse than the best": 0.0594059405940594,
+        "cross-validated loss": -809.0451732673267,
+        "median correction swing between the base's top two": 213.34444040060043,
+        "swing larger than the base's margin": 0.6633663366336634
+      }
+    },
+    "residual 0.01, pre-move gate": {
+      "all": {
+        "changed": 0.3416666666666667,
+        "changes better by > 2 SE": 2,
+        "changes worse by > 2 SE": 2,
+        "changes": 82,
+        "score change from changes, per position": -84.9921875,
+        "interval": 737.7513039597858,
+        "clearly worse than the best": 0.03333333333333333,
+        "cross-validated loss": -1543.409375,
+        "median correction swing between the base's top two": 257.16266095638275,
+        "swing larger than the base's margin": 0.6458333333333334
+      },
+      "held-out": {
+        "changed": 0.39603960396039606,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 2,
+        "changes": 40,
+        "score change from changes, per position": -475.15037128712873,
+        "interval": 1295.6211050009267,
+        "clearly worse than the best": 0.0594059405940594,
+        "cross-validated loss": -809.0451732673267,
+        "median correction swing between the base's top two": 213.34444040060043,
+        "swing larger than the base's margin": 0.6633663366336634
+      }
+    },
+    "residual 0.01, clamped": {
+      "all": {
+        "changed": 0.35833333333333334,
+        "changes better by > 2 SE": 2,
+        "changes worse by > 2 SE": 2,
+        "changes": 86,
+        "score change from changes, per position": -95.05260416666667,
+        "interval": 737.8523804385101,
+        "clearly worse than the best": 0.03333333333333333,
+        "cross-validated loss": -1533.3489583333333,
+        "median correction swing between the base's top two": 257.16266095638275,
+        "swing larger than the base's margin": 0.65
+      },
+      "held-out": {
+        "changed": 0.39603960396039606,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 2,
+        "changes": 40,
+        "score change from changes, per position": -475.15037128712873,
+        "interval": 1295.6211050009267,
+        "clearly worse than the best": 0.0594059405940594,
+        "cross-validated loss": -809.0451732673267,
+        "median correction swing between the base's top two": 213.34444040060043,
+        "swing larger than the base's margin": 0.6633663366336634
+      }
+    },
+    "residual 0.1, strength 0.05": {
+      "all": {
+        "changed": 0.2916666666666667,
+        "changes better by > 2 SE": 1,
+        "changes worse by > 2 SE": 1,
+        "changes": 70,
+        "score change from changes, per position": 88.95677083333334,
+        "interval": 693.5335093790641,
+        "clearly worse than the best": 0.029166666666666667,
+        "cross-validated loss": -1717.3583333333333,
+        "median correction swing between the base's top two": 52.497872924795956,
+        "swing larger than the base's margin": 0.5375
+      },
+      "held-out": {
+        "changed": 0.297029702970297,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 1,
+        "changes": 30,
+        "score change from changes, per position": 248.82054455445544,
+        "interval": 1258.9516992528058,
+        "clearly worse than the best": 0.0297029702970297,
+        "cross-validated loss": -1533.0160891089108,
+        "median correction swing between the base's top two": 45.737165451049805,
+        "swing larger than the base's margin": 0.5841584158415841
+      }
+    },
+    "residual 0.1, strength 0.1": {
+      "all": {
+        "changed": 0.32083333333333336,
+        "changes better by > 2 SE": 1,
+        "changes worse by > 2 SE": 1,
+        "changes": 77,
+        "score change from changes, per position": 152.62265625,
+        "interval": 723.5240463457841,
+        "clearly worse than the best": 0.03333333333333333,
+        "cross-validated loss": -1781.02421875,
+        "median correction swing between the base's top two": 104.99574584960646,
+        "swing larger than the base's margin": 0.5583333333333333
+      },
+      "held-out": {
+        "changed": 0.31683168316831684,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 1,
+        "changes": 32,
+        "score change from changes, per position": 134.6299504950495,
+        "interval": 1271.262281124227,
+        "clearly worse than the best": 0.039603960396039604,
+        "cross-validated loss": -1418.825495049505,
+        "median correction swing between the base's top two": 91.47433090209961,
+        "swing larger than the base's margin": 0.594059405940594
+      }
+    },
+    "residual 0.1, strength 0.25": {
+      "all": {
+        "changed": 0.3875,
+        "changes better by > 2 SE": 1,
+        "changes worse by > 2 SE": 1,
+        "changes": 93,
+        "score change from changes, per position": -64.07552083333333,
+        "interval": 796.3663848152862,
+        "clearly worse than the best": 0.03333333333333333,
+        "cross-validated loss": -1564.3260416666667,
+        "median correction swing between the base's top two": 262.48936462402344,
+        "swing larger than the base's margin": 0.6583333333333333
+      },
+      "held-out": {
+        "changed": 0.3564356435643564,
+        "changes better by > 2 SE": 0,
+        "changes worse by > 2 SE": 1,
+        "changes": 36,
+        "score change from changes, per position": 41.100247524752476,
+        "interval": 1291.0403639303695,
+        "clearly worse than the best": 0.039603960396039604,
+        "cross-validated loss": -1325.295792079208,
+        "median correction swing between the base's top two": 228.68582725524902,
+        "swing larger than the base's margin": 0.6831683168316832
+      }
+    }
+  }
+}

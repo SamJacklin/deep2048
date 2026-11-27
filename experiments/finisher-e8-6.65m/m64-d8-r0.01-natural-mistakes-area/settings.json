@@ -1,0 +1,15 @@
+{
+  "margin": 64,
+  "rate": 0.01,
+  "depth": 8,
+  "cutoff": 0.02,
+  "threads": 8,
+  "student_share": 0.5,
+  "centred": false,
+  "natural": true,
+  "mistakes": true,
+  "area": true,
+  "base": "checkpoints/ntuple/expected-6.4m-e8/games_6650000.npz",
+  "base_sha256": "fa49e76960da737ccadbdb8a1afe76b7057bdb6cd78f87026615c7527356fc81",
+  "top": 14
+}

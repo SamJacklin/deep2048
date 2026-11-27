@@ -1,0 +1,86 @@
+{
+  "name": "tidbd-8-threads",
+  "sessions": [
+    {
+      "command": [
+        "train_ntuple.py",
+        "--resume",
+        "checkpoints/ntuple/stage8-tidbd/bench/tidbd-start/games_10000.npz",
+        "--games",
+        "20000",
+        "--snapshot-at",
+        "20000"
+      ],
+      "settings": {
+        "BOARD_SIZE": 4,
+        "NUM_TILE_LEVELS": 16,
+        "SEED": 42,
+        "NETWORK": "8x6",
+        "LEARNING_RATE": 0.0025,
+        "LEARNING_RATE_END": null,
+        "TEMPORAL_COHERENCE": false,
+        "TC_DECAY": 1.0,
+        "OPTIMIZER": "autotidbd",
+        "TIDBD_INITIAL_ALPHA": 0.004,
+        "TIDBD_META_RATE": 0.01,
+        "TIDBD_TAU": 10000.0,
+        "LAMBDA": 0.0,
+        "LAMBDA_HORIZON": 3,
+        "LAMBDA_END": null,
+        "LATE_START_FRACTION": 0.2,
+        "LATE_START_TILE": 8192,
+        "LATE_START_POOL": 10000,
+        "START_POOL": null,
+        "DOWNGRADE_TILE": 16384,
+        "SCALE_FEATURE": false,
+        "SCALE_WHEN_DOWNGRADED": false,
+        "STAGE_TILE": null,
+        "GUIDE_DEPTH": 0,
+        "GUIDE_TILE": 16384,
+        "GUIDE_MARGIN_LOW": 0.0,
+        "GUIDE_MARGIN_HIGH": null,
+        "RANK_STEP": 0.0,
+        "RANK_MARGIN": 1.0,
+        "RANK_MIN_GAP": 0.0,
+        "THREADS": 8,
+        "THREADS_AFTER": 10000,
+        "TRAINING_GAMES": 20000,
+        "LOG_EVERY": 1000,
+        "CHECKPOINT_EVERY": 10000,
+        "SNAPSHOT_AT": [
+          20000
+        ],
+        "CHECKPOINT_DIR": "checkpoints/ntuple/stage8-tidbd/bench/tidbd-8-threads",
+        "OUTPUT_DIR": "experiments/stage8-tidbd/bench/tidbd-8-threads"
+      },
+      "resumed_from": "checkpoints/ntuple/stage8-tidbd/bench/tidbd-start/games_10000.npz",
+      "resumed_from_sha256": "4e20b9cfca72c61bb3e9e95e2363389d301cad4ca3b297ba588f0edc0c70dcc3",
+      "environment": {
+        "git_commit": "fcbca9fa686c1a0f1e673979f082c3878f907478",
+        "git_dirty": false,
+        "python": "3.11.13",
+        "packages": {
+          "numpy": "2.4.3",
+          "numba": "0.68.1",
+          "torch": "2.10.0",
+          "pydantic": "2.12.5"
+        },
+        "machine": "Apple M4 (macOS-15.5-arm64-arm-64bit)",
+        "cpu_count": 10
+      },
+      "started_at": "2026-11-14T23:57:52.017577Z",
+      "started_with": {
+        "games_played": 10000,
+        "moves_played": 14326925
+      },
+      "finished_at": "2026-11-14T23:58:22.213979Z",
+      "finished_with": {
+        "games_played": 20000,
+        "moves_played": 35960541
+      },
+      "interrupted": false,
+      "cpu_seconds": 121.810526,
+      "peak_memory_gb": 3.53042432
+    }
+  ]
+}

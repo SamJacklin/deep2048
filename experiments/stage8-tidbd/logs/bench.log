@@ -1,0 +1,199 @@
+[2026-11-14T23:53:39Z] bench  (caffeinated: 2 assertions, commit e6f0ca1)
+Training 8x6 n-tuple network (134,217,728 weights) to 10,000 games, AutoStep TIDBD(0) from rate 0.004, θ 0.01, τ 10000
+  games     1,000  moves      0.7M  avg score    10754  max   35552  ≥2048   3.3%  ≥4096   0.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  412.8 games/s
+  games     2,000  moves      1.7M  avg score    16777  max   59580  ≥2048  17.3%  ≥4096   0.1%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  313.6 games/s
+  games     3,000  moves      2.9M  avg score    21346  max   69268  ≥2048  34.2%  ≥4096   1.5%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  255.9 games/s
+  games     4,000  moves      4.3M  avg score    26039  max   75956  ≥2048  51.2%  ≥4096   4.2%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  216.4 games/s
+  games     5,000  moves      5.8M  avg score    29760  max  133692  ≥2048  59.0%  ≥4096   7.2%  ≥8192   0.1%  ≥16384   0.0%  ≥32768  0.0%  |  195.7 games/s
+  games     6,000  moves      7.4M  avg score    33001  max  122296  ≥2048  68.4%  ≥4096   9.3%  ≥8192   0.4%  ≥16384   0.0%  ≥32768  0.0%  |  189.8 games/s
+  games     7,000  moves      9.0M  avg score    33893  max  123932  ≥2048  68.5%  ≥4096  12.7%  ≥8192   0.1%  ≥16384   0.0%  ≥32768  0.0%  |  193.7 games/s
+  games     8,000  moves     10.7M  avg score    36077  max  133680  ≥2048  71.1%  ≥4096  16.4%  ≥8192   0.4%  ≥16384   0.0%  ≥32768  0.0%  |  186.4 games/s
+  games     9,000  moves     12.5M  avg score    38217  max  138656  ≥2048  74.2%  ≥4096  19.3%  ≥8192   0.6%  ≥16384   0.0%  ≥32768  0.0%  |  175.6 games/s
+  games    10,000  moves     14.3M  avg score    40209  max  133776  ≥2048  75.8%  ≥4096  25.0%  ≥8192   1.3%  ≥16384   0.0%  ≥32768  0.0%  |  166.3 games/s
+  saved checkpoints/ntuple/stage8-tidbd/bench/tidbd-start/games_10000.npz (10,000 games, 0.11 GB in 8.1 s)
+  saved checkpoints/ntuple/stage8-tidbd/bench/tidbd-start/latest.npz (10,000 games, 2.68 GB in 3.1 s)
+
+Training complete
+{
+  "games_played": 10000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/bench/tidbd-start/latest.npz",
+  "interrupted": false
+}
+       63.94 real        59.37 user         2.48 sys
+          3733258240  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              650423  page reclaims
+                 160  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   1  messages sent
+                   1  messages received
+                   1  signals received
+               39751  voluntary context switches
+                9872  involuntary context switches
+           118339254  instructions retired
+            55813219  cycles elapsed
+            10944848  peak memory footprint
+only 5 GB of disk free: at least 6 GB is needed before training
+[2026-11-14T23:54:43Z] bench exited with code 1
+[2026-11-14T23:55:47Z] bench  (caffeinated: 2 assertions, commit fcbca9f)
+Resuming from checkpoints/ntuple/stage8-tidbd/bench/tidbd-start/games_10000.npz at 10,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 20,000 games, AutoStep TIDBD(0) from rate 0.004, θ 0.01, τ 10000
+  games    11,000  moves     16.4M  avg score    41644  max  156992  ≥2048  79.2%  ≥4096  25.9%  ≥8192   1.1%  ≥16384   0.0%  ≥32768  0.0%  |  148.4 games/s
+  games    12,000  moves     18.4M  avg score    44193  max  127952  ≥2048  82.8%  ≥4096  32.2%  ≥8192   1.6%  ≥16384   0.0%  ≥32768  0.0%  |  160.9 games/s
+  games    13,000  moves     20.4M  avg score    45207  max  142360  ≥2048  82.7%  ≥4096  35.0%  ≥8192   0.7%  ≥16384   0.0%  ≥32768  0.0%  |  155.7 games/s
+  games    14,000  moves     22.6M  avg score    47314  max  135808  ≥2048  83.8%  ≥4096  37.1%  ≥8192   1.9%  ≥16384   0.0%  ≥32768  0.0%  |  150.9 games/s
+  games    15,000  moves     24.7M  avg score    47992  max  153236  ≥2048  81.6%  ≥4096  37.4%  ≥8192   2.5%  ≥16384   0.0%  ≥32768  0.0%  |  149.1 games/s
+  games    16,000  moves     26.9M  avg score    49193  max  145764  ≥2048  83.7%  ≥4096  41.8%  ≥8192   2.1%  ≥16384   0.0%  ≥32768  0.0%  |  144.8 games/s
+  games    17,000  moves     29.1M  avg score    50653  max  153380  ≥2048  85.4%  ≥4096  43.6%  ≥8192   1.4%  ≥16384   0.0%  ≥32768  0.0%  |  143.2 games/s
+  games    18,000  moves     31.4M  avg score    51318  max  148412  ≥2048  86.6%  ≥4096  45.3%  ≥8192   1.7%  ≥16384   0.0%  ≥32768  0.0%  |  139.5 games/s
+  games    19,000  moves     33.7M  avg score    51513  max  140652  ≥2048  86.2%  ≥4096  43.9%  ≥8192   2.6%  ≥16384   0.0%  ≥32768  0.0%  |  139.4 games/s
+  games    20,000  moves     36.1M  avg score    54574  max  152996  ≥2048  85.7%  ≥4096  49.5%  ≥8192   3.1%  ≥16384   0.0%  ≥32768  0.0%  |  133.8 games/s
+  saved checkpoints/ntuple/stage8-tidbd/bench/tidbd-1-threads/games_20000.npz (20,000 games, 0.15 GB in 9.6 s)
+  saved checkpoints/ntuple/stage8-tidbd/bench/tidbd-1-threads/latest.npz (20,000 games, 2.68 GB in 1.2 s)
+
+Training complete
+{
+  "games_played": 20000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/bench/tidbd-1-threads/latest.npz",
+  "interrupted": false
+}
+Resuming from checkpoints/ntuple/stage8-tidbd/bench/tidbd-start/games_10000.npz at 10,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 20,000 games, AutoStep TIDBD(0) from rate 0.004, θ 0.01, τ 10000, 4 threads after 10,000 games
+  games    11,000  moves     16.4M  avg score    42268  max  134032  ≥2048  79.0%  ≥4096  27.7%  ≥8192   0.7%  ≥16384   0.0%  ≥32768  0.0%  |  530.2 games/s
+  games    12,000  moves     18.5M  avg score    44358  max  137144  ≥2048  82.1%  ≥4096  32.6%  ≥8192   1.7%  ≥16384   0.0%  ≥32768  0.0%  |  580.7 games/s
+  games    13,000  moves     20.5M  avg score    45403  max  158172  ≥2048  79.9%  ≥4096  34.6%  ≥8192   1.5%  ≥16384   0.0%  ≥32768  0.0%  |  568.5 games/s
+  games    14,000  moves     22.7M  avg score    47583  max  138072  ≥2048  85.8%  ≥4096  37.8%  ≥8192   2.1%  ≥16384   0.0%  ≥32768  0.0%  |  542.6 games/s
+  games    15,000  moves     24.8M  avg score    48401  max  149524  ≥2048  81.8%  ≥4096  40.9%  ≥8192   2.7%  ≥16384   0.0%  ≥32768  0.0%  |  544.3 games/s
+  games    16,000  moves     27.0M  avg score    49622  max  145856  ≥2048  83.0%  ≥4096  43.1%  ≥8192   2.5%  ≥16384   0.0%  ≥32768  0.0%  |  538.3 games/s
+  games    17,000  moves     29.3M  avg score    51813  max  152864  ≥2048  86.2%  ≥4096  45.2%  ≥8192   3.1%  ≥16384   0.0%  ≥32768  0.0%  |  510.9 games/s
+  games    18,000  moves     31.6M  avg score    51426  max  145736  ≥2048  84.3%  ≥4096  47.2%  ≥8192   1.1%  ≥16384   0.0%  ≥32768  0.0%  |  505.8 games/s
+  games    19,000  moves     33.8M  avg score    51905  max  156416  ≥2048  84.2%  ≥4096  44.8%  ≥8192   2.8%  ≥16384   0.0%  ≥32768  0.0%  |  517.9 games/s
+  games    20,000  moves     36.2M  avg score    54264  max  158252  ≥2048  86.6%  ≥4096  49.6%  ≥8192   4.1%  ≥16384   0.0%  ≥32768  0.0%  |  495.9 games/s
+  saved checkpoints/ntuple/stage8-tidbd/bench/tidbd-4-threads/games_20000.npz (20,000 games, 0.15 GB in 9.6 s)
+  saved checkpoints/ntuple/stage8-tidbd/bench/tidbd-4-threads/latest.npz (20,000 games, 2.68 GB in 1.3 s)
+
+Training complete
+{
+  "games_played": 20000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/bench/tidbd-4-threads/latest.npz",
+  "interrupted": false
+}
+Resuming from checkpoints/ntuple/stage8-tidbd/bench/tidbd-start/games_10000.npz at 10,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 20,000 games, AutoStep TIDBD(0) from rate 0.004, θ 0.01, τ 10000, 8 threads after 10,000 games
+  games    11,000  moves     16.5M  avg score    42851  max  135192  ≥2048  80.2%  ≥4096  28.9%  ≥8192   1.0%  ≥16384   0.0%  ≥32768  0.0%  |  664.3 games/s
+  games    12,000  moves     18.4M  avg score    43449  max  132312  ≥2048  78.6%  ≥4096  30.6%  ≥8192   1.3%  ≥16384   0.0%  ≥32768  0.0%  |  803.4 games/s
+  games    13,000  moves     20.5M  avg score    45241  max  144052  ≥2048  81.2%  ≥4096  33.4%  ≥8192   1.7%  ≥16384   0.0%  ≥32768  0.0%  |  751.9 games/s
+  games    14,000  moves     22.6M  avg score    46955  max  157408  ≥2048  81.9%  ≥4096  36.7%  ≥8192   1.6%  ≥16384   0.0%  ≥32768  0.0%  |  740.4 games/s
+  games    15,000  moves     24.7M  avg score    49251  max  143916  ≥2048  85.0%  ≥4096  41.4%  ≥8192   2.0%  ≥16384   0.0%  ≥32768  0.0%  |  722.9 games/s
+  games    16,000  moves     26.9M  avg score    48811  max  148080  ≥2048  84.8%  ≥4096  40.2%  ≥8192   2.4%  ≥16384   0.0%  ≥32768  0.0%  |  718.4 games/s
+  games    17,000  moves     29.1M  avg score    50167  max  182432  ≥2048  84.8%  ≥4096  42.6%  ≥8192   2.0%  ≥16384   0.0%  ≥32768  0.0%  |  714.5 games/s
+  games    18,000  moves     31.4M  avg score    52567  max  144728  ≥2048  86.0%  ≥4096  46.2%  ≥8192   2.7%  ≥16384   0.0%  ≥32768  0.0%  |  651.2 games/s
+  games    19,000  moves     33.7M  avg score    52359  max  151476  ≥2048  85.0%  ≥4096  47.9%  ≥8192   1.9%  ≥16384   0.0%  ≥32768  0.0%  |  666.5 games/s
+  games    20,000  moves     36.0M  avg score    53186  max  151260  ≥2048  85.3%  ≥4096  48.4%  ≥8192   1.6%  ≥16384   0.0%  ≥32768  0.0%  |  651.2 games/s
+  saved checkpoints/ntuple/stage8-tidbd/bench/tidbd-8-threads/games_20000.npz (20,000 games, 0.15 GB in 9.6 s)
+  saved checkpoints/ntuple/stage8-tidbd/bench/tidbd-8-threads/latest.npz (20,000 games, 2.68 GB in 1.0 s)
+
+Training complete
+{
+  "games_played": 20000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/bench/tidbd-8-threads/latest.npz",
+  "interrupted": false
+}
+Resuming from checkpoints/ntuple/stage8-tidbd/bench/tidbd-start/games_10000.npz at 10,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 20,000 games, AutoStep TIDBD(0) from rate 0.004, θ 0.01, τ 10000, 10 threads after 10,000 games
+  games    11,000  moves     16.4M  avg score    42685  max  133836  ≥2048  79.1%  ≥4096  30.1%  ≥8192   1.1%  ≥16384   0.0%  ≥32768  0.0%  |  724.8 games/s
+  games    12,000  moves     18.4M  avg score    43490  max  138664  ≥2048  81.9%  ≥4096  30.3%  ≥8192   1.7%  ≥16384   0.0%  ≥32768  0.0%  |  852.2 games/s
+  games    13,000  moves     20.5M  avg score    45864  max  135280  ≥2048  81.8%  ≥4096  35.1%  ≥8192   1.2%  ≥16384   0.0%  ≥32768  0.0%  |  820.1 games/s
+  games    14,000  moves     22.5M  avg score    45705  max  136284  ≥2048  80.4%  ≥4096  34.9%  ≥8192   2.1%  ≥16384   0.0%  ≥32768  0.0%  |  805.6 games/s
+  games    15,000  moves     24.6M  avg score    46456  max  152408  ≥2048  80.3%  ≥4096  37.1%  ≥8192   1.7%  ≥16384   0.0%  ≥32768  0.0%  |  770.6 games/s
+  games    16,000  moves     26.9M  avg score    51159  max  153108  ≥2048  86.1%  ≥4096  45.1%  ≥8192   2.9%  ≥16384   0.0%  ≥32768  0.0%  |  730.6 games/s
+  games    17,000  moves     29.1M  avg score    49532  max  152892  ≥2048  84.0%  ≥4096  43.3%  ≥8192   1.4%  ≥16384   0.0%  ≥32768  0.0%  |  747.4 games/s
+  games    18,000  moves     31.4M  avg score    51910  max  168608  ≥2048  85.9%  ≥4096  47.6%  ≥8192   2.5%  ≥16384   0.0%  ≥32768  0.0%  |  728.0 games/s
+  games    19,000  moves     33.8M  avg score    54874  max  174048  ≥2048  86.1%  ≥4096  49.0%  ≥8192   3.9%  ≥16384   0.0%  ≥32768  0.0%  |  690.9 games/s
+  games    20,000  moves     36.2M  avg score    54653  max  169884  ≥2048  86.7%  ≥4096  51.6%  ≥8192   2.9%  ≥16384   0.0%  ≥32768  0.0%  |  712.7 games/s
+  saved checkpoints/ntuple/stage8-tidbd/bench/tidbd-10-threads/games_20000.npz (20,000 games, 0.15 GB in 9.6 s)
+  saved checkpoints/ntuple/stage8-tidbd/bench/tidbd-10-threads/latest.npz (20,000 games, 2.68 GB in 1.2 s)
+
+Training complete
+{
+  "games_played": 20000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/bench/tidbd-10-threads/latest.npz",
+  "interrupted": false
+}
+Training 8x6 n-tuple network (134,217,728 weights) to 10,000 games, lr 0.02, temporal coherence
+  games     1,000  moves      0.9M  avg score    14504  max   46708  ≥2048  13.9%  ≥4096   0.1%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  527.2 games/s
+  games     2,000  moves      2.2M  avg score    23898  max   67296  ≥2048  47.3%  ≥4096   2.1%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  382.1 games/s
+  games     3,000  moves      3.8M  avg score    31408  max   75932  ≥2048  68.6%  ≥4096   8.5%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  309.6 games/s
+  games     4,000  moves      5.7M  avg score    36099  max   88108  ≥2048  77.8%  ≥4096  15.0%  ≥8192   0.0%  ≥16384   0.0%  ≥32768  0.0%  |  275.2 games/s
+  games     5,000  moves      7.7M  avg score    40438  max  132208  ≥2048  81.8%  ≥4096  23.9%  ≥8192   0.3%  ≥16384   0.0%  ≥32768  0.0%  |  249.6 games/s
+  games     6,000  moves      9.7M  avg score    45589  max  107872  ≥2048  84.4%  ≥4096  36.4%  ≥8192   0.4%  ≥16384   0.0%  ≥32768  0.0%  |  242.8 games/s
+  games     7,000  moves     11.8M  avg score    48012  max  132128  ≥2048  86.0%  ≥4096  38.2%  ≥8192   2.3%  ≥16384   0.0%  ≥32768  0.0%  |  244.2 games/s
+  games     8,000  moves     14.0M  avg score    51433  max  139016  ≥2048  89.6%  ≥4096  44.7%  ≥8192   1.4%  ≥16384   0.0%  ≥32768  0.0%  |  225.4 games/s
+  games     9,000  moves     16.3M  avg score    53348  max  151336  ≥2048  89.0%  ≥4096  47.4%  ≥8192   2.4%  ≥16384   0.0%  ≥32768  0.0%  |  219.8 games/s
+  games    10,000  moves     18.7M  avg score    56246  max  151228  ≥2048  90.6%  ≥4096  54.1%  ≥8192   1.6%  ≥16384   0.0%  ≥32768  0.0%  |  213.2 games/s
+  saved checkpoints/ntuple/stage8-tidbd/bench/tc-start/games_10000.npz (10,000 games, 1.61 GB in 1.2 s)
+  saved checkpoints/ntuple/stage8-tidbd/bench/tc-start/latest.npz (10,000 games, 1.61 GB in 1.0 s)
+
+Training complete
+{
+  "games_played": 10000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/bench/tc-start/latest.npz",
+  "interrupted": false
+}
+Resuming from checkpoints/ntuple/stage8-tidbd/bench/tc-start/games_10000.npz at 10,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 20,000 games, lr 0.02, temporal coherence
+  games    11,000  moves     21.5M  avg score    57835  max  169904  ≥2048  90.0%  ≥4096  51.8%  ≥8192   5.5%  ≥16384   0.0%  ≥32768  0.0%  |  176.8 games/s
+  games    12,000  moves     24.0M  avg score    58957  max  161856  ≥2048  90.5%  ≥4096  54.9%  ≥8192   4.4%  ≥16384   0.0%  ≥32768  0.0%  |  197.1 games/s
+  games    13,000  moves     26.6M  avg score    62172  max  166708  ≥2048  91.5%  ≥4096  58.6%  ≥8192   6.8%  ≥16384   0.0%  ≥32768  0.0%  |  193.6 games/s
+  games    14,000  moves     29.3M  avg score    63600  max  177452  ≥2048  92.2%  ≥4096  61.2%  ≥8192   6.1%  ≥16384   0.0%  ≥32768  0.0%  |  185.2 games/s
+  games    15,000  moves     32.1M  avg score    65215  max  175028  ≥2048  92.4%  ≥4096  61.0%  ≥8192   8.5%  ≥16384   0.0%  ≥32768  0.0%  |  189.0 games/s
+  games    16,000  moves     34.9M  avg score    69708  max  174312  ≥2048  93.1%  ≥4096  66.9%  ≥8192  13.6%  ≥16384   0.0%  ≥32768  0.0%  |  182.1 games/s
+  games    17,000  moves     37.8M  avg score    69662  max  248524  ≥2048  92.7%  ≥4096  66.8%  ≥8192  11.0%  ≥16384   0.1%  ≥32768  0.0%  |  175.6 games/s
+  games    18,000  moves     40.7M  avg score    69421  max  188284  ≥2048  93.3%  ≥4096  65.5%  ≥8192  11.2%  ≥16384   0.0%  ≥32768  0.0%  |  181.0 games/s
+  games    19,000  moves     43.7M  avg score    70711  max  177968  ≥2048  92.8%  ≥4096  66.4%  ≥8192  13.8%  ≥16384   0.0%  ≥32768  0.0%  |  176.7 games/s
+  games    20,000  moves     46.6M  avg score    71973  max  181248  ≥2048  93.0%  ≥4096  67.0%  ≥8192  14.3%  ≥16384   0.0%  ≥32768  0.0%  |  173.2 games/s
+  saved checkpoints/ntuple/stage8-tidbd/bench/tc-1-threads/games_20000.npz (20,000 games, 1.61 GB in 1.6 s)
+  saved checkpoints/ntuple/stage8-tidbd/bench/tc-1-threads/latest.npz (20,000 games, 1.61 GB in 1.8 s)
+
+Training complete
+{
+  "games_played": 20000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/bench/tc-1-threads/latest.npz",
+  "interrupted": false
+}
+Resuming from checkpoints/ntuple/stage8-tidbd/bench/tc-start/games_10000.npz at 10,000 games
+Training 8x6 n-tuple network (134,217,728 weights) to 20,000 games, lr 0.02, temporal coherence, 8 threads after 10,000 games
+  games    11,000  moves     21.5M  avg score    58056  max  173964  ≥2048  89.0%  ≥4096  53.5%  ≥8192   5.7%  ≥16384   0.0%  ≥32768  0.0%  |  720.2 games/s
+  games    12,000  moves     24.0M  avg score    59787  max  177280  ≥2048  90.6%  ≥4096  57.3%  ≥8192   4.6%  ≥16384   0.0%  ≥32768  0.0%  |  898.2 games/s
+  games    13,000  moves     26.7M  avg score    62410  max  168168  ≥2048  92.3%  ≥4096  59.3%  ≥8192   5.8%  ≥16384   0.0%  ≥32768  0.0%  |  844.5 games/s
+  games    14,000  moves     29.3M  avg score    62328  max  165840  ≥2048  89.5%  ≥4096  57.7%  ≥8192   6.8%  ≥16384   0.0%  ≥32768  0.0%  |  847.2 games/s
+  games    15,000  moves     32.0M  avg score    64906  max  159492  ≥2048  92.7%  ≥4096  61.2%  ≥8192   7.9%  ≥16384   0.0%  ≥32768  0.0%  |  865.1 games/s
+  games    16,000  moves     34.9M  avg score    67261  max  169764  ≥2048  93.0%  ≥4096  62.7%  ≥8192  10.0%  ≥16384   0.0%  ≥32768  0.0%  |  794.4 games/s
+  games    17,000  moves     37.7M  avg score    67991  max  262372  ≥2048  92.5%  ≥4096  62.1%  ≥8192  12.1%  ≥16384   0.1%  ≥32768  0.0%  |  819.3 games/s
+  games    18,000  moves     40.6M  avg score    69146  max  162240  ≥2048  92.8%  ≥4096  64.6%  ≥8192  12.3%  ≥16384   0.0%  ≥32768  0.0%  |  804.7 games/s
+  games    19,000  moves     43.6M  avg score    72274  max  177260  ≥2048  94.9%  ≥4096  67.5%  ≥8192  14.0%  ≥16384   0.0%  ≥32768  0.0%  |  749.8 games/s
+  games    20,000  moves     46.6M  avg score    72457  max  235060  ≥2048  94.2%  ≥4096  67.9%  ≥8192  15.0%  ≥16384   0.3%  ≥32768  0.0%  |  762.8 games/s
+  saved checkpoints/ntuple/stage8-tidbd/bench/tc-8-threads/games_20000.npz (20,000 games, 1.61 GB in 1.5 s)
+  saved checkpoints/ntuple/stage8-tidbd/bench/tc-8-threads/latest.npz (20,000 games, 1.61 GB in 1.4 s)
+
+Training complete
+{
+  "games_played": 20000,
+  "checkpoint_path": "checkpoints/ntuple/stage8-tidbd/bench/tc-8-threads/latest.npz",
+  "interrupted": false
+}
+| Run | Threads | Games | Moves | Wall s | Moves/s | Games/s | CPU s | Peak memory GB | Avg training score | Max effective step | Non-finite |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| tc-1-threads | 1 | 10,000 | 27.9M | 55 | 509,756 | 182.7 | 59 | 3.86 | 65,925 | n/a | n/a |
+| tc-8-threads | 8 | 10,000 | 27.8M | 12 | 2,247,118 | 807.2 | 97 | 3.87 | 65,662 | n/a | n/a |
+| tc-start | 1 | 10,000 | 18.7M | 37 | 502,942 | 268.3 | 41 | 3.90 | 40,098 | n/a | n/a |
+| tidbd-1-threads | 1 | 10,000 | 21.7M | 68 | 317,706 | 146.2 | 84 | 3.88 | 48,360 | 0.813 | 0 |
+| tidbd-10-threads | 10 | 10,000 | 21.8M | 13 | 1,648,494 | 755.2 | 128 | 3.72 | 48,633 | 0.764 | 0 |
+| tidbd-4-threads | 4 | 10,000 | 21.9M | 19 | 1,165,175 | 532.3 | 88 | 3.82 | 48,704 | 0.806 | 0 |
+| tidbd-8-threads | 8 | 10,000 | 21.6M | 14 | 1,525,920 | 705.3 | 122 | 3.53 | 48,484 | 0.837 | 0 |
+| tidbd-start | 1 | 10,000 | 14.3M | 47 | 306,449 | 213.9 | 61 | 3.73 | 28,607 | 0.788 | 0 |
+[2026-11-15T00:01:01Z] bench exited with code 0

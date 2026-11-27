@@ -256,12 +256,20 @@ def upgrade(board: np.uint64) -> np.uint64:
 
 
 @njit
-def downgrade(board: np.uint64, min_exponent: int) -> np.uint64:
-    """Halve every tile above the largest gap if the board has a 2**min_exponent tile or larger, else return it unchanged."""
-    if max_exponent(board) < min_exponent:
-        return board
-    gap = largest_gap(board)
-    return board if gap == 0 else shift_above(board, gap, -1)
+def downgrade(board: np.uint64, min_exponent: int, repeat: bool = False) -> np.uint64:
+    """Halve every tile above the largest gap if the board has a 2**min_exponent tile or larger, else return it unchanged.
+
+    With `repeat`, halve again (above the new largest gap) until no such tile is left or the board has no gap: a board
+    with a 32768 halved once still holds a 16384, which a network that halves from 16384 has hardly ever read.
+    """
+    while max_exponent(board) >= min_exponent:
+        gap = largest_gap(board)
+        if gap == 0:
+            break
+        board = shift_above(board, gap, -1)
+        if not repeat:
+            break
+    return board
 
 
 @njit

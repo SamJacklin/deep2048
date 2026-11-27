@@ -50,6 +50,8 @@ uv run python scripts/evaluate.py checkpoints/ntuple/my-run/latest.npz --agent n
 | [`decision11-8x6-rate-0.005`](decision11-8x6-rate-0.005/NOTES.md), [`decision12-8x6-two-stage-reset`](decision12-8x6-two-stage-reset/NOTES.md) | [Round 11](#round-11-a-learning-rate-cut): the rate cut to 0.005; [round 12](#round-12-a-reset-for-the-two-stage-network): round 10's two-stage network with a reset. Both 2M → 2.5M games |
 | [`decision8-8x6-two-stage-by-state`](decision8-8x6-two-stage-by-state/NOTES.md), [`decision9-8x6-two-stage-by-state`](decision9-8x6-two-stage-by-state/NOTES.md) | [Rounds 8 and 9](#rounds-8-and-9-a-second-stage-chosen-by-the-board-a-move-is-made-from): the second stage chosen by the board a move is made from, 1.5M → 2M → 2.5M games |
 | [`decision10-8x6-two-stage-kept-sums`](decision10-8x6-two-stage-kept-sums/NOTES.md) | [Round 10](#round-10-a-second-stage-without-the-reset): a second stage with the coherence sums kept, 1.5M → 2M games |
+| `search-teacher-*` (4 runs) | [Stage 5](#stage-5-search-as-a-teacher): plain TD, search-guided TD and two ranking strengths, each 2M → 2.05M games from round 1's TC reset |
+| `late-network-*` (8 runs) | [Stage 6](#stage-6-a-dedicated-late-game-network): a second network for the late game behind the frozen 2M network, from three starts at two rates, 0 → 1–2M continuations, and scratch with a coherence reset |
 
 ## Learning at equal experience
 
@@ -732,6 +734,520 @@ The same network trained from zero with the long run's recipe, against the long 
   - 3- and 4-cell patterns can't represent the large-tile arrangements needed to build a second 8192, and the 6-tuples that could never learned them.
 - **So redundant encoding is shelved.** It loses whether added to a trained network or trained from scratch. Jaśkowski's gain came under a different schedule and without downgrading. A rescue (dropping the 3-tuples, or a lower rate for the small tuples) would need another long run for a technique worth about +52k under his conditions.
 
+## Late-game diagnostics
+
+The decision arms leave a clear pattern: the network learns everything up to 16384 efficiently, then converts a first 16384 into a 32768 in only about 21% of depth-3 games (20.1% against 94.6% reaching 16384, for round 1's TC reset at 2M). The next stages diagnose why before spending more training: whether the late game's positions aren't seen, are learned wrongly, or can't be told apart. Each stage is built on its own branch, and each result that depends on training needs two more seeds before it's relied on.
+
+### Stage 0: protocol checks
+
+No training. The pieces later stages measure with:
+- **Manifests:** each training session now records the SHA-256 of the checkpoint it resumed from and its CPU time. Evaluations already recorded their checkpoint's hash and seeds.
+- **`scripts/compare_runs.py`:** compares runs' evaluations with a reference game for game, with paired bootstrap 95% intervals for the average, the 16384 and 32768 rates, and the 16384→32768 conversion.
+- **`scripts/update_gain.py`:** how far one temporal coherence update really moves a board's value, by stage of the game.
+- **`scripts/check_search_cache.py`:** what the search's transposition table changes when unlikely spawns are pruned.
+- **Tests** of the 32768 limit: 16384s merge into it, 32768s don't merge (seeded games end there), and downgrading halves it.
+
+**The effective gain of an update.** A board reads 64 weights, and an update with error δ moves its value by δ × lr × Σ cᵢmᵢ², over its distinct weights i read mᵢ times, with coherence cᵢ. With every weight at full rate and no repeats, that's 1.28 at lr 0.02. Measured on the afterstates of 20 greedy games per network:
+
+| Network | 1024 | 4096 | 8192 | 16384 (downgraded) | 32768 |
+|---|---:|---:|---:|---:|---:|
+| Long run, 500k games | 0.016 (54%) | 0.014 (61%) | 0.012 (68%) | 0.011 (69%) | |
+| Long run, 1.5M (stalled) | 0.009 (80%) | 0.007 (84%) | 0.006 (87%) | 0.006 (86%) | |
+| TC reset, 2M (the best network) | 0.006 (88%) | 0.005 (90%) | 0.005 (91%) | 0.005 (91%) | 0.012 (73%) |
+
+Each cell is the median gain ΔV/δ for boards with that largest tile, with the share of the weights they read whose coherence is below 1% in brackets. No 32768 boards came up in the long run's greedy games.
+
+- **Temporal coherence has frozen the whole network, not just the late game.** By 1.5M games a board's value moves by about 0.5% of the nominal step, at every stage alike. The 32768 boards are the least frozen, but only slightly.
+- **The reset's restored rates are used up within 500k games.** Its 2M network is as frozen as the stalled 1.5M one was.
+- **Repeats don't matter.** Repeated weights only add to the gain on near-empty opening boards; from 32 up, the repeat factor is 1.00 to 1.04.
+- **So the late game isn't learning at a lower rate than the rest; it gets fewer updates.** A weight's coherence falls as roughly one over the square root of its updates once its errors are noise, so the rarely seen late-game weights have the most to gain from a rate that keeps adapting. Stage 1 checks whether their values are actually wrong.
+
+**The search cache.** On 200 positions from the 2M network's greedy games, half with an 8192 or larger:
+
+| Depth | Cutoff | Chosen move changes | Largest change in the chosen move's value | ms per position, with the table | without |
+|---:|---:|---:|---:|---:|---:|
+| 3 | 0 | 0 | 0 (exact, as a test checks) | 0.4 | 0.5 |
+| 4 | 0.05 | 0 | 3.4×10⁻⁴ of its value | 0.6 | 1.0 |
+| 5 | 0.1 | 0 | 0 | 0.3 | 0.4 |
+| 6 | 0.1 | 0 | 0 | 0.4 | 0.4 |
+
+The table's approximation under pruning is negligible: it never changed a move.
+
+### Stage 1: where the late game goes wrong
+
+No training. Everything uses round 1's TC-reset network at 2M games.
+
+- **The corpus** ([`late-game-corpus`](late-game-corpus/)): `scripts/late_game_corpus.py` played 666 greedy games and 547 depth-3 games until each policy had 500 that made a 16384, recording each game's first-8192 and first-16384 boards and every 50th board.
+  - Seeds start at 1,000,000 (greedy) and 2,000,000 (depth 3), clear of the 0–999 evaluation seeds.
+  - Positions are split into train, dev and test sets by source game (60/20/20). Later training may use only the train set.
+- **The tests** (`scripts/late_game_tests.py`, results in [`late-game-diagnostics`](late-game-diagnostics/)):
+  - **coverage:** how often training updates the weights positions read, counted over 2,500 games played as training plays them. The counts are split by whether the board moved from holds a 16384.
+  - **conversion:** 8 greedy and 8 depth-3 continuations from every first-16384 position, sharing spawns.
+  - **actions:** 240 late positions (largest tile 16384 or more; half at random, half where greedy play's top two moves are closest). Every legal move is followed by 64 greedy and 8 depth-3 rollouts, with spawns shared across moves.
+
+**Coverage: the 16384 stage isn't short of experience.**
+
+| Positions | Weights not updated in 2,500 games | Updated ≥100 times per 1k games | Their updates from boards below 16384 |
+|---|---:|---:|---:|
+| First 8192 (greedy / depth-3 games) | 1.1% / 1.5% | 78% / 75% | 59% / 58% |
+| First 16384 (greedy / depth-3 games) | 1.1% / 1.1% | 78% / 77% | 59% / 59% |
+| Largest tile 4096 | 11% | 72% | 65% |
+| Largest tile 16384 | 11% | 71% | 42–43% |
+| Largest tile 32768 | 15–16% | 55–57% | 37% |
+| 16384, 0–250 moves after the first (went on to a 32768 / didn't) | 6.5% / 6.6% | 71% / 72% | 55% / 55% |
+| 16384, 2,000+ moves after the first (went on to a 32768 / didn't) | 10.2% / 10.7% | 71% / 70% | 37% / 38% |
+
+The shares are of the weights read by every legal move from a position.
+
+- **16384-stage positions read weights as well trained as the early game's.** Coverage doesn't thin as the stage goes on, and it's the same in games that go on to a 32768 as in games that don't. Only the 32768 stage reads noticeably rarer weights.
+- **Greedy and depth-3 play reach equivalent positions.** Their coverage matches, they reach a first 16384 after the same score (210k) and number of moves (7,466), and those positions convert equally well (below).
+- **Downgrading makes the 16384 stage reuse the 8192 stage's weights.** A first-16384 board (a 16384 plus small tiles) reads exactly the weights a first-8192 board does. Training's late starts are doubled first-8192 boards, which downgrading halves straight back.
+
+**Conversion and values: the network can't tell a first 16384 from a first 8192.**
+
+| From first-16384 positions of | Continued by | Makes 32768 | Score added |
+|---|---|---:|---:|
+| Greedy games | Greedy | 10.8% | 161,673 ± 2,505 |
+| Greedy games | Depth 3 | 18.3% | 201,273 ± 2,777 |
+| Depth-3 games | Greedy | 11.3% | 162,193 ± 2,452 |
+| Depth-3 games | Depth 3 | 19.3% | 202,388 ± 2,644 |
+
+| Position | Network's estimate of the score to come | Actually scored afterwards, greedy | Estimate ÷ actual |
+|---|---:|---:|---:|
+| First 8192 | 237,458 | 228,236 ± 8,288 | 1.04 |
+| First 16384 | 237,275 | 156,567 ± 6,591 | 1.52 |
+
+- **The source policy doesn't matter;** from the same positions and spawns, depth-3 search adds 40k ± 3.5k and converts 18–19% against greedy play's 11%.
+- **The network values a first 16384 like a first 8192:** accurate at the first 8192, 50% too high at the first 16384, with nearly the same estimate. Every first-16384 board is changed by downgrading.
+- **Through the 16384 and 32768 stages, afterstate values are 77k to 94k too high** against greedy play's returns from them. Each legal move's afterstate in the action test is compared with the average of its 64 greedy rollouts:
+
+| Largest tile | Empty cells | Afterstates | Mean predicted | Mean greedy return | Bias | Mean absolute error | Network's top move is the rollouts' top move |
+|---:|---|---:|---:|---:|---:|---:|---:|
+| 16,384 | 0–3 | 526 | 166,402 | 89,052 | +77,351 | 82,051 | 46% |
+| 16,384 | 4–7 | 304 | 180,096 | 101,631 | +78,464 | 83,005 | 44% |
+| 32,768 | 0–3 | 32 | 146,946 | 52,686 | +94,260 | 94,842 | 67% |
+| 32,768 | 4–7 | 18 | 162,055 | 73,560 | +88,495 | 88,495 | 60% |
+
+  The last column is only a rough guide: the rollouts' top move is itself noisy when moves are close, which they mostly are (see action ranking below).
+- **The shared weights are pulled both ways.** Among the 1.2M weights with at least 20 counted updates, grouped by the share of their updates that came from boards below 16384, the net direction of their accumulated errors (Σ error / Σ |error|, negative meaning their values are pushed down):
+
+| Updates from boards below 16384 | Weights | Net error direction | Median coherence | Median counted updates |
+|---|---:|---:|---:|---:|
+| None (16384 stage only) | 138,596 | −0.035 | 0.045 | 39 |
+| Under 10% | 21,128 | −0.008 | 0.024 | 33 |
+| 10–40% | 359,674 | +0.002 | 0.015 | 86 |
+| 40–60% | 327,145 | +0.006 | 0.014 | 156 |
+| 60–90% | 236,068 | +0.012 | 0.015 | 157 |
+| Over 90% | 77,183 | +0.015 | 0.016 | 269 |
+| All (earlier stages only) | 40,366 | +0.026 | 0.038 | 49 |
+
+  The 16384 stage pushes its weights down and the earlier stages push theirs up, with shared weights in between in order of their share. The 8192 stage, which every game passes through, wins. The shared weights' lower coherence fits errors that cancel, but it's confounded with their larger number of updates.
+
+**Action ranking: no measurable single-move mistakes.** Each decider's choice is judged against every legal move's average score to come under each continuation. "Clearly worse" means some move beats it by more than 2 standard errors of their paired difference. "Score lost" picks the best move on half the rollouts and measures its gain over the choice on the other half, both ways round, so it isn't inflated by noise. Negative means the choice did better than the move the data picked.
+
+| Positions from | Group | Decider | Judged by | Positions | Not the best on average | Clearly worse | Score lost |
+|---|---|---|---|---:|---:|---:|---:|
+| Greedy games | Random | Greedy play | Greedy, 64 rollouts | 60 | 63% | 7% | 1,549 ± 2,904 |
+| Greedy games | Random | Greedy play | Depth 3, 8 rollouts | 60 | 62% | 3% | −13,220 ± 8,696 |
+| Greedy games | Random | Depth-3 search | Greedy, 64 rollouts | 60 | 60% | 8% | 1,891 ± 2,969 |
+| Greedy games | Random | Depth-3 search | Depth 3, 8 rollouts | 60 | 63% | 3% | −12,424 ± 8,480 |
+| Greedy games | Close call | Greedy play | Greedy, 64 rollouts | 60 | 60% | 2% | −2,789 ± 2,065 |
+| Greedy games | Close call | Greedy play | Depth 3, 8 rollouts | 60 | 80% | 7% | 2,169 ± 9,443 |
+| Greedy games | Close call | Depth-3 search | Greedy, 64 rollouts | 60 | 70% | 7% | −1,521 ± 2,548 |
+| Greedy games | Close call | Depth-3 search | Depth 3, 8 rollouts | 60 | 73% | 5% | −2,286 ± 9,373 |
+| Depth-3 games | Random | Greedy play | Greedy, 64 rollouts | 60 | 37% | 0% | −3,178 ± 1,617 |
+| Depth-3 games | Random | Greedy play | Depth 3, 8 rollouts | 60 | 57% | 7% | −2,638 ± 9,083 |
+| Depth-3 games | Random | Depth-3 search | Greedy, 64 rollouts | 60 | 40% | 0% | −2,701 ± 1,544 |
+| Depth-3 games | Random | Depth-3 search | Depth 3, 8 rollouts | 60 | 57% | 3% | −3,523 ± 8,653 |
+| Depth-3 games | Close call | Greedy play | Greedy, 64 rollouts | 60 | 55% | 2% | −2,096 ± 1,950 |
+| Depth-3 games | Close call | Greedy play | Depth 3, 8 rollouts | 60 | 72% | 2% | −1,621 ± 8,379 |
+| Depth-3 games | Close call | Depth-3 search | Greedy, 64 rollouts | 60 | 50% | 3% | −1,935 ± 2,242 |
+| Depth-3 games | Close call | Depth-3 search | Depth 3, 8 rollouts | 60 | 72% | 2% | −1,447 ± 8,269 |
+
+- **Single moves:** the choices were clearly worse than another move in 0–8% of positions. That's about the false-positive rate with up to three alternatives each. The score lost was within noise of zero in every group. "Not the best on average" is high only because most moves are near-ties, so the rollouts' best move is a coin toss.
+- **Sharing and familiarity:** each position is scored by the share of its weights' updates that came from boards below 16384 (sharing), and the share of its reads whose weights training updates less than once per 1,000 games (unfamiliar). Split by both, the error rates show no pattern:
+
+| Positions | Count | Mean sharing | Mean unfamiliar | Greedy play, judged by greedy: clearly worse | Score lost | Depth-3 search, judged by depth 3: clearly worse | Score lost |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Sharing: lowest third | 80 | 34.5% | 17.3% | 1% | −1,807 ± 1,572 | 2% | −5,966 ± 7,154 |
+| Sharing: middle third | 81 | 44.7% | 14.7% | 2% | −730 ± 2,160 | 6% | −5,080 ± 6,909 |
+| Sharing: highest third | 79 | 54.4% | 14.1% | 4% | −2,368 ± 1,998 | 1% | −3,697 ± 8,610 |
+| Unfamiliar: lowest third | 87 | 45.3% | 8.9% | 0% | −1,807 ± 1,543 | 2% | −3,796 ± 6,876 |
+| Unfamiliar: middle third | 75 | 45.9% | 15.0% | 5% | −338 ± 2,382 | 5% | −4,881 ± 8,697 |
+| Unfamiliar: highest third | 78 | 42.2% | 22.9% | 3% | −2,670 ± 1,860 | 3% | −6,212 ± 7,253 |
+| More shared, more familiar | 67 | 51.8% | 10.7% | 3% | −1,189 ± 2,238 | 3% | −2,447 ± 7,639 |
+| More shared, less familiar | 53 | 51.7% | 19.1% | 4% | −2,785 ± 2,529 | 4% | −4,794 ± 11,385 |
+| Less shared, more familiar | 60 | 38.1% | 10.2% | 3% | −285 ± 2,386 | 3% | −6,430 ± 8,608 |
+| Less shared, less familiar | 60 | 36.4% | 22.4% | 0% | −2,441 ± 1,688 | 3% | −6,285 ± 7,709 |
+- **What the test can and can't detect:** it detects single-move losses of a few thousand points. The 40k that search adds over the rest of the game is spread over thousands of moves, a few points each, far below it. **So the overestimate is mostly the same for every move, and decisions go wrong only by small amounts that add up.** Action ranking can't separate aliasing from experience at this resolution, and the conversion test can: about 2.5k precision on 500 positions in 3 minutes greedy.
+
+**Where this differs from the plan.**
+- **Corpus:** 500 first-16384 positions from each policy (1,000 in all) rather than 2,000 from depth 3 alone, to see whether the training policy reaches different positions from the evaluation policy.
+- **Action quality** is measured by rolling out every legal move, rather than against a depth-4 search's choice. A rollout measures what a choice actually costs, and a search's disagreement doesn't.
+- **Greedy and depth-3 continuations are reported separately throughout,** since the network was trained on greedy play's returns.
+- **Hard positions** are those where greedy play's top two moves are closest, not also those with few empty cells.
+- **Calibration** isn't split by whether downgrading is active, since every 16384-stage board is downgraded, or by structural features.
+- **Added:** coverage of the weights positions read, split by progress after the first 16384 and by stage of training, and action-ranking errors split by how shared and how familiar a position's weights are.
+
+**What this points to.** By the plan's decision rule, a large, systematic value error at 16384 points to stage 3: a small residual that reads the real, undowngraded board, gated on at 16384, can learn the correction the shared weights can't hold. Unlike the second stages of rounds 5–12, it keeps the shared base, and with it what the 8192 stage teaches the 16384 stage. Its yardstick should be greedy conversion from the held-out test split's first-16384 positions, with depth 3 and full games after. Each result needs two more training seeds before it's relied on.
+
+### Stage 3: correcting the late-game values
+
+The question: does a position-dependent correction to the late game's values improve play, or only the values? The base, round 1's TC-reset network at 2M games, stays frozen throughout: its weights, its temporal coherence sums and its downgrading.
+
+**The arms** (`deep_2048/agents/ntuple/residual.py`, `scripts/late_residual.py`, results in [`late-residual`](late-residual/)):
+- **baseline:** the base, unchanged.
+- **late-constant:** a constant added to every afterstate whose real largest tile is 16384 or more.
+  - It was fitted on the corpus's train split only: the gap between 8 greedy rollouts' return and the base's value, over 1,000 late afterstates greedy play chose.
+  - It came out at **−106,513 ± 2,230**, larger than stage 1's 77–94k. That bias averaged over every legal move, and the move greedy play chooses is the one most likely to be overvalued.
+- **residual:** the constant plus four 5-tuples (two rows with the cell below their end, two 2×2 squares with a cell below), read from the real tile exponents in all 8 symmetries.
+  - That's 32 reads per board and 4.2M weights, starting at zero.
+  - It's trained by TD(0) on the combined value (0 at the end of a game), from the train split's 606 genuine first-16384 positions, at a fixed rate shared over its 32 reads.
+
+**How the correction is applied.**
+- **The gate** is decided by the real afterstate being valued, inside the network's value function, so greedy play, training and expectimax all apply it alike.
+- **Storage:** corrected checkpoints store only the correction, with the base checkpoint's path and SHA-256, and refuse a base that has changed.
+- **Testing:** tests check that a zero correction plays exactly as the base, that the gate and residual read the real board, and that training changes only the residual.
+
+**The yardstick.** The test split's 196 first-16384 positions, which neither fitting nor training saw:
+- 32 greedy and 8 depth-3 continuations each, with the same spawns for every arm, so differences are paired by position.
+- How often each arm's greedy move differs from the base's, on 26,890 late test-split boards and on 332 boundary boards. Boundary boards were found by replaying the test games: some move makes the game's first 16384, so moves differ in whether their afterstate is past the gate.
+- 1,000 full greedy games.
+
+| Arm | Greedy conversion | vs baseline | Score added, greedy | vs baseline | Depth-3 conversion | Score added, depth 3 |
+|---|---:|---:|---:|---:|---:|---:|
+| Baseline | 10.7% | — | 160,638 | — | 19.5% | 203,057 |
+| Constant | 10.7% | ±0 | 160,638 | ±0 | 15.1% (−4.5pp ± 2.4) | 183,015 (−20.0k ± 5.0k) |
+| Residual, 0.1 per board, its own games | 0.0% | −10.7pp ± 0.8 | 41,614 | −119.0k ± 2.0k | 0.0% | 43,236 |
+| Residual, 0.1 per board, the base's games | 0.0% | −10.7pp ± 0.8 | 56,659 | −104.0k ± 2.1k | | |
+| Residual, 0.01 per board, its own games | 0.6% | −10.1pp ± 0.8 | 115,566 | −45.1k ± 2.3k | | |
+| Residual, 0.01 per board, the base's games | 0.3% | −10.4pp ± 0.7 | 111,242 | −49.4k ± 2.2k | | |
+
+| Arm | Estimate of the score to come at a first 16384 ÷ its own greedy play's | Late moves changed | Boundary moves changed | Makes the 16384 at the boundary | Full greedy games (1,000) |
+|---|---:|---:|---:|---:|---:|
+| Baseline | 1.48 | — | — | 61% | 320,042 (32768 in 8.5%) |
+| Constant | 0.82 | 0% | 61% | 0% | 322,270, +2.2k ± 6.1k (9.9%) |
+| Residual, 0.1, its own games | 1.56 | 38% | 61% | 0% | 226,815, −93.2k ± 5.6k (0.0%) |
+| Residual, 0.1, the base's games | 2.29 | 32% | 61% | 0% | |
+| Residual, 0.01, its own games | 1.05 | 23% | 61% | 0% | |
+| Residual, 0.01, the base's games | 1.16 | 20% | 61% | 0% | |
+
+Every residual was trained for 20,000 late games. "Its own games" means the corrected network chose the moves of the games it learned from. "The base's games" means the base did, so the residual's errors couldn't steer what it learned from. The full-game column was run only for the first residual, since the others had already failed the conversion screen.
+
+- **Fixing the average bias doesn't improve decisions.**
+  - **Within the late game,** the constant changes no greedy move, since every move's afterstate shifts alike, and full games are level with the baseline.
+  - **At the boundary,** it never merges into a 16384 at the first chance. That only delays the merge: full games still reach 16384 in 77%, as the baseline does.
+  - **With search, it costs 4.5 points of conversion.** The end of a game is worth 0, but the corrected values of weak late positions are negative, so search starts preferring lines that end the game.
+  - **The bias isn't uniform:** fitted on the whole late game, the constant overcorrects at the first 16384 (0.82).
+- **A learned residual makes the values more accurate and the play much worse.**
+  - **Calibration:** at 0.01 per board, the estimate at the first 16384 comes to within 5–16% of what its own play scores. The verification below shows that was an artefact of judging it against its own, weaker play. Against the base's play, it's no more accurate than the constant.
+  - **Play:** conversion falls to under 1%, and greedy play adds 45–49k less. The residual changes a fifth to two-fifths of late moves.
+  - **At 0.1 per board,** training on the residual's own games slid steadily, from 104k score added in the first 1,000 games to 43k by 20,000, and full games lost 93k. A residual without the constant underneath slid the same way, from 101k to 43k ([`late-residual-alone`](late-residual/late-residual-alone/)).
+  - **Training on the base's games** doesn't avoid the damage, so the cause isn't the residual steering its own training. It's the correction itself.
+- **Why:** stage 1 found the late game's moves are near-ties that the base ranks well, with no measurable single-move errors. A residual trained on 20,000 games is far less precise than the base, trained on 2M games with 134M weights. Different moves' afterstates read different residual weights, so its noise lands unevenly across moves, and that unevenness is larger than the gaps between them. More accurate values on average don't help if they rank the moves worse.
+- **So a learned correction, in this form and at this scale, doesn't improve decisions,** and the late game's large overestimate is mostly a level shift that greedy play ignores. A residual could only help once its errors between moves are smaller than those gaps, which would take far more training. The 32768 gap is better approached through what changes the ranking of moves: search, which adds 8 points of conversion from the same positions, or better relative values. Stages 4 and 5 test those.
+
+### Stage 3 verification
+
+Seven checks before concluding, to rule out an implementation fault and test whether any variant of the correction helps (`scripts/verify_residual.py`, results in [`late-residual/verification`](late-residual/verification/)). All use the corpus's dev split, except check 7, which reuses stage 1's action-ranking positions and rollouts, and the final confirmation on the test split. Full games use seeds 10,000–10,999.
+
+**The correction is applied at evaluation time in four ways, with no retraining:**
+- at a strength, which scales the whole correction (constant and residual), so strength 0 is exactly the base;
+- with the gate decided by the board the move is made from rather than the afterstate, so every move of a decision is judged alike;
+- clamped, so corrected values below 0 count as 0, as the end of a game does;
+- or unchanged.
+
+1. **A zero correction plays exactly as the base.** So does the trained residual at strength 0: identical greedy values on 2,000 dev boards, identical depth-3 values on 300 late boards, 1,000 identical greedy games and 50 identical depth-3 games.
+2. **Training is correct,** checked by tests in `tests/test_residual.py`:
+   - the last update of a game moves the combined value (base + constant + residual) exactly towards 0;
+   - training leaves the base's checkpoint, weights and coherence sums untouched;
+   - the residual reads real tiles;
+   - a reloaded correction predicts identically under every option;
+   - the strength, gate and clamp options do what they say.
+
+   One fault was fixed: training valued the previous afterstate as if it were its own pre-move board. That made no difference with the afterstate gate, but would have with the pre-move gate.
+3. **The boundary gate** (dev, paired with the baseline):
+
+| Variant | Makes the 16384 at the boundary | Full greedy games |
+|---|---:|---:|
+| Baseline | 62% | 316,674 |
+| Constant, afterstate gate | 1% | −0.5k ± 5.7k |
+| Constant, pre-move gate | 62% | identical to the baseline |
+| Residual 0.01, afterstate gate | 0% | −37.3k ± 5.3k |
+| Residual 0.01, pre-move gate | 62% | −33.0k ± 5.3k |
+
+   The afterstate gate does make merging into the first 16384 look bad, but it only delays the merge. The pre-move gate removes the artefact, and recovers only 4k of the residual's 37k loss.
+
+4. **Negative values and clamping:**
+   - **The constant values 24% of late afterstates below 0** (37% when two moves are legal), and the full residual 25%, against 1% for the baseline.
+   - **Clamping at 0 makes things worse, not better.** The constant clamped loses 2.6 points of greedy conversion and 11.6k in full games. The residual clamped loses 44.9k against 37.3k unclamped. Flooring turns many moves into exact ties, which are then broken arbitrarily.
+   - **Greedy continuations ending within 20k** rise only from 0.9% to 2.8%, so premature losses aren't the main damage.
+5. **Strength sweep** (dev: 198 first-16384 positions, 32 greedy and 2 depth-3 continuations each, paired with the baseline):
+
+| Residual | Strength | Greedy conversion | Greedy score added | Depth-3 score added | Full greedy games |
+|---|---:|---:|---:|---:|---:|
+| 0.01 per board | 0.05 | −0.3pp ± 1.2 | −0.7k ± 3.0k | −2.8k ± 12.2k | −1.1k ± 6.0k |
+| 0.01 per board | 0.1 | −0.9pp ± 1.2 | −2.5k ± 3.0k | −0.7k ± 11.9k | −0.2k ± 6.2k |
+| 0.01 per board | 0.25 | −2.2pp ± 1.2 | −7.2k ± 2.9k | −6.2k ± 10.8k | −5.4k ± 5.9k |
+| 0.01 per board | 0.5 | −6.4pp ± 1.0 | −20.9k ± 2.5k | −14.4k ± 11.4k | −17.3k ± 5.5k |
+| 0.01 per board | 1 | −11.3pp ± 0.9 | −48.1k ± 2.6k | −51.4k ± 9.4k | −37.3k ± 5.3k |
+| 0.1 per board | 0.05 | −0.6pp ± 1.1 | −3.3k ± 2.8k | +3.6k ± 12.4k | +0.1k ± 6.0k |
+| 0.1 per board | 0.1 | −1.5pp ± 1.1 | −8.7k ± 2.8k | −8.7k ± 11.4k | −6.8k ± 6.1k |
+| 0.1 per board | 0.25 | −4.9pp ± 1.1 | −27.9k ± 2.7k | −18.6k ± 10.5k | −24.0k ± 5.6k |
+
+   Harm grows steadily with strength for both residuals. No strength helps. Small strengths are indistinguishable from the base. The only positive number, the 0.1 residual's depth-3 score at strength 0.05, was confirmed on the untouched test split, with 8 depth-3 and 32 greedy continuations from each of its 196 first-16384 positions, paired with the baseline. It disappeared:
+
+| 0.1 residual at strength 0.05, test split | Makes 32768 | vs baseline | Score added | vs baseline |
+|---|---:|---:|---:|---:|
+| Greedy continuations | 11.7% | +1.0pp ± 1.1 | 159,728 | −0.9k ± 2.8k |
+| Depth-3 continuations | 19.5% | +0.0pp ± 2.8 | 201,870 | −1.2k ± 6.3k |
+6. **Calibration against one fixed policy.** On 1,000 dev late afterstates the base chose, against 8 rollouts each of the base's own greedy play (mean return 97,192):
+
+| Variant | Bias | Mean absolute error | RMS error |
+|---|---:|---:|---:|
+| Baseline | +103,343 ± 2,194 | 103,402 | 109,233 |
+| Constant | −3,170 ± 2,194 | 28,236 | 35,524 |
+| Residual 0.01, strength 1 | −14,691 ± 2,006 | 27,737 | 35,527 |
+| Residual 0.01, clamped | −13,886 ± 1,984 | 26,932 | 34,878 |
+
+   On the same afterstates and the same policy, the residual is no more accurate than the constant, and its bias is worse. It learned nothing measurable beyond the average correction.
+7. **Rankings,** on stage 1's 240 late positions, with 64 greedy rollouts of every legal move. **The base's median margin between its top two moves is 2 points.**
+
+| Variant | Moves changed | Changes better by > 2 SE | Worse by > 2 SE | Score change per position | Median correction swing between the base's top two | Swing larger than the base's margin |
+|---|---:|---:|---:|---:|---:|---:|
+| Constant | 0% | — | — | ±0 | 0 | 0% |
+| Residual 0.01, strength 0.05 | 22% | 1 | 1 | +44 ± 589 | 13 | 50% |
+| Residual 0.01, strength 0.25 | 25% | 1 | 1 | −65 ± 606 | 64 | 54% |
+| Residual 0.01, strength 1 | 34% | 2 | 2 | −85 ± 738 | 257 | 65% |
+| Residual 0.1, strength 0.25 | 39% | 1 | 1 | −64 ± 796 | 262 | 66% |
+
+   - **Even at 5% strength,** the residual's corrections outweigh the base's margin in half the positions, and change 22% of moves.
+   - **The changes are as often worse as better,** and too small for rollouts to price one by one.
+   - **The damage comes from their sum:** small costs accumulate over thousands of moves into the conversion and full-game losses in check 5.
+
+**Verdict: stage 3 is unsuccessful in its current form.** The implementation checks pass. No strength, gate or clamping variant improves conversion or full games. The residual is no more accurate than a constant on a fixed policy, and its corrections flip near-tied moves at random. Correcting the late game's values with this TD-trained residual isn't a route to stronger play: the base's errors that matter are in the ranking of near-tied moves, which a separate correction, less precise than the base, can only add noise to. On to stage 5.
+
+### Stage 5: search as a teacher
+
+The question: depth-3 search converts a first 16384 far more often than greedy play does (18.0% against 10.9% on the dev positions). Can training on search's choices teach the network to play that way without search? Everything starts from round 1's TC-reset network at 2M games (`deep_2048/agents/ntuple/guidance.py`, `scripts/selective_search.py`, `scripts/search_teacher.py`, results in [`search-teacher`](search-teacher/)).
+
+**Selective search, before any training.** Each policy plays greedily, except at late decisions (largest tile 16384 or more) whose greedy relative margin between the top two moves lies in its band, where it searches exactly to depth 3. Bands are percentiles of that margin over 27,558 dev late positions. All play on from the 198 dev first-16384 positions, 8 continuations each, with common random numbers, paired with greedy (± 95%):
+
+| Policy | Decisions searched | Search disagrees | Makes 32768 | vs greedy | Conversion gain recovered | Score added | vs greedy | Score gain recovered | Score per 1,000 searches |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Greedy | 0% | — | 10.9% | — | — | 159,989 | — | — | — |
+| Closest 10% | 11.0% | 53.5% | 12.8% | +2.0pp ± 2.5 | 27% | 167,550 | +7.6k ± 5.8k | 19% | 10,311 |
+| Closest 25% | 27.5% | 48.5% | 13.4% | +2.5pp ± 2.2 | 35% | 169,791 | +9.8k ± 5.4k | 24% | 5,269 |
+| **Closest 50%** | 52.7% | 42.5% | 15.7% | +4.9pp ± 2.6 | **68%** | 176,433 | +16.4k ± 6.2k | 41% | 4,478 |
+| Band 10–25% | 16.1% | 45.5% | 13.3% | +2.4pp ± 2.4 | 34% | 166,562 | +6.6k ± 6.2k | 16% | 6,146 |
+| Band 25–50% | 25.8% | 36.3% | 16.0% | +5.2pp ± 2.6 | 73% | 175,120 | +15.1k ± 6.3k | 38% | 8,505 |
+| Band 50–75% | 25.6% | 27.8% | 14.3% | +3.4pp ± 2.4 | 48% | 173,960 | +14.0k ± 6.0k | 35% | 7,891 |
+| Band 75–100% | 25.7% | 15.9% | 13.1% | +2.3pp ± 2.5 | 32% | 178,927 | +18.9k ± 6.0k | 47% | 10,349 |
+| Every late decision | 100% | 32.7% | 18.0% | +7.1pp ± 2.7 | 100% | 200,167 | +40.2k ± 6.0k | 100% | 5,105 |
+
+- **Search's gain is spread across every margin, not concentrated in close calls.** The widest-margin quarter, where search disagrees only 16% of the time, recovers the most score per search: when search overrules a clear greedy preference, it tends to matter. A small margin isn't evidence the move is wrong.
+- **The bands roughly add up,** so their gains are largely independent.
+- **The automatic rule** took the narrowest closest-X% band to recover at least half the conversion gain: the closest 50% (relative margin below 0.00189). The ranking threshold for arm C is the median of search's relative preference over 873 dev disagreements (0.000268).
+
+**The arms,** each 50k games from the 2M network with the coherence sums fully reset, the recipe otherwise unchanged, on 8 threads:
+- **A:** plain TD(0), the control.
+- **B:** TD(0) on selectively guided play. Late decisions in the chosen band are searched to depth 3 and search's move is played, so TD learns along the better trajectory.
+- **C1 and C2:** B plus a ranking update wherever search disagrees by more than the threshold. It raises search's afterstate and lowers greedy's until `rank_step` (0.1 or 0.25) of the gap between them, plus a margin of 1, is closed, exactly, allowing for weights the two afterstates share.
+
+**Evaluation** (dev): 198 first-16384 positions with 32 greedy and 8 depth-3 continuations each, and 1,000 full games on seeds 10,000–10,999, greedy and at exact depth 3, all paired with the baseline on the same spawns.
+
+| Arm | Dev greedy conversion | Dev greedy score added | Dev depth-3 conversion | Dev depth-3 score added | Full greedy | Full depth 3 | 32768, full depth 3 | Late moves changed |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Baseline | 11.7% | 162,726 | 18.0% | 200,167 | 316,674 | 393,606 | 16.6% | — |
+| A | −2.4pp ± 1.2 | −11.3k ± 2.9k | +0.3pp ± 2.5 | −4.6k ± 5.9k | **−25.8k ± 10.3k** | −6.9k ± 9.3k | 17.5% | 18.4% |
+| B | −1.9pp ± 1.1 | −15.4k ± 2.9k | −0.5pp ± 2.7 | −2.6k ± 6.1k | **−37.6k ± 10.6k** | −6.2k ± 9.0k | 15.6% | 21.2% |
+| **B − A** | +0.4pp ± 1.1 | **−4.0k ± 2.6k** | −0.8pp ± 2.5 | +1.9k ± 5.9k | **−11.8k ± 10.5k** | +0.7k ± 9.5k | | |
+
+C1 and C2 stopped at their first checkpoint, 10k games in, when the disk filled (below). Their training play was already clearly worse than A's and B's over the same games, and worse with the larger step:
+
+| Games 2.005M–2.01M, training play | Average score | Reaches 16384 |
+|---|---:|---:|
+| A | 257–269k | 59–62% |
+| B | 271–282k | 58–64% |
+| C1 (step 0.1) | 243–249k | 50–53% |
+| C2 (step 0.25) | 210–222k | 40–45% |
+
+**Cost:** A took 4 minutes (487M moves). B took 2.4 hours (509M moves). It searched 121M decisions, 24% of all moves, since late-game starts make the late game a large share of play. Search disagreed with greedy on 46% of them, at about 64 chance nodes each.
+
+- **Most of A's and B's loss against the baseline is the reset.** Round 2 found that a second full reset from this network needs about 350k games to recover, and both arms' training averages were still about 20k below the 315k level at 50k games. A and B carry the same dip, so B − A isolates the guidance.
+- **Guidance added nothing.** B is level with A at depth 3 and slightly behind it greedy. Its training games scored higher, at 8–12% 32768s against A's 6–8%, but that was the search playing, not the network learning.
+- **Ranking updates actively hurt, more so at the larger step.** This is stage 3's lesson again: the base's late move margins are about 2 points, and nudging values to fix one decision disturbs many others.
+- **Why selective search works in play but not as a teacher.** Search fixes individual decisions by looking ahead. TD along its trajectories still learns the same values, and stage 1 found the problem is that those values alias, a first 16384 valued like a first 8192, not which positions are visited. Better trajectories don't give the network a way to tell those positions apart.
+- **Not run:**
+  - A rerun without the reset. It would only matter if A had come out below B.
+  - A depth-4 teacher, meant for the case where greedy improves but depth 3 doesn't. Neither improved.
+
+**What went wrong overnight:** the disk filled at about 03:45, and the chain logged every failure as a success because of how it piped its output. B's final checkpoint saved, but C1 and C2 died at their first save, and the baseline's and A's evaluations ran but couldn't be written. They were rerun the next morning. Future chains check each step's real exit code and the free disk space first.
+
+**Verdict: stage 5 is unsuccessful.** Search remains the strongest late-game tool at play time, but neither its trajectories nor its rankings teach this network to convert. That points at what stage 1 found: the late-game weights are shared with the 8192 stage through downgrading, so the late game can't learn values of its own.
+
+### Stage 6: a dedicated late-game network
+
+The question: can a second network, trained only on the late game, beat the 2M network after its first 16384? Rounds 5–12B gave a second stage its own weights inside one network, and it stayed 12–23k behind every time. Round 10 found the reason: with downgrading, the late game's updates were also training the 8192 stage, and splitting cut that off. Here **stage 1 is the 2M network, frozen**, so it can't lose anything, and **stage 2 learns only from genuine first-16384 positions**, where stage 1's aliasing (a first 16384 valued like a first 8192) can't reach it (`scripts/late_network.py`, results in [`late-network`](late-network/)).
+
+**Design:**
+- **Architecture:** the existing second-stage support, with the stage chosen by the board a move is made from, at every node of depth-3 search too. Stage 2 is the same 8×6 network, downgrading from 16384, with fresh temporal coherence sums.
+- **Starting points:** stage 2 a copy of the 2M network, a copy of the long run's 500k network, or zeros (scratch).
+- **Rates:** 0.02 and 0.005 for each start (0.00125 was deferred, then dropped once 0.005 showed lower rates only delay recovery).
+- **Training:** every game starts from a position drawn from a fixed pool (`NTUPLE_START_POOL`) and runs to the end; it never adds to or upgrades the pool. Every board in it holds a 16384, so only stage 2 is read or updated.
+- **Positions:** greedy games of the 2M network cut at the first 16384 plus its spawn (`first_board`), one per game, deduplicated: 100,000 for training (from 168k games; 25k were exact repeats, since the cascade that makes a 16384 leaves a nearly empty board), 5,000 dev and 5,000 test, plus 2,000 dev and test entries from depth-3 play and from the long run's 1.5M network. Seed ranges are disjoint from each other and from everything earlier.
+- **Checks before training, all passed** (`checks.json`): the 2M-copy start plays exactly as the 2M network (values, moves, 1,000 greedy and 50 depth-3 games, and boards just before a 16384 forms); every start's stage 1 is the 2M network and its stage 2 its source. Every evaluation also confirmed stage 1 byte-identical.
+- **Evaluation**, paired with the control on the same positions and spawns: greedy continuations from the 5,000 dev positions (2 each) every 100k continuations; depth-3 continuations from 1,000 of them and 1,000 full games (seeds 10,000–10,999) at 500k, 1M and 1.5M.
+- **A faster depth-3 evaluation:** stage 1 is frozen, so every arm plays the control's exact moves until a search could first reach a 16384 (tile sum plus 8 below 16384). That shared prefix, about half of each game, is played once (`play_prefix`), checked to reproduce the control's 2,000 stored depth-3 games exactly, and each arm plays on from it, cutting a depth-3 evaluation from 25 to 15 minutes.
+- **Cost:** about 45 minutes of training per 1M continuations on 8 threads (about 5,000–6,500 moves each).
+
+**Results** (dev continuations' score added and 32768 rate, full games; ± 95%, paired with the control):
+
+| Arm | Continuations | Dev score added | Dev makes 32768 | Full greedy | Full depth 3 | Depth-3 ≥32768 |
+|---|---:|---:|---:|---:|---:|---:|
+| **Control: the 2M network alone** | — | **161.4k** | **11.2%** | **316.7k** | **393.6k** | **16.6%** |
+| 2M copy, 0.02 | 1M | 164.0k (+2.6k ± 2.2) | 12.5% (+1.3 ± 0.9) | 316.8k (+0.2k ± 5.9) | 382.5k (−11.1k ± 6.9) | 11.4% |
+| 500k copy, 0.02 | 1M | 162.0k (+0.6k ± 2.2) | 12.4% (+1.2 ± 0.9) | 317.0k (+0.3k ± 6.1) | 375.7k (−17.9k ± 6.8) | 8.5% |
+| Scratch, 0.02 | 1M | 138.2k (−23.2k ± 2.1) | 6.9% (−4.4 ± 0.8) | 298.3k (−18.3k ± 5.7) | 377.6k (−16.0k ± 7.3) | 11.6% |
+| Scratch, 0.02 | 1.5M | 151.0k (−10.4k ± 2.2) | 10.7% (−0.5 ± 0.9) | 305.4k (−11.3k ± 6.1) | 383.1k (−10.5k ± 7.4) | 12.0% |
+| Scratch, 0.02 | 2M | 157.0k (−4.4k ± 2.3) | 12.3% (+1.1 ± 0.9) | 308.8k (−7.9k ± 6.4) | not run | |
+| Scratch, 0.02, reset at 2M | 3M | 159.5k (−1.9k ± 2.2) | 11.0% (−0.2 ± 0.9) | 316.3k (−0.4k ± 6.6) | not run | |
+| 2M copy, 0.005 | 1.5M | 159.9k (−1.5k ± 2.2) | 11.7% (+0.4 ± 0.9) | 313.8k (−2.9k ± 5.8) | 371.6k (−22.0k ± 6.5) | 7.9% |
+| 500k copy, 0.005 | 1.5M | 154.3k (−7.1k ± 2.2) | 9.8% (−1.4 ± 0.8) | 309.1k (−7.6k ± 6.0) | 371.4k (−22.2k ± 6.5) | 7.2% |
+| Scratch, 0.005 | 1.5M | 122.3k (−39.1k ± 1.8) | 1.4% (−9.9 ± 0.7) | 290.1k (−26.6k ± 5.1) | 372.7k (−20.9k ± 7.1) | 11.7% |
+
+- **The copies at 0.02 dip and recover to the control's level.** Fresh coherence sums put every weight back at full rate: both fell about 60k by 100k continuations, were level by about 700k, and flattened there (+0.5–1k per 100k), with a borderline greedy gain in conversion (+1.2–1.3 points) that full games don't show.
+- **At 0.005 the dip is shallower but lasts far longer.** Both copies stalled 40–47k below the control until about 600k, then climbed, flattening by 1.5M at or below the 0.02 arms. The copied values overrate the late game (stage 1: by about half), and a slow rate leaves them half-corrected, with move rankings scrambled, for longer. A lower rate didn't give a higher plateau.
+- **What's copied barely matters by 1M:** the 500k and 2M copies follow almost the same path at each rate.
+- **Scratch learns the late game from nothing.** At 0.02 it reached the control's greedy conversion by about 1.6M (12.3% at 2M) and was still improving slowly (about +1k per 100k in training), 4k short on score added. At 0.005 it was still far behind at 1.5M.
+- **Every arm is worse under depth-3 search,** by 10–27k, with 7–12% 32768s against 16.6%, whatever its start, rate or greedy level. Search compresses their greedy differences (scratch at 0.005, 39k behind greedy, is 21k behind at depth 3) but never closes the gap. Stage 7 explains why: search's gain comes from many small improvements spread over every late move, so values that are slightly less precise everywhere cost it even where greedy play is level.
+
+- **A coherence reset for scratch doesn't lift its plateau.** Branched from the arm at 2M with its sums reset and trained to 3M: the training average fell from about 156k to 128k, recovered within about 100k continuations, then took until about 2.8M to get back to the 2M level. At 3M it's level with the control greedy (−1.9k ± 2.2 added, −0.4k ± 6.6 in full games), about where the arm without the reset was heading anyway (still +1k per 100k in training at 2M, and that continuation wasn't run). The reset came while scratch was still learning, not at a stall, so it mostly cost it the dip, as round 2's second reset did.
+- **The depth-3 evaluations at 2M and 3M were cancelled**, on the user's call: every arm had already shown the same depth-3 shortfall, and this branch's greedy result didn't call for them.
+
+**Verdict: a dedicated late-game network doesn't beat the single 2M network at this scale.** Trained only on genuine late positions, with stage 1 protected, it can match the 2M network's greedy late game, and from scratch in about 1.6M continuations, but it stays clearly behind under search, which is how the agent plays. The late game's shortfall isn't the sharing between stages that rounds 5–12B and stage 1 pointed at: removing it entirely leaves the depth-3 gap in place.
+
+## Finishing the late game
+
+Stages 0 to 6 above found that the gap is the step from 16384 to 32768, and that neither a late correction nor a dedicated late network closes it. This section covers what came next: a longer search for the best single network (the methods batch), a closer look at where the last step fails, and two changes that did help, a search-taught finisher and expected backups. Play is greedy throughout unless a line says otherwise.
+
+**Where it stands:** the best greedy player scores about 351k after 6.65M training games, with 32768 in about 18% of games.
+
+| Player | Seeds 0–4,999 and 20,000–24,999 | Seeds 30,000–69,999 | ≥32768 (40,000 games) | 16384 → 32768 |
+|---|---:|---:|---:|---:|
+| 6.4M network | 338,136 | 336,604 | 12.8% | 16.1% |
+| 6.4M + finisher | 344,197 | 341,733 | 15.8% | 19.9% |
+| 6.4M + finisher with a work-area table | 344,508 | 343,432 | 16.7% | 21.0% |
+| 6.65M network (expected backups from 6.4M) | 342,289 | 341,558 | 13.2% | 16.3% |
+| 6.65M + finisher with a work-area table | 350,932 | 349,491 | 17.8% | 22.0% |
+| **6.65M + that finisher and one before 16384** | **350,603** | **351,587** | **17.9%** | **21.9%** |
+
+- **How these are measured:** every player plays the same seeded games, so differences are paired game by game (`paired-games/compare.py`, with every player's games kept in [`paired-games/games`](paired-games/games) and the tables in [`paired-games/tables`](paired-games/tables)). The second seed set scores every player about 1.5k lower, so compare within a column. In this section ± is one standard error unless a line says 95%.
+- **For scale** ([RELATED_WORK.md](RELATED_WORK.md)): Guei's single-stage 8×6 scores 370,194 greedy with 32768 in 22.2% of games after 100M games, and his 2-stage network 412,785.
+
+### The methods batch: the best single network
+
+`scripts/methods.py` trains the 8×6 under different learning rules and schedules, each as its own run `methods-8x6-<arm>`. The table is 5,000 greedy games per network ([`final-5000`](final-5000/)).
+
+| Network | Games | Greedy | ≥16384 | ≥32768 |
+|---|---:|---:|---:|---:|
+| Round 1's TC reset (the earlier best) | 2M | 312,066 | 74.5% | 7.8% |
+| The same recipe carried on at 0.02 | 5M | 321,905 | 77.3% | 9.2% |
+| | 8M | 327,467 | 78.5% | 9.6% |
+| | 10M | 326,595 | 78.6% | 9.3% |
+| Carried on at 0.005 from 8M | 10M | 330,548 | 80.2% | 9.4% |
+| | 13M | 328,369 | 78.8% | 9.6% |
+| Carried on at 0.002 | 12M | 326,081 | 77.9% | 9.6% |
+| With a large-tile count term from the first game | 10M | 329,993 | 79.3% | 9.1% |
+| **From scratch, moving on at each stall** | **4.6M** | **335,011** | 79.7% | **12.1%** |
+| The same after a further phase at 0.00125 | 5.6M | 331,217 | 78.8% | 12.0% |
+| **A second reset from 4.6M** | **6.4M** | **338,547** | 79.9% | **12.9%** |
+| A second stage on the 2M network, trained on its own | 2M + 6.2M | 316,797 | 74.5% | 8.0% |
+| A second stage on the 10M network carried on at 0.005 | 10M + 8.6M | 331,948 | 80.2% | 10.2% |
+| Stage 1 ending at 16384 with a bonus of 160k | 12M | 241,409 | 79.6% | 0.0% |
+
+- **More games on the best recipe buy nothing.** From 2M to 8M it gains 15k, then it's flat to 13M at any rate tried.
+- **Moving on at each stall is the best schedule** (`scratch-stall`): 0.02 from zero until training stalls (2.4M), a reset of the temporal coherence sums at 0.02 (to 3.6M), then 0.005 (to 4.6M). It beats the 10M networks with under half their games, and reaches 32768 in a third more games.
+- **A second reset still pays a little** (`second-reset`): reset at 4.6M, 0.02 to 5.8M, then 0.005 to a stall at 6.4M, for +3.5k. This 6.4M network is the base for everything below.
+- **A second stage trained by TD only matches its base,** on the 2M network and on the 10M one, whatever its rate. That agrees with rounds 5 to 12B and stage 6.
+- **A first stage that ends at 16384** never learns anything past it, as downgrading from 32768 didn't.
+- **Other learning rules from scratch lose to temporal coherence at this budget.** At 3M games, on 1,000 games each: TC at 0.005 scores 288k, plain TD at 0.1 a board 276k, with a TC finish 285k, Yeh's stall rule 269k and with a TC finish 296k. Plain TD from optimistic weights reaches 308k at 5.5M. The stall schedule is at 321k by 3M.
+
+### Where games are lost
+
+- **The search-gain map** (`scripts/search_gain.py`, [`search-gain-stage1`](search-gain-stage1/report-g16384.md)): from boards at every point of the 4096 and 8192 stages of the 2M network's games, depth-3 search makes the 16384 in 91–95% where greedy play makes it in 76–86%. The gain is spread over the whole stretch, 12–23 points at every point but the last.
+- **Teaching the network that search in its own weights** (`scripts/teach_window.py`) made play collapse; `scripts/teach_diagnose.py` and [`teach-stage1/diagnose.txt`](teach-stage1/diagnose.txt) record why.
+- **The failure anatomy** (`scripts/failure_anatomy.py`, [`failure-anatomy`](failure-anatomy/)): of 5,000 greedy games of a 10M network, 96.1% reach 8192 and 83.2% of those go on to 16384. Of the games that end in the 8192 stage, the largest tile had left its corner in 73%, by a forced move in 28% and a chosen one in 45%.
+- **The arrival test** (`scripts/arrival_test.py`): a game arrives when it first holds 16384, 8192, 4096 and 2048. From well-placed arrivals (about 9 in 10 of them), how far greedy continuations get:
+
+  | Chain complete down to | 2M network | 6.4M network | Survival of that step (6.4M) |
+  |---|---:|---:|---:|
+  | 2048 (arrival) | 100% | 100% | — |
+  | 1024 | 90.7% | 91.1% | 91% |
+  | 512 | 77.5% | 78.7% | 86% |
+  | 256 | 66.8% | 69.3% | 88% |
+  | 128 | 58.6% | 60.6% | 87% |
+  | 32768 made | 24.4% | 29.4% | **49%** |
+
+  - **The last stretch is the outlier.** Every earlier step keeps 86–91% of what's left, and the stretch after the 128 keeps half.
+  - **Positions don't differ much in their chances.** On the 2M network, well-placed arrivals convert at 24.4% with a spread of only 1.7 points between positions, so the outcome is decided later.
+- **The deep finish** (`scripts/deep_finish.py`, [`deep-finish`](deep-finish/report.md)): searching 8 moves ahead only in the last 64 of tile sum before a 32768 lifts conversion from well-placed arrivals from 23.9% to 39.2%, and whole games of the 2M network by +11.8k ± 3.2k (95%), with 9 searched moves a game. Searching the last 256 instead gives no more (39.3%). So the teachable gain is all in the last 64.
+
+### The finisher
+
+A second set of weights that plays only one window of the game: boards whose largest tile is 16384 and whose tiles sum to within 64 of 32768 (`deep_2048/agents/ntuple/finisher.py`, `scripts/finisher.py`). It starts as a copy of the base, so an untrained finisher plays exactly as the base, and the base's weights are never touched. Search is used only to train it.
+
+- **The teacher** is the frozen base searching 8 moves ahead. Every attempt starts from a real board at the window's edge and plays to its end.
+- **Value matching** moves every legal move's value towards the teacher's at every decision. On the 6.4M network it scores 341,359 with 32768 in 15.0% of 10,000 games.
+- **Learning from mistakes only** (`--mistakes`) changes nothing where the finisher already picks the teacher's move. Where it picks another, it closes the gap between the two moves, half from each. It scores **344,197** with 32768 in 16.5%, +6,061 ± 563 over the base. Value matching undoes choices the base had right, through weights that boards share, and this leaves them alone.
+  - Half the attempts follow the finisher's own move and half the teacher's. All of either does worse.
+  - Stronger teachers, longer training, averaged patches and a play-time gate add nothing.
+- **A work-area table** (`--area`, `network.AreaLayout`): one more table, read only in the window, that takes the half of the board without the large tiles as a single 8-cell pattern (tiles up to 128, 16.7M weights). Late in a build the large tiles fill the other half, so those 8 cells are everything that changes, and each 6-cell tuple sees only part of them. A half like that is present on 98% of the window's boards.
+
+  | From the window's edge (2,169 boards × 16 continuations) | Makes 32768 | vs the base (± 1 se) |
+  |---|---:|---:|
+  | Base (6.4M) | 49.4% | — |
+  | Finisher | 60.3% | +10.9 ± 0.4 |
+  | The same trained to 100k attempts | 60.9% | +11.5 ± 0.4 |
+  | **Finisher with the work-area table** | **63.9%** | **+14.5 ± 0.4** |
+  | The teacher's search | 68.1% | |
+
+  - **The finisher was limited by what it could represent, not by its teacher.** It fitted its training boards no better than unseen ones, and four extra 6-cell shapes or Jaśkowski's small tuples changed nothing. With the table it goes from about 58% of the teacher's gain to about 78%.
+  - **In whole games** it adds +1,698 ± 253 over the plain finisher on 40,000 games (+311 ± 520 on the first 10,000, which was an unlucky draw), and +0.9 points of 32768.
+  - **Without a teacher it fails** (`--td`, the table learning alone by TD(0) from the finisher's own play): −10 to −19 points from the window at every rate tried. TD only revalues the afterstates that are played, the rejected moves keep the base's higher values, and play drifts to them. The teacher values every legal move.
+- **Before 16384 a finisher adds a little, once measured on enough games.** Over the last 1,024 of tile sum before a 16384:
+  - Value matching makes play collapse, and mistakes mode with a depth-8 or depth-3 teacher ends at or below the base.
+  - **A rollout teacher** (`--rollout`) scores each move by the base's own greedy rollouts and overrides greedy play only above 2 standard errors, so its moves are good given that greedy play follows. As a player it makes the 16384 in 93.1% from the window against 88.9% (+4.2 ± 0.9). The finisher taught by it keeps +1.1 of that in the window, and on 10,000 whole games of the 6.4M network gives −1.2k ± 1.3k alone and −2.0k ± 1.4k alongside the 32768 finisher.
+  - **On the 6.65M network, with a work-area table and 50,000 games,** the same finisher ends +0.8 points from the window, no better than without the table, but whole games show a small gain: +1.8k ± 0.6k alone, with 16384 in +0.9 ± 0.2 points more games and the 32768 rate unchanged. Alongside the 32768 finisher (`combine_windows`) it adds +1.6k ± 0.7k (−0.3k ± 1.5k on the first 10,000 games, +2.1k ± 0.7k on the other 40,000). The 10,000-game comparisons above were too small to see a gain of this size. A matched run without the table wasn't finished, so the table can't be credited with it.
+- **Supplementary, with search at play time:** the 6.4M network and its finisher, searching 3 moves ahead over the last 4,096 before a 16384 and 8 moves over the last 64 before a 32768, score 364,837 (+20.6k ± 1.5k), with about 1,750 searched moves a game. Depth 3 over the stretch before a 32768 costs 9.5k.
+
+### Expected backups
+
+Greedy play is about 80k behind depth-3 search on the same network (320k against 402k at 2M games), and about 65% of the TD error's variance is the luck of one spawn. With `NTUPLE_EXPECTED_BACKUP_EMPTY=K`, an afterstate with at most K empty cells learns towards the mean, over every spawn, of the best next move's value. Three arms carry the 6.4M network on to 6.9M at 0.005 with its sums kept, differing only in K. Each difference is against the control at the same games, on 50,000 paired games.
+
+| Arm | Speed | Training games' average | At 6.65M | At 6.9M |
+|---|---:|---:|---:|---:|
+| Control (K = 0) | 1× | 337,827 | +0.0k ± 0.8k vs 6.4M | +1.4k ± 0.8k vs 6.4M |
+| K = 4 | 0.45× | 339,496 | +1.6k ± 0.8k | +1.0k ± 0.8k |
+| K = 8 | 0.3× | 340,512 | **+4.8k ± 0.8k** | +0.4k ± 0.8k |
+
+- **The gain is real but small:** about +2.6k for K = 8 and +1.3k for K = 4 averaged over the two snapshots, in line with the leads in the training games (+2.7k and +1.7k over 500k games).
+- **Snapshots of one run wander by about ±2k,** as much as the effect, so single snapshots can't be compared at this scale.
+- **K = 8 at 6.65M is the best single network measured:** 341,558 on 40,000 fresh games against 336,604 for 6.4M. It costs compute but no games.
+- **A finisher fitted on it gains more than on 6.4M** (+7.9k ± 0.3k against +6.8k ± 0.3k), which gives the 350k player in the table at the top of this section.
+
+### Averaging one lineage's snapshots
+
+Guei's thesis reports a single-stage 8×6 at 415,945 from resetting the coherence sums every 1M games and averaging the snapshots, over 400M games. Averaging the snapshots this lineage already has gives nothing (10,000 paired games against 6.4M):
+
+| Average | Greedy | vs 6.4M (± 1 se) |
+|---|---:|---:|
+| 4.6M + 6.4M | 336,960 | −1,175 ± 1,814 |
+| 4.6M + 5.8M + 6.4M | 339,510 | +1,374 ± 1,827 |
+| 3.6M + 4.6M + 5.6M + 5.8M + 6.4M | 334,036 | −4,099 ± 1,820 |
+
+The averages don't collapse, as averaging two unrelated runs did, but they add nothing: these snapshots are settled at a low rate, with little noise left to average out. Two reset cycles can't say what hundreds would do.
+
 ## Final training run
 
 The end goal is a single multi-day training run that produces the final model. The short tests above exist to choose its setup.
@@ -775,7 +1291,9 @@ The end goal is a single multi-day training run that produces the final model. T
 
 ## Next experiments
 
-Where things stand, as of these runs:
+This list predates the late-game diagnostics. [Finishing the late game](#finishing-the-late-game) has the current best agent and what has been tried since.
+
+Where things stood, as of the decision arms:
 - **The [long run](#the-long-run)** reached 300k greedy and 365k at 3-ply after 1.5M games. That's more sample-efficient than any n-tuple result in [RELATED_WORK.md](RELATED_WORK.md).
 - **[Faster search](#faster-search)** made evaluation cheap, but deeper search added only 3%.
 - **[TD(λ)](#tdλ-across-seeds)** hurts at this rate and budget in every variant, and is dropped.
