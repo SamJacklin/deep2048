@@ -333,8 +333,10 @@ class FinisherNetwork:
 
     def __init__(self, base: NTupleNetwork, base_checkpoint: str | Path, base_sha256: str, top: int, margin: int, progress: dict[str, Any] | None = None,
                  extra: tuple[tuple[int, ...], ...] = (), area: bool = False) -> None:
-        if base.stage_tile is not None or base.scale_feature or base.small_tables:
-            raise ValueError("The finisher needs a single-stage base without a scale term or small-tile tables")
+        if base.stage_tile is not None or base.scale_feature:
+            raise ValueError("The finisher needs a single-stage base without a scale term")
+        if base.small_tables and extra:
+            raise ValueError("Extra tuples can't be added to a base with small-tile tables")
         if not 0 < margin < 1 << top:
             raise ValueError(f"margin must be between 1 and {(1 << top) - 1}, not {margin}")
         self.base_checkpoint, self.base_sha256 = str(base_checkpoint), base_sha256
@@ -346,7 +348,8 @@ class FinisherNetwork:
         self.base_size = base.weights.size
         zeros = np.zeros(sum(16 ** len(t) for t in self.extra), dtype=base.weights.dtype)
         self.first = self.base_size + zeros.size
-        layout = TupleLayout.build(tuple(base.tuples) + self.extra, base.downgrade_tile, stage_tile=1 << top, downgrade_repeat=base.downgrade_repeat)
+        # A base's small-tile tables are copied with its tuples', so the window learns its own (the same pattern as `area`)
+        layout = TupleLayout.build(tuple(base.tuples) + self.extra, base.downgrade_tile, stage_tile=1 << top, downgrade_repeat=base.downgrade_repeat, small_tables=base.small_tables)
         layout = layout._replace(sharing=layout.sharing._replace(stage_sum=self.low))
         # `area` adds a work-area table after the window's stage, from zero weights, so play still starts as the base's
         self.area = area

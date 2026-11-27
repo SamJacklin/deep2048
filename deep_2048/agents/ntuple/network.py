@@ -129,7 +129,9 @@ class TupleLayout(NamedTuple):
             offsets[t] = table_start
             table_start += 16 ** len(cells)
 
-        # A second stage is a second copy of every tuple's table, after the first
+        # The small-tile tables follow the tuples'. A second stage is a second copy of every table, theirs included
+        small_offset = table_start if small_tables else -1
+        table_start += SMALL_TABLES * AREA_WEIGHTS if small_tables else 0
         stage_size = table_start if stage_tile is not None else 0
         table_start += stage_size
         sharing = None
@@ -141,8 +143,8 @@ class TupleLayout(NamedTuple):
             raise ValueError(f"scale_below_tile must be a power of two, not {scale_below_tile}")
         if downgrade_repeat and downgrade_tile is None:
             raise ValueError("downgrade_repeat needs downgrade_tile")
-        if small_tables and stage_tile is not None:
-            raise ValueError("small_tables needs a single stage")
+        if small_tables and scale_feature:
+            raise ValueError("small_tables can't be combined with the scale feature")
         n_weights = table_start + (SCALE_WEIGHTS if scale_feature else 0)
         if downgrade_tile is not None or scale_feature or stage_tile is not None or small_tables:
             downgrade_exponent = 0 if downgrade_tile is None else downgrade_tile.bit_length() - 1
@@ -159,7 +161,7 @@ class TupleLayout(NamedTuple):
                 scale_below_exponent=0 if scale_below_tile is None else scale_below_tile.bit_length() - 1,
                 scale_by_state=scale_by_state,
                 downgrade_repeat=downgrade_repeat,
-                small_offset=n_weights if small_tables else -1,
+                small_offset=small_offset,
             )
         return cls(
             offsets=offsets,
@@ -167,7 +169,7 @@ class TupleLayout(NamedTuple):
             shifts=shifts,
             masks=masks,
             dests=dests,
-            n_weights=n_weights + (SMALL_TABLES * AREA_WEIGHTS if small_tables else 0),
+            n_weights=n_weights,
             sharing=sharing,
         )
 
@@ -217,7 +219,8 @@ class ScaleSharing(NamedTuple):
     downgrade_repeat: bool = False
     # From 0 up, two more tables start there, each indexed by 8 cells holding nothing above 128: the top two rows
     # (area_index) and the middle two. Every board reads them, from the real board, once for each symmetry whose cells
-    # qualify. A 6-cell tuple sees only part of the half of the board where the small tiles are worked.
+    # qualify. A 6-cell tuple sees only part of the half of the board where the small tiles are worked. Each stage has
+    # its own copy, at the same place within the stage.
     small_offset: int = -1
 
 
@@ -513,17 +516,27 @@ def _area_value(weights: np.ndarray, layout: AreaLayout, board: np.uint64, state
 
 
 def fill_indices(layout: "TupleLayout | AreaLayout", board: np.uint64, state: np.uint64, indices: np.ndarray) -> int:
-    """fill_weight_indices() for either layout: an AreaLayout's work-area weights follow its tuples'. Numba only."""
+    """Every weight evaluate() reads, for either layout: the tuples', then the stage's small-tile weights, then an
+    AreaLayout's work-area weights. Numba only."""
     raise NotImplementedError
+
+
+@njit
+def _fill_with_small(layout: TupleLayout, board: np.uint64, state: np.uint64, indices: np.ndarray) -> int:
+    k = fill_weight_indices(layout, board, state, indices)
+    small = _small_offset(layout)
+    if small >= 0:
+        k = fill_small_indices(_stage_offset(layout, state) + small, board, indices, k)
+    return k
 
 
 @overload(fill_indices)
 def _fill_indices_overload(layout, board, state, indices):  # type: ignore[no-untyped-def]
     if not _is_area(layout):
-        return lambda layout, board, state, indices: fill_weight_indices(layout, board, state, indices)
+        return lambda layout, board, state, indices: _fill_with_small(layout, board, state, indices)
 
     def with_area(layout, board, state, indices):  # type: ignore[no-untyped-def]
-        k = fill_weight_indices(layout.base, board, state, indices)
+        k = _fill_with_small(layout.base, board, state, indices)
         start = _area_start(layout, state)
         if start >= 0:
             for symmetric_board in bb.symmetries(board):
@@ -574,7 +587,7 @@ def _tuple_value(weights: np.ndarray, layout: TupleLayout, board: np.uint64, sta
         total += weights[scale]
     small = _small_offset(layout)
     if small >= 0:
-        total += _small_value(weights, small, board)
+        total += _small_value(weights, stage + small, board)
     return total
 
 
@@ -585,7 +598,7 @@ def weight_indices(layout: TupleLayout, board: np.uint64, state: np.uint64) -> n
     k = fill_weight_indices(layout, board, state, indices)
     small = _small_offset(layout)
     if small >= 0:
-        k = fill_small_indices(small, board, indices, k)
+        k = fill_small_indices(_stage_offset(layout, state) + small, board, indices, k)
     return indices[:k]
 
 
@@ -622,7 +635,7 @@ def update(weights: np.ndarray, layout: TupleLayout, board: np.uint64, state: np
         weights[scale] += delta * _scale_rate(layout)
     small = _small_offset(layout)
     if small >= 0:
-        _small_update(weights, small, board, delta)
+        _small_update(weights, stage + small, board, delta)
 
 
 @njit
@@ -682,7 +695,7 @@ def update_coherent(weights: np.ndarray, traces: CoherenceTraces, layout: TupleL
         _update_coherent_weight(weights, traces, scale, learning_rate * _scale_rate(layout), error)
     small = _small_offset(layout)
     if small >= 0:
-        _small_update_coherent(weights, traces, small, board, learning_rate, error)
+        _small_update_coherent(weights, traces, stage + small, board, learning_rate, error)
 
 
 @njit(inline="always")

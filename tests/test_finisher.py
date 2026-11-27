@@ -304,3 +304,37 @@ def test_two_windows_play_each_finisher_in_its_own_window_and_the_base_elsewhere
             assert evaluate(weights, layout, after, state) == expected
     with pytest.raises(ValueError):
         combine_windows(tmp_path / f"finisher-{TOP - 1}.npz", tmp_path / f"finisher-{TOP}.npz")
+
+
+def test_a_base_with_small_tile_tables_gives_each_window_its_own_copy(tmp_path: Path) -> None:
+    network = NTupleNetwork(tuples=SMALL_TUPLES, downgrade_tile=None, small_tables=True)
+    network.weights[:] = np.random.default_rng(7).normal(scale=10, size=network.weights.shape)
+    path = tmp_path / "base.npz"
+    network.save(path, CheckpointMetadata(games_played=0, moves_played=0, learning_rate=0.0, temporal_coherence=False))
+    base, _ = NTupleNetwork.load(path)
+    small = base.layout.sharing.small_offset
+    lower = board([[512, 256, 128, 32], [16, 8, 4, 2], [2, 0, 0, 0], [0] * 4])  # largest 512, sums to 960: the lower window
+    trained = []
+    for top, start in ((TOP, INSIDE), (TOP - 1, lower)):
+        finisher = FinisherNetwork.from_base(path, top, MARGIN)
+        assert finisher.first == base.weights.size and finisher.weights.size == 2 * finisher.first
+        for seed in range(3):  # untrained, it plays exactly as the base
+            assert _play_from(finisher.weights, finisher.layout, start, 1, 0.0, np.random.default_rng(seed)) == _play_from(base.weights, base.layout, start, 1, 0.0, np.random.default_rng(seed))
+        errors, abs_errors = np.zeros(finisher.first), np.zeros(finisher.first)
+        train_attempts(finisher.weights, errors, abs_errors, finisher.layout, finisher.base_layout, np.array([start], dtype=np.uint64), 20, 2, 0.0, 0.01, top, finisher.low,
+                       finisher.first, 0.5, False, 3)
+        assert finisher.base_unchanged(base)
+        assert (finisher.weights[finisher.first + small :] != base.weights[small:]).any()  # the window's own small-tile tables learned
+        finisher.progress = {"attempts": 20}
+        finisher.save(tmp_path / f"finisher-{top}.npz")
+        assert np.array_equal(FinisherNetwork.load(tmp_path / f"finisher-{top}.npz").weights, finisher.weights)
+        trained.append(finisher)
+    weights, layout = combine_windows(tmp_path / f"finisher-{TOP}.npz", tmp_path / f"finisher-{TOP - 1}.npz")
+    for state, net in ((INSIDE, trained[0]), (lower, trained[1]), (BEFORE, None)):
+        for action in range(4):
+            after = np.uint64(bb.move(state, action)[0])
+            if after != state:
+                expected = evaluate(base.weights, base.layout, after, state) if net is None else evaluate(net.weights, net.layout, after, state)
+                assert evaluate(weights, layout, after, state) == expected
+    with pytest.raises(ValueError):
+        FinisherNetwork.from_base(path, TOP, MARGIN, extra=((0, 1),))
