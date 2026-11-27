@@ -212,6 +212,22 @@ A4 goes into the final base's last phase, with expected backups. A3 and A5 don't
 - **Against 400k:** 16384 in 84.0% of games and conversion 27.1%, against roughly 85% and 35%. With repeated halving, games that reach 32768 average 639,845 and games that stop at 16384 average 356,619.
 - **Still one seed**, and the finishers and expected backups have not been tried on this base: the finishers need a code change to accept the small-tile tables.
 
+**Finishers on B2 (27 November).** Both finishers were fitted on the 7.0M network with the 8 tuples' settings (40,000 attempts each), without the work-area table: each window now has its own copy of the small-tile tables, and the first of those reads the same 8 cells. Over the same 50,000 paired games:
+
+| Player | Avg score | ≥16384 | ≥32768 | 16384→32768 | Minus the base played the same way (± 1 se) |
+|---|---|---|---|---|---|
+| Small-tile 7.0M | 370,749 | 84.0% | 22.8% | 27.1% | — |
+| + 32768 finisher | 373,422 | 84.0% | 24.3% | 29.0% | +2,673 ± 285 |
+| + 16384 finisher | 371,952 | 84.6% | 22.9% | 27.0% | +1,203 ± 694 |
+| + both | 374,998 | 84.6% | 24.4% | 28.9% | +4,249 ± 705 |
+| Small-tile 7.0M, repeated halving | 386,652 | 84.0% | 22.8% | 27.1% | — |
+| + 32768 finisher, repeated halving | 390,878 | 84.0% | 24.3% | 29.0% | +4,226 ± 429 |
+| **+ both, repeated halving** | **392,364** | 84.6% | 24.4% | 28.9% | +5,712 ± 892 |
+
+- **The finishers add about half what they added to the 8 tuples** (+5.7k here, +13.3k there with repeated halving). From the 32768 window's edge this base already makes the tile in 65.4% of attempts against its depth-8 search's 73.3%; the 8 tuples' gap was 49.4% against 68.1%. The finisher closes about half of the smaller gap (69.4%).
+- **392,364 is the best greedy player so far**, 7.6k short of 400k. With repeated halving the 16384 finisher adds +1,486 ± 897 to the 32768 finisher.
+- Patches: `checkpoints/ntuple/finisher-small-7m/m64-d8-r0.01-natural-mistakes.npz` and `checkpoints/ntuple/finisher-small-7m-16384/m1024-d3-r0.01-natural-mistakes-rollout10.npz`.
+
 B2 and B3 run whether or not B1 passes: tuple count, tuple size and small-tile tables are separate questions. If B1 to B4 all fail, the base is at its ceiling for this design.
 
 ### Track C: the late game on the final base
