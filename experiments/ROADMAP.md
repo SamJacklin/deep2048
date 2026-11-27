@@ -228,6 +228,23 @@ A4 goes into the final base's last phase, with expected backups. A3 and A5 don't
 - **392,364 is the best greedy player so far**, 7.6k short of 400k. With repeated halving the 16384 finisher adds +1,486 ± 897 to the 32768 finisher.
 - Patches: `checkpoints/ntuple/finisher-small-7m/m64-d8-r0.01-natural-mistakes.npz` and `checkpoints/ntuple/finisher-small-7m-16384/m1024-d3-r0.01-natural-mistakes-rollout10.npz`.
 
+**Where B2 still loses, and what wider small-tile reads would see (27 November).** Two measurements on the 7.0M network, no training. Chain survival: 64,000 greedy continuations from 2,000 arrival positions ([arrival-test-small-7m/report.md](arrival-test-small-7m/report.md)), against the 8 tuples at 6.4M. Strip count: every legal move of 2,000 greedy games, 27.6M decisions ([overflow-count-small-7m/report.md](overflow-count-small-7m/report.md)); each position has 16 strip reads (8 symmetries, top two rows and middle two rows), and a read counts by how many of its 8 cells hold a tile above 128. The small-tile tables read the strips with none.
+
+| From a well-placed arrival, chain ran to at least | 8 tuples 6.4M | Small-tile 7.0M | Step survival, small-tile | Reads a position while on this step: none above 128 | exactly one | exactly two |
+|---|---|---|---|---|---|---|
+| 2048 (arrival) | 100% | 100% | — | 2.28 | 1.73 | 6.41 |
+| 1024 | 91.1% | 92.9% | 92.9% | 1.51 | 1.70 | 5.45 |
+| 512 | 78.7% | 82.8% | 89.1% | 1.49 | 0.21 | 4.76 |
+| 256 | 69.3% | 74.9% | 90.5% | 1.43 | 0.18 | 0.21 |
+| 128 | 60.6% | 67.1% | 89.6% | 1.41 | 0.25 | 0.22 |
+| a 32768 | 29.4% | 42.7% | 63.6% | — | — | — |
+
+- **The small-tile tables helped every step, most of all the last** (49% to 64%); the four steps before it each gained 2 to 3 points.
+- **Of 100 well-placed arrivals, 57 fail:** 17 in the first two steps, 16 in the next two, 24 in the last. Before the arrival, about 31% of games that make a 16384 end without reaching it (27.1% conversion over 39.1% from an arrival; an estimate across two sets of games).
+- **Strips with one large tile** add about 2 reads a position up to a chain of five tiles, then almost none. **Strips with two** add 5 to 7 reads a position up to a chain of six, then almost none: they are mostly the strips that cross the chain. Over the whole 16384 stage a position has 4.1 reads with none, 2.1 with one and 6.5 with two.
+- **Neither reaches the last two steps**, where 32 of the 57 failures happen: with seven or more large tiles only the free half of the board has fewer than three, and it is already read (about 71% of positions; in the rest it holds a large tile of its own, and a single-overflow read covers about 4 in 10 of those).
+- The count says where the reads would be, not that they would help. Nothing here was trained.
+
 B2 and B3 run whether or not B1 passes: tuple count, tuple size and small-tile tables are separate questions. If B1 to B4 all fail, the base is at its ceiling for this design.
 
 ### Track C: the late game on the final base
